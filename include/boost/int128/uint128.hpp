@@ -5,4 +5,12 @@
 #ifndef BOOST_INT128_UINT128_HPP
 #define BOOST_INT128_UINT128_HPP
 
+#include <boost/int128/detail/config.hpp>
+
+namespace boost {
+namespace int128 {
+
+} // namespace int128
+} // namespace boost
+
 #endif //BOOST_INT128_UINT128_HPP
