@@ -2,7 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#include <boost/int128/int128.hpp>
+#include <boost/int128/detail/int128.hpp>
+#include <boost/int128/detail/conversions.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <cstring>
 #include <cstdint>
