@@ -6,9 +6,27 @@
 #define BOOST_INT128_UINT128_HPP
 
 #include <boost/int128/detail/config.hpp>
+#include <cstdint>
 
 namespace boost {
 namespace int128 {
+
+struct
+    #ifdef BOOST_INT128_HAS_INT128
+    alignas(alignof(__int128))
+    #else
+    alignas(16)
+    #endif
+uint128_t
+{
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
+    std::uint64_t low {};
+    std::int64_t high {};
+    #else
+    std::int64_t high {};
+    std::uint64_t low {};
+    #endif
+};
 
 } // namespace int128
 } // namespace boost

@@ -6,6 +6,7 @@
 #define BOOST_INT128_INT128_HPP
 
 #include <boost/int128/detail/config.hpp>
+#include <boost/int128/detail/fwd.hpp>
 #include <cstdint>
 
 namespace boost {
@@ -35,8 +36,33 @@ int128_t
     constexpr int128_t& operator=(int128_t&& other) noexcept = default;
     constexpr ~int128_t() noexcept = default;
 
-    // Direct construction of the number
-    constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept : low{lo}, high{hi} {}
+    #ifdef BOOST_INT128_ENDIAN_LITTLE_BYTE
+
+    constexpr int128_t(std::int64_t high_, std::uint64_t low_) noexcept : low {low_}, high {high_} {}
+    constexpr int128_t(const uint128_t& v) noexcept;
+    explicit constexpr int128_t(std::uint64_t v) noexcept : low {v}, high {} {}
+    explicit constexpr int128_t(std::uint32_t v) noexcept : low {v}, high {} {}
+    explicit constexpr int128_t(std::uint16_t v) noexcept : low {v}, high {} {}
+    explicit constexpr int128_t(std::uint8_t v) noexcept : low {v}, high {} {}
+    explicit constexpr int128_t(std::int64_t v) noexcept : low{static_cast<std::uint64_t>(v)}, high{v < 0 ? -1 : 0} {}
+    explicit constexpr int128_t(std::int32_t v) noexcept : low{static_cast<std::uint64_t>(v)}, high{v < 0 ? -1 : 0} {}
+    explicit constexpr int128_t(std::int16_t v) noexcept : low{static_cast<std::uint64_t>(v)}, high{v < 0 ? -1 : 0} {}
+    explicit constexpr int128_t(std::int8_t v) noexcept : low{static_cast<std::uint64_t>(v)}, high{v < 0 ? -1 : 0} {}
+
+    #else
+
+    constexpr int128_t(std::int64_t high_, std::uint64_t low_) noexcept : high {high_}, low {low_} {}
+    constexpr int128_t(const int128_t& v) noexcept;
+    explicit constexpr int128_t(std::uint64_t v) noexcept : high {}, low {v} {}
+    explicit constexpr int128_t(std::uint32_t v) noexcept : high {}, low {v} {}
+    explicit constexpr int128_t(std::uint16_t v) noexcept : high {}, low {v} {}
+    explicit constexpr int128_t(std::uint8_t v) noexcept : high {}, low {v} {}
+    explicit constexpr int128_t(std::int64_t v) noexcept : high{v < 0 ? -1 : 0}, low{static_cast<std::uint64_t>(v)} {}
+    explicit constexpr int128_t(std::int32_t v) noexcept : high{v < 0 ? -1 : 0}, low{static_cast<std::uint64_t>(v)} {}
+    explicit constexpr int128_t(std::int16_t v) noexcept : high{v < 0 ? -1 : 0}, low{static_cast<std::uint64_t>(v)} {}
+    explicit constexpr int128_t(std::int8_t v) noexcept : high{v < 0 ? -1 : 0}, low{static_cast<std::uint64_t>(v)} {}
+
+    #endif
 
 };
 
