@@ -40,12 +40,12 @@ int128_t
     constexpr int128_t(const uint128_t& v) noexcept;
 
     // Construct from integral types
-    #ifdef BOOST_INT128_ENDIAN_LITTLE_BYTE
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-    template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     constexpr int128_t(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? -1 : 0} {}
 
-    template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
     constexpr int128_t(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
 
     #ifdef BOOST_INT128_HAS_INT128
@@ -57,10 +57,10 @@ int128_t
 
     #else // Big endian
 
-    template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     constexpr int128_t(const SignedInteger v) noexcept : high{v < 0 ? -1 : 0}, low{static_cast<std::uint64_t>(v)} {}
 
-    template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
     constexpr int128_t(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
 
     #ifdef BOOST_INT128_HAS_INT128

@@ -49,11 +49,15 @@ concept unsigned_integer = unsigned_integer<T>::value;
 
 #define BOOST_INT128_SIGNED_INTEGER_CONCEPT signed_integer SignedInteger
 #define BOOST_INT128_UNSIGNED_INTEGER_CONCEPT unsigned_integer UnsignedInteger
+#define BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT BOOST_INT128_SIGNED_INTEGER_CONCEPT
+#define BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT BOOST_INT128_UNSIGNED_INTEGER_CONCEPT
 
 #else
 
-#define BOOST_INT128_SIGNED_INTEGER_CONCEPT typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger>, bool> = true
-#define BOOST_INT128_UNSIGNED_INTEGER_CONCEPT typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger>, bool> = true
+#define BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger>, bool> = true
+#define BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger>, bool> = true
+#define BOOST_INT128_SIGNED_INTEGER_CONCEPT typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger>, bool>
+#define BOOST_INT128_UNSIGNED_INTEGER_CONCEPT typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger>, bool>
 
 #endif
 
