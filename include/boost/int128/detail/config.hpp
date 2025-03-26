@@ -27,4 +27,12 @@
 
 #endif // Determine endianness
 
+// Determine if we can use concepts
+#if (__cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)) &&\
+    (!defined(__GNUC__) || __GNUC__ != 11) && __has_include(<concepts>)
+
+#define BOOST_INT128_HAS_CONCEPTS
+
+#endif
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
