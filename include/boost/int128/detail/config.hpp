@@ -10,4 +10,21 @@
 #define BOOST_INT128_HAS_INT128
 #endif
 
+// Determine endianness
+#if defined(_WIN32)
+
+#define BOOST_INT128_ENDIAN_BIG_BYTE 0
+#define BOOST_INT128_ENDIAN_LITTLE_BYTE 1
+
+#elif defined(__BYTE_ORDER__)
+
+#define BOOST_INT128_ENDIAN_BIG_BYTE (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define BOOST_INT128_ENDIAN_LITTLE_BYTE (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+
+#else
+
+#error Could not determine endian type. Please file an issue at https://github.com/cppalliance/decimal with your architecture
+
+#endif // Determine endianness
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
