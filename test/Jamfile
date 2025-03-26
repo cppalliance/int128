@@ -41,3 +41,4 @@ project : requirements
   ;
 
 run test_u128.cpp ;
+run test_i128.cpp ;
