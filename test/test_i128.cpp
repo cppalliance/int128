@@ -111,12 +111,34 @@ void test_arithmetic_constructor()
     }
 }
 
+template <typename IntType>
+void test_assignment_operators()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        __int128 builtin_value;
+        builtin_value = static_cast<__int128>(value);
+        boost::int128::int128_t emulated_value {};
+        emulated_value = value;
+
+        __int128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+
+        BOOST_TEST(emulated_bits == builtin_value);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
     void operator()(T) const
     {
         test_arithmetic_constructor<T>();
+        test_assignment_operators<T>();
     }
 };
 
