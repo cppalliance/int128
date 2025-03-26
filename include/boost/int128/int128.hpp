@@ -34,6 +34,10 @@ int128_t
     constexpr int128_t& operator=(const int128_t& other) noexcept = default;
     constexpr int128_t& operator=(int128_t&& other) noexcept = default;
     constexpr ~int128_t() noexcept = default;
+
+    // Direct construction of the number
+    constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept : low{lo}, high{hi} {}
+
 };
 
 } // namespace int128
