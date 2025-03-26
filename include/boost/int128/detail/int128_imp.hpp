@@ -71,6 +71,23 @@ int128_t
     #endif // BOOST_INT128_HAS_INT128
 
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
+
+    // Integer Conversion operators
+    constexpr operator bool() const noexcept { return low || high; }
+
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    explicit constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
+
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    explicit constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(high); }
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    explicit constexpr operator __int128() const noexcept { return (static_cast<__int128>(high) << 64) | low; }
+
+    explicit constexpr operator unsigned __int128() const noexcept { return (static_cast<unsigned __int128>(high) << 64) | low; }
+
+    #endif // BOOST_INT128_HAS_INT128
 };
 
 } // namespace int128
