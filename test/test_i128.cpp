@@ -5,6 +5,7 @@
 #include <boost/int128/detail/int128_imp.hpp>
 #include <boost/int128/detail/conversions.hpp>
 #include <boost/core/lightweight_test.hpp>
+#include <boost/mp11.hpp>
 #include <cstring>
 #include <cstdint>
 #include <random>
@@ -110,9 +111,40 @@ void test_arithmetic_constructor()
     }
 }
 
+struct test_caller
+{
+    template<typename T>
+    void operator()(T) const
+    {
+        test_arithmetic_constructor<T>();
+    }
+};
+
 int main()
 {
-    return 0;
+    using test_types = boost::mp11::mp_list<
+        char,
+        unsigned char,
+        char16_t,
+        char32_t,
+        wchar_t,
+        short,
+        unsigned short,
+        int,
+        unsigned int,
+        long,
+        unsigned long,
+        long long,
+        unsigned long long
+        #ifdef BOOST_INT128_HAS_INT128
+        ,__int128,
+        unsigned __int128
+        #endif
+    >;
+
+    boost::mp11::mp_for_each<test_types>(test_caller());
+
+    return boost::report_errors();
 }
 
 #else
