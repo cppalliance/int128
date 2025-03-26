@@ -5,8 +5,8 @@
 #ifndef BOOST_INT128_CONVERSIONS_HPP
 #define BOOST_INT128_CONVERSIONS_HPP
 
-#include <boost/int128/int128.hpp>
-#include <boost/int128/uint128.hpp>
+#include <boost/int128/detail/int128_imp.hpp>
+#include <boost/int128/detail/uint128_imp.hpp>
 
 namespace boost {
 namespace int128 {
