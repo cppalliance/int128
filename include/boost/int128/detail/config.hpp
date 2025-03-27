@@ -17,8 +17,8 @@ namespace detail {
 // Avoids pedantic warnings
 #ifdef __GNUC__
 
-__extension__ typedef __int128 builtin_i128;
-__extension__ typedef unsigned __int128 builtin_u128;
+__extension__ using builtin_i128 = __int128 ;
+__extension__ using builtin_u128 = unsigned __int128 ;
 
 #else
 
