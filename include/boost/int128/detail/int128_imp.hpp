@@ -51,8 +51,8 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    constexpr int128_t(const __int128 v) noexcept : low {static_cast<std::uint64_t>(v & 0xFFFFFFFFFFFFFFFFULL)}, high {static_cast<std::int64_t>(v >> 64U)} {}
-    constexpr int128_t(const unsigned __int128 v) noexcept : low {static_cast<std::uint64_t>(v & 0xFFFFFFFFFFFFFFFFULL)}, high {static_cast<std::int64_t>(v >> 64U)} {}
+    constexpr int128_t(const __int128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
+    constexpr int128_t(const unsigned __int128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -66,8 +66,8 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    constexpr int128_t(const __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & 0xFFFFFFFFFFFFFFFFULL)} {}
-    constexpr int128_t(const unsigned __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & 0xFFFFFFFFFFFFFFFFULL)} {}
+    constexpr int128_t(const __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
+    constexpr int128_t(const unsigned __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
