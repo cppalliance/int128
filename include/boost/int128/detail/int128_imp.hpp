@@ -104,17 +104,17 @@ int128_t
 
 constexpr int128_t::operator float() const noexcept
 {
-    return static_cast<float>(high) * detail::offset_value_v<float> * static_cast<float>(low);
+    return static_cast<float>(high) * detail::offset_value_v<float> + static_cast<float>(low);
 }
 
 constexpr int128_t::operator double() const noexcept
 {
-    return static_cast<double>(high) * detail::offset_value_v<double> * static_cast<double>(low);
+    return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
 }
 
 constexpr int128_t::operator long double() const noexcept
 {
-    return static_cast<long double>(high) * detail::offset_value_v<long double> * static_cast<long double>(low);
+    return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
 }
 
 
