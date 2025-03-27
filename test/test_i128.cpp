@@ -431,8 +431,22 @@ void test_operator_or()
         auto check_1_value {emulated_value};
         check_1_value |= value2;
 
-        BOOST_TEST(check_1_value == (builtin_value | value2));
-        BOOST_TEST((value2 | emulated_value) == (value2 | builtin_value));
+        if (!std::is_same<IntType, builtin_u128>::value)
+        {
+            BOOST_TEST(check_1_value == (builtin_value | value2));
+            BOOST_TEST((value2 | emulated_value) == (value2 | builtin_value));
+        }
+        else
+        {
+            builtin_u128 emulated_checkpoint;
+            std::memcpy(&emulated_checkpoint, &check_1_value, sizeof(emulated_checkpoint));
+
+            builtin_u128 builtin_checkpoint;
+            builtin_value |= value2;
+            std::memcpy(&builtin_checkpoint, &builtin_value, sizeof(builtin_checkpoint));
+
+            BOOST_TEST(emulated_checkpoint == builtin_checkpoint);
+        }
     }
 }
 
