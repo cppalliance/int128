@@ -216,6 +216,48 @@ void test_float_conversion_operators()
     }
 }
 
+template <typename IntType>
+void test_unary_plus()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_value = +builtin_value;
+        boost::int128::int128_t emulated_value {value};
+        emulated_value = +emulated_value;
+
+        __int128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+
+        BOOST_TEST(emulated_bits == builtin_value);
+    }
+}
+
+template <typename IntType>
+void test_unary_minus()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_value = -builtin_value;
+        boost::int128::int128_t emulated_value {value};
+        emulated_value = -emulated_value;
+
+        __int128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+
+        BOOST_TEST(emulated_bits == builtin_value);
+    }
+}
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -228,6 +270,8 @@ struct test_caller
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
         test_integer_conversion_operators<T>();
+        test_unary_plus<T>();
+        test_unary_minus<T>();
     }
 };
 
