@@ -8,6 +8,7 @@
 #include <boost/int128/detail/fwd.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/traits.hpp>
+#include <boost/int128/detail/constants.hpp>
 #include <cstdint>
 
 namespace boost {
@@ -79,7 +80,7 @@ int128_t
     explicit constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    explicit constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(high); }
+    explicit constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
 
     #ifdef BOOST_INT128_HAS_INT128
 
@@ -88,7 +89,31 @@ int128_t
     explicit constexpr operator unsigned __int128() const noexcept { return (static_cast<unsigned __int128>(high) << 64) | low; }
 
     #endif // BOOST_INT128_HAS_INT128
+
+    // Conversion to float
+    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
+    // but can be constexpr at C++11 instead of C++26
+    explicit constexpr operator float() const noexcept;
+    explicit constexpr operator double() const noexcept;
+    explicit constexpr operator long double() const noexcept;
 };
+
+constexpr int128_t::operator float() const noexcept
+{
+    return static_cast<float>(high) * detail::offset_value_v<float> * static_cast<float>(low);
+}
+
+constexpr int128_t::operator double() const noexcept
+{
+    return static_cast<double>(high) * detail::offset_value_v<double> * static_cast<double>(low);
+}
+
+constexpr int128_t::operator long double() const noexcept
+{
+    return static_cast<long double>(high) * detail::offset_value_v<long double> * static_cast<long double>(low);
+}
+
+
 
 } // namespace int128
 } // namespace boost
