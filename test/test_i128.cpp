@@ -66,30 +66,33 @@ constexpr std::size_t N = 1024;
 
 #ifdef BOOST_INT128_HAS_INT128
 
+using boost::int128::detail::builtin_u128;
+using boost::int128::detail::builtin_i128;
+
 // We reduce the max end of the 128 bit types as they can cause a stack overflow in boost.random
 
 template <>
-constexpr unsigned __int128 get_max<unsigned __int128>()
+constexpr builtin_u128 get_max<builtin_u128>()
 {
-    return static_cast<unsigned __int128>(UINT64_MAX) << 64 | UINT64_MAX / 32;
+    return static_cast<builtin_u128>(UINT64_MAX) << 64 | UINT64_MAX / 32;
 }
 
 template <>
-constexpr unsigned __int128 get_min<unsigned __int128>()
+constexpr builtin_u128 get_min<builtin_u128>()
 {
     return 0;
 }
 
 template <>
-constexpr __int128 get_max<__int128>()
+constexpr builtin_i128 get_max<builtin_i128>()
 {
-    return static_cast<__int128>((static_cast<unsigned __int128>(1) << 127) - 1) / 32;
+    return static_cast<builtin_i128>((static_cast<builtin_u128>(1) << 127) - 1) / 32;
 }
 
 template <>
-constexpr __int128 get_min<__int128>()
+constexpr builtin_i128 get_min<builtin_i128>()
 {
-    return -get_max<__int128>() - 1;
+    return -get_max<builtin_i128>() - 1;
 }
 
 template <typename IntType>
@@ -101,11 +104,11 @@ void test_arithmetic_constructor()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
-        __int128 emulated_bits;
-        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+        builtin_i128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_i128));
 
         BOOST_TEST(emulated_bits == builtin_value);
     }
@@ -120,13 +123,13 @@ void test_assignment_operators()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value;
-        builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value;
+        builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {};
         emulated_value = value;
 
-        __int128 emulated_bits;
-        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+        builtin_i128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_i128));
 
         BOOST_TEST(emulated_bits == builtin_value);
     }
@@ -141,8 +144,8 @@ void test_integer_conversion_operators()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value;
-        builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value;
+        builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {};
         emulated_value = value;
 
@@ -181,8 +184,8 @@ void test_float_conversion_operators()
                                                                         std::numeric_limits<std::uint32_t>::max());
 
             const auto value {dist(rng)};
-            __int128 builtin_value;
-            builtin_value = static_cast<__int128>(value) << 64 | static_cast<__int128>(value);
+            builtin_i128 builtin_value;
+            builtin_value = static_cast<builtin_i128>(value) << 64 | static_cast<builtin_i128>(value);
             boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), value};
 
             // Converts the value and then normalizes the range
@@ -200,7 +203,7 @@ void test_float_conversion_operators()
                                                                         std::numeric_limits<std::uint64_t>::max());
 
             const auto value {dist(rng)};
-            unsigned __int128 builtin_value;
+            builtin_u128 builtin_value;
             builtin_value = value;
             boost::int128::int128_t emulated_value {};
             emulated_value = value;
@@ -225,13 +228,13 @@ void test_unary_plus()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         builtin_value = +builtin_value;
         boost::int128::int128_t emulated_value {value};
         emulated_value = +emulated_value;
 
-        __int128 emulated_bits;
-        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+        builtin_i128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_i128));
 
         BOOST_TEST(emulated_bits == builtin_value);
     }
@@ -246,13 +249,13 @@ void test_unary_minus()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         builtin_value = -builtin_value;
         boost::int128::int128_t emulated_value {value};
         emulated_value = -emulated_value;
 
-        __int128 emulated_bits;
-        std::memcpy(&emulated_bits, &emulated_value, sizeof(__int128));
+        builtin_i128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_i128));
 
         BOOST_TEST(emulated_bits == builtin_value);
     }
@@ -268,7 +271,7 @@ void test_operator_equality()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
         BOOST_TEST(((value == emulated_value) == (emulated_value == value)) ==
@@ -280,7 +283,7 @@ void test_operator_equality()
     {
         const IntType value {dist(rng)};
         const IntType value2 {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
         BOOST_TEST(((value2 == emulated_value) == (emulated_value == value2)) ==
@@ -301,7 +304,7 @@ void test_operator_inequality()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
         BOOST_TEST(((value != emulated_value) == (emulated_value != value)) ==
@@ -313,7 +316,7 @@ void test_operator_inequality()
     {
         const IntType value {dist(rng)};
         const IntType value2 {dist(rng)};
-        __int128 builtin_value = static_cast<__int128>(value);
+        builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
         BOOST_TEST(((value2 != emulated_value) == (emulated_value != value2)) ==
@@ -359,8 +362,8 @@ int main()
         unsigned long,
         long long,
         unsigned long long,
-        __int128,
-        unsigned __int128
+        builtin_i128,
+        builtin_u128
     >;
 
     boost::mp11::mp_for_each<test_types>(test_caller());
