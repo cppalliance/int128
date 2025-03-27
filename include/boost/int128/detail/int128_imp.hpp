@@ -543,6 +543,15 @@ constexpr bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) no
 
 #endif // BOOST_INT128_HAS_INT128
 
+//=====================================
+// Not Operator
+//=====================================
+
+constexpr int128_t operator~(const int128_t rhs) noexcept
+{
+    return {~rhs.high, ~rhs.low};
+}
+
 #if defined(__clang__)
 #  pragma clang diagnostic pop
 #elif defined(__GNUC__)
