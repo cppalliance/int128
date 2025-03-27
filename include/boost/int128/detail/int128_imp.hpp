@@ -16,7 +16,7 @@ namespace int128 {
 
 struct
     #ifdef BOOST_INT128_HAS_INT128
-    alignas(alignof(__int128))
+    alignas(alignof(detail::builtin_i128))
     #else
     alignas(16)
     #endif
@@ -53,8 +53,8 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    constexpr int128_t(const __int128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
-    constexpr int128_t(const unsigned __int128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
+    constexpr int128_t(const detail::builtin_i128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
+    constexpr int128_t(const detail::builtin_u128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -70,8 +70,8 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    constexpr int128_t(const __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
-    constexpr int128_t(const unsigned __int128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
+    constexpr int128_t(const detail::builtin_i128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
+    constexpr int128_t(const detail::builtin_u128 v) noexcept : high {static_cast<std::int64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -88,9 +88,9 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    explicit constexpr operator __int128() const noexcept { return (static_cast<__int128>(high) << 64) | low; }
+    explicit constexpr operator detail::builtin_i128() const noexcept { return (static_cast<detail::builtin_i128>(high) << 64) | low; }
 
-    explicit constexpr operator unsigned __int128() const noexcept { return (static_cast<unsigned __int128>(high) << 64) | low; }
+    explicit constexpr operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -189,26 +189,26 @@ constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcep
 
 #ifdef BOOST_INT128_HAS_INT128
 
-constexpr bool operator==(const int128_t lhs, const __int128 rhs) noexcept
+constexpr bool operator==(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
            lhs.high == static_cast<std::int64_t>(rhs >> 64);
 }
 
-constexpr bool operator==(const __int128 lhs, const int128_t rhs) noexcept
+constexpr bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
            rhs.high == static_cast<std::int64_t>(lhs >> 64);
 }
 
-constexpr bool operator==(const int128_t lhs, const unsigned __int128 rhs) noexcept
+constexpr bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
     return lhs.high < 0 ? false :
            lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
            lhs.high == static_cast<std::int64_t>(rhs >> 64);
 }
 
-constexpr bool operator==(const unsigned __int128 lhs, const int128_t rhs) noexcept
+constexpr bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
     return rhs.high < 0 ? false :
            rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&

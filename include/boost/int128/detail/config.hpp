@@ -7,7 +7,30 @@
 
 // Use 128-bit integers
 #if defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER))
+
 #define BOOST_INT128_HAS_INT128
+
+namespace boost {
+namespace int128 {
+namespace detail {
+
+// Avoids pedantic warnings
+#ifdef __GNUC__
+
+__extension__ typedef __int128 builtin_i128;
+__extension__ typedef unsigned __int128 builtin_u128;
+
+#else
+
+using builtin_i128 = __int128 ;
+using builtin_u128 = unsigned __int128;
+
+#endif
+
+} // namespace detail
+} // namespace int128
+} // namespace boost
+
 #endif
 
 // Determine endianness

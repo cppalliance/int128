@@ -13,7 +13,7 @@ namespace int128 {
 
 struct
     #ifdef BOOST_INT128_HAS_INT128
-    alignas(alignof(__int128))
+    alignas(alignof(detail::builtin_u128))
     #else
     alignas(16)
     #endif
