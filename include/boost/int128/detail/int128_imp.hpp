@@ -141,6 +141,88 @@ constexpr int128_t operator-(const int128_t value) noexcept
                               int128_t{~value.high, ~value.low + 1};
 }
 
+//=====================================
+// Equality Operators
+//=====================================
+
+constexpr bool operator==(const int128_t lhs, const bool rhs) noexcept
+{
+    return lhs.high == 0 && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+constexpr bool operator==(const bool lhs, const int128_t rhs) noexcept
+{
+    return rhs.high == 0 && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wsign-conversion"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    return lhs.high == (rhs < 0 ? -1 : 0) && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    return rhs.high == (lhs < 0 ? -1 : 0) && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return lhs.high == 0 && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    return rhs.high == 0 && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr bool operator==(const int128_t lhs, const __int128 rhs) noexcept
+{
+    return lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
+           lhs.high == static_cast<std::int64_t>(rhs >> 64);
+}
+
+constexpr bool operator==(const __int128 lhs, const int128_t rhs) noexcept
+{
+    return rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
+           rhs.high == static_cast<std::int64_t>(lhs >> 64);
+}
+
+constexpr bool operator==(const int128_t lhs, const unsigned __int128 rhs) noexcept
+{
+    return lhs.high < 0 ? false :
+           lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
+           lhs.high == static_cast<std::int64_t>(rhs >> 64);
+}
+
+constexpr bool operator==(const unsigned __int128 lhs, const int128_t rhs) noexcept
+{
+    return rhs.high < 0 ? false :
+           rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
+           rhs.high == static_cast<std::int64_t>(lhs >> 64);
+}
+
+#endif
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+
 } // namespace int128
 } // namespace boost
 
