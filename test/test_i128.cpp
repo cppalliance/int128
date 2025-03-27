@@ -363,6 +363,24 @@ void test_operator_greater()
     }
 }
 
+template <typename IntType>
+void test_operator_le()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_i128>(value);
+        boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value2 <= emulated_value) == (value2 <= builtin_value)) ==
+                   ((emulated_value <= value2) == (builtin_value <= value2)));
+    }
+}
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -380,6 +398,8 @@ struct test_caller
         test_operator_equality<T>();
         test_operator_inequality<T>();
         test_operator_less<T>();
+        test_operator_greater<T>();
+        test_operator_le<T>();
     }
 };
 
