@@ -100,6 +100,12 @@ int128_t
     explicit constexpr operator float() const noexcept;
     explicit constexpr operator double() const noexcept;
     explicit constexpr operator long double() const noexcept;
+
+    // Compound Or
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator|=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator|=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -550,6 +556,80 @@ constexpr bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) no
 constexpr int128_t operator~(const int128_t rhs) noexcept
 {
     return {~rhs.high, ~rhs.low};
+}
+
+//=====================================
+// Or Operator
+//=====================================
+
+constexpr int128_t operator|(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return {lhs.high | rhs.high, lhs.low | rhs.low};
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator|(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    return {lhs.high | (rhs < 0 ? -1 : 0), lhs.low | static_cast<std::uint64_t>(rhs)};
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator|(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    return {rhs.high | (lhs < 0 ? -1 : 0), static_cast<std::uint64_t>(lhs) | rhs.low};
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator|(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return {lhs.high, lhs.low | static_cast<std::uint64_t>(rhs)};
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator|(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    return {rhs.high, static_cast<std::uint64_t>(lhs) | rhs.low};
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator|(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs | static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator|(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) | rhs;
+}
+
+constexpr int128_t operator|(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs | static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator|(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) | rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
+//=====================================
+// Compound OR Operator
+//=====================================
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator|=(Integer rhs) noexcept
+{
+    *this = *this | rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator|=(int128_t rhs) noexcept
+{
+    *this = *this | rhs;
+    return *this;
 }
 
 #if defined(__clang__)
