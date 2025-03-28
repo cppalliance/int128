@@ -515,6 +515,44 @@ void test_operator_xor()
     }
 }
 
+template <typename IntType>
+void test_operator_left_shift()
+{
+    boost::random::uniform_int_distribution<IntType> dist(static_cast<IntType>(0),
+                                                          get_max<IntType>());
+
+    boost::random::uniform_int_distribution<unsigned> shift_dist(0, sizeof(IntType) * CHAR_BIT - 1);
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const unsigned shift_value {shift_dist(rng)};
+        auto builtin_value = static_cast<builtin_i128>(value);
+        boost::int128::int128_t emulated_value {value};
+
+        // Test 1: Test the <<= operator
+        auto builtin_copy = builtin_value;
+        auto emulated_copy = emulated_value;
+
+        builtin_copy <<= shift_value;
+        emulated_copy <<= shift_value;
+
+        BOOST_TEST(emulated_copy == builtin_copy);
+
+        // Test 2: Test the binary << operator
+        auto shifted_builtin = builtin_value << shift_value;
+        auto shifted_emulated = emulated_value << shift_value;
+
+        BOOST_TEST(shifted_emulated == shifted_builtin);
+
+        // Test 3: Test with IntType as left operand and int128 variants as right operand
+        auto int_shift_builtin = value << static_cast<unsigned>(builtin_value);
+        auto int_shift_emulated = value << static_cast<unsigned>(emulated_value);
+
+        BOOST_TEST(int_shift_emulated == int_shift_builtin);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -535,6 +573,7 @@ struct test_caller
         test_operator_or<T>();
         test_operator_and<T>();
         test_operator_xor<T>();
+        test_operator_left_shift<T>();
     }
 };
 
