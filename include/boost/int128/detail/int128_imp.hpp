@@ -118,6 +118,10 @@ int128_t
     constexpr int128_t& operator^=(Integer rhs) noexcept;
 
     constexpr int128_t& operator^=(int128_t rhs) noexcept;
+
+    // Compound Left Shift
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator<<=(Integer rhs) noexcept;
 };
 
 //=====================================
@@ -789,6 +793,50 @@ constexpr int128_t& int128_t::operator^=(Integer rhs) noexcept
 constexpr int128_t& int128_t::operator^=(int128_t rhs) noexcept
 {
     *this = *this ^ rhs;
+    return *this;
+}
+
+//=====================================
+// Left Shift Operator
+//=====================================
+
+template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+{
+    if (rhs < 0 || rhs >= 128)
+    {
+        return {0, 0};
+    }
+
+    if (rhs == 0)
+    {
+        return lhs;
+    }
+
+    if (rhs == 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low), 0};
+    }
+
+    if (rhs > 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
+    }
+
+    // For shifts < 64
+    std::uint64_t high_part = (static_cast<std::uint64_t>(lhs.high) << rhs) |
+                              (lhs.low >> (64 - rhs));
+
+    return {
+        static_cast<std::int64_t>(high_part),
+        lhs.low << rhs
+    };
+}
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator<<=(Integer rhs) noexcept
+{
+    *this = *this << rhs;
     return *this;
 }
 
