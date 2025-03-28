@@ -906,7 +906,7 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
 {
     if (rhs < 0 || rhs >= 128)
     {
-        return {0, 0};
+        return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
     }
 
     if (rhs == 0)
@@ -916,17 +916,18 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
 
     if (rhs == 64)
     {
-        return {0, static_cast<std::uint64_t>(lhs.high)};
+        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high)};
     }
 
     if (rhs > 64)
     {
-        return {0, static_cast<std::uint64_t>(lhs.high >> (rhs - 64))};
+        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high >> (rhs - 64))};
     }
 
     // For shifts < 64
-    std::uint64_t low_part = (static_cast<std::uint64_t>(lhs.high) >> rhs) |
-                              (lhs.low >> (64 - rhs));
+    const auto high_to_low {static_cast<std::uint64_t>(lhs.high) << (64 - rhs)};
+    const auto low_shifted {lhs.low >> rhs};
+    const auto low_part {high_to_low | low_shifted};
 
     return {
         lhs.high >> rhs,

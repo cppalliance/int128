@@ -632,6 +632,7 @@ struct test_caller
         test_operator_and<T>();
         test_operator_xor<T>();
         test_operator_left_shift<T>();
+        test_operator_right_shift<T>();
         test_increment_operator();
     }
 };
