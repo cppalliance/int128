@@ -833,6 +833,45 @@ constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
     };
 }
 
+template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
+constexpr Integer operator<<(const Integer lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(Integer) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
+constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(SignedInteger) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return static_cast<int>(lhs) << rhs.low;
+}
+
+template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
+constexpr unsigned operator<<(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(UnsignedInteger) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return static_cast<unsigned>(lhs) << rhs.low;
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator<<=(Integer rhs) noexcept
 {
