@@ -611,6 +611,26 @@ void test_increment_operator()
     }
 }
 
+template <typename IntType>
+void test_operator_add()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_i128>(value);
+        boost::int128::int128_t emulated_value {value};
+
+        auto check_1_value {emulated_value};
+        check_1_value += value2;
+        BOOST_TEST(check_1_value == (builtin_value + value2));
+        BOOST_TEST((value2 + emulated_value) == (value2 + builtin_value));
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -634,6 +654,7 @@ struct test_caller
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
         test_increment_operator();
+        test_operator_add<T>();
     }
 };
 
