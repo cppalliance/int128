@@ -549,6 +549,9 @@ void test_operator_left_shift()
         auto int_shift_builtin = value << static_cast<unsigned>(builtin_value);
         auto int_shift_emulated = value << static_cast<unsigned>(emulated_value);
 
+        static_assert(std::is_same<decltype(int_shift_builtin),
+                                   decltype(int_shift_emulated)>::value, "Mismatched types");
+
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
     }
 }
