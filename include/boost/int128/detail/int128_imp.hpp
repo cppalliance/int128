@@ -130,6 +130,10 @@ int128_t
     constexpr int128_t& operator>>=(Integer rhs) noexcept;
 
     constexpr int128_t& operator>>=(int128_t rhs) noexcept;
+
+    // Prefix and postfix increment
+    constexpr int128_t& operator++() noexcept;
+    constexpr int128_t& operator++(int) noexcept;
 };
 
 //=====================================
@@ -979,6 +983,30 @@ constexpr int128_t& int128_t::operator>>=(const Integer rhs) noexcept
 constexpr int128_t& int128_t::operator>>=(const int128_t rhs) noexcept
 {
     *this = *this >> rhs;
+    return *this;
+}
+
+//=====================================
+// Increment Operators
+//=====================================
+
+constexpr int128_t& int128_t::operator++() noexcept
+{
+    if (++low == UINT64_C(0))
+    {
+        ++high;
+    }
+
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator++(int) noexcept
+{
+    if (++low == UINT64_C(0))
+    {
+        ++high;
+    }
+
     return *this;
 }
 
