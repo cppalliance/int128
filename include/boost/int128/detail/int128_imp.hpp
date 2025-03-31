@@ -198,9 +198,11 @@ constexpr bool operator==(const bool lhs, const int128_t rhs) noexcept
 #if defined(__clang__)
 #  pragma clang diagnostic push
 #  pragma clang diagnostic ignored "-Wsign-conversion"
+#  pragma clang diagnostic ignored "-Wsign-compare"
 #elif defined(__GNUC__)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
 constexpr bool operator==(const int128_t lhs, const int128_t rhs) noexcept
