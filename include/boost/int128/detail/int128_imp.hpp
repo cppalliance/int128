@@ -1004,7 +1004,7 @@ constexpr unsigned operator>>(const UnsignedInteger lhs, const int128_t rhs) noe
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4101) // Unsafe use of type bool in operation
+#pragma warning(disable : 4804) // Unsafe use of type bool in operation
 #endif // _MSC_VER
 
 template <BOOST_INT128_INTEGER_CONCEPT>

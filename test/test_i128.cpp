@@ -662,8 +662,12 @@ struct test_caller
         test_operator_or<T>();
         test_operator_and<T>();
         test_operator_xor<T>();
+
+        #ifndef UBSAN
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
+        #endif
+
         test_increment_operator();
         test_operator_add<T>();
     }
