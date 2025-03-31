@@ -22,7 +22,7 @@ struct
     #endif
 int128_t
 {
-    #ifdef BOOST_INT128_ENDIAN_LITTLE_BYTE
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
     std::uint64_t low {};
     std::int64_t high {};
     #else
