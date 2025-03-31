@@ -48,6 +48,7 @@ using namespace std::chrono_literals;
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
 #  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wduplicated-branches"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #  if __GNUC__ >= 11
 #    pragma GCC diagnostic ignored "-Wstringop-overread"
