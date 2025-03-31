@@ -11,7 +11,15 @@
 namespace boost {
 namespace int128 {
 
+#if BOOST_INT128_ENDIAN_LITTLE_BYTE
+
 constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {static_cast<std::int64_t>(v.high)} {}
+
+#else
+
+constexpr int128_t::int128_t(const uint128_t& v) noexcept : high {static_cast<std::int64_t>(v.high)}, low {v.low} {}
+
+#endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
 } // namespace int128
 } // namespace boost
