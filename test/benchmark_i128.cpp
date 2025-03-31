@@ -37,6 +37,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wfloat-equal"
 #  pragma clang diagnostic ignored "-Wold-style-cast"
 #  pragma clang diagnostic ignored "-Wdouble-promotion"
+#  pragma clang diagnostic ignored "-Wsign-conversion"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
 #  define BOOST_INT128_NO_INLINE __declspec(noinline)
@@ -45,6 +46,8 @@ using namespace std::chrono_literals;
 #  pragma GCC diagnostic ignored "-Wfloat-equal"
 #  pragma GCC diagnostic ignored "-Wdouble-promotion"
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wconversion"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #  if __GNUC__ >= 11
 #    pragma GCC diagnostic ignored "-Wstringop-overread"
