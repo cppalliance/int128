@@ -7,6 +7,6 @@ include(BoostTestJamfile OPTIONAL RESULT_VARIABLE HAVE_BOOST_TEST)
 
 if(HAVE_BOOST_TEST)
 
-    boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::math Boost::multiprecision Boost::random Boost::mp11)
+    boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::random Boost::mp11)
 
 endif()
