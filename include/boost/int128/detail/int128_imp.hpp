@@ -892,6 +892,11 @@ constexpr unsigned operator<<(const UnsignedInteger lhs, const int128_t rhs) noe
     return static_cast<unsigned>(lhs) << rhs.low;
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4101) // Unsafe use of type bool in operation
+#endif // _MSC_VER
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator<<=(const Integer rhs) noexcept
 {
@@ -904,6 +909,10 @@ constexpr int128_t& int128_t::operator<<=(const int128_t rhs) noexcept
     *this = *this << rhs;
     return *this;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif // _MSC_VER
 
 //=====================================
 // Right Shift Operator
@@ -982,6 +991,11 @@ constexpr unsigned operator>>(const UnsignedInteger lhs, const int128_t rhs) noe
     return static_cast<unsigned>(lhs) >> rhs.low;
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4101) // Unsafe use of type bool in operation
+#endif // _MSC_VER
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator>>=(const Integer rhs) noexcept
 {
@@ -994,6 +1008,10 @@ constexpr int128_t& int128_t::operator>>=(const int128_t rhs) noexcept
     *this = *this >> rhs;
     return *this;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif // _MSC_VER
 
 //=====================================
 // Increment Operators
