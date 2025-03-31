@@ -50,4 +50,46 @@ using builtin_u128 = unsigned __int128;
 
 #endif // Determine endianness
 
+// Is constant evaluated detection
+#ifdef __cpp_lib_is_constant_evaluated
+#  define BOOST_INT128_HAS_IS_CONSTANT_EVALUATED
+#endif
+
+#ifdef __has_builtin
+#  if __has_builtin(__builtin_is_constant_evaluated)
+#    define BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+#  endif
+#endif
+
+//
+// MSVC also supports __builtin_is_constant_evaluated if it's recent enough:
+//
+#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192528326)
+#  define BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+#endif
+
+//
+// As does GCC-9:
+//
+#if defined(__GNUC__) && (__GNUC__ >= 9) && !defined(BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED)
+#  define BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED
+#endif
+
+#if defined(BOOST_INT128_HAS_IS_CONSTANT_EVALUATED)
+#  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) std::is_constant_evaluated()
+#elif defined(BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED)
+#  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) __builtin_is_constant_evaluated()
+#else
+#  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) false
+#  define BOOST_INT128_NO_CONSTEVAL_DETECTION
+#endif
+
+// https://github.com/llvm/llvm-project/issues/55638
+#if defined(__clang__) && __cplusplus > 202002L && __clang_major__ < 17
+#  undef BOOST_INT128_IS_CONSTANT_EVALUATED
+#  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) false
+#  define BOOST_INT128_NO_CONSTEVAL_DETECTION
+#endif
+
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
