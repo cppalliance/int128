@@ -10,7 +10,7 @@ import testing ;
 
 project : requirements
 
-    <warnings>pedantic
+    <warnings>extra
 
     <toolset>gcc:<cxxflags>-Wsign-conversion
     <toolset>gcc:<cxxflags>-Wconversion
