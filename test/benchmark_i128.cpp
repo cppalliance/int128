@@ -183,7 +183,7 @@ int main()
         const auto builtin_vector = generate_random_vector<0, builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
-        #else defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
         const auto builtin_vector = generate_random_vector<0, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
@@ -201,7 +201,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
 
         std::cout << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_U128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
@@ -225,6 +225,7 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
         std::cout << std::endl;
+*/
     }
     // Single word operations
     {
@@ -239,7 +240,7 @@ int main()
         const auto builtin_vector = generate_random_vector<1, builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
-        #else defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
         const auto builtin_vector = generate_random_vector<1, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
@@ -257,7 +258,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
 
         std::cout << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_U128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
@@ -281,6 +282,7 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
         std::cout << std::endl;
+*/
     }
     {
         // Two word and one word operations Even = 2, odd = 1
@@ -296,7 +298,7 @@ int main()
         const auto builtin_vector = generate_random_vector<2, builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
-        #else defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
         const auto builtin_vector = generate_random_vector<0, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
@@ -314,7 +316,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
 
         std::cout << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_U128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
@@ -338,6 +340,7 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
         std::cout << std::endl;
+*/
     }
     {
         // Two word and one word operations Even = 1, odd = 2
@@ -353,7 +356,7 @@ int main()
         const auto builtin_vector = generate_random_vector<3, builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
-        #else defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
         const auto builtin_vector = generate_random_vector<3, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
@@ -371,7 +374,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
 
         std::cout << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_U128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
@@ -395,6 +398,7 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
         std::cout << std::endl;
+*/
     }
     {
         // Two word and one word operations Even = 1, odd = 2
@@ -410,7 +414,7 @@ int main()
         const auto builtin_vector = generate_random_vector<4, builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
-        #else defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
         const auto builtin_vector = generate_random_vector<4, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
@@ -428,7 +432,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
 
         std::cout << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_U128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
@@ -452,6 +456,7 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
         std::cout << std::endl;
+*/
     }
 
     return 1;
