@@ -26,8 +26,19 @@ int128_t
     std::uint64_t low {};
     std::int64_t high {};
     #else
+
+    #ifdef __GNUC__
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wreorder"
+    #endif
+
     std::int64_t high {};
     std::uint64_t low {};
+
+    #ifdef __GNUC__
+    #  pragma GCC diagnostic pop
+    #endif
+
     #endif
 
     // Defaulted basic construction
@@ -894,7 +905,7 @@ constexpr unsigned operator<<(const UnsignedInteger lhs, const int128_t rhs) noe
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable:4101) // Unsafe use of type bool in operation
+#pragma warning(disable : 4804) // Unsafe use of type bool in operation
 #endif // _MSC_VER
 
 template <BOOST_INT128_INTEGER_CONCEPT>
