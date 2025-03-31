@@ -134,6 +134,12 @@ int128_t
     // Prefix and postfix increment
     constexpr int128_t& operator++() noexcept;
     constexpr int128_t& operator++(int) noexcept;
+
+    // Compound Addition
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator+=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator+=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1010,6 +1016,85 @@ constexpr int128_t& int128_t::operator++(int) noexcept
 
     return *this;
 }
+
+//=====================================
+// Addition Operators
+//=====================================
+
+namespace detail {
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
+{
+    const auto new_low {lhs.low + rhs.low};
+    const auto new_high {lhs.high + rhs.high + static_cast<std::int64_t>(new_low < lhs.low)};
+    return int128_t{new_high, new_low};
+}
+
+template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const Integer rhs) noexcept
+{
+    const auto new_low {lhs.low + rhs};
+    const auto new_high {lhs.high + static_cast<std::int64_t>(new_low < lhs.low)};
+    return int128_t{new_high, new_low};
+}
+
+template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
+{
+    const auto new_low {lhs.low - rhs};
+    const auto new_high {lhs.high - static_cast<std::int64_t>(lhs.low < rhs)};
+    return int128_t{new_high, new_low};
+}
+
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator+(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return detail::default_add(lhs, rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator+(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    return detail::default_add(rhs, lhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator+(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    return rhs > 0 ? detail::default_add(lhs, rhs) : detail::default_sub(lhs, -rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator+(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    return lhs > 0 ? detail::default_add(rhs, lhs) : detail::default_sub(rhs, -lhs);
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator+(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return detail::default_add(lhs, static_cast<int128_t>(rhs));
+}
+
+constexpr int128_t operator+(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return detail::default_add(rhs, static_cast<int128_t>(lhs));
+}
+
+constexpr int128_t operator+(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return detail::default_add(lhs, static_cast<int128_t>(rhs));
+}
+
+constexpr int128_t operator+(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return detail::default_add(rhs, static_cast<int128_t>(lhs));
+}
+
+#endif // BOOST_INT128_HAS_INT128
 
 #if defined(__clang__)
 #  pragma clang diagnostic pop
