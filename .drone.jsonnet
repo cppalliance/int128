@@ -146,51 +146,9 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     ),
 
     linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 03",
+        "Linux 22.04 GCC 12 32 ASAN",
         "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '03', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 11",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '11', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 14",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '14', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 17",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '17', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 20",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '20', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 32 ASAN 2b",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '2b', ADDRMD: '32' } + asan,
-        "g++-12-multilib",
-    ),
-
-    linux_pipeline(
-        "Linux 22.04 GCC 12 64 ASAN",
-        "cppalliance/droneubuntu2204:1",
-        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '03,11,14,17,20,2b', ADDRMD: '64' } + asan,
+        { TOOLSET: 'gcc', COMPILER: 'g++-12', CXXSTD: '03,11,14,17,20,2b', ADDRMD: '32' } + asan,
         "g++-12-multilib",
     ),
     
@@ -399,6 +357,22 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
         { TOOLSET: 'clang', COMPILER: 'clang++-18', CXXSTD: '03,11,14,17,20,2b' },
         "clang-18",
         ["deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"],
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 Clang 19",
+        "cppalliance/droneubuntu2404:1",
+        { TOOLSET: 'clang', COMPILER: 'clang++-19', CXXSTD: '03,11,14,17,20,23,2c' },
+        "clang-19",
+        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"],
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 Clang 20",
+        "cppalliance/droneubuntu2404:1",
+        { TOOLSET: 'clang', COMPILER: 'clang++-18', CXXSTD: '03,11,14,17,20,23,2c' },
+        "clang-19",
+        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"],
     ),
 
     macos_pipeline(
