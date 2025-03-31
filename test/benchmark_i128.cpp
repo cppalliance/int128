@@ -7,7 +7,6 @@
 #endif // NDEBUG
 
 #include <iostream>
-#include <boost/multiprecision/cpp_int.hpp>
 
 #ifdef BOOST_INT128_BENCHMARK_I128
 
@@ -17,7 +16,6 @@
 #endif
 
 #include <boost/int128/int128.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <chrono>
 #include <random>
 #include <vector>
@@ -33,24 +31,29 @@ constexpr unsigned K = 5;
 
 using namespace boost::int128;
 using namespace std::chrono_literals;
-using mp_i128 = boost::multiprecision::int128_t;
 
 #ifdef __clang__
 #  pragma clang diagnostic push
 #  pragma clang diagnostic ignored "-Wfloat-equal"
 #  pragma clang diagnostic ignored "-Wold-style-cast"
+#  pragma clang diagnostic ignored "-Wdouble-promotion"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
 #  define BOOST_INT128_NO_INLINE __declspec(noinline)
 #elif defined(__GNUC__)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wfloat-equal"
+#  pragma GCC diagnostic ignored "-Wdouble-promotion"
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #  if __GNUC__ >= 11
 #    pragma GCC diagnostic ignored "-Wstringop-overread"
 #  endif
 #endif
+
+#include <boost/multiprecision/cpp_int.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+using mp_i128 = boost::multiprecision::int128_t;
 
 // 0 = 1 word
 // 1 = 2 words
