@@ -99,7 +99,7 @@ int128_t
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    explicit constexpr operator detail::builtin_i128() const noexcept { return (static_cast<detail::builtin_i128>(high) << 64) | low; }
+    explicit constexpr operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << 64) | low; }
 
     explicit constexpr operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
 
