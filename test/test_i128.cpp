@@ -706,6 +706,7 @@ int main()
 
 int main()
 {
+    static_cast<void>(N);
     return 0;
 }
 
