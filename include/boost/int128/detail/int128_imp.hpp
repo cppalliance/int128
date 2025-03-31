@@ -1048,6 +1048,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
 }
 
+constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return detail::default_add(lhs, rhs);
+}
+
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator+(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
@@ -1095,6 +1100,19 @@ constexpr int128_t operator+(const detail::builtin_i128 lhs, const int128_t rhs)
 }
 
 #endif // BOOST_INT128_HAS_INT128
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator+=(const Integer rhs) noexcept
+{
+    *this = *this + rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator+=(const int128_t rhs) noexcept
+{
+    *this = *this + rhs;
+    return *this;
+}
 
 #if defined(__clang__)
 #  pragma clang diagnostic pop
