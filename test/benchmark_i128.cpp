@@ -7,6 +7,7 @@
 #endif // NDEBUG
 
 #include <iostream>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #ifdef BOOST_INT128_BENCHMARK_I128
 
@@ -32,6 +33,7 @@ constexpr unsigned K = 5;
 
 using namespace boost::int128;
 using namespace std::chrono_literals;
+using mp_i128 = boost::multiprecision::int128_t;
 
 #ifdef __clang__
 #  pragma clang diagnostic push
@@ -56,6 +58,18 @@ using namespace std::chrono_literals;
 // 3 = 1 word / 2 word alternating
 // 4 = Random width
 
+template <typename T>
+constexpr T from_int128(const int128_t value)
+{
+    return static_cast<T>(value);
+}
+
+template <>
+constexpr mp_i128 from_int128(const int128_t value)
+{
+    return static_cast<mp_i128>(value.high) << 64 | value.low;
+}
+
 template <int words, typename T>
 std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
 {
@@ -76,43 +90,43 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
         switch (words)
         {
             case 0:
-                result[i] = static_cast<T>(int128_t{dist_low(gen)});
+                result[i] = from_int128<T>(int128_t{dist_low(gen)});
             break;
 
             case 1:
-                result[i] = static_cast<T>(int128_t{dist_high(gen), dist_low(gen)});
+                result[i] = from_int128<T>(int128_t{dist_high(gen), dist_low(gen)});
             break;
 
             case 2:
                 if (i % 2 == 0)
                 {
-                    result[i] = static_cast<T>(int128_t{dist_high(gen), dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_high(gen), dist_low(gen)});
                 }
                 else
                 {
-                    result[i] = static_cast<T>(int128_t{dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_low(gen)});
                 }
             break;
 
             case 3:
                 if (i % 2 == 1)
                 {
-                    result[i] = static_cast<T>(int128_t{dist_high(gen), dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_high(gen), dist_low(gen)});
                 }
                 else
                 {
-                    result[i] = static_cast<T>(int128_t{dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_low(gen)});
                 }
             break;
 
             case 4:
                 if (size_dist(gen) == 1)
                 {
-                    result[i] = static_cast<T>(int128_t{dist_high(gen), dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_high(gen), dist_low(gen)});
                 }
                 else
                 {
-                    result[i] = static_cast<T>(int128_t{dist_low(gen)});
+                    result[i] = from_int128<T>(int128_t{dist_low(gen)});
                 }
             break;
         }
@@ -179,6 +193,7 @@ int main()
         std::cout << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<0, int128_t>();
+        const auto mp_vector = generate_random_vector<0, mp_i128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
 
@@ -193,6 +208,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
+        test_comparisons(mp_vector, "mp::i128");
 
         std::cout << std::endl;
 
@@ -201,6 +217,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
+        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
         std::cout << std::endl;
 /*
@@ -236,6 +253,7 @@ int main()
         std::cout << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<1, int128_t>();
+        const auto mp_vector = generate_random_vector<1, mp_i128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
 
@@ -250,6 +268,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
+        test_comparisons(mp_vector, "mp::i128");
 
         std::cout << std::endl;
 
@@ -258,6 +277,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
+        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
         std::cout << std::endl;
 /*
@@ -294,6 +314,7 @@ int main()
         std::cout << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<2, int128_t>();
+        const auto mp_vector = generate_random_vector<2, mp_i128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
 
@@ -302,12 +323,13 @@ int main()
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 
-        const auto builtin_vector = generate_random_vector<0, std::_Signed128>();
+        const auto builtin_vector = generate_random_vector<2, std::_Signed128>();
         test_comparisons(builtin_vector, "builtin");
 
         #endif
 
         test_comparisons(library_vector, "library");
+        test_comparisons(mp_vector, "mp::i128");
 
         std::cout << std::endl;
 
@@ -316,6 +338,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
+        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
         std::cout << std::endl;
 /*
@@ -352,6 +375,7 @@ int main()
         std::cout << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<3, int128_t>();
+        const auto mp_vector = generate_random_vector<3, mp_i128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
 
@@ -366,6 +390,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
+        test_comparisons(mp_vector, "mp::i128");
 
         std::cout << std::endl;
 
@@ -374,6 +399,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
+        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
         std::cout << std::endl;
 /*
@@ -410,6 +436,7 @@ int main()
         std::cout << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<4, int128_t>();
+        const auto mp_vector = generate_random_vector<4, mp_i128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
 
@@ -424,6 +451,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
+        test_comparisons(mp_vector, "mp::i128");
 
         std::cout << std::endl;
 
@@ -432,6 +460,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
+        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
         std::cout << std::endl;
 /*
