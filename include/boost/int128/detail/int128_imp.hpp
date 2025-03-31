@@ -1057,8 +1057,11 @@ namespace detail {
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
     const auto new_low {lhs.low + rhs.low};
-    const auto new_high {lhs.high + rhs.high + static_cast<std::int64_t>(new_low < lhs.low)};
-    return int128_t{new_high, new_low};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) +
+                                        static_cast<std::uint64_t>(rhs.high) +
+                                        static_cast<std::uint64_t>(new_low < lhs.low)};
+    
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
