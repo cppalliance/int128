@@ -298,6 +298,23 @@ constexpr bool operator!=(const int128_t lhs, const int128_t rhs) noexcept
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return lhs.high != rhs.high || lhs.low != rhs.low;
+    }
+    else
+    {
+        detail::builtin_i128 builtin_lhs {};
+        detail::builtin_i128 builtin_rhs {};
+
+        std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_lhs));
+        std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_rhs));
+
+        return builtin_lhs != builtin_rhs;
+    }
+
     #else
 
     return lhs.high != rhs.high || lhs.low != rhs.low;
@@ -578,7 +595,7 @@ constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept
 
     return static_cast<detail::builtin_i128>(lhs) >= static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
