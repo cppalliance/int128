@@ -505,7 +505,7 @@ int main()
 int main()
 {
     std::cout << "Benchmarks Not Run" << std::endl;
-    return 0;
+    return 1;
 }
 
 #endif
