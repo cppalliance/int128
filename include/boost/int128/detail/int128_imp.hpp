@@ -10,6 +10,7 @@
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
 #include <cstdint>
+#include <cstring>
 
 namespace boost {
 namespace int128 {
@@ -1090,39 +1091,44 @@ constexpr int128_t& int128_t::operator++(int) noexcept
 
 namespace detail {
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, const int128_t rhs) noexcept
+{
+    const auto new_low {lhs.low + rhs.low};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) +
+                                        static_cast<std::uint64_t>(rhs.high) +
+                                        static_cast<std::uint64_t>(new_low < lhs.low)};
+
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
+}
+
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
     #if defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        const auto new_low {lhs.low + rhs.low};
-        const auto new_high {static_cast<std::uint64_t>(lhs.high) +
-                                            static_cast<std::uint64_t>(rhs.high) +
-                                            static_cast<std::uint64_t>(new_low < lhs.low)};
-
-        return int128_t{static_cast<std::int64_t>(new_high), new_low};
+        return library_add(lhs, rhs);
     }
     else
     {
-        unsigned long long int new_high {};
-        unsigned long long int new_low {};
-        unsigned char carry = BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &new_low);
-        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(lhs.high),
-                     static_cast<std::uint64_t>(rhs.high), &new_high);
+        builtin_i128 builtin_lhs {};
+        builtin_i128 builtin_rhs {};
 
-        return int128_t{static_cast<std::int64_t>(new_high), static_cast<std::uint64_t>(new_low)};
+        std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_lhs));
+        std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_rhs));
 
+        const auto builtin_res {builtin_lhs + builtin_rhs};
+
+        int128_t result {};
+
+        std::memcpy(&result, &builtin_res, sizeof(result));
+
+        return result;
     }
 
     #else
 
-    const auto new_low {lhs.low + rhs.low};
-    const auto new_high {static_cast<std::uint64_t>(lhs.high) +
-                                        static_cast<std::uint64_t>(rhs.high) +
-                                        static_cast<std::uint64_t>(new_low < lhs.low)};
-    
-    return int128_t{static_cast<std::int64_t>(new_high), new_low};
+    return library_add(lhs, rhs);
 
     #endif
 }
