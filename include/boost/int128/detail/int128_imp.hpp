@@ -572,7 +572,16 @@ constexpr bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) no
 
 constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept
 {
+    // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+
+    return static_cast<detail::builtin_i128>(lhs) >= static_cast<detail::builtin_i128>(rhs);
+
+    #else
+
     return lhs.high == rhs.high ? lhs.low >= rhs.low : lhs.high >= rhs.high;
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
