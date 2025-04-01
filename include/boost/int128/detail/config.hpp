@@ -99,4 +99,17 @@ using builtin_u128 = unsigned __int128;
 #  define BOOST_INT128_FORCE_INLINE inline
 #endif
 
+#ifdef __x86_64__
+
+#  include <x86intrin.h>
+#  ifdef __ADX__
+#    define BOOST_INT128_ADD_CARRY _addcarryx_u64
+#    define BOOST_INT128_SUB_CARRY _subcarryx_u64
+#  else
+#    define BOOST_INT128_ADD_CARRY _addcarry_u64
+#    define BOOST_INT128_SUB_CARRY _subcarry_u64
+#endif
+
+#endif // x64 macros
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
