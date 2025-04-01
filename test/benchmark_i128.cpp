@@ -158,7 +158,7 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
 template <typename T>
 BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, const char* label)
 {
-    const auto t1 = std::chrono::steady_clock::now();
+    auto t1 = std::chrono::steady_clock::now();
     std::size_t s = 0; // discard variable
 
     for (std::size_t k {}; k < K; ++k)
@@ -167,18 +167,98 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 > val2);
-            s += static_cast<std::size_t>(val1 >= val2);
-            s += static_cast<std::size_t>(val1 < val2);
-            s += static_cast<std::size_t>(val1 <= val2);
             s += static_cast<std::size_t>(val1 == val2);
+        }
+    }
+
+    auto t2 = std::chrono::steady_clock::now();
+
+    std::cout << "EQ<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    t1 = std::chrono::steady_clock::now();
+    s = 0;
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
             s += static_cast<std::size_t>(val1 != val2);
         }
     }
 
-    const auto t2 = std::chrono::steady_clock::now();
+    t2 = std::chrono::steady_clock::now();
 
-    std::cout << "comp<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "NE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    t1 = std::chrono::steady_clock::now();
+    s = 0;
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
+            s += static_cast<std::size_t>(val1 < val2);
+        }
+    }
+
+    t2 = std::chrono::steady_clock::now();
+
+    std::cout << "LT<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    t1 = std::chrono::steady_clock::now();
+    s = 0;
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
+            s += static_cast<std::size_t>(val1 <= val2);
+        }
+    }
+
+    t2 = std::chrono::steady_clock::now();
+
+    std::cout << "LE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    t1 = std::chrono::steady_clock::now();
+    s = 0;
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
+            s += static_cast<std::size_t>(val1 > val2);
+        }
+    }
+
+    t2 = std::chrono::steady_clock::now();
+
+    std::cout << "GT<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    t1 = std::chrono::steady_clock::now();
+    s = 0;
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
+            s += static_cast<std::size_t>(val1 >= val2);
+        }
+    }
+
+    t2 = std::chrono::steady_clock::now();
+
+    std::cout << "GE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
 template <typename T, typename Func>
