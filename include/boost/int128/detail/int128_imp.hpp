@@ -1092,12 +1092,39 @@ namespace detail {
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
+    #if defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        const auto new_low {lhs.low + rhs.low};
+        const auto new_high {static_cast<std::uint64_t>(lhs.high) +
+                                            static_cast<std::uint64_t>(rhs.high) +
+                                            static_cast<std::uint64_t>(new_low < lhs.low)};
+
+        return int128_t{static_cast<std::int64_t>(new_high), new_low};
+    }
+    else
+    {
+        unsigned long long int new_high {};
+        unsigned long long int new_low {};
+        unsigned char carry = BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &new_low);
+        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(lhs.high),
+                     static_cast<std::uint64_t>(rhs.high), &new_high);
+
+        return int128_t{static_cast<std::int64_t>(new_high), static_cast<std::uint64_t>(new_low)};
+
+    }
+
+    #else
+
     const auto new_low {lhs.low + rhs.low};
     const auto new_high {static_cast<std::uint64_t>(lhs.high) +
                                         static_cast<std::uint64_t>(rhs.high) +
                                         static_cast<std::uint64_t>(new_low < lhs.low)};
     
     return int128_t{static_cast<std::int64_t>(new_high), new_low};
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
