@@ -221,7 +221,7 @@ constexpr bool operator==(const int128_t lhs, const int128_t rhs) noexcept
 {
     // x64 and ARM64 like the values in opposite directions
 
-    #if defined(__aarch64__) || defined(_M_ARM64)
+    #if defined(__aarch64__) || defined(_M_ARM64) || defined(__x86_64__)
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
