@@ -10,7 +10,8 @@
 
 #ifdef BOOST_INT128_BENCHMARK_I128
 
-#if __has_include(<__msvc_int128.hpp>)
+// This only works when running on latest
+#if __has_include(<__msvc_int128.hpp>) && _MSVC_LANG >= 202002L
 #include <__msvc_int128.hpp>
 #define BOOST_INT128_HAS_MSVC_INTERNAL_I128
 #endif
@@ -39,6 +40,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wdouble-promotion"
 #  pragma clang diagnostic ignored "-Wsign-conversion"
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#  pragma clang diagnostic ignored "-Wundef"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
 #  define BOOST_INT128_NO_INLINE __declspec(noinline)
