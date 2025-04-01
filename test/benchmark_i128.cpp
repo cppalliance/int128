@@ -158,6 +158,7 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
 template <typename T>
 BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, const char* label)
 {
+    auto t_total = std::chrono::steady_clock::now();
     auto t1 = std::chrono::steady_clock::now();
     std::size_t s = 0; // discard variable
 
@@ -259,6 +260,8 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
     t2 = std::chrono::steady_clock::now();
 
     std::cout << "GE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+
+    std::cout << "Total<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
 }
 
 template <typename T, typename Func>
