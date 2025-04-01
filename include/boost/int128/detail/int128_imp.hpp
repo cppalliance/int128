@@ -1111,6 +1111,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     }
     else
     {
+        #if defined(__GNUC__) && __GNUC__ >= 8
+        #  pragma GCC diagnostic push
+        #  pragma GCC diagnostic ignored "-Wclass-memaccess"
+        #endif
+
         builtin_i128 builtin_lhs {};
         builtin_i128 builtin_rhs {};
 
@@ -1124,6 +1129,10 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
         std::memcpy(&result, &builtin_res, sizeof(result));
 
         return result;
+
+        #if defined(__GNUC__) && __GNUC__ >= 8
+        #  pragma GCC diagnostic pop
+        #endif
     }
 
     #else
