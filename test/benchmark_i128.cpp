@@ -174,7 +174,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     auto t2 = std::chrono::steady_clock::now();
 
-    std::cout << "EQ<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "EQ <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -191,7 +191,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "NE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "NE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -208,7 +208,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "LT<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "LT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -225,7 +225,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "LE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "LE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -242,7 +242,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "GT<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "GT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -259,9 +259,9 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "GE<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << "GE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
-    std::cout << "Total<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
+    std::cout << "SUM<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
 }
 
 template <typename T, typename Func>
@@ -282,7 +282,7 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
 
     const auto t2 = std::chrono::steady_clock::now();
 
-    std::cout << operation << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cout << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
 int main()
