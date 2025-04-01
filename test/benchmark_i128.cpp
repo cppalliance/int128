@@ -38,6 +38,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wold-style-cast"
 #  pragma clang diagnostic ignored "-Wdouble-promotion"
 #  pragma clang diagnostic ignored "-Wsign-conversion"
+#  pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
 #  define BOOST_INT128_NO_INLINE __declspec(noinline)
@@ -76,6 +77,16 @@ constexpr mp_i128 from_int128(const int128_t value)
 {
     return static_cast<mp_i128>(value.high) << 64 | value.low;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INTERNAL_I128
+
+template <>
+constexpr std::_Signed128 from_int128(const int128_t value)
+{
+    return static_cast<std::_Signed128>(value.high) << 64 | value.low;
+}
+
+#endif
 
 template <int words, typename T>
 std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
