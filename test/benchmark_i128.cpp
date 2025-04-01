@@ -174,7 +174,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     auto t2 = std::chrono::steady_clock::now();
 
-    std::cout << "EQ <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "EQ <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -191,7 +191,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "NE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "NE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -208,7 +208,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "LT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "LT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -225,7 +225,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "LE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "LE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -242,7 +242,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "GT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "GT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -259,9 +259,9 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cout << "GE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "GE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 
-    std::cout << "SUM<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
+    std::cerr << "SUM<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
 }
 
 template <typename T, typename Func>
@@ -282,7 +282,7 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
 
     const auto t2 = std::chrono::steady_clock::now();
 
-    std::cout << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
 int main()
@@ -291,9 +291,9 @@ int main()
 
     // Two word operations
     {
-        std::cout << "\n---------------------------\n";
-        std::cout << "Two Word Operations\n";
-        std::cout << "---------------------------\n\n";
+        std::cerr << "\n---------------------------\n";
+        std::cerr << "Two Word Operations\n";
+        std::cerr << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<0, int128_t>();
         const auto mp_vector = generate_random_vector<0, mp_i128>();
@@ -313,7 +313,7 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::plus<>(), "add", "Builtin");
@@ -322,7 +322,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 /*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
@@ -330,7 +330,7 @@ int main()
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
@@ -338,7 +338,7 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
@@ -346,14 +346,14 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 */
     }
     // Single word operations
     {
-        std::cout << "\n---------------------------\n";
-        std::cout << "One Word Operations\n";
-        std::cout << "---------------------------\n\n";
+        std::cerr << "\n---------------------------\n";
+        std::cerr << "One Word Operations\n";
+        std::cerr << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<1, int128_t>();
         const auto mp_vector = generate_random_vector<1, mp_i128>();
@@ -373,7 +373,7 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::plus<>(), "add", "Builtin");
@@ -382,7 +382,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 /*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
@@ -390,7 +390,7 @@ int main()
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
@@ -398,7 +398,7 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
@@ -406,15 +406,15 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 */
     }
     {
         // Two word and one word operations Even = 2, odd = 1
 
-        std::cout << "\n---------------------------\n";
-        std::cout << "Two-One Word Operations\n";
-        std::cout << "---------------------------\n\n";
+        std::cerr << "\n---------------------------\n";
+        std::cerr << "Two-One Word Operations\n";
+        std::cerr << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<2, int128_t>();
         const auto mp_vector = generate_random_vector<2, mp_i128>();
@@ -434,7 +434,7 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::plus<>(), "add", "Builtin");
@@ -443,7 +443,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 /*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
@@ -451,7 +451,7 @@ int main()
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
@@ -459,7 +459,7 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
@@ -467,15 +467,15 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 */
     }
     {
         // Two word and one word operations Even = 1, odd = 2
 
-        std::cout << "\n---------------------------\n";
-        std::cout << "One-Two Word Operations\n";
-        std::cout << "---------------------------\n\n";
+        std::cerr << "\n---------------------------\n";
+        std::cerr << "One-Two Word Operations\n";
+        std::cerr << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<3, int128_t>();
         const auto mp_vector = generate_random_vector<3, mp_i128>();
@@ -495,7 +495,7 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::plus<>(), "add", "Builtin");
@@ -504,7 +504,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 /*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
@@ -512,7 +512,7 @@ int main()
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
@@ -520,7 +520,7 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
@@ -528,15 +528,15 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 */
     }
     {
         // Two word and one word operations Even = 1, odd = 2
 
-        std::cout << "\n---------------------------\n";
-        std::cout << "Random Width Operations\n";
-        std::cout << "---------------------------\n\n";
+        std::cerr << "\n---------------------------\n";
+        std::cerr << "Random Width Operations\n";
+        std::cerr << "---------------------------\n\n";
 
         const auto library_vector = generate_random_vector<4, int128_t>();
         const auto mp_vector = generate_random_vector<4, mp_i128>();
@@ -556,7 +556,7 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::plus<>(), "add", "Builtin");
@@ -565,7 +565,7 @@ int main()
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 /*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
@@ -573,7 +573,7 @@ int main()
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
@@ -581,7 +581,7 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
@@ -589,7 +589,7 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
 
-        std::cout << std::endl;
+        std::cerr << std::endl;
 */
     }
 
@@ -600,7 +600,7 @@ int main()
 
 int main()
 {
-    std::cout << "Benchmarks Not Run" << std::endl;
+    std::cerr << "Benchmarks Not Run" << std::endl;
     return 1;
 }
 
