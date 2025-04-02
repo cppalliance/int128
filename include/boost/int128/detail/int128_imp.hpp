@@ -1188,37 +1188,9 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !defined(_WIN32) && defined(__clang__)
+    #if defined(__x86_64__) && !defined(_WIN32)
 
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return library_add(lhs, rhs);
-    }
-    else
-    {
-        #if defined(__GNUC__) && __GNUC__ >= 8
-        #  pragma GCC diagnostic push
-        #  pragma GCC diagnostic ignored "-Wclass-memaccess"
-        #endif
-
-        builtin_i128 builtin_lhs {};
-        builtin_i128 builtin_rhs {};
-
-        std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_lhs));
-        std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_rhs));
-
-        const auto builtin_res {builtin_lhs + builtin_rhs};
-
-        int128_t result {};
-
-        std::memcpy(&result, &builtin_res, sizeof(result));
-
-        return result;
-
-        #if defined(__GNUC__) && __GNUC__ >= 8
-        #  pragma GCC diagnostic pop
-        #endif
-    }
+    return static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs);
 
     #else
 
