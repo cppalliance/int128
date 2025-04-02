@@ -640,6 +640,15 @@ void test_operator_add()
         BOOST_TEST(check_1_value == (builtin_value + value2));
         BOOST_TEST((value2 + emulated_value) == (value2 + builtin_value));
     }
+
+    // Edge case where we go from low word to high word
+    builtin_i128 builtin_value = UINT64_MAX - 2U;
+    boost::int128::int128_t emulated_value = UINT64_MAX - 2U;
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        BOOST_TEST(++builtin_value == ++emulated_value);
+    }
 }
 
 struct test_caller
