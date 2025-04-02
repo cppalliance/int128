@@ -1217,6 +1217,9 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     }
     else
     {
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wclass-memaccess"
+
         detail::builtin_i128 builtin_lhs {};
         detail::builtin_i128 builtin_rhs {};
 
@@ -1229,6 +1232,8 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
         std::memcpy(&result, &builtin_res, sizeof(int128_t));
 
         return result;
+
+        #pragma GCC diagnostic pop
     }
 
     #else
