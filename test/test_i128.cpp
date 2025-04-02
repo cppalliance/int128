@@ -633,13 +633,10 @@ void test_operator_add()
         IntType value2 {dist(rng)};
 
         // Avoid UB from signed rollover
-        if (std::is_same<IntType, builtin_u128>::value)
+        if (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
         {
-            while (value + value2 > (static_cast<IntType>(1) << 127))
-            {
-                value /= 10;
-                value2 /= 10;
-            }
+            value /= 100;
+            value2 /= 100;
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
