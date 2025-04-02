@@ -119,15 +119,43 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     ),
 
     linux_pipeline(
-        "Linux 20.04 GCC 9* ARM64 - ASAN",
-        "cppalliance/droneubuntu2004:multiarch",
+        "Linux 22.04 GCC 11 ARM64",
+        "cppalliance/droneubuntu2204:multiarch",
+        { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
+        arch="arm64",
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 GCC 13 ARM64",
+        "cppalliance/droneubuntu2404:multiarch",
+        { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
+        arch="arm64",
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 GCC 13 ARM64 - ASAN",
+        "cppalliance/droneubuntu2404:multiarch",
         { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' } + asan,
         arch="arm64",
     ),
 
     linux_pipeline(
-        "Linux 20.04 GCC 9* S390x",
+        "Linux 20.04 GCC 9 S390x",
         "cppalliance/droneubuntu2004:multiarch",
+        { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
+        arch="s390x",
+    ),
+
+    linux_pipeline(
+        "Linux 22.04 GCC 11 S390x",
+        "cppalliance/droneubuntu2204:multiarch",
+        { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
+        arch="s390x",
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 GCC 13 S390x",
+        "cppalliance/droneubuntu2404:multiarch",
         { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
         arch="s390x",
     ),
