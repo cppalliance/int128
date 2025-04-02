@@ -370,8 +370,8 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     linux_pipeline(
         "Linux 24.04 Clang 20",
         "cppalliance/droneubuntu2404:1",
-        { TOOLSET: 'clang', COMPILER: 'clang++-18', CXXSTD: '03,11,14,17,20,23,2c' },
-        "clang-19",
+        { TOOLSET: 'clang', COMPILER: 'clang++-20', CXXSTD: '03,11,14,17,20,23,2c' },
+        "clang-20",
         ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"],
     ),
 
