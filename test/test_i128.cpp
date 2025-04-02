@@ -554,6 +554,11 @@ void test_operator_left_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
     }
+
+    // Edge cases
+    const boost::int128::int128_t val {UINT64_MAX};
+    BOOST_TEST((val << 130) == 0);
+    BOOST_TEST((val << -5) == 0);
 }
 
 template <typename IntType>
@@ -595,6 +600,11 @@ void test_operator_right_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
     }
+
+    // Edge cases
+    const boost::int128::int128_t val {UINT64_MAX};
+    BOOST_TEST((val >> 130) == 0);
+    BOOST_TEST((val >> -5) == 0);
 }
 
 void test_increment_operator()
