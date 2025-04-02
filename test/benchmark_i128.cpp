@@ -41,6 +41,9 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wsign-conversion"
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #  pragma clang diagnostic ignored "-Wundef"
+#  if __clang_major__ >= 20
+#    pragma clang diagnostic ignored "-Wdeprecated-missing-comma-variadic-parameter"
+#  endif
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
 #  define BOOST_INT128_NO_INLINE __declspec(noinline)
