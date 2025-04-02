@@ -1188,7 +1188,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !defined(_WIN32)
+    #if defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !defined(_WIN32) && defined(__clang__)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
