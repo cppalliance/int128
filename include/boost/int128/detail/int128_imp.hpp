@@ -156,6 +156,12 @@ int128_t
     constexpr int128_t& operator+=(Integer rhs) noexcept;
 
     constexpr int128_t& operator+=(int128_t rhs) noexcept;
+
+    // Compound Subtraction
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator-=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator-=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1295,12 +1301,20 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     return int128_t{new_high, new_low};
 }
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
+{
+    const auto new_low {lhs.low - rhs.low};
+    const auto new_high {lhs.high - rhs.high - static_cast<std::int64_t>(lhs.low < rhs.low)};
+
+    return int128_t{new_high, new_low};
+}
+
 template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low - rhs};
     const auto new_high {lhs.high - static_cast<std::int64_t>(lhs.low < rhs)};
-    return int128_t{new_high, new_low};
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 }
@@ -1368,6 +1382,76 @@ constexpr int128_t& int128_t::operator+=(const Integer rhs) noexcept
 constexpr int128_t& int128_t::operator+=(const int128_t rhs) noexcept
 {
     *this = *this + rhs;
+    return *this;
+}
+
+//=====================================
+// Subtraction Operators
+//=====================================
+
+constexpr int128_t operator-(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return detail::default_sub(lhs, rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator-(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return detail::default_sub(lhs, rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator-(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    return detail::default_add(-rhs, lhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator-(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    return detail::default_sub(lhs, static_cast<int128_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator-(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    return detail::default_sub(static_cast<int128_t>(lhs), rhs);
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator-(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) - rhs);
+}
+
+constexpr int128_t operator-(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs - static_cast<detail::builtin_i128>(rhs));
+}
+
+constexpr int128_t operator-(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs - static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator-(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) - rhs;
+}
+
+#endif
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator-=(const Integer rhs) noexcept
+{
+    *this = *this - rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator-=(const int128_t rhs) noexcept
+{
+    *this = *this - rhs;
     return *this;
 }
 
