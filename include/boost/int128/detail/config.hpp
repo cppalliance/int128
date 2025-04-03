@@ -110,6 +110,13 @@ using builtin_u128 = unsigned __int128;
 #    define BOOST_INT128_SUB_CARRY _subcarry_u64
 #endif
 
+#elif defined(_M_AMD64)
+
+#  include <intrin.h>
+
+#  define BOOST_INT128_ADD_CARRY _addcarryx_u64
+#  define BOOST_INT128_SUB_CARRY _subcarryx_u64
+
 #endif // x64 macros
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
