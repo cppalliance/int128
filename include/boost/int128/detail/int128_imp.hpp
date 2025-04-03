@@ -1236,6 +1236,22 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
         #pragma GCC diagnostic pop
     }
 
+    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return library_add(lhs, rhs);
+    }
+    else
+    {
+        std::uint64_t result_low {};
+        std::uint64_t result_high {};
+        const auto carry = BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &result_low);
+        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(lhs.high), static_cast<std::uint64_t>(rhs.high), &result_high);
+
+        return int128_t{static_cast<std::int64_t>(result_high), result_low};
+    }
+
     #else
 
     return library_add(lhs, rhs);
