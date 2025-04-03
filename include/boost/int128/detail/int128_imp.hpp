@@ -1180,7 +1180,7 @@ constexpr int128_t& int128_t::operator++(int) noexcept
 
 constexpr int128_t& int128_t::operator--() noexcept
 {
-    if (--low == UINT64_C(0))
+    if (low-- == UINT64_C(0))
     {
         --high;
     }
@@ -1190,7 +1190,7 @@ constexpr int128_t& int128_t::operator--() noexcept
 
 constexpr int128_t& int128_t::operator--(int) noexcept
 {
-    if (--low == UINT64_C(0))
+    if (low-- == UINT64_C(0))
     {
         --high;
     }
