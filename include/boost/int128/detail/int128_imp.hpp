@@ -147,6 +147,10 @@ int128_t
     constexpr int128_t& operator++() noexcept;
     constexpr int128_t& operator++(int) noexcept;
 
+    // Prefix and postfix decrment
+    constexpr int128_t& operator--() noexcept;
+    constexpr int128_t& operator--(int) noexcept;
+
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator+=(Integer rhs) noexcept;
@@ -1165,6 +1169,30 @@ constexpr int128_t& int128_t::operator++(int) noexcept
     if (++low == UINT64_C(0))
     {
         ++high;
+    }
+
+    return *this;
+}
+
+//=====================================
+// Decrement Operators
+//=====================================
+
+constexpr int128_t& int128_t::operator--() noexcept
+{
+    if (--low == UINT64_C(0))
+    {
+        --high;
+    }
+
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator--(int) noexcept
+{
+    if (--low == UINT64_C(0))
+    {
+        --high;
     }
 
     return *this;
