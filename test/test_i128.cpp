@@ -669,7 +669,7 @@ void test_operator_sub()
         IntType value {dist(rng)};
         IntType value2 {dist(rng)};
 
-        // Avoid UB from signed rollover
+        // Avoid UB from signed rollover / unrepresentable values
         if (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
         {
             value /= 100;
@@ -679,10 +679,17 @@ void test_operator_sub()
         auto builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
-        auto check_1_value {emulated_value};
-        check_1_value -= value2;
-        BOOST_TEST(check_1_value == (builtin_value - value2));
-        BOOST_TEST((value2 - emulated_value) == (value2 - builtin_value));
+        // Avoid UB from signed rollover
+        if (value > value2)
+        {
+            auto check_1_value {emulated_value};
+            check_1_value -= value2;
+            BOOST_TEST(check_1_value == (builtin_value - value2));
+        }
+        else
+        {
+            BOOST_TEST((value2 - emulated_value) == (value2 - builtin_value));
+        }
     }
 
     // Edge case where we go from high word to low word
