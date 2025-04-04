@@ -1222,22 +1222,15 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if (defined(__x86_64__) || defined(__i386__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__)
+    #ifdef BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW
 
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return library_add(lhs, rhs);
-    }
-    else
-    {
-        std::uint64_t result_low {};
-        std::uint64_t result_high {};
+    std::uint64_t result_low {};
+    std::uint64_t result_high {};
 
-        result_low = lhs.low + rhs.low;
-        result_high = lhs.high + rhs.high + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
+    result_low = lhs.low + rhs.low;
+    result_high = lhs.high + rhs.high + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
 
-        return int128_t{static_cast<std::int64_t>(result_high), result_low};
-    }
+    return int128_t{static_cast<std::int64_t>(result_high), result_low};
 
     #elif defined(__x86_64__) && !defined(_WIN32)
 
