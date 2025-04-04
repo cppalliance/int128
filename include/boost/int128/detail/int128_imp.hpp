@@ -1321,7 +1321,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
     #else
 
-    retrun library_sub(lhs, rhs);
+    return library_sub(lhs, rhs);
 
     #endif
 }
