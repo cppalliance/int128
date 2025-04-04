@@ -1222,11 +1222,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(__x86_64__) && !defined(_WIN32)
-
-    return static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs);
-
-    #elif defined(__i386__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__)
+    #if (defined(__x86_64__) || defined(__i386__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1242,6 +1238,10 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
 
         return int128_t{static_cast<std::int64_t>(result_high), result_low};
     }
+
+    #elif defined(__x86_64__) && !defined(_WIN32)
+
+    return static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs);
 
     #elif defined(__aarch64__) && !defined(__APPLE__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__)
 
