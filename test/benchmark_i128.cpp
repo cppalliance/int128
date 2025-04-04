@@ -42,6 +42,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #  pragma clang diagnostic ignored "-Wundef"
 #  pragma clang diagnostic ignored "-Wunused-parameter"
+#  pragma clang diagnostic ignored "-Wunused-variable"
 #  if __clang_major__ >= 20
 #    pragma clang diagnostic ignored "-Wdeprecated-missing-comma-variadic-parameter"
 #  endif
