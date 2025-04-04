@@ -124,6 +124,9 @@ using builtin_u128 = unsigned __int128;
 #  if __has_builtin(__builtin_sub_overflow) && ((defined(__clang__) && __clang_major__ >= 7) || (defined(__GNUC__) && __GNUC__ >= 10))
 #    define BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW
 #  endif
+#  if __has_builtin(__builtin_add_overflow) && ((defined(__clang__) && __clang_major__ >= 7) || (defined(__GNUC__) && __GNUC__ >= 10))
+#    define BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW
+#  endif
 #endif
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
