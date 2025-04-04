@@ -1311,7 +1311,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_sub(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW)
+    #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW)
 
     // __builtin_sub_overflow is marked constexpr so we don't need if consteval handling
     std::uint64_t result_low {lhs.low - rhs.low};
