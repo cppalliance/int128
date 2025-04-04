@@ -1329,6 +1329,8 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
 }
 
+// On s390x with multiple different versions of GCC and language standards
+// doing addition via subtraction is >10% faster in the benchmarks
 #if defined(__s390__) || defined(__s390x__)
 
 constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
