@@ -1271,12 +1271,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     }
     else
     {
-        std::uint64_t result_low {};
-        std::uint64_t result_high {};
-        const auto carry = BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &result_low);
-        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(lhs.high), static_cast<std::uint64_t>(rhs.high), &result_high);
+        int128_t result {};
+        const auto carry {BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &result.low)};
+        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(lhs.high), static_cast<std::uint64_t>(rhs.high), reinterpret_cast<std::uint64_t*>(&result.high));
 
-        return int128_t{static_cast<std::int64_t>(result_high), result_low};
+        return result;
     }
 
     #else
@@ -1316,16 +1315,15 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return library_add(lhs, rhs);
+        return library_sub(lhs, rhs);
     }
     else
     {
-        std::uint64_t result_low {};
-        std::uint64_t result_high {};
-        const auto carry = BOOST_INT128_SUB_BORROW(0, lhs.low, rhs.low, &result_low);
-        BOOST_INT128_SUB_BORROW(carry, static_cast<std::uint64_t>(lhs.high), static_cast<std::uint64_t>(rhs.high), &result_high);
+        int128_t result {};
+        const auto borrow {BOOST_INT128_SUB_BORROW(0, lhs.low, rhs.low, &result.low)};
+        BOOST_INT128_SUB_BORROW(borrow, static_cast<std::uint64_t>(lhs.high), static_cast<std::uint64_t>(rhs.high), reinterpret_cast<std::uint64_t*>(&result.high));
 
-        return int128_t{static_cast<std::int64_t>(result_high), result_low};
+        return result;
     }
 
     #else
