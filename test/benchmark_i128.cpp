@@ -41,6 +41,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wsign-conversion"
 #  pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #  pragma clang diagnostic ignored "-Wundef"
+#  pragma clang diagnostic ignored "-Wunused-parameter"
 #  if __clang_major__ >= 20
 #    pragma clang diagnostic ignored "-Wdeprecated-missing-comma-variadic-parameter"
 #  endif
@@ -55,6 +56,7 @@ using namespace std::chrono_literals;
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
 #  pragma GCC diagnostic ignored "-Wconversion"
 #  pragma GCC diagnostic ignored "-Wduplicated-branches"
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #  if __GNUC__ >= 11
 #    pragma GCC diagnostic ignored "-Wstringop-overread"
@@ -271,7 +273,7 @@ template <typename T, typename Func>
 BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& data_vec, Func op, const char* operation, const char* type)
 {
     const auto t1 = std::chrono::steady_clock::now();
-    std::size_t s = 0; // discard variable
+    std::int64_t s = 0; // discard variable
 
     for (std::size_t k {}; k < K; ++k)
     {
@@ -279,7 +281,7 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(op(val1, val2));
+            s += static_cast<std::int64_t>((op(val1, val2)));
         }
     }
 
@@ -323,18 +325,19 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -383,18 +386,19 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -444,18 +448,19 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -505,18 +510,19 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -566,18 +572,19 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(library_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::minus<>(), "sub", "Builtin");
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
