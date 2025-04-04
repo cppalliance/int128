@@ -119,4 +119,10 @@ using builtin_u128 = unsigned __int128;
 
 #endif // x64 macros
 
+#ifdef __has_builtin
+#  if __has_builtin(__builtin_sub_overflow)
+#    define BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW
+#  endif
+#endif
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
