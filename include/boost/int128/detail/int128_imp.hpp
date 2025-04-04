@@ -1329,10 +1329,21 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
 }
 
+#if defined(__s390__) || defined(__s390x__)
+
+constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return detail::default_sub(lhs, -rhs);
+}
+
+#else
+
 constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
 {
     return detail::default_add(lhs, rhs);
 }
+
+#endif
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator+(const int128_t lhs, const UnsignedInteger rhs) noexcept
