@@ -1524,7 +1524,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #if ((defined(__aarch64__) && defined(__APPLE__)) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
