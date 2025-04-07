@@ -119,7 +119,11 @@ using builtin_u128 = unsigned __int128;
 #  define BOOST_INT128_ADD_CARRY _addcarryx_u64
 #  define BOOST_INT128_SUB_BORROW _subborrow_u64
 
-#endif // x64 macros
+#elif defined(__i386__)
+
+#  include <emmintrin.h>
+
+#endif // Platform macros
 
 // The builtin is only constexpr from clang-7 or GCC-10
 #ifdef __has_builtin
