@@ -1567,7 +1567,7 @@ constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #if BOOST_INT128_HAS_IF_CONSTEXPR
+    #ifdef BOOST_INT128_HAS_IF_CONSTEXPR
 
     if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
     {
@@ -1588,7 +1588,7 @@ constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noex
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #if BOOST_INT128_HAS_IF_CONSTEXPR
+    #ifdef BOOST_INT128_HAS_IF_CONSTEXPR
 
     if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
     {
