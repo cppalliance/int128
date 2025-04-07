@@ -110,7 +110,7 @@ using builtin_u128 = unsigned __int128;
 #  else
 #    define BOOST_INT128_ADD_CARRY _addcarry_u64
 #    define BOOST_INT128_SUB_BORROW _subborrow_u64
-#endif
+#  endif
 
 #elif defined(_M_AMD64)
 
@@ -122,6 +122,10 @@ using builtin_u128 = unsigned __int128;
 #elif defined(__i386__)
 
 #  include <emmintrin.h>
+
+#elif defined(_M_IX86)
+
+#  include <intrin.h>
 
 #endif // Platform macros
 
