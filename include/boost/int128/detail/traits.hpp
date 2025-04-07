@@ -36,6 +36,11 @@ static constexpr bool is_any_integer_v = signed_integer<T>::value || unsigned_in
                                          || std::is_same<T, builtin_i128>::value || std::is_same<T, builtin_u128>::value
                                          #endif // BOOST_INT128_HAS_INT128
                                          ;
+
+// Decides if we can use a u32 or u64 implementation for some operations
+template <typename T>
+using evaluation_type_t = std::conditional_t<sizeof(T) <= sizeof(std::uint32_t), std::uint32_t, std::uint64_t>;
+
 } // namespace detail
 } // namespace int128
 } // namespace boost
