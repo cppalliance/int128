@@ -1540,7 +1540,19 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
     const auto carry {hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
 
-    std::int64_t high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+
+    return {high_res, low_res};
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
+{
+    const auto low_res {lhs.low * rhs};
+
+    const auto a_hi {lhs.low >> 32U};
+    const auto hi_lo {a_hi * rhs};
+
+    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(hi_lo)};
 
     return {high_res, low_res};
 }
@@ -1555,13 +1567,43 @@ constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
+    #if BOOST_INT128_HAS_IF_CONSTEXPR
+
+    if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
+    {
+        return detail::default_mul(rhs, static_cast<std::uint32_t>(lhs));
+    }
+    else
+    {
+        return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+    }
+
+    #else
+
     return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
+    #if BOOST_INT128_HAS_IF_CONSTEXPR
+
+    if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
+    {
+        return detail::default_mul(lhs, static_cast<std::uint32_t>(rhs));
+    }
+    else
+    {
+        return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+    }
+
+    #else
+
     return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
