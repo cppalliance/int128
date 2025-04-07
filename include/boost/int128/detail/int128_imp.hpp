@@ -1567,57 +1567,35 @@ constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_HAS_IF_CONSTEXPR
+    using local_eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
-    {
-        return detail::default_mul(rhs, static_cast<std::uint32_t>(lhs));
-    }
-    else
-    {
-        return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
-    }
-
-    #else
-
-    return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
-
-    #endif
+    return detail::default_mul(lhs, static_cast<local_eval_type>(rhs));
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_HAS_IF_CONSTEXPR
+    using local_eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if constexpr (sizeof(UnsignedInteger) <= sizeof(std::uint32_t))
-    {
-        return detail::default_mul(lhs, static_cast<std::uint32_t>(rhs));
-    }
-    else
-    {
-        return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
-    }
-
-    #else
-
-    return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
-
-    #endif
+    return detail::default_mul(rhs, static_cast<local_eval_type>(lhs));
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return rhs < 0 ? -detail::default_mul(lhs, static_cast<std::uint64_t>(-rhs)) :
-                      detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+    using local_eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    return rhs < 0 ? -detail::default_mul(lhs, static_cast<local_eval_type>(-rhs)) :
+                      detail::default_mul(lhs, static_cast<local_eval_type>(rhs));
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return lhs < 0 ? -detail::default_mul(rhs, static_cast<std::uint64_t>(-lhs)) :
-                      detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+    using local_eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    return lhs < 0 ? -detail::default_mul(rhs, static_cast<local_eval_type>(-lhs)) :
+                      detail::default_mul(rhs, static_cast<local_eval_type>(lhs));
 }
 
 #ifdef BOOST_INT128_HAS_INT128
