@@ -1607,7 +1607,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         #pragma GCC diagnostic pop
     }
 
-    #elif defined(__GNUC__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__i386__)
+    #elif (defined(__i386__) || defined(_M_IX86)) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
