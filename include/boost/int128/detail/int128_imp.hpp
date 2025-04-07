@@ -1522,6 +1522,62 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, con
     return result;
 }
 
+#ifdef __SSE2__
+
+BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rhs) noexcept
+{
+    int128_t result;
+
+    const auto a0 {static_cast<std::uint32_t>(lhs.low & UINT32_MAX)};
+    const auto a1 {static_cast<std::uint32_t>(lhs.low >> 32)};
+    const auto a2 {static_cast<std::uint32_t>(lhs.high & UINT32_MAX)};
+    const auto a3 {static_cast<std::uint32_t>(lhs.high >> 32)};
+
+    const auto b0 {static_cast<std::uint32_t>(rhs.low & UINT32_MAX)};
+    const auto b1 {static_cast<std::uint32_t>(rhs.low >> 32)};
+    const auto b2 {static_cast<std::uint32_t>(rhs.high & 0xFFFFFFFF)};
+    const auto b3 {static_cast<std::uint32_t>(rhs.high >> 32)};
+
+    // Perform multiplications in parallel using SSE2
+    __m128i a_vec = _mm_set_epi32(0, a2, a1, a0);
+    __m128i b0_vec = _mm_set1_epi32(b0);
+    __m128i b1_vec = _mm_set1_epi32(b1);
+
+    // Multiply a_vec by b0 and b1
+    __m128i prod0 = _mm_mul_epu32(a_vec, b0_vec);
+    __m128i prod1 = _mm_mul_epu32(a_vec, b1_vec);
+
+    // Extract results and handle carries
+    std::uint64_t p00 = _mm_cvtsi128_si64(prod0);
+    std::uint64_t p10 = _mm_cvtsi128_si64(_mm_srli_si128(prod0, 8));
+    std::uint64_t p01 = _mm_cvtsi128_si64(prod1);
+    std::uint64_t p11 = _mm_cvtsi128_si64(_mm_srli_si128(prod1, 8));
+
+    // Additional multiplications for higher parts
+    const auto p20 {static_cast<std::uint64_t>(a2) * b0};
+    const auto p02 {static_cast<std::uint64_t>(a0) * b2};
+    const auto p21 {static_cast<std::uint64_t>(a2) * b1};
+    const auto p12 {static_cast<std::uint64_t>(a1) * b2};
+
+    const auto high_products {static_cast<std::int64_t>(
+                           (a3 * b0 + a2 * b1 + a1 * b2 + a0 * b3) +
+                           (a3 * b1 + a2 * b2 + a1 * b3) +
+                           (a3 * b2 + a2 * b3) +
+                           (a3 * b3))};
+
+    // Combine results with carries
+    const auto middle {(p00 >> 32) + (p01 & UINT32_MAX) + (p10 & UINT32_MAX)};
+    result.low = (middle << 32) | (p00 & UINT32_MAX);
+    result.high = static_cast<std::int64_t>(
+                    high_products + p11 + p20 + p02 + p21 + p12 +
+                    (p01 >> 32) + (p10 >> 32) + (middle >> 32)
+                  );
+
+    return result;
+}
+
+#endif
+
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
     #if ((defined(__aarch64__) && defined(__APPLE__)) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
@@ -1549,6 +1605,17 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         return library_res;
 
         #pragma GCC diagnostic pop
+    }
+
+    #elif defined(__GNUC__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__i386__)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return library_mul(lhs, rhs);
+    }
+    else
+    {
+        return sse_mul(lhs, rhs);
     }
 
     #else
