@@ -129,4 +129,8 @@ using builtin_u128 = unsigned __int128;
 #  endif
 #endif
 
+#if defined(__cpp_if_constexpr) && __cpp_if_constexpr >= 201606L
+#  defined BOOST_INT128_HAS_IF_CONSTEXPR
+#endif // if constexpr detection
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
