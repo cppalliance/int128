@@ -98,13 +98,13 @@ constexpr builtin_i128 get_min<builtin_i128>()
 template <typename T>
 constexpr T get_root_max()
 {
-    return std::numeric_limits<T>::max();
+    return std::numeric_limits<T>::max() / 10;
 }
 
 template <typename T>
 constexpr T get_root_min()
 {
-    return std::numeric_limits<T>::min();
+    return std::numeric_limits<T>::min() / 10;
 }
 
 template <>
