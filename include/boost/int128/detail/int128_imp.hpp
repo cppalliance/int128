@@ -162,6 +162,12 @@ int128_t
     constexpr int128_t& operator-=(Integer rhs) noexcept;
 
     constexpr int128_t& operator-=(int128_t rhs) noexcept;
+
+    // Compound Multiplication
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator*=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator*=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1489,6 +1495,111 @@ constexpr int128_t& int128_t::operator-=(const Integer rhs) noexcept
 constexpr int128_t& int128_t::operator-=(const int128_t rhs) noexcept
 {
     *this = *this - rhs;
+    return *this;
+}
+
+//=====================================
+// Multiplication Operators
+//=====================================
+
+namespace detail {
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t signed_shift_left_32(const std::uint64_t low) noexcept
+{
+    return {static_cast<std::int64_t>(low >> 32), low << 32};
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
+{
+    const auto a = static_cast<std::uint64_t>(lhs.low >> 32);
+    const auto b = static_cast<std::uint64_t>(lhs.low & UINT32_MAX);
+    const auto c = static_cast<std::uint64_t>(rhs.low >> 32);
+    const auto d = static_cast<std::uint64_t>(rhs.low & UINT32_MAX);
+
+    int128_t result { static_cast<std::int64_t>(lhs.high * rhs.low + lhs.low * rhs.high + a * c), b * d };
+    result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
+
+    return result;
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
+{
+    const auto c = static_cast<std::uint64_t>(rhs >> 32);
+    const auto d = static_cast<std::uint64_t>(rhs & UINT32_MAX);
+    const auto a = static_cast<std::uint64_t>(lhs.low >> 32);
+    const auto b = static_cast<std::uint64_t>(lhs.low & UINT32_MAX);
+
+    int128_t result{static_cast<std::int64_t>(lhs.high * rhs), b * d};
+    result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
+
+    return result;
+}
+
+} // namespace detail
+
+constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return detail::default_mul(lhs, rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator*(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    return detail::default_mul(lhs, static_cast<int128_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator*(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    return detail::default_mul(rhs, static_cast<int128_t>(lhs));
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator*(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * rhs);
+}
+
+constexpr int128_t operator*(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(rhs) * lhs);
+}
+
+constexpr int128_t operator*(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return detail::default_mul(lhs, static_cast<int128_t>(rhs));
+}
+
+constexpr int128_t operator*(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return detail::default_mul(rhs, static_cast<int128_t>(lhs));
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator*=(const Integer rhs) noexcept
+{
+    *this = *this * rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
+{
+    *this = *this * rhs;
     return *this;
 }
 
