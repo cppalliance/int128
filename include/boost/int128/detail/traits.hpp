@@ -7,6 +7,7 @@
 
 #include <boost/int128/detail/config.hpp>
 #include <type_traits>
+#include <cstdint>
 
 namespace boost {
 namespace int128 {
