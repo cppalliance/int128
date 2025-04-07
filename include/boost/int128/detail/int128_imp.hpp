@@ -1535,7 +1535,7 @@ BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rh
 
     const auto b0 {static_cast<std::uint32_t>(rhs.low & UINT32_MAX)};
     const auto b1 {static_cast<std::uint32_t>(rhs.low >> 32)};
-    const auto b2 {static_cast<std::uint32_t>(rhs.high & 0xFFFFFFFF)};
+    const auto b2 {static_cast<std::uint32_t>(rhs.high & UINT32_MAX)};
     const auto b3 {static_cast<std::uint32_t>(rhs.high >> 32)};
 
     // Perform multiplications in parallel using SSE2
@@ -1580,7 +1580,7 @@ BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rh
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if ((defined(__aarch64__) && defined(__APPLE__)) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #if (defined(__aarch64__) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
