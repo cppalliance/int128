@@ -1524,7 +1524,38 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return library_mul(lhs, rhs);
+    }
+    else
+    {
+        #pragma GCC diagnostic push
+        #pragma GCC diagnostic ignored "-Wclass-memaccess"
+
+        detail::builtin_i128 new_lhs {};
+        detail::builtin_i128 new_rhs {};
+
+        std::memcpy(&new_lhs, &lhs, sizeof(int128_t));
+        std::memcpy(&new_rhs, &rhs, sizeof(int128_t));
+
+        const auto res {new_lhs * new_rhs};
+        int128_t library_res {};
+
+        std::memcpy(&library_res, &res, sizeof(detail::builtin_i128));
+
+        return library_res;
+
+        #pragma GCC diagnostic pop
+    }
+
+    #else
+
     return library_mul(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
