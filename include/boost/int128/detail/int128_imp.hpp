@@ -1509,17 +1509,22 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t signed_shift_left_32(const std::uin
     return {static_cast<std::int64_t>(low >> 32), low << 32};
 }
 
-BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    const auto a = static_cast<std::uint64_t>(lhs.low >> 32);
-    const auto b = static_cast<std::uint64_t>(lhs.low & UINT32_MAX);
-    const auto c = static_cast<std::uint64_t>(rhs.low >> 32);
-    const auto d = static_cast<std::uint64_t>(rhs.low & UINT32_MAX);
+    const auto a {lhs.low >> 32U};
+    const auto b {lhs.low & UINT32_MAX};
+    const auto c {rhs.low >> 32U};
+    const auto d {rhs.low & UINT32_MAX};
 
     int128_t result { static_cast<std::int64_t>(lhs.high * rhs.low + lhs.low * rhs.high + a * c), b * d };
     result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
 
     return result;
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
+{
+    return library_mul(lhs, rhs);
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
