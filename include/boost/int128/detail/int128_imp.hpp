@@ -1609,13 +1609,15 @@ constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noex
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return detail::default_mul(lhs, static_cast<int128_t>(rhs));
+    return rhs < 0 ? -detail::default_mul(lhs, static_cast<std::uint64_t>(-rhs)) :
+                      detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return detail::default_mul(rhs, static_cast<int128_t>(lhs));
+    return lhs < 0 ? -detail::default_mul(rhs, static_cast<std::uint64_t>(-lhs)) :
+                      detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
 }
 
 #ifdef BOOST_INT128_HAS_INT128
