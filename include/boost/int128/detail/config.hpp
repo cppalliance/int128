@@ -102,6 +102,8 @@ using builtin_u128 = unsigned __int128;
 #ifdef __x86_64__
 
 #  include <x86intrin.h>
+#  include <emmintrin.h>
+
 #  ifdef __ADX__
 #    define BOOST_INT128_ADD_CARRY _addcarryx_u64
 #    define BOOST_INT128_SUB_BORROW _subborrow_u64
