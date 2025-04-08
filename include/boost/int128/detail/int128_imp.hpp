@@ -1614,10 +1614,11 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_32_mul(const int128_t lhs, const int128_
         std::uint64_t t {};
         for (std::size_t i {}; i < width; ++i)
         {
-            t += static_cast<std::uint64_t>(u_parts[i]) * v_parts[i] + w[i + j];
+            t += static_cast<std::uint64_t>(u_parts[i]) * v_parts[j] + w[i + j];
             w[i + j] = static_cast<std::uint32_t>(t);
             t >>= 32u;
         }
+        w[j + width] = static_cast<std::uint32_t>(t);
     }
 
     int128_t result {};
