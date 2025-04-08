@@ -1594,6 +1594,11 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int1
 
 #if defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm M: Multiplication of Non-negative integers
 BOOST_INT128_FORCE_INLINE int128_t msvc_32_mul(const int128_t lhs, const int128_t rhs) noexcept
@@ -1632,6 +1637,10 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_32_mul(const int128_t lhs, const int128_
 
     return result;
 }
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #endif
 
