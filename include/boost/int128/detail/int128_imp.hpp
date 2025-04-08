@@ -1578,7 +1578,7 @@ BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rh
 
 #endif
 
-#ifdef _M_AMD64
+#if defined(_M_AMD64) && !defined(__GNUC__)
 
 BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
@@ -1674,7 +1674,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         return sse_mul(lhs, rhs);
     }
 
-    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
