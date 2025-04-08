@@ -1578,6 +1578,20 @@ BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rh
 
 #endif
 
+#ifdef _M_AMD64
+
+BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int128_t rhs) noexcept
+{
+    int128_t result {};
+    result.low = _umul128(lhs.low, rhs.low, &rhs.high);
+    result.high += lhs.low * rhs.high;
+    result.high += lhs.high * rhs.low;
+
+    return result;
+}
+
+#endif
+
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
     #if (defined(__aarch64__) || defined(__x86_64__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
@@ -1607,7 +1621,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         #pragma GCC diagnostic pop
     }
 
-    #elif (defined(__i386__) || defined(_M_IX86)) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif defined(__i386__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1616,6 +1630,17 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     else
     {
         return sse_mul(lhs, rhs);
+    }
+
+    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
+    {
+        return library_mul(lhs, rhs);
+    }
+    else
+    {
+        return msvc_amd64_mul(lhs, rhs);
     }
 
     #else
