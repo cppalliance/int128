@@ -1583,7 +1583,7 @@ BOOST_INT128_FORCE_INLINE int128_t sse_mul(const int128_t lhs, const int128_t rh
 BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
     int128_t result {};
-    result.low = _umul128(lhs.low, rhs.low, &rhs.high);
+    result.low = _umul128(lhs.low, rhs.low, reinterpret_cast<std::uint64_t*>(&result.high));
     result.high += lhs.low * rhs.high;
     result.high += lhs.high * rhs.low;
 
