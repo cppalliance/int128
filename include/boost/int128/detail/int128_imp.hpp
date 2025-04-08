@@ -1685,7 +1685,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         return msvc_amd64_mul(lhs, rhs);
     }
 
-    #elif (defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(_M_IX86) || defined(_M_ARM)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
