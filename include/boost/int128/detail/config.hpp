@@ -143,4 +143,29 @@ using builtin_u128 = unsigned __int128;
 #  define BOOST_INT128_HAS_IF_CONSTEXPR
 #endif // if constexpr detection
 
+#include <cassert>
+
+#define BOOST_INT128_ASSERT(x) assert(x)
+#define BOOST_INT128_ASSERT_MSG(expr, msg) assert((expr)&&(msg))
+
+#ifdef _MSC_VER
+#  define BOOST_INT128_ASSUME(expr) __assume(expr)
+#elif defined(__clang__)
+#  define BOOST_INT128_ASSUME(expr) __builtin_assume(expr)
+#elif defined(__GNUC__)
+#  if __GNUC__ >= 5 && __GNUC__ < 13
+#    define BOOST_INT128_ASSUME(expr) if (expr) {} else { __builtin_unreachable(); }
+#  else
+#    define BOOST_INT128_ASSUME(expr) __attribute__((assume(expr)))
+#  endif
+#elif defined(__has_cpp_attribute)
+#  if __has_cpp_attribute(assume)
+#    define BOOST_INT128_ASSUME(expr) [[assume(expr)]]
+#  else
+#    define BOOST_INT128_ASSUME(expr) BOOST_INT128_ASSERT(expr)
+#  endif
+#else
+#  define BOOST_INT128_ASSUME(expr) BOOST_INT128_ASSERT(expr)
+#endif
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
