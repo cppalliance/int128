@@ -9,6 +9,7 @@
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
+#include <boost/int128/detail/clz.hpp>
 #include <cstdint>
 #include <cstring>
 
@@ -1904,6 +1905,109 @@ constexpr void knuth_div(std::uint32_t (&u)[u_size],
     }
 }
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint64_t rhs, int128_t& remainder) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+
+    int128_t quotient {};
+
+    // If rhs is greater than 2^32, then the result is trivial to find.
+    if (rhs >= UINT32_MAX)
+    {
+        #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
+        if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
+        {
+            quotient.low = _udiv128(static_cast<std::uint64_t>(lhs.high), lhs.low, rhs, &remainder.low);
+        }
+        else
+        #else
+        {
+            remainder.low = (lhs.high << 32U) | (lhs.low >> 32U);
+            auto res = remainder.low / rhs;
+            remainder.low = (remainder.low % rhs) << 32 | lhs.low;
+            res = (res << 32) | (remainder.low / rhs);
+            remainder.low %= rhs;
+        }
+        #endif
+    }
+    else
+    {
+        const auto rhs32 = static_cast<std::uint32_t>(rhs);
+
+        auto current = static_cast<std::uint64_t>(lhs.high >> 32U);
+        quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+        remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+        current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.high);
+        quotient.high |= static_cast<std::uint32_t>(current / rhs32);
+        remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+        current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.low >> 32U);
+        quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+        remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+        current = remainder.low << 32U | static_cast<std::uint32_t>(lhs.low);
+        quotient.low |= static_cast<std::uint32_t>(current / rhs32);
+        remainder.low = static_cast<std::uint32_t>(current % rhs32);
+    }
+
+    return quotient;
+}
+
+inline int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
+{
+    BOOST_INT128_ASSUME(rhs > 0);
+
+    const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
+
+    std::uint32_t numerator[5];
+    std::uint32_t denominator[4];
+    std::memcpy(&numerator, &lhs, sizeof(int128_t));
+    std::memcpy(&denominator, &rhs, sizeof(int128_t));
+
+    std::size_t num_size {4};
+    while (num_size > 0 && numerator[num_size - 1] == 0)
+    {
+        --num_size;
+    }
+
+    if (BOOST_INT128_UNLIKELY(num_size == 0))
+    {
+        return int128_t{0, 0};
+    }
+
+    std::size_t den_size {4};
+    while (den_size > 0 && denominator[den_size - 1] == 0)
+    {
+        --den_size;
+    }
+
+    // Trivial Cases
+    if (den_size > num_size)
+    {
+        // Divisor > dividend
+        remainder = rhs;
+        return int128_t{0, 0};
+    }
+    else if (den_size == 1)
+    {
+        // Division by a single word
+        int128_t quotient {single_word_div(lhs, static_cast<std::uint64_t>(rhs), remainder)};
+        if (negative_res)
+        {
+            quotient.low = ~quotient.low + 1;
+            quotient.high = ~quotient.high + (quotient.low == 0 ? 1 : 0);
+            return quotient;
+        }
+    }
+
+    // General Case:
+    int d {};
+    if (denominator[den_size - 1] != 0)
+    {
+
+    }
+}
 
 } // namespace detail
 
