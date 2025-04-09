@@ -46,7 +46,7 @@ using builtin_u128 = unsigned __int128;
 
 #else
 
-#error Could not determine endian type. Please file an issue at https://github.com/cppalliance/decimal with your architecture
+#error Could not determine endian type. Please file an issue at https://github.com/cppalliance/INT128 with your architecture
 
 #endif // Determine endianness
 
@@ -167,5 +167,20 @@ using builtin_u128 = unsigned __int128;
 #else
 #  define BOOST_INT128_ASSUME(expr) BOOST_INT128_ASSERT(expr)
 #endif
+
+#if defined(__has_builtin)
+#define BOOST_INT128_HAS_BUILTIN(x) __has_builtin(x)
+#else
+#define BOOST_INT128_HAS_BUILTIN(x) false
+#endif
+
+#if BOOST_INT128_HAS_BUILTIN(__builtin_expect)
+#  define BOOST_INT128_LIKELY(x) __builtin_expect(x, 1)
+#  define BOOST_INT128_UNLIKELY(x) __builtin_expect(x, 0)
+#else
+#  define BOOST_INT128_LIKELY(x) x
+#  define BOOST_INT128_UNLIKELY(x) x
+#endif
+
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
