@@ -44,6 +44,49 @@ constexpr int countl_impl(std::uint64_t x) noexcept
     retrun x ? _CountLeadingZeros64(x) : std::numeric_limits<std::uint64_t>::digits;
 }
 
+#elif defined(_M_AMD64)
+
+constexpr int countl_impl(unsigned long x) noexcept
+{
+    unsigned long r {};
+    if (_BitScanReverse(&r, x))
+    {
+        return 31 - static_cast<int>(r);
+    }
+    else
+    {
+        return 32;
+    }
+}
+
+constexpr int countl_impl(std::uint64_t x) noexcept
+{
+    std::uint64_t r {};
+    if (_BitScanReverse64(&r, x))
+    {
+        return 63 - static_cast<int>(r);
+    }
+    else
+    {
+        return 64;
+    }
+}
+
+#elif defined(_M_IX86)
+
+constexpr int countl_impl(unsigned long x) noexcept
+{
+    unsigned long r {};
+    if (_BitScanReverse(&r, x))
+    {
+        return 31 - static_cast<int>(r);
+    }
+    else
+    {
+        return 32;
+    }
+}
+
 #else
 
 static constexpr int index64[64] = {
