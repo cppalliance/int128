@@ -168,6 +168,12 @@ int128_t
     constexpr int128_t& operator*=(Integer rhs) noexcept;
 
     constexpr int128_t& operator*=(int128_t rhs) noexcept;
+
+    // Compound Division
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator/=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator/=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1819,6 +1825,103 @@ constexpr int128_t& int128_t::operator*=(const Integer rhs) noexcept
 constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
 {
     *this = *this * rhs;
+    return *this;
+}
+
+//=====================================
+// Division Operator
+//=====================================
+
+namespace detail {
+
+// See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
+// Algorithm D: Division of Non-negative integers
+template <std::size_t u_size, std::size_t v_size, std::size_t q_size>
+constexpr void knuth_div(std::uint32_t (&u)[u_size],
+                         const std::uint32_t (&v)[v_size],
+                         std::uint32_t (&q)[q_size]) noexcept
+{
+    static_assert(u_size > v_size, "Dividend must be larger that the divisior");
+    static_assert(q_size >= (u_size - v_size), "Quotient array must be at least u_size - v_size");
+
+    constexpr auto n {static_cast<int>(v_size)};
+    constexpr auto m {static_cast<int>(u_size - v_size - 1)};
+
+    // D.2 and 7
+    for (int j {m}; j >= 0; --j)
+    {
+        const auto next_two_digits {(static_cast<std::uint64_t>(u[j + n]) << 32) | u[j + n - 1]};
+
+        std::uint64_t qhat {next_two_digits / v[n - 1]};
+        std::uint64_t rhat {next_two_digits % v[n - 1]};
+
+        // D.3
+        // Test quotient and correct if needed
+        while ((qhat >> 32) != 0 ||
+               qhat * static_cast<std::uint64_t>(v[n - 2]) > ((rhat << 32) | u[j + n - 2]))
+        {
+            --qhat;
+            rhat += v[n - 1];
+            if ((rhat >> 32) != 0)
+            {
+                break;
+            }
+        }
+
+        std::int64_t k {};
+
+        // D.4
+        for (int i {}; i < n; ++i)
+        {
+            const auto prod {qhat * static_cast<std::uint64_t>(v[i])};
+            const auto prod_low {static_cast<std::uint32_t>(prod)};
+            const auto prod_high {static_cast<std::uint32_t>(prod >> 32)};
+
+            const auto t {static_cast<std::int64_t>(u[i + j]) - k - static_cast<std::int64_t>(prod_low)};
+            k = static_cast<std::int64_t>(prod_high) - (t < 0 ? 1 : 0);
+            u[i + j] = static_cast<std::uint32_t>(t);
+        }
+
+        // D.5
+        const auto t {static_cast<std::int64_t>(u[j + n]) - k};
+        u[j + n] = static_cast<std::uint32_t>(t);
+
+        // D.6
+        q[j] = static_cast<std::uint32_t>(qhat);
+        if (t < 0)
+        {
+            --q[j];
+            std::uint32_t k_prime {};
+            for (int i {}; i < n; ++i)
+            {
+                const auto sum {static_cast<std::uint64_t>(u[i + j]) + v[i] + k_prime};
+                u[i + j] = static_cast<std::uint32_t>(sum);
+                k = static_cast<std::uint32_t>(sum >> 32U);
+            }
+
+            u[j + n] += k;
+        }
+    }
+}
+
+
+} // namespace detail
+
+constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+}
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator/=(const Integer rhs) noexcept
+{
+    *this = *this / rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator/=(const int128_t rhs) noexcept
+{
+    *this = *this / rhs;
     return *this;
 }
 
