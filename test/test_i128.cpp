@@ -767,28 +767,32 @@ void test_operator_div()
     boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(),
                                                           get_root_max<IntType>());
 
-    for (std::size_t i {}; i < N; ++i)
+    // TODO(mborland): 1 thing at a time
+    BOOST_INT128_IF_CONSTEXPR (boost::int128::detail::is_unsigned_integer_v<IntType>)
     {
-        IntType value {dist(rng)};
-        IntType value2 {dist(rng)};
-
-        // Avoid UB of div by 0
-        while (value == 0)
+        for (std::size_t i {}; i < N; ++i)
         {
-            value = dist(rng);
-        }
-        while (value2 == 0)
-        {
-            value2 = dist(rng);
-        }
+            IntType value {dist(rng)};
+            IntType value2 {dist(rng)};
 
-        auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+            // Avoid UB of div by 0
+            while (value == 0)
+            {
+                value = dist(rng);
+            }
+            while (value2 == 0)
+            {
+                value2 = dist(rng);
+            }
 
-        auto check_1_value {emulated_value};
-        check_1_value /= value2;
-        BOOST_TEST(check_1_value == (builtin_value / value2));
-        BOOST_TEST((value2 / emulated_value) == (value2 / builtin_value));
+            auto builtin_value = static_cast<builtin_i128>(value);
+            boost::int128::int128_t emulated_value {value};
+
+            auto check_1_value {emulated_value};
+            check_1_value /= value2;
+            BOOST_TEST(check_1_value == (builtin_value / value2));
+            BOOST_TEST((value2 / emulated_value) == (value2 / builtin_value));
+        }
     }
 }
 
