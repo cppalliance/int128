@@ -1905,6 +1905,33 @@ constexpr void knuth_div(std::uint32_t (&u)[u_size],
     }
 }
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t half_word_div(const int128_t& lhs, const std::uint32_t rhs, int128_t& remainder) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+
+    int128_t quotient {};
+
+    const auto rhs32 = static_cast<std::uint32_t>(rhs);
+
+    auto current = static_cast<std::uint64_t>(lhs.high >> 32U);
+    quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.high);
+    quotient.high |= static_cast<std::uint32_t>(current / rhs32);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.low >> 32U);
+    quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = remainder.low << 32U | static_cast<std::uint32_t>(lhs.low);
+    quotient.low |= static_cast<std::uint32_t>(current / rhs32);
+    remainder.low = static_cast<std::uint32_t>(current % rhs32);
+
+    return quotient;
+}
+
 BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint64_t rhs, int128_t& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0);
@@ -1932,23 +1959,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     }
     else
     {
-        const auto rhs32 = static_cast<std::uint32_t>(rhs);
-
-        auto current = static_cast<std::uint64_t>(lhs.high >> 32U);
-        quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-        remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-        current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.high);
-        quotient.high |= static_cast<std::uint32_t>(current / rhs32);
-        remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-        current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.low >> 32U);
-        quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-        remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-        current = remainder.low << 32U | static_cast<std::uint32_t>(lhs.low);
-        quotient.low |= static_cast<std::uint32_t>(current / rhs32);
-        remainder.low = static_cast<std::uint32_t>(current % rhs32);
+        quotient = half_word_div(lhs, rhs, remainder);
     }
 
     return quotient;
@@ -2111,6 +2122,8 @@ inline int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& 
 constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0);
+    int128_t remainder {};
+    return detail::default_div<false>(lhs, rhs, remainder);
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
