@@ -182,5 +182,14 @@ using builtin_u128 = unsigned __int128;
 #  define BOOST_INT128_UNLIKELY(x) x
 #endif
 
+#if !defined(__cpp_if_constexpr) || (__cpp_if_constexpr < 201606L)
+#  define BOOST_INT128_NO_CXX17_IF_CONSTEXPR
+#endif
+
+#ifndef BOOST_INT128_NO_CXX17_IF_CONSTEXPR
+#  define BOOST_INT128_IF_CONSTEXPR if constexpr
+#else
+#  define BOOST_INT128_IF_CONSTEXPR if
+#endif
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
