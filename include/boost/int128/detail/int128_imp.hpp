@@ -2030,12 +2030,8 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
     {
         // Division by a single word
         int128_t quotient {single_word_div(lhs, static_cast<std::uint64_t>(rhs), remainder)};
-        if (negative_res)
-        {
-            quotient.low = ~quotient.low + 1;
-            quotient.high = ~quotient.high + (quotient.low == 0 ? 1 : 0);
-            return quotient;
-        }
+
+        return negative_res ? -quotient : quotient;
     }
 
     // General Case: We need to apply Knuth's normalization in preparation to use 4.3.1.D above
@@ -2101,8 +2097,7 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
 
     if (negative_res)
     {
-        quotient.low = ~quotient.low + 1;
-        quotient.high = ~quotient.high + (quotient.low == 0 ? 1 : 0);
+        quotient = -quotient;
     }
 
     // De-normalize the remainder if we need it
@@ -2134,8 +2129,7 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
 
         if (lhs.high < 0 && (r_high != 0 || r_low != 0))
         {
-            remainder.low = ~remainder.low + 1;
-            remainder.high = ~remainder.high + (remainder.low == 0 ? 1 : 0);
+            remainder = -remainder;
         }
     }
 
@@ -2171,7 +2165,8 @@ constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noex
     }
     else
     {
-        const auto res {static_cast<std::uint64_t>(lhs) / rhs.low};
+        auto abs_rhs {abs(rhs)};
+        const auto res {static_cast<std::uint64_t>(lhs) / abs_rhs.low};
         return int128_t{rhs.high, res};
     }
 }
@@ -2200,7 +2195,9 @@ constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexce
     else
     {
         const auto negative_res {static_cast<bool>((rhs.high < 0) ^ (lhs < 0))};
-        const auto res {static_cast<std::uint64_t>(lhs) / rhs.low};
+        const auto abs_rhs {abs(rhs)};
+        const auto abs_lhs {lhs < 0 ? -lhs : lhs};
+        const auto res {static_cast<std::uint64_t>(abs_lhs) / abs_rhs.low};
 
         return negative_res ? int128_t{-1, res} : int128_t{0, res};
     }
