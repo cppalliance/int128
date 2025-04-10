@@ -1968,7 +1968,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
             quotient.low = _udiv128(static_cast<std::uint64_t>(lhs.high), lhs.low, rhs, &remainder.low);
         }
         else
-        #else
+        #endif
         {
             if (lhs.high < rhs)
             {
@@ -1998,7 +1998,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
             remainder.low = final_rem;
             remainder.high = 0;
         }
-        #endif
     }
     else
     {
