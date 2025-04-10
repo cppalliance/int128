@@ -209,7 +209,7 @@ void test_float_conversion_operators()
 
     for (std::size_t i {}; i < N; ++i)
     {
-        if (!std::is_same<FloatType, float>::value)
+        BOOST_INT128_IF_CONSTEXPR (!std::is_same<FloatType, float>::value)
         {
             boost::random::uniform_int_distribution<std::uint32_t> dist(std::numeric_limits<std::uint32_t>::min(),
                                                                         std::numeric_limits<std::uint32_t>::max());
@@ -462,7 +462,7 @@ void test_operator_or()
         auto check_1_value {emulated_value};
         check_1_value |= value2;
 
-        if (!std::is_same<IntType, builtin_u128>::value)
+        BOOST_INT128_IF_CONSTEXPR (!std::is_same<IntType, builtin_u128>::value)
         {
             BOOST_TEST(check_1_value == (builtin_value | value2));
             BOOST_TEST((value2 | emulated_value) == (value2 | builtin_value));
@@ -497,7 +497,7 @@ void test_operator_and()
         auto check_1_value {emulated_value};
         check_1_value &= value2;
 
-        if (!std::is_same<IntType, builtin_u128>::value)
+        BOOST_INT128_IF_CONSTEXPR (!std::is_same<IntType, builtin_u128>::value)
         {
             BOOST_TEST(check_1_value == (builtin_value & value2));
             BOOST_TEST((value2 & emulated_value) == (value2 & builtin_value));
@@ -532,7 +532,7 @@ void test_operator_xor()
         auto check_1_value {emulated_value};
         check_1_value ^= value2;
 
-        if (!std::is_same<IntType, builtin_u128>::value)
+        BOOST_INT128_IF_CONSTEXPR (!std::is_same<IntType, builtin_u128>::value)
         {
             BOOST_TEST(check_1_value == (builtin_value ^ value2));
             BOOST_TEST((value2 ^ emulated_value) == (value2 ^ builtin_value));
@@ -669,7 +669,7 @@ void test_operator_add()
         IntType value2 {dist(rng)};
 
         // Avoid UB from signed rollover
-        if (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
         {
             value /= 100;
             value2 /= 100;
@@ -706,7 +706,7 @@ void test_operator_sub()
         IntType value2 {dist(rng)};
 
         // Avoid UB from signed rollover / unrepresentable values
-        if (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
         {
             value /= 100;
             value2 /= 100;
