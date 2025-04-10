@@ -15,6 +15,53 @@ namespace detail {
 
 namespace impl {
 
+// See: http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn
+static constexpr int index64[64] = {
+    0, 47,  1, 56, 48, 27,  2, 60,
+    57, 49, 41, 37, 28, 16,  3, 61,
+    54, 58, 35, 52, 50, 42, 21, 44,
+    38, 32, 29, 23, 17, 11,  4, 62,
+    46, 55, 26, 59, 40, 36, 15, 53,
+    34, 51, 20, 43, 31, 22, 10, 45,
+    25, 39, 14, 33, 19, 30,  9, 24,
+    13, 18,  8, 12,  7,  6,  5, 63
+};
+
+constexpr int bit_scan_reverse(std::uint64_t bb) noexcept
+{
+    constexpr auto debruijn64 {UINT64_C(0x03f79d71b4cb0a89)};
+
+    BOOST_INT128_ASSUME(bb != 0);
+
+    bb |= bb >> 1;
+    bb |= bb >> 2;
+    bb |= bb >> 4;
+    bb |= bb >> 8;
+    bb |= bb >> 16;
+    bb |= bb >> 32;
+
+    return index64[(bb * debruijn64) >> 58];
+}
+
+static constexpr int mod37[37] = {
+    32, 31, 6, 30, 9, 5, 0, 29,
+    16, 8, 2, 4, 21, 0, 19, 28,
+    25, 15, 0, 7, 10, 1, 17, 3,
+    22, 20, 26, 0, 11, 18, 23,
+    27, 12, 24, 13, 14, 0
+};
+
+constexpr int backup_countl_impl(std::uint32_t x) noexcept
+{
+    x |= x >> 1;
+    x |= x >> 2;
+    x |= x >> 4;
+    x |= x >> 8;
+    x |= x >> 16;
+
+    return mod37[x % 37];
+}
+
 #if BOOST_INT128_HAS_BUILTIN(__builtin_clz)
 
 constexpr int countl_impl(unsigned int x) noexcept
