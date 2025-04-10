@@ -1905,7 +1905,7 @@ constexpr void knuth_div(std::uint32_t (&u)[u_size],
     }
 }
 
-BOOST_INT128_FORCE_INLINE constexpr int128_t half_word_div(const int128_t& lhs, const std::uint32_t rhs, int128_t& remainder) noexcept
+BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint32_t rhs, int128_t& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0);
 
@@ -1959,23 +1959,33 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     }
     else
     {
-        quotient = half_word_div(lhs, rhs, remainder);
+        quotient = single_word_div(lhs, static_cast<std::uint32_t>(rhs), remainder);
     }
 
     return quotient;
 }
 
 template <bool need_mod>
-inline int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
+constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs > 0);
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
 
-    std::uint32_t numerator[5];
-    std::uint32_t denominator[4];
-    std::memcpy(&numerator, &lhs, sizeof(int128_t));
-    std::memcpy(&denominator, &rhs, sizeof(int128_t));
+    std::uint32_t numerator[5] = {
+        static_cast<std::uint32_t>(lhs.low),
+        static_cast<std::uint32_t>(lhs.low >> 32U),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(lhs.high)),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(lhs.high) >> 32U),
+        0
+    };
+
+    std::uint32_t denominator[4] = {
+        static_cast<std::uint32_t>(rhs.low),
+        static_cast<std::uint32_t>(rhs.low >> 32U),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(rhs.high)),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(rhs.high) >> 32U)
+    };
 
     std::size_t num_size {4};
     while (num_size > 0 && numerator[num_size - 1] == 0)
