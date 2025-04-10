@@ -2161,6 +2161,36 @@ constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noex
     }
 }
 
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+    using eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    int128_t remainder {};
+
+    const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
+    const auto quo {detail::single_word_div(lhs, static_cast<eval_type>(rhs), remainder)};
+
+    return negative_res ? -quo : quo;
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    if (rhs.high != 0 && rhs.high != -1)
+    {
+        return {0,0};
+    }
+    else
+    {
+        const auto negative_res {static_cast<bool>((rhs.high < 0) ^ (lhs < 0))};
+        const auto res {static_cast<std::uint64_t>(lhs) / rhs.low};
+
+        return negative_res ? int128_t{-1, res} : int128_t{0, res};
+    }
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator/=(const Integer rhs) noexcept
 {
