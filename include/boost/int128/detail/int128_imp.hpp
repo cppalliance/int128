@@ -1848,6 +1848,11 @@ constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
 // Division Operator
 //=====================================
 
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wassume"
+#endif
+
 namespace detail {
 
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
