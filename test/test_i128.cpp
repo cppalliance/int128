@@ -792,6 +792,57 @@ void test_operator_div()
     }
 }
 
+template <typename IntType, std::enable_if_t<boost::int128::detail::is_signed_integer_v<IntType>, bool> = true>
+void test_abs()
+{
+    using boost::int128::abs;
+
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const auto value {dist(rng)};
+        boost::int128::int128_t emulated_value {value};
+        auto builtin_value = static_cast<builtin_i128>(value);
+
+        if (value < 0)
+        {
+            BOOST_TEST(abs(emulated_value) == -emulated_value);
+            BOOST_TEST(abs(emulated_value) == -builtin_value);
+        }
+        else
+        {
+            BOOST_TEST(abs(emulated_value) == emulated_value);
+            BOOST_TEST(abs(emulated_value) == builtin_value);
+        }
+    }
+}
+
+template <typename IntType, std::enable_if_t<!boost::int128::detail::is_signed_integer_v<IntType>, bool> = true>
+void test_abs()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        auto value {dist(rng)};
+
+        // Avoid signed rollover UB
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<IntType, builtin_u128>::value)
+        {
+            value /= 100;
+        }
+
+        boost::int128::int128_t emulated_value {value};
+        auto builtin_value = static_cast<builtin_i128>(value);
+
+        BOOST_TEST(abs(emulated_value) == emulated_value);
+        BOOST_TEST(abs(emulated_value) == builtin_value);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -823,6 +874,8 @@ struct test_caller
         test_operator_sub<T>();
         test_operator_mul<T>();
         test_operator_div<T>();
+
+        test_abs<T>();
     }
 };
 
