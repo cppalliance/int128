@@ -2136,6 +2136,31 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
     return detail::default_div<false>(lhs, rhs, remainder);
 }
 
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator/(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    int128_t remainder {};
+
+    return detail::single_word_div(lhs, static_cast<eval_type>(rhs), remainder);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    if (rhs.high != 0 && rhs.high != -1)
+    {
+        return {0,0};
+    }
+    else
+    {
+        const auto res {static_cast<std::uint64_t>(lhs) / rhs.low};
+        return int128_t{rhs.high, res};
+    }
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator/=(const Integer rhs) noexcept
 {
