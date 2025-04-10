@@ -1927,24 +1927,25 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     int128_t quotient {};
 
     const auto rhs32 = static_cast<std::uint32_t>(rhs);
+    auto abs_lhs {abs(lhs)};
 
-    auto current = static_cast<std::uint64_t>(lhs.high >> 32U);
+    auto current = static_cast<std::uint64_t>(abs_lhs.high >> 32U);
     quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
     remainder.low = static_cast<std::uint64_t>(current % rhs32);
 
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.high);
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.high);
     quotient.high |= static_cast<std::uint32_t>(current / rhs32);
     remainder.low = static_cast<std::uint64_t>(current % rhs32);
 
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(lhs.low >> 32U);
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.low >> 32U);
     quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
     remainder.low = static_cast<std::uint64_t>(current % rhs32);
 
-    current = remainder.low << 32U | static_cast<std::uint32_t>(lhs.low);
+    current = remainder.low << 32U | static_cast<std::uint32_t>(abs_lhs.low);
     quotient.low |= static_cast<std::uint32_t>(current / rhs32);
     remainder.low = static_cast<std::uint32_t>(current % rhs32);
 
-    return quotient;
+    return lhs < 0 ? -quotient : quotient;
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint64_t rhs, int128_t& remainder) noexcept
@@ -1964,11 +1965,33 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
         else
         #else
         {
-            remainder.low = (lhs.high << 32U) | (lhs.low >> 32U);
-            auto res = remainder.low / rhs;
-            remainder.low = (remainder.low % rhs) << 32 | lhs.low;
-            res = (res << 32) | (remainder.low / rhs);
-            remainder.low %= rhs;
+            if (lhs.high < rhs)
+            {
+                quotient.low = 0;
+                remainder = lhs;
+            }
+            else
+            {
+                quotient.low = lhs.high / rhs;
+                remainder.low = lhs.low;
+                remainder.high = lhs.high % rhs;
+            }
+
+            const auto n_hi {static_cast<std::uint64_t>(remainder.high)};
+            const auto n_lo {remainder.low};
+
+            const auto temp_quo {((n_hi << 32) | (n_lo >> 32)) / rhs};
+            const auto temp_rem {((n_hi << 32) | (n_lo >> 32)) % rhs};
+
+            quotient.low = (quotient.low << 32) | temp_quo;
+
+            const auto final_dividend {(temp_rem << 32) | (n_lo & UINT32_MAX)};
+            const auto final_quo {final_dividend / rhs};
+            const auto final_rem {final_dividend % rhs};
+
+            quotient.low = (quotient.low << 32) | final_quo;
+            remainder.low = final_rem;
+            remainder.high = 0;
         }
         #endif
     }
@@ -1987,19 +2010,22 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
 
+    const auto abs_lhs {abs(lhs)};
+    const auto abs_rhs {abs(rhs)};
+
     std::uint32_t numerator[5] = {
-        static_cast<std::uint32_t>(lhs.low),
-        static_cast<std::uint32_t>(lhs.low >> 32U),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(lhs.high)),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(lhs.high) >> 32U),
+        static_cast<std::uint32_t>(abs_lhs.low),
+        static_cast<std::uint32_t>(abs_lhs.low >> 32U),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_lhs.high)),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_lhs.high) >> 32U),
         0
     };
 
     std::uint32_t denominator[4] = {
-        static_cast<std::uint32_t>(rhs.low),
-        static_cast<std::uint32_t>(rhs.low >> 32U),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(rhs.high)),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(rhs.high) >> 32U)
+        static_cast<std::uint32_t>(abs_rhs.low),
+        static_cast<std::uint32_t>(abs_rhs.low >> 32U),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_rhs.high)),
+        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_rhs.high) >> 32U)
     };
 
     std::size_t num_size {4};
