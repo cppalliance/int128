@@ -16,7 +16,11 @@ namespace detail {
 template <typename T>
 struct signed_integer
 {
-    static constexpr bool value = std::is_signed<T>::value && std::is_integral<T>::value;
+    static constexpr bool value = std::is_signed<T>::value && std::is_integral<T>::value
+    #ifdef BOOST_INT128_HAS_INT128
+    || std::is_same<T, builtin_i128>::value;
+    #endif
+    ;
 };
 
 template <typename T>
@@ -25,22 +29,33 @@ static constexpr bool is_signed_integer_v = signed_integer<T>::value;
 template <typename T>
 struct unsigned_integer
 {
-    static constexpr bool value = std::is_unsigned<T>::value && std::is_integral<T>::value;
+    static constexpr bool value = std::is_unsigned<T>::value && std::is_integral<T>::value
+    #ifdef BOOST_INT128_HAS_INT128
+    || std::is_same<T, builtin_u128>::value;
+    #endif
+    ;
 };
 
 template <typename T>
 static constexpr bool is_unsigned_integer_v = unsigned_integer<T>::value;
 
 template <typename T>
-static constexpr bool is_any_integer_v = signed_integer<T>::value || unsigned_integer<T>::value
-                                         #ifdef BOOST_INT128_HAS_INT128
-                                         || std::is_same<T, builtin_i128>::value || std::is_same<T, builtin_u128>::value
-                                         #endif // BOOST_INT128_HAS_INT128
-                                         ;
+static constexpr bool is_any_integer_v = signed_integer<T>::value || unsigned_integer<T>::value;
 
 // Decides if we can use a u32 or u64 implementation for some operations
+
+#ifdef BOOST_INT128_HAS_INT128
+
+template <typename T>
+using evaluation_type_t = std::conditional_t<sizeof(T) <= sizeof(std::uint32_t), std::uint32_t,
+                            std::conditional_t<sizeof(T) <= sizeof(std::uint64_t), std::uint64_t, builtin_u128>>;
+
+#else
+
 template <typename T>
 using evaluation_type_t = std::conditional_t<sizeof(T) <= sizeof(std::uint32_t), std::uint32_t, std::uint64_t>;
+
+#endif
 
 } // namespace detail
 } // namespace int128
