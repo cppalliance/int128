@@ -1900,7 +1900,7 @@ constexpr void knuth_div(std::uint32_t (&u)[u_size],
                 k = static_cast<std::uint32_t>(sum >> 32U);
             }
 
-            u[j + n] += k;
+            u[j + n] += k_prime;
         }
     }
 }
@@ -1954,6 +1954,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     return quotient;
 }
 
+template <bool need_mod>
 inline int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs > 0);
@@ -2001,12 +2002,108 @@ inline int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& 
         }
     }
 
-    // General Case:
+    // General Case: We need to apply Knuth's normalization in preparation to use 4.3.1.D above
     int d {};
     if (denominator[den_size - 1] != 0)
     {
-
+        d = countl_zero(denominator[den_size - 1]);
     }
+
+    std::uint32_t u_norm[5] {};
+    std::uint32_t v_norm[4] {};
+
+    // Apply shift
+    if (d > 0)
+    {
+        std::uint32_t carry {};
+        for (std::size_t i {}; i < den_size; ++i)
+        {
+            v_norm[i] = (denominator[i] << d) | (carry >> (32 - d));
+            carry = denominator[i];
+        }
+
+        carry = 0;
+        for (std::size_t i {}; i < num_size; ++i)
+        {
+            u_norm[i] = (denominator[i] << d) | (carry >> (32 - d));
+            carry = numerator[i];
+        }
+
+        u_norm[num_size] = carry >> (32 - d);
+    }
+    else
+    {
+        for (std::size_t i {}; i < den_size; ++i)
+        {
+            v_norm[i] = denominator[i];
+        }
+        for (std::size_t i {}; i < num_size; ++i)
+        {
+            u_norm[i] = numerator[i];
+        }
+    }
+
+    std::uint32_t q_result[4] {};
+    const auto actual_den_size {den_size > 0 ? den_size : 1};
+    const auto actual_num_size {num_size + 1};
+
+    if (actual_num_size > actual_den_size)
+    {
+        std::uint32_t q_temp[4] {};
+        knuth_div(u_norm, v_norm, q_temp);
+
+        for (std::size_t i {}; i < 4 && i < (actual_num_size - actual_den_size + 1); ++i)
+        {
+            q_result[i] = q_temp[i];
+        }
+    }
+
+    const auto q_low {(static_cast<std::uint64_t>(q_result[1]) << 32) | q_result[0]};
+    const auto q_high {(static_cast<std::int64_t>(q_result[3]) << 32) | q_result[2]};
+
+    int128_t quotient {q_high, q_low};
+
+    if (negative_res)
+    {
+        quotient.low = ~quotient.low + 1;
+        quotient.high = ~quotient.high + (quotient.low == 0 ? 1 : 0);
+    }
+
+    // De-normalize the remainder if we need it
+    // In the pure division case we can skip over this entirely (at run time or hopefully compile time)
+    BOOST_INT128_IF_CONSTEXPR (need_mod)
+    {
+        std::uint32_t r_result[4] {};
+        if (d > 0)
+        {
+            std::uint32_t carry {};
+            for (int i {static_cast<int>(actual_den_size - 1)}; i >= 0; --i)
+            {
+                const auto temp {static_cast<std::uint64_t>(u_norm[i]) | (static_cast<std::uint64_t>(carry) << 32)};
+                r_result[i] = static_cast<std::uint32_t>(temp >> d);
+                carry = static_cast<std::uint32_t>(temp) & ((1U << d) - 1);
+            }
+        }
+        else
+        {
+            for (std::size_t i {}; i < actual_den_size; ++i)
+            {
+                r_result[i] = u_norm[i];
+            }
+        }
+
+        const auto r_low {(static_cast<std::uint64_t>(r_result[1]) << 32) | r_result[0]};
+        const auto r_high {(static_cast<std::int64_t>(r_result[3]) << 32) | r_result[2]};
+        remainder = {r_high, r_low};
+
+        if (lhs.high < 0 && (r_high != 0 || r_low != 0))
+        {
+            remainder.low = ~remainder.low + 1;
+            remainder.high = ~remainder.high + (remainder.low == 0 ? 1 : 0);
+        }
+    }
+
+    return quotient;
 }
 
 } // namespace detail
