@@ -2229,6 +2229,30 @@ constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexce
     }
 }
 
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator/(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / rhs);
+}
+
+constexpr int128_t operator/(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs / static_cast<detail::builtin_i128>(rhs));
+}
+
+constexpr int128_t operator/(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs / static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator/(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) / rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator/=(const Integer rhs) noexcept
 {
