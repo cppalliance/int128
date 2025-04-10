@@ -1962,7 +1962,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     // If rhs is greater than 2^32, then the result is trivial to find.
     if (rhs >= UINT32_MAX)
     {
-        #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
+        #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64) && !defined(__GNUC__)
         if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
         {
             quotient.low = _udiv128(static_cast<std::uint64_t>(lhs.high), lhs.low, rhs, &remainder.low);
