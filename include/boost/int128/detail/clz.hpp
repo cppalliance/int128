@@ -106,7 +106,7 @@ constexpr int countl_impl(std::uint64_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return x ? bit_scan_reverse(static_cast<std::uint64_t>(x)) ^ 63 : std::numeric_limits<T>::digits;
+        return x ? bit_scan_reverse(static_cast<std::uint64_t>(x)) ^ 63 : std::numeric_limits<std::uint64_t>::digits;
     }
     else
     {
