@@ -2086,7 +2086,7 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
         carry = 0;
         for (std::size_t i {}; i < num_size; ++i)
         {
-            u_norm[i] = (denominator[i] << d) | (carry >> (32 - d));
+            u_norm[i] = (numerator[i] << d) | (carry >> (32 - d));
             carry = numerator[i];
         }
 
