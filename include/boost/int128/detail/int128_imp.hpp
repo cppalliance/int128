@@ -2181,8 +2181,9 @@ constexpr int128_t operator/(const int128_t lhs, const UnsignedInteger rhs) noex
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
     int128_t remainder {};
-
-    return detail::single_word_div(lhs, static_cast<eval_type>(rhs), remainder);
+    const auto abs_lhs {abs(lhs)};
+    const auto quo {detail::single_word_div(abs_lhs, static_cast<eval_type>(rhs), remainder)};
+    return lhs < 0 ? -quo : quo;
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -2210,7 +2211,8 @@ constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexce
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
     const auto abs_rhs {rhs < 0 ? -rhs : rhs};
-    const auto quo {detail::single_word_div(lhs, static_cast<eval_type>(abs_rhs), remainder)};
+    const auto abs_lhs {abs(lhs)};
+    const auto quo {detail::single_word_div(abs_lhs, static_cast<eval_type>(abs_rhs), remainder)};
 
     return negative_res ? -quo : quo;
 }
