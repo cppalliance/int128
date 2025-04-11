@@ -1950,7 +1950,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     quotient.low |= static_cast<std::uint32_t>(current / rhs32);
     remainder.low = static_cast<std::uint32_t>(current % rhs32);
 
-    return lhs < 0 ? -quotient : quotient;
+    return quotient;
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint64_t rhs, int128_t& remainder) noexcept
