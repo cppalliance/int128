@@ -2209,7 +2209,8 @@ constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexce
     int128_t remainder {};
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
-    const auto quo {detail::single_word_div(lhs, static_cast<eval_type>(rhs), remainder)};
+    const auto abs_rhs {rhs < 0 ? -rhs : rhs};
+    const auto quo {detail::single_word_div(lhs, static_cast<eval_type>(abs_rhs), remainder)};
 
     return negative_res ? -quo : quo;
 }
