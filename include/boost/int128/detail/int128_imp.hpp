@@ -1970,9 +1970,8 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
         else
         #endif
         {
-            if (lhs.high < rhs)
+            if (lhs < rhs)
             {
-                quotient.low = 0;
                 remainder = lhs;
             }
             else
