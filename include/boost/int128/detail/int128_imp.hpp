@@ -2226,9 +2226,9 @@ constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexce
         const auto negative_res {static_cast<bool>((rhs.high < 0) ^ (lhs < 0))};
         const auto abs_rhs {abs(rhs)};
         const auto abs_lhs {lhs < 0 ? -lhs : lhs};
-        const auto res {static_cast<std::uint64_t>(abs_lhs) / abs_rhs.low};
+        const int128_t res {0, static_cast<std::uint64_t>(abs_lhs) / abs_rhs.low};
 
-        return negative_res ? int128_t{-1, res} : int128_t{0, res};
+        return negative_res ? -res : res;
     }
 }
 
