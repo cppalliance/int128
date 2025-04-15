@@ -292,6 +292,40 @@ void test_unary_minus()
     }
 }
 
+template <typename IntType>
+void test_operator_equality()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    // Always equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value == emulated_value) == (emulated_value == value)) ==
+                   ((value == builtin_value) == (builtin_value == value)));
+    }
+
+    // Potentially equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value2 == emulated_value) == (emulated_value == value2)) ==
+                   ((value2 == builtin_value) == (builtin_value == value2)));
+    }
+
+    const boost::int128::uint128_t bool_val {dist(rng)};
+    BOOST_TEST((true == bool_val) == (bool_val == true));
+}
+
+
 struct test_caller
 {
     template<typename T>
@@ -302,6 +336,7 @@ struct test_caller
         test_integer_conversion_operators<T>();
         test_unary_plus<T>();
         test_unary_minus<T>();
+        test_operator_equality<T>();
     }
 };
 
