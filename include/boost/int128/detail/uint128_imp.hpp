@@ -116,8 +116,17 @@ uint128_t
     explicit constexpr operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
 
     #endif // BOOST_INT128_HAS_INT128
-
+    
 };
+
+//=====================================
+// Absolute Value function
+//=====================================
+
+constexpr uint128_t abs(const uint128_t value) noexcept
+{
+    return value;
+}
 
 } // namespace int128
 } // namespace boost
