@@ -74,7 +74,7 @@ uint128_t
         low {static_cast<std::uint64_t>(v)},
         high {static_cast<std::uint64_t>(v >> 64U)} {}
 
-    #endif BOOST_INT128_HAS_INT128
+    #endif // BOOST_INT128_HAS_INT128
 
     #else // Big endian
 
@@ -97,7 +97,7 @@ uint128_t
         low {static_cast<std::uint64_t>(v)} {}
 
     #endif // BOOST_INT128_HAS_INT128
-    
+
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 };
 
