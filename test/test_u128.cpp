@@ -395,6 +395,43 @@ void test_operator_less()
     }
 }
 
+template <typename IntType>
+void test_operator_le()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        // Some platforms get this wrong where for example -99 < 340282366920938463463374607431768211408 evaluates to false
+        // These values happen to be bitwise equal
+        #ifdef _MSC_VER
+        #pragma warning(push)
+        #pragma warning(disable:4127)
+        #endif
+
+        BOOST_INT128_IF_CONSTEXPR (std::is_signed<IntType>::value)
+        {
+            if (value == value2 && value < 0)
+            {
+                continue;
+            }
+        }
+
+        #ifdef _MSC_VER
+        #pragma warning(pop)
+        #endif
+
+        BOOST_TEST(((value2 <= emulated_value) == (value2 <= builtin_value)) ==
+                   ((emulated_value <= value2) == (builtin_value <= value2)));
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -408,6 +445,7 @@ struct test_caller
         test_operator_equality<T>();
         test_operator_inequality<T>();
         test_operator_less<T>();
+        test_operator_le<T>();
     }
 };
 
