@@ -158,6 +158,15 @@ constexpr uint128_t::operator long double() const noexcept
     return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
 }
 
+//=====================================
+// Unary Operators
+//=====================================
+
+constexpr uint128_t operator+(const uint128_t value) noexcept
+{
+    return value;
+}
+
 } // namespace int128
 } // namespace boost
 
