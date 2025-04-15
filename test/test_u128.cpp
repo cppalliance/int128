@@ -358,6 +358,24 @@ void test_operator_inequality()
     BOOST_TEST((true != bool_val) == (bool_val != true));
 }
 
+template <typename IntType>
+void test_operator_less()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value2 < emulated_value) == (value2 < builtin_value)) ==
+                   ((emulated_value < value2) == (builtin_value < value2)));
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -370,6 +388,7 @@ struct test_caller
         test_unary_minus<T>();
         test_operator_equality<T>();
         test_operator_inequality<T>();
+        test_operator_less<T>();
     }
 };
 
