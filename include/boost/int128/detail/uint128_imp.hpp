@@ -116,7 +116,13 @@ uint128_t
     explicit constexpr operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
 
     #endif // BOOST_INT128_HAS_INT128
-    
+
+    // Conversion to float
+    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
+    // but can be constexpr at C++11 instead of C++26
+    explicit constexpr operator float() const noexcept;
+    explicit constexpr operator double() const noexcept;
+    explicit constexpr operator long double() const noexcept;
 };
 
 //=====================================
@@ -126,6 +132,30 @@ uint128_t
 constexpr uint128_t abs(const uint128_t value) noexcept
 {
     return value;
+}
+
+//=====================================
+// Float Conversion Operators
+//=====================================
+
+// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
+// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
+// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
+// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+
+constexpr uint128_t::operator float() const noexcept
+{
+    return static_cast<float>(high) * detail::offset_value_v<float> + static_cast<float>(low);
+}
+
+constexpr uint128_t::operator double() const noexcept
+{
+    return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
+}
+
+constexpr uint128_t::operator long double() const noexcept
+{
+    return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
 }
 
 } // namespace int128
