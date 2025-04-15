@@ -172,6 +172,91 @@ constexpr uint128_t operator-(const uint128_t value) noexcept
     return {~value.high + static_cast<std::uint64_t>(value.low == UINT64_C(0)), ~value.low + UINT64_C(1)};
 }
 
+//=====================================
+// Equality Operators
+//=====================================
+
+constexpr bool operator==(const uint128_t lhs, const bool rhs) noexcept
+{
+    return lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+constexpr bool operator==(const bool lhs, const uint128_t rhs) noexcept
+{
+    return rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wsign-conversion"
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const uint128_t lhs, const SignedInteger rhs) noexcept
+{
+    return rhs >= 0 && lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const SignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return lhs >= 0 && rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator==(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
+}
+
+constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    // Intel and ARM like the values in opposite directions
+
+    #if defined(__aarch64__) || defined(_M_ARM64)
+
+    return lhs.low == rhs.low && lhs.high == rhs.high;
+
+    #else
+
+    return lhs.high == rhs.high && lhs.low == rhs.low;
+
+    #endif
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr bool operator==(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs == static_cast<uint128_t>(rhs);
+}
+
+constexpr bool operator==(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) == rhs;
+}
+
+constexpr bool operator==(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs == static_cast<uint128_t>(rhs);
+}
+
+constexpr bool operator==(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) == rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
 } // namespace int128
 } // namespace boost
 
