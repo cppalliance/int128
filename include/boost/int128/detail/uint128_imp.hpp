@@ -34,7 +34,7 @@ uint128_t
     #  pragma GCC diagnostic ignored "-Wreorder"
     #endif
 
-    std::unt64_t high {};
+    std::uint64_t high {};
     std::uint64_t low {};
 
     #ifdef __GNUC__
