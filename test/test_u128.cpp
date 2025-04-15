@@ -283,6 +283,10 @@ int main()
 
     boost::mp11::mp_for_each<test_types>(test_caller());
 
+    test_float_conversion_operators<float>();
+    test_float_conversion_operators<double>();
+    test_float_conversion_operators<long double>();
+
     return boost::report_errors();
 }
 
