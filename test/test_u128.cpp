@@ -171,6 +171,33 @@ void test_assignment_operators()
     }
 }
 
+template <typename IntType>
+void test_integer_conversion_operators()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        builtin_u128 builtin_value;
+        builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {};
+        emulated_value = value;
+
+        const auto builtin_value_return = static_cast<IntType>(builtin_value);
+        const auto emulated_value_return = static_cast<IntType>(emulated_value);
+
+        BOOST_TEST(builtin_value_return == emulated_value_return);
+
+        // Hits the implicit bool conversion
+        if (builtin_value)
+        {
+            BOOST_TEST(emulated_value);
+        }
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -178,6 +205,7 @@ struct test_caller
     {
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
+        test_integer_conversion_operators<T>();
     }
 };
 
