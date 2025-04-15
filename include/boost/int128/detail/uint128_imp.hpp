@@ -167,6 +167,11 @@ constexpr uint128_t operator+(const uint128_t value) noexcept
     return value;
 }
 
+constexpr uint128_t operator-(const uint128_t value) noexcept
+{
+    return {~value.high + static_cast<std::uint64_t>(value.low == UINT64_C(0)), ~value.low + UINT64_C(1)};
+}
+
 } // namespace int128
 } // namespace boost
 
