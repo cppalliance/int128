@@ -53,7 +53,52 @@ uint128_t
     // Requires conversion file to be implemented
     constexpr uint128_t(const int128_t& v) noexcept;
 
+    // Construct from integral types
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
+    constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept : low {lo}, high {hi} {}
+
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? UINT64_MAX : UINT64_C(0)} {}
+
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    constexpr uint128_t(const detail::builtin_i128 v) noexcept :
+        low {static_cast<std::uint64_t>(v)},
+        high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> 64U)} {}
+
+    constexpr uint128_t(const detail::builtin_u128 v) noexcept :
+        low {static_cast<std::uint64_t>(v)},
+        high {static_cast<std::uint64_t>(v >> 64U)} {}
+
+    #endif BOOST_INT128_HAS_INT128
+
+    #else // Big endian
+
+    constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept : high {hi}, low {lo} {}
+
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const SignedInteger v) noexcept : high {v < 0 ? UINT64_MAX : UINT64_C(0)}, low {static_cast<std::uint64_t>(v)} {}
+
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    constexpr uint128_t(const detail::builtin_i128 v) noexcept :
+        high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> 64U)},
+        low {static_cast<std::uint64_t>(v)} {}
+
+    constexpr uint128_t(const detail::builtin_u128 v) noexcept :
+        high {static_cast<std::uint64_t>(v >> 64U)},
+        low {static_cast<std::uint64_t>(v)} {}
+
+    #endif // BOOST_INT128_HAS_INT128
+    
+    #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 };
 
 } // namespace int128
