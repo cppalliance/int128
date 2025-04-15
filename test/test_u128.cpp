@@ -250,6 +250,27 @@ void test_float_conversion_operators()
     }
 }
 
+template <typename IntType>
+void test_unary_plus()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        auto builtin_value = static_cast<builtin_i128>(value);
+        builtin_value = +builtin_value;
+        boost::int128::uint128_t emulated_value {value};
+        emulated_value = +emulated_value;
+
+        builtin_u128 emulated_bits;
+        std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_u128));
+
+        BOOST_TEST(emulated_bits == builtin_value);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
