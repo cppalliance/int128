@@ -414,6 +414,35 @@ constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept
         return builtin_lhs < builtin_rhs;
     }
 
+    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
+    }
+    else
+    {
+        const uint32_t* l = reinterpret_cast<const uint32_t*>(&lhs);
+        const uint32_t* r = reinterpret_cast<const uint32_t*>(&rhs);
+
+        if (l[3] != r[3])
+        {
+            return l[3] < r[3];
+        }
+        else if (l[2] != r[2])
+        {
+            return l[2] < r[2];
+        }
+        else if (l[1] != r[1])
+        {
+            return l[1] < r[1];
+        }
+        else
+        {
+            return l[0] < r[0];
+        }
+    }
+
     #else
 
     return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
