@@ -363,7 +363,7 @@ constexpr bool operator<(const UnsignedInteger lhs, const uint128_t rhs) noexcep
 constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to unsigned __int128 uniformly better (and seemingly cost free)
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) < static_cast<detail::builtin_u128>(rhs);
 
@@ -445,7 +445,7 @@ constexpr bool operator<=(const UnsignedInteger lhs, const uint128_t rhs) noexce
 
 constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) < static_cast<detail::builtin_u128>(rhs);
 
@@ -527,7 +527,7 @@ constexpr bool operator>(const UnsignedInteger lhs, const uint128_t rhs) noexcep
 
 constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) > static_cast<detail::builtin_u128>(rhs);
 
@@ -609,7 +609,7 @@ constexpr bool operator>=(const UnsignedInteger lhs, const uint128_t rhs) noexce
 
 constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) >= static_cast<detail::builtin_u128>(rhs);
 
