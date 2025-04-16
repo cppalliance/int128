@@ -527,7 +527,32 @@ constexpr bool operator>(const UnsignedInteger lhs, const uint128_t rhs) noexcep
 
 constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+
+    return static_cast<detail::builtin_u128>(lhs) > static_cast<detail::builtin_u128>(rhs);
+
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        lhs.high == rhs.high ? rhs.low < lhs.low : rhs.high < lhs.high;
+    }
+    else
+    {
+        detail::builtin_u128 builtin_lhs {};
+        detail::builtin_u128 builtin_rhs {};
+
+        std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_lhs));
+        std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_rhs));
+
+        return builtin_lhs > builtin_rhs;
+    }
+
+    #else
+
     return lhs.high == rhs.high ? rhs.low < lhs.low : rhs.high < lhs.high;
+
+    #endif
 }
 
 #ifdef BOOST_INT128_HAS_INT128
