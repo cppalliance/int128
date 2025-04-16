@@ -318,7 +318,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
-        test_comparisons(mp_vector, "mp::i128");
+        test_comparisons(mp_vector, "mp::u128");
 
         std::cerr << std::endl;
 /*
@@ -327,7 +327,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -336,7 +336,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
-        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -345,7 +345,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
-        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::i128");
+        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -380,7 +380,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
-        test_comparisons(mp_vector, "mp::i128");
+        test_comparisons(mp_vector, "mp::u128");
 
         std::cerr << std::endl;
 /*
@@ -389,7 +389,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -398,7 +398,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
-        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -407,7 +407,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
-        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::i128");
+        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -443,7 +443,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
-        test_comparisons(mp_vector, "mp::i128");
+        test_comparisons(mp_vector, "mp::u128");
 
         std::cerr << std::endl;
 /*
@@ -452,7 +452,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -461,7 +461,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
-        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -470,7 +470,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
-        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::i128");
+        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -506,7 +506,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
-        test_comparisons(mp_vector, "mp::i128");
+        test_comparisons(mp_vector, "mp::u128");
 
         std::cerr << std::endl;
 /*
@@ -515,7 +515,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -524,7 +524,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
-        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -533,7 +533,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
-        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::i128");
+        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -569,7 +569,7 @@ int main()
         #endif
 
         test_comparisons(library_vector, "library");
-        test_comparisons(mp_vector, "mp::i128");
+        test_comparisons(mp_vector, "mp::u128");
 
         std::cerr << std::endl;
 /*
@@ -578,7 +578,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
-        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::i128");
+        test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -587,7 +587,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
-        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::i128");
+        test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
 
@@ -596,7 +596,7 @@ int main()
         #endif
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
-        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::i128");
+        test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
 
