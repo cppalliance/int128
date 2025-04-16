@@ -50,6 +50,7 @@ project : requirements
 
 run quick.cpp ;
 
+run-fail benchmark_u128.cpp ;
 run test_u128.cpp ;
 
 run-fail benchmark_i128.cpp ;
