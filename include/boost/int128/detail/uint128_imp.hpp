@@ -226,6 +226,21 @@ constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
+    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return lhs.low == rhs.low && lhs.high == rhs.high;
+    }
+    else
+    {
+        __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(&lhs));
+        __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(&rhs));
+        __m128i cmp = _mm_cmpeq_epi32(a, b);
+
+        return _mm_movemask_ps(_mm_castsi128_ps(cmp)) == 0xF;
+    }
+
     #else
 
     return lhs.high == rhs.high && lhs.low == rhs.low;
