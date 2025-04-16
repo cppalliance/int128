@@ -525,6 +525,11 @@ constexpr bool operator>(const UnsignedInteger lhs, const uint128_t rhs) noexcep
     return rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) > rhs.low;
 }
 
+#if defined(__GNUC__) && __GNUC__ > 8
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value" // Stems from ternary operator incorrectly
+#endif
+
 constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
@@ -554,6 +559,10 @@ constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 
     #endif
 }
+
+#if defined(__GNUC__) && __GNUC__ > 8
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef BOOST_INT128_HAS_INT128
 
@@ -607,6 +616,11 @@ constexpr bool operator>=(const UnsignedInteger lhs, const uint128_t rhs) noexce
     return rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
 }
 
+#if defined(__GNUC__) && __GNUC__ > 8
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-value" // Stems from ternary operator incorrectly
+#endif
+
 constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
@@ -636,6 +650,10 @@ constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
 
     #endif
 }
+
+#if defined(__GNUC__) && __GNUC__ > 8
+#pragma GCC diagnostic pop
+#endif
 
 #ifdef BOOST_INT128_HAS_INT128
 
