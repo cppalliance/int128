@@ -414,7 +414,7 @@ constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept
         return builtin_lhs < builtin_rhs;
     }
 
-    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(__i386__) || defined(_M_IX86) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -525,7 +525,7 @@ constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
         return builtin_lhs < builtin_rhs;
     }
 
-    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(__i386__) || defined(_M_IX86) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -636,7 +636,7 @@ constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
         return builtin_lhs > builtin_rhs;
     }
 
-    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(__i386__) || defined(_M_IX86) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -747,7 +747,7 @@ constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
         return builtin_lhs > builtin_rhs;
     }
 
-    #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(__i386__) || defined(_M_IX86) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
