@@ -503,6 +503,63 @@ constexpr bool operator>(const detail::builtin_u128 lhs, const uint128_t rhs) no
 
 #endif // BOOST_INT128_HAS_INT128
 
+//=====================================
+// Greater-equal Operators
+//=====================================
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator>=(const uint128_t lhs, const SignedInteger rhs) noexcept
+{
+    return rhs < 0 || lhs.high > UINT64_C(0) || lhs.low >= static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator>=(const SignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return lhs > 0 && rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator>=(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return lhs.high > UINT64_C(0) || lhs.low >= static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator>=(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
+}
+
+constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    return lhs.high == rhs.high ? rhs.low <= lhs.low : rhs.high <= lhs.high;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr bool operator>=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs >= static_cast<uint128_t>(rhs);
+}
+
+constexpr bool operator>=(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) >= rhs;
+}
+
+constexpr bool operator>=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs >= static_cast<uint128_t>(rhs);
+}
+
+constexpr bool operator>=(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) >= rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
 } // namespace int128
 } // namespace boost
 
