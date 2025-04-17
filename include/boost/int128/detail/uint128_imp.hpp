@@ -12,6 +12,7 @@
 #include <boost/int128/detail/clz.hpp>
 #include <cstdint>
 #include <cstring>
+#include <climits>
 
 namespace boost {
 namespace int128 {
@@ -141,6 +142,12 @@ uint128_t
     constexpr uint128_t operator^=(Integer rhs) noexcept;
 
     constexpr uint128_t operator^=(uint128_t rhs) noexcept;
+
+    // Compound Left Shift
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator<<=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator<<=(uint128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1041,6 +1048,121 @@ constexpr uint128_t uint128_t::operator^=(const Integer rhs) noexcept
 constexpr uint128_t uint128_t::operator^=(const uint128_t rhs) noexcept
 {
     *this = *this ^ rhs;
+    return *this;
+}
+
+//=====================================
+// Left Shift Operator
+//=====================================
+
+template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept
+{
+    if (rhs < 0 || rhs >= 128)
+    {
+        return {0, 0};
+    }
+
+    if (rhs == 0)
+    {
+        return lhs;
+    }
+
+    if (rhs == 64)
+    {
+        return {lhs.low, 0};
+    }
+
+    if (rhs > 64)
+    {
+        return {lhs.low << (rhs - 64), 0};
+    }
+
+    return {
+        (lhs.high << rhs) | (lhs.low >> (64 - rhs)),
+        lhs.low << rhs
+    };
+}
+
+// A number of different overloads to ensure that we return the same type as the builtins would
+
+template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
+constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(Integer) * CHAR_BIT};
+
+    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
+constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(SignedInteger) * CHAR_BIT};
+
+    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return static_cast<int>(lhs) << rhs.low;
+}
+
+template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
+constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(UnsignedInteger) * CHAR_BIT};
+
+    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return static_cast<unsigned int>(lhs) << rhs.low;
+}
+
+constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    if (rhs >= 128)
+    {
+        return {0, 0};
+    }
+
+    if (rhs.low == 0)
+    {
+        return lhs;
+    }
+
+    if (rhs.low == 64)
+    {
+        return {lhs.low, 0};
+    }
+
+    if (rhs.low > 64)
+    {
+        return {lhs.low << (rhs.low - 64), 0};
+    }
+
+    return {
+        (lhs.high << rhs.low) | (lhs.low >> (64 - rhs.low)),
+        lhs.low << rhs.low
+    };
+}
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr uint128_t uint128_t::operator<<=(const Integer rhs) noexcept
+{
+    *this = *this << rhs;
+    return *this;
+}
+
+constexpr uint128_t uint128_t::operator<<=(const uint128_t rhs) noexcept
+{
+    *this = *this << rhs;
     return *this;
 }
 
