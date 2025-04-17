@@ -807,6 +807,15 @@ constexpr bool operator>=(const detail::builtin_u128 lhs, const uint128_t rhs) n
 
 #endif // BOOST_INT128_HAS_INT128
 
+//=====================================
+// Not Operator
+//=====================================
+
+constexpr uint128_t operator~(const uint128_t rhs) noexcept
+{
+    return {~rhs.high, ~rhs.low};
+}
+
 } // namespace int128
 } // namespace boost
 
