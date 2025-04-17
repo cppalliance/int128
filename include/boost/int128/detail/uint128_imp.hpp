@@ -222,7 +222,7 @@ constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     // Intel and ARM like the values in opposite directions
 
-    #if defined(__aarch64__) || defined(_M_ARM64)
+    #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
@@ -312,7 +312,7 @@ constexpr bool operator!=(const UnsignedInteger lhs, const uint128_t rhs) noexce
 
 constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    #if defined(__aarch64__) || defined(_M_ARM64)
+    #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
