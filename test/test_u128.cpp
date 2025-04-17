@@ -522,6 +522,41 @@ void test_operator_not()
     }
 }
 
+template <typename IntType>
+void test_operator_or()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        auto check_1_value {emulated_value};
+        check_1_value |= value2;
+
+        BOOST_INT128_IF_CONSTEXPR (!std::is_same<IntType, builtin_u128>::value)
+        {
+            BOOST_TEST(check_1_value == (builtin_value | value2));
+            BOOST_TEST((value2 | emulated_value) == (value2 | builtin_value));
+        }
+        else
+        {
+            builtin_u128 emulated_checkpoint;
+            std::memcpy(&emulated_checkpoint, &check_1_value, sizeof(emulated_checkpoint));
+
+            builtin_u128 builtin_checkpoint;
+            builtin_value |= value2;
+            std::memcpy(&builtin_checkpoint, &builtin_value, sizeof(builtin_checkpoint));
+
+            BOOST_TEST(emulated_checkpoint == builtin_checkpoint);
+        }
+    }
+}
+
 struct test_caller
 {
     template<typename T>
