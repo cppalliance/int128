@@ -157,6 +157,8 @@ uint128_t
 
     constexpr uint128_t& operator++() noexcept;
     constexpr uint128_t& operator++(int) noexcept;
+    constexpr uint128_t& operator--() noexcept;
+    constexpr uint128_t& operator--(int) noexcept;
 };
 
 //=====================================
@@ -1305,6 +1307,25 @@ constexpr uint128_t& uint128_t::operator++() noexcept
 constexpr uint128_t& uint128_t::operator++(int) noexcept
 {
     return ++(*this);
+}
+
+//=====================================
+// Decrement Operator
+//=====================================
+
+constexpr uint128_t& uint128_t::operator--() noexcept
+{
+    if (--low == UINT64_MAX)
+    {
+        --high;
+    }
+
+    return *this;
+}
+
+constexpr uint128_t& uint128_t::operator--(int) noexcept
+{
+    return --(*this);
 }
 
 } // namespace int128
