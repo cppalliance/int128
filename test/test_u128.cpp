@@ -577,6 +577,7 @@ struct test_caller
         test_operator_ge<T>();
 
         test_operator_not<T>();
+        test_operator_or<T>();
     }
 };
 
