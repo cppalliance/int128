@@ -719,6 +719,20 @@ void test_operator_right_shift()
     BOOST_TEST((val << -5) == 0);
 }
 
+void test_increment_operator()
+{
+    boost::int128::uint128_t emulated_value {UINT64_MAX - N/2};
+    builtin_u128 builtin_value {UINT64_MAX - N/2};
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        ++emulated_value;
+        ++builtin_value;
+
+        BOOST_TEST(emulated_value == builtin_value);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -747,6 +761,8 @@ struct test_caller
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
         #endif
+
+        test_increment_operator();
     }
 };
 
