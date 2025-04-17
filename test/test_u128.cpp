@@ -584,7 +584,7 @@ void test_operator_and()
             std::memcpy(&emulated_checkpoint, &check_1_value, sizeof(emulated_checkpoint));
 
             builtin_u128 builtin_checkpoint;
-            builtin_value |= value2;
+            builtin_value &= value2;
             std::memcpy(&builtin_checkpoint, &builtin_value, sizeof(builtin_checkpoint));
 
             BOOST_TEST(emulated_checkpoint == builtin_checkpoint);
