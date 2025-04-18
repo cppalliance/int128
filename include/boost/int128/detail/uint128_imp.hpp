@@ -1352,6 +1352,18 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, c
     return temp;
 }
 
+BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, const std::uint64_t rhs) noexcept
+{
+    uint128_t temp {lhs.high, lhs.low + rhs};
+
+    if (temp.low < lhs.low)
+    {
+        ++temp.high;
+    }
+
+    return temp;
+}
+
 } // namespace impl
 
 template <BOOST_INT128_INTEGER_CONCEPT>
