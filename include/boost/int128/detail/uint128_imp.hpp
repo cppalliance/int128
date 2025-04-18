@@ -1392,6 +1392,20 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, c
 
 } // namespace impl
 
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator+(const uint128_t lhs, const SignedInteger rhs) noexcept
+{
+    return rhs < 0 ? impl::default_sub(lhs, -static_cast<std::uint64_t>(rhs)) :
+                     impl::default_add(lhs, static_cast<std::uint64_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator+(const SignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return lhs < 0 ? impl::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
+                     impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
 {
