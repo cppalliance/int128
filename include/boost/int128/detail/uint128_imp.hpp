@@ -1364,6 +1364,19 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, c
     return temp;
 }
 
+BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    uint128_t temp {lhs.high - rhs.high, lhs.low - rhs.low};
+
+    // Check for carry
+    if (lhs.low < rhs.low)
+    {
+        --temp.high;
+    }
+
+    return temp;
+}
+
 } // namespace impl
 
 template <BOOST_INT128_INTEGER_CONCEPT>
