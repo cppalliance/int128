@@ -1406,6 +1406,47 @@ constexpr uint128_t operator+(const SignedInteger lhs, const uint128_t rhs) noex
                      impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
 }
 
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator+(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return impl::default_add(lhs, static_cast<std::uint64_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator+(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
+}
+
+constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    return impl::default_add(lhs, rhs);
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr uint128_t operator+(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return impl::default_add(lhs, static_cast<uint128_t>(rhs));
+}
+
+constexpr uint128_t operator+(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return impl::default_add(static_cast<uint128_t>(lhs), rhs);
+}
+
+constexpr uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return impl::default_add(lhs, static_cast<uint128_t>(rhs));
+}
+
+constexpr uint128_t operator+(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return impl::default_add(static_cast<int128_t>(lhs), rhs);
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
 {
