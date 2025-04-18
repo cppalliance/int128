@@ -747,6 +747,43 @@ void test_decrement_operator()
     }
 }
 
+template <typename IntType>
+void test_operator_add()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        IntType value {dist(rng)};
+        IntType value2 {dist(rng)};
+
+        // Avoid UB from rollover
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<IntType, builtin_u128>::value || std::is_same<IntType, builtin_i128>::value)
+        {
+            value /= 100;
+            value2 /= 100;
+        }
+
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        auto check_1_value {emulated_value};
+        check_1_value += value2;
+        BOOST_TEST(check_1_value == (builtin_value + value2));
+        BOOST_TEST((value2 + emulated_value) == (value2 + builtin_value));
+    }
+
+    // Edge case where we go from low word to high word
+    builtin_u128 builtin_value = UINT64_MAX - 2U;
+    boost::int128::uint128_t emulated_value = UINT64_MAX - 2U;
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        BOOST_TEST(++builtin_value == ++emulated_value);
+    }
+}
+
 struct test_caller
 {
     template<typename T>
@@ -778,6 +815,8 @@ struct test_caller
 
         test_increment_operator();
         test_decrement_operator();
+
+        test_operator_add<T>();
     }
 };
 
