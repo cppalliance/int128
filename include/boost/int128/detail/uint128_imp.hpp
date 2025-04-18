@@ -1338,6 +1338,22 @@ constexpr uint128_t& uint128_t::operator--(int) noexcept
 // Addition Operator
 //=====================================
 
+namespace impl {
+
+BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    uint128_t temp {lhs.high + rhs.high, lhs.low + rhs.low};
+
+    if (temp.low < lhs.low)
+    {
+        ++temp.high;
+    }
+
+    return temp;
+}
+
+} // namespace impl
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
 {
