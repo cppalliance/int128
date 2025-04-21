@@ -1401,6 +1401,10 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, c
 
     return res;
 
+    #elif defined(__x86_64__)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs));
+
     #else
 
     uint128_t temp {lhs.high - rhs.high, lhs.low - rhs.low};
