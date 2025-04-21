@@ -1394,14 +1394,14 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, c
 
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (defined(__i386__) || (defined(__aarch64__) && !defined(__APPLE__)) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
+    #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (defined(__i386__) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
 
     uint128_t res {};
     res.high = lhs.high - rhs.high - __builtin_sub_overflow(lhs.low, rhs.low, &res.low);
 
     return res;
 
-    #elif defined(__x86_64__)
+    #elif defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))
 
     return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs));
 
