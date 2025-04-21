@@ -1334,7 +1334,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
     #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW)
 
     // __builtin_sub_overflow is marked constexpr so we don't need if consteval handling
-    std::uint64_t result_low {lhs.low - rhs.low};
+    std::uint64_t result_low {};
     const auto result_high {static_cast<std::uint64_t>(lhs.high - rhs.high - __builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
