@@ -10,6 +10,7 @@
 
 #include <boost/int128/detail/config.hpp>
 #include <cstdint>
+#include <cstring>
 
 namespace boost {
 namespace int128 {
