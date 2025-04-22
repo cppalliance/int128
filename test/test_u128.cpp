@@ -823,6 +823,26 @@ void test_operator_sub()
     }
 }
 
+template <typename IntType>
+void test_operator_mul()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(),
+                                                          get_root_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        IntType value {dist(rng)};
+        IntType value2 {dist(rng)};
+
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        auto check_1_value {emulated_value};
+        check_1_value *= value2;
+        BOOST_TEST(check_1_value == (builtin_value * value2));
+        BOOST_TEST((value2 * emulated_value) == (value2 * builtin_value));
+    }
+}
 
 struct test_caller
 {
@@ -858,6 +878,7 @@ struct test_caller
 
         test_operator_add<T>();
         test_operator_sub<T>();
+        test_operator_mul<T>();
     }
 };
 
