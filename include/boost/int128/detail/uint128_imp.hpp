@@ -1628,26 +1628,6 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint3
     words[3] = static_cast<std::uint32_t>(x.high >> 32);
 }
 
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
-{
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
-    {
-        std::memcpy(&words, &x, sizeof(std::uint64_t));
-    }
-
-    #endif
-
-    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x >> 32);
-}
-
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[1]) noexcept
-{
-    words[0] = x;
-}
-
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
