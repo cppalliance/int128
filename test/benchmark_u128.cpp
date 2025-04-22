@@ -339,7 +339,7 @@ int main()
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -348,7 +348,7 @@ int main()
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
         #endif
@@ -401,7 +401,7 @@ int main()
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -410,7 +410,7 @@ int main()
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
         #endif
@@ -464,7 +464,7 @@ int main()
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -473,7 +473,7 @@ int main()
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
         #endif
@@ -527,7 +527,7 @@ int main()
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -536,7 +536,7 @@ int main()
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
         #endif
@@ -590,7 +590,7 @@ int main()
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
         std::cerr << std::endl;
-/*
+
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::multiplies<>(), "mul", "Builtin");
         #endif
@@ -599,7 +599,7 @@ int main()
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
 
         std::cerr << std::endl;
-
+/*
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::divides<>(), "div", "Builtin");
         #endif
