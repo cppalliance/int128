@@ -790,6 +790,12 @@ void test_operator_div()
         BOOST_TEST(check_1_value == (builtin_value / value2));
         BOOST_TEST((value2 / emulated_value) == (value2 / builtin_value));
     }
+
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < 16)
+    {
+        constexpr boost::int128::int128_t big_int {2, 0};
+        BOOST_TEST(dist(rng) / big_int == 0);
+    }
 }
 
 template <typename IntType, std::enable_if_t<boost::int128::detail::is_signed_integer_v<IntType>, bool> = true>
