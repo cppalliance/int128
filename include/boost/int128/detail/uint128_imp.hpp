@@ -5,7 +5,6 @@
 #ifndef BOOST_INT128_DETAIL_UINT128_HPP
 #define BOOST_INT128_DETAIL_UINT128_HPP
 
-#include <boost/int128/detail/fwd.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
@@ -171,6 +170,12 @@ uint128_t
     constexpr uint128_t& operator-=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator-=(uint128_t rhs) noexcept;
+
+    // Compound Multiplication
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator*=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator*=(uint128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1591,6 +1596,23 @@ constexpr uint128_t& uint128_t::operator-=(const Integer rhs) noexcept
 constexpr uint128_t& uint128_t::operator-=(const uint128_t rhs) noexcept
 {
     *this = *this - rhs;
+    return *this;
+}
+
+//=====================================
+// Multiplication Operator
+//=====================================
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
+{
+    *this = *this * rhs;
+    return *this;
+}
+
+constexpr uint128_t& uint128_t::operator*=(const uint128_t rhs) noexcept
+{
+    *this = *this * rhs;
     return *this;
 }
 
