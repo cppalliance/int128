@@ -1631,7 +1631,7 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint3
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__) || defined(__s390x__) || defined(__s390x__)) && defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
