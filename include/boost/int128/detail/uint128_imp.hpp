@@ -1666,15 +1666,31 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
+    #  pragma warning(push)
+    #  pragma warning(disable : 4127) // Pre C++17 if constexpr macro
+
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        uint128_t result {};
-        result.low = _umul128(lhs.low, rhs.low, &result.high);
-        result.high += lhs.low * rhs.high;
-        result.high += lhs.high * rhs.low;
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, uint128_t>::value)
+        {
+            uint128_t result {};
+            result.low = _umul128(lhs.low, rhs.low, &result.high);
+            result.high += lhs.low * rhs.high;
+            result.high += lhs.high * rhs.low;
 
-        return result;
+            return result;
+        }
+        else
+        {
+            uint128_t result {};
+            result.low = _umul128(lhs.low, rhs, &result.high);
+            result.high += lhs.high * rhs.low;
+
+            return result;
+        }
     }
+
+    #  pragma warning(pop)
 
     #endif
 
