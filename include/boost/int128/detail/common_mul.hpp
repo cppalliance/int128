@@ -73,7 +73,7 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::ui
     words[0] = x;
 }
 
-#ifdef __SSE2__
+#if defined(__i386__) && defined(__SSE2__)
 
 template <typename T>
 BOOST_INT128_FORCE_INLINE T sse_mul(const T lhs, const T rhs) noexcept
