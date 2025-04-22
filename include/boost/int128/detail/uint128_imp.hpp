@@ -1639,7 +1639,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
         detail::builtin_u128 new_rhs {};
 
         std::memcpy(&new_lhs, &lhs, sizeof(uint128_t));
-        std::memcpy(&new_rhs, &rhs, sizeof(uint128_t));
+        std::memcpy(&new_rhs, &rhs, sizeof(UnsignedInteger));
 
         const auto res {new_lhs * new_rhs};
 
