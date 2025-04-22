@@ -19,7 +19,7 @@ template <typename ReturnType, std::size_t u_size, std::size_t v_size>
 BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
                                                               const std::uint32_t (&v)[v_size]) noexcept
 {
-    std::uint32_t w[4] {};
+    std::uint32_t w[u_size + v_size] {};
 
     // M.1
     for (std::size_t j {}; j < v_size; ++j)
@@ -27,7 +27,7 @@ BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_
         // M.2
         if (v[j] == 0)
         {
-            v[j + u_size] = 0;
+            w[j + u_size] = 0;
             continue;
         }
 
