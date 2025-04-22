@@ -1655,13 +1655,23 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator*(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+    using eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    const auto abs_rhs {rhs < 0 ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
+    const auto res {detail::default_mul(lhs, abs_rhs)};
+
+    return rhs < 0 ? -res : res;
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator*(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+    using eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    const auto abs_lhs {lhs < 0 ? -static_cast<eval_type>(lhs) : static_cast<eval_type>(lhs)};
+    const auto res {detail::default_mul(rhs, abs_lhs)};
+
+    return lhs < 0 ? -res : res;
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1685,12 +1695,18 @@ constexpr uint128_t operator*(const uint128_t lhs, const uint128_t rhs) noexcept
 
 constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs * static_cast<uint128_t>(rhs);
+    const auto abs_rhs {rhs < 0 ? -static_cast<uint128_t>(rhs) : static_cast<uint128_t>(rhs)};
+    const auto res {lhs * abs_rhs};
+
+    return rhs < 0 ? -res : res;
 }
 
 constexpr uint128_t operator*(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * rhs;
+    const auto abs_lhs {lhs < 0 ? -static_cast<uint128_t>(lhs) : static_cast<uint128_t>(lhs)};
+    const auto res {abs_lhs * rhs};
+
+    return lhs < 0 ? -res : res;
 }
 
 constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
