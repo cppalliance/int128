@@ -9,6 +9,7 @@
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
 #include <boost/int128/detail/clz.hpp>
+#include <boost/int128/detail/knuth_mul.hpp>
 #include <cstdint>
 #include <cstring>
 #include <climits>
@@ -1602,6 +1603,127 @@ constexpr uint128_t& uint128_t::operator-=(const uint128_t rhs) noexcept
 //=====================================
 // Multiplication Operator
 //=====================================
+
+#if defined(__GNUC__) && __GNUC__ >= 8
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+
+namespace detail {
+
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint32_t (&words)[4]) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        std::memcpy(&words, &x, sizeof(uint128_t));
+    }
+
+    #endif
+
+    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
+    words[1] = static_cast<std::uint32_t>(x.low >> 32);
+    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
+    words[3] = static_cast<std::uint32_t>(x.high >> 32);
+}
+
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        std::memcpy(&words, &x, sizeof(std::uint64_t));
+    }
+
+    #endif
+
+    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
+    words[1] = static_cast<std::uint32_t>(x >> 32);
+}
+
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[1]) noexcept
+{
+    words[0] = x;
+}
+
+template <typename UnsignedInteger>
+BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
+                  std::is_same<UnsignedInteger, std::uint64_t>::value ||
+                  std::is_same<UnsignedInteger, uint128_t>::value,
+                  "Must be 32, 64 or 128 bit unsigned integer");
+
+    constexpr std::size_t rhs_words_needed {sizeof(UnsignedInteger) / sizeof(std::uint32_t)};
+
+    std::uint32_t lhs_words[4] {};
+    std::uint32_t rhs_words[rhs_words_needed] {};
+    to_words(lhs, lhs_words);
+    to_words(rhs, rhs_words);
+
+    return knuth_multiply<uint128_t>(lhs_words, rhs_words);
+}
+
+} // namespace detail
+
+#if defined(__GNUC__) && __GNUC__ >= 8
+#  pragma GCC diagnostic pop
+#endif
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator*(const uint128_t lhs, const SignedInteger rhs) noexcept
+{
+    return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator*(const SignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator*(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator*(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
+}
+
+constexpr uint128_t operator*(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    return detail::default_mul(lhs, rhs);
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs * static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator*(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) * rhs;
+}
+
+constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs * static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator*(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) * rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
