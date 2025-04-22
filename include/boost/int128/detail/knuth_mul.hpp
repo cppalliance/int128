@@ -19,6 +19,8 @@ template <typename ReturnType, std::size_t u_size, std::size_t v_size>
 BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
                                                               const std::uint32_t (&v)[v_size]) noexcept
 {
+    using high_word_type = decltype(ReturnType{}.high);
+
     std::uint32_t w[u_size + v_size] {};
 
     // M.1
@@ -48,7 +50,7 @@ BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_
     const auto low {static_cast<std::uint64_t>(w[0]) | (static_cast<std::uint64_t>(w[1]) << 32)};
     const auto high {static_cast<std::uint64_t>(w[2]) | (static_cast<std::uint64_t>(w[3]) << 32)};
 
-    return {high, low};
+    return {static_cast<high_word_type>(high), low};
 }
 
 } // namespace detail
