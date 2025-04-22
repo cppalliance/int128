@@ -1650,6 +1650,13 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
         return library_res;
     }
 
+    #elif defined(__i386__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return sse_mul(lhs, rhs);
+    }
+
     #endif
 
     static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
