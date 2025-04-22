@@ -9,7 +9,7 @@
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
 #include <boost/int128/detail/clz.hpp>
-#include <boost/int128/detail/knuth_mul.hpp>
+#include <boost/int128/detail/common_mul.hpp>
 #include <cstdint>
 #include <cstring>
 #include <climits>
