@@ -1628,6 +1628,38 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint3
     words[3] = static_cast<std::uint32_t>(x.high >> 32);
 }
 
+#if defined(_M_AMD64) && !defined(__GNUC__)
+
+BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    uint128_t result {};
+    result.low = _umul128(lhs.low, rhs.low, &result.high);
+    result.high += lhs.low * rhs.high;
+    result.high += lhs.high * rhs.low;
+
+    return result;
+}
+
+BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint64_t rhs) noexcept
+{
+    uint128_t result {};
+    result.low = _umul128(lhs.low, rhs, &result.high);
+    result.high += lhs.high * rhs;
+
+    return result;
+}
+
+BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint32_t rhs) noexcept
+{
+    uint128_t result {};
+    result.low = _umul128(lhs.low, static_cast<std::uint64_t>(rhs), &result.high);
+    result.high += lhs.high * static_cast<std::uint64_t>(rhs);
+
+    return result;
+}
+
+#endif
+
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
@@ -1666,31 +1698,10 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-    #  pragma warning(push)
-    #  pragma warning(disable : 4127) // Pre C++17 if constexpr macro
-
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, uint128_t>::value)
-        {
-            uint128_t result {};
-            result.low = _umul128(lhs.low, rhs.low, &result.high);
-            result.high += lhs.low * rhs.high;
-            result.high += lhs.high * rhs.low;
-
-            return result;
-        }
-        else
-        {
-            uint128_t result {};
-            result.low = _umul128(lhs.low, rhs, &result.high);
-            result.high += lhs.high * rhs.low;
-
-            return result;
-        }
+        return msvc_mul(lhs, rhs);
     }
-
-    #  pragma warning(pop)
 
     #endif
 
