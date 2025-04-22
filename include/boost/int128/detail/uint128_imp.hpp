@@ -1664,6 +1664,18 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
         return sse_mul(lhs, static_cast<uint128_t>(rhs));
     }
 
+    #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        uint128_t result {};
+        result.low = _umul128(lhs.low, rhs.low, &result.high);
+        result.high += lhs.low * rhs.high;
+        result.high += lhs.high * rhs.low;
+
+        return result;
+    }
+
     #endif
 
     static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
