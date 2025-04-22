@@ -75,6 +75,11 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::ui
 
 #if defined(__i386__) && defined(__SSE2__)
 
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wsign-conversion"
+#endif
+
 template <typename T>
 BOOST_INT128_FORCE_INLINE T sse_mul(const T lhs, const T rhs) noexcept
 {
@@ -129,6 +134,10 @@ BOOST_INT128_FORCE_INLINE T sse_mul(const T lhs, const T rhs) noexcept
 
     return result;
 }
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#endif
 
 #endif // __SSE2__
 

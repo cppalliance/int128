@@ -1661,7 +1661,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return sse_mul(lhs, rhs);
+        return sse_mul(lhs, static_cast<uint128_t>(rhs));
     }
 
     #endif
