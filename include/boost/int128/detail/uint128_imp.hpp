@@ -1474,7 +1474,15 @@ constexpr uint128_t operator+(const UnsignedInteger lhs, const uint128_t rhs) no
 
 constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept
 {
+    #if defined(__s390__) || defined(__s390x__)
+
+    return impl::default_sub(lhs, {rhs.high + static_cast<std::uint64_t>(rhs.low == UINT64_C(0)), ~rhs.low + UINT64_C(1)});
+
+    #else
+
     return impl::default_add(lhs, rhs);
+
+    #endif
 }
 
 #ifdef BOOST_INT128_HAS_INT128
