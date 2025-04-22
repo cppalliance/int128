@@ -668,7 +668,7 @@ void test_operator_left_shift()
     }
 
     // Edge cases
-    const boost::int128::uint128_t val {UINT64_MAX};
+    const boost::int128::uint128_t val {dist(rng)};
     BOOST_TEST((val << 130) == 0);
     BOOST_TEST((val << -5) == 0);
 }
@@ -714,7 +714,7 @@ void test_operator_right_shift()
     }
 
     // Edge cases
-    const boost::int128::uint128_t val {UINT64_MAX};
+    const boost::int128::uint128_t val {dist(rng)};
     BOOST_TEST((val << 130) == 0);
     BOOST_TEST((val << -5) == 0);
 }
