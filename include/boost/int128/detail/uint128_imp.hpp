@@ -1631,6 +1631,27 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint3
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        detail::builtin_u128 new_lhs {};
+        detail::builtin_u128 new_rhs {};
+
+        std::memcpy(&new_lhs, &lhs, sizeof(uint128_t));
+        std::memcpy(&new_rhs, &rhs, sizeof(uint128_t));
+
+        const auto res {new_lhs * new_rhs};
+
+        uint128_t library_res {};
+
+        std::memcpy(&library_res, &res, sizeof(uint128_t));
+
+        return library_res;
+    }
+
+    #endif
+
     static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
                   std::is_same<UnsignedInteger, std::uint64_t>::value ||
                   std::is_same<UnsignedInteger, uint128_t>::value,
