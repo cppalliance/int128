@@ -1255,7 +1255,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     std::uint64_t result_low {};
     std::uint64_t result_high {};
 
-    result_low = lhs.low + rhs.low;
     result_high = lhs.high + rhs.high + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
