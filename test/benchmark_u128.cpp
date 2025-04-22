@@ -2,7 +2,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#if defined(NDEBUG) && !defined(UBSAN)
+#if defined(NDEBUG) && !defined(UBSAN) && !defined(ASAN)
 #define BOOST_INT128_BENCHMARK_U128
 #endif // NDEBUG
 
