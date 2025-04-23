@@ -847,11 +847,6 @@ void test_operator_mul()
 template <typename IntType>
 void test_operator_div()
 {
-    BOOST_INT128_IF_CONSTEXPR (std::is_signed<IntType>::value)
-    {
-        return;
-    }
-
     boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
                                                           get_max<IntType>());
 
