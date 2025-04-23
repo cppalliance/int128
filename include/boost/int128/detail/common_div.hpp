@@ -126,24 +126,13 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm D: Division of Non-negative integers
-
-BOOST_INT128_FORCE_INLINE constexpr int normalize_shift(std::uint32_t v) noexcept
-{
-    int s = 0;
-    while ((v & 0x80000000) == 0) {
-        v <<= 1;
-        s++;
-    }
-    return s;
-}
-
 template <std::size_t u_size, std::size_t v_size, std::size_t q_size>
 constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
                             const std::uint32_t (&v)[v_size], const std::size_t n,
                             std::uint32_t (&q)[q_size]) noexcept
 {
     // D.1
-    const auto s {normalize_shift(v[n - 1])};
+    const auto s {countl_zero(v[n - 1])};
 
     // Create normalized versions of u and v
     std::uint32_t un[5] {};
