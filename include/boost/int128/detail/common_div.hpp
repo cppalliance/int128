@@ -65,6 +65,33 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
     remainder.high = 0;
 }
 
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr T half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0);
+
+    const auto rhs32 = static_cast<std::uint32_t>(rhs);
+    auto abs_lhs {abs(lhs)};
+
+    auto current = static_cast<std::uint64_t>(abs_lhs.high >> 32U);
+    quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.high);
+    quotient.high |= static_cast<std::uint32_t>(current / rhs32);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.low >> 32U);
+    quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+    remainder.low = static_cast<std::uint64_t>(current % rhs32);
+
+    current = remainder.low << 32U | static_cast<std::uint32_t>(abs_lhs.low);
+    quotient.low |= static_cast<std::uint32_t>(current / rhs32);
+    remainder.low = static_cast<std::uint32_t>(current % rhs32);
+
+    return quotient;
+}
+
 } // namespace detail
 } // namespace int128
 } // namespace boost

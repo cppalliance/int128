@@ -11,6 +11,7 @@
 #include <boost/int128/detail/constants.hpp>
 #include <boost/int128/detail/clz.hpp>
 #include <boost/int128/detail/common_mul.hpp>
+#include <boost/int128/detail/common_div.hpp>
 #include <cstdint>
 #include <cstring>
 
@@ -1875,24 +1876,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
 
     int128_t quotient {};
 
-    const auto rhs32 = static_cast<std::uint32_t>(rhs);
-    auto abs_lhs {abs(lhs)};
-
-    auto current = static_cast<std::uint64_t>(abs_lhs.high >> 32U);
-    quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.high);
-    quotient.high |= static_cast<std::uint32_t>(current / rhs32);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.low >> 32U);
-    quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = remainder.low << 32U | static_cast<std::uint32_t>(abs_lhs.low);
-    quotient.low |= static_cast<std::uint32_t>(current / rhs32);
-    remainder.low = static_cast<std::uint32_t>(current % rhs32);
+    half_word_div(lhs, rhs, quotient, remainder);
 
     return quotient;
 }
