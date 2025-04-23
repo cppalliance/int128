@@ -92,6 +92,25 @@ BOOST_INT128_FORCE_INLINE constexpr T half_word_div(const T& lhs, const std::uin
     return quotient;
 }
 
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
+{
+    if (rhs >= UINT32_MAX)
+    {
+        div_mod_greater_2_e_32(lhs, rhs, quotient, remainder);
+    }
+    else
+    {
+        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
+    }
+}
+
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
+{
+    half_word_div(lhs, rhs, quotient, remainder);
+}
+
 } // namespace detail
 } // namespace int128
 } // namespace boost
