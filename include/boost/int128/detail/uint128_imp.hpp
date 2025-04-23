@@ -1824,12 +1824,17 @@ constexpr uint128_t operator/(const uint128_t lhs, const SignedInteger rhs) noex
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
     const auto abs_rhs {rhs < 0 ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
 
     uint128_t quotient {};
     uint128_t remainder {};
 
-    detail::one_word_div(lhs, abs_rhs);
+    detail::one_word_div(lhs, abs_rhs, quotient, remainder);
 
     return rhs < 0 ? -quotient : quotient;
 }
@@ -1839,17 +1844,46 @@ constexpr uint128_t operator/(const SignedInteger lhs, const uint128_t rhs) noex
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
-    if (rhs.high != 0)
+    if (rhs.high != 0 || rhs == 0)
     {
         return {0, 0};
     }
-    else
-    {
-        const auto abs_lhs {lhs < 0 ? -static_cast<eval_type>(lhs) : static_cast<eval_type>(lhs)};
-        const uint128_t res {0, abs_lhs / rhs.low};
 
-        return lhs < 0 ? -res : res;
+    const auto abs_lhs {lhs < 0 ? -static_cast<eval_type>(lhs) : static_cast<eval_type>(lhs)};
+    const uint128_t res {0, abs_lhs / rhs.low};
+
+    return lhs < 0 ? -res : res;
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
     }
+
+    uint128_t quotient {};
+    uint128_t remainder {};
+
+    detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
+
+    return quotient;
+}
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (rhs.high != 0 || rhs == 0)
+    {
+        return {0, 0};
+    }
+
+    return {0, static_cast<eval_type>(lhs) / rhs.low};
 }
 
 /*
