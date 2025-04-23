@@ -1819,42 +1819,33 @@ constexpr uint128_t& uint128_t::operator*=(const uint128_t rhs) noexcept
 // Division Operator
 //=====================================
 
+// For div we need forward declarations since we mix and match the arguments
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(uint128_t lhs, SignedInteger rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(SignedInteger lhs, uint128_t rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(uint128_t lhs, UnsignedInteger rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator/(UnsignedInteger lhs, uint128_t rhs) noexcept;
+
+constexpr uint128_t operator/(uint128_t lhs, uint128_t rhs) noexcept;
+
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
-    {
-        return {0, 0};
-    }
-
-    const bool is_neg {rhs < 0};
-    const auto abs_rhs {is_neg ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
-
-    uint128_t quotient {};
-    uint128_t remainder {};
-
-    detail::one_word_div(lhs, abs_rhs, quotient, remainder);
-
-    return is_neg ? -quotient : quotient;
+    return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-
-    if (rhs.high != 0 || rhs == 0)
-    {
-        return {0, 0};
-    }
-
-    const bool is_neg {lhs < 0};
-    const auto abs_lhs {is_neg ? -static_cast<eval_type>(lhs) : static_cast<eval_type>(lhs)};
-    const uint128_t res {0, abs_lhs / rhs.low};
-
-    return is_neg ? -res : res;
+    return lhs < 0 ? static_cast<uint128_t>(lhs) / rhs : static_cast<eval_type>(lhs) / rhs;
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1900,7 +1891,6 @@ constexpr uint128_t& uint128_t::operator/=(const uint128_t rhs) noexcept
     *this = *this / rhs;
     return *this;
 }
-*/
 
 } // namespace int128
 } // namespace boost
