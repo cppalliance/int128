@@ -264,6 +264,21 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&wo
     }
 }
 
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
+{
+    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
+    words[1] = static_cast<std::uint32_t>(x >> 32);
+
+    word_count = x > UINT32_MAX ? 2 : 1;
+}
+
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
+{
+    words[0] = x;
+    
+    word_count = 1;
+}
+
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]) noexcept
 {
@@ -275,8 +290,8 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
     return {static_cast<high_word_type>(high), low};
 }
 
-template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr T knuth_div_driver(const T& dividend, const T& divisor, T& remainder) noexcept
+template <typename T, typename U>
+BOOST_INT128_FORCE_INLINE constexpr T knuth_div_driver(const T& dividend, const U& divisor, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
