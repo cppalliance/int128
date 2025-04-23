@@ -22,7 +22,7 @@ namespace detail {
 template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_less_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
-    BOOST_INT128_ASSUME(rhs != 0);
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
     remainder.low = (lhs.high << 32) | (lhs.low >> 32);
     quotient.low = remainder.low / static_cast<std::uint32_t>(rhs);
@@ -37,7 +37,7 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
 {
     using high_word_type = decltype(T{}.high);
 
-    BOOST_INT128_ASSUME(rhs != 0);
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
     #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
 
@@ -81,7 +81,7 @@ BOOST_INT128_FORCE_INLINE constexpr T half_word_div(const T& lhs, const std::uin
 {
     using high_word_type = decltype(T{}.high);
 
-    BOOST_INT128_ASSUME(rhs != 0);
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
     const auto rhs32 = static_cast<std::uint32_t>(rhs);
     auto abs_lhs {abs(lhs)};
