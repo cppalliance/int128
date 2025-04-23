@@ -14,9 +14,16 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
+#if defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wassume"
+#endif
+
 template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_less_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
+    BOOST_INT128_ASSUME(rhs != 0);
+
     remainder.low = (lhs.high << 32) | (lhs.low >> 32);
     quotient.low = remainder.low / static_cast<std::uint32_t>(rhs);
     remainder.low = ((remainder.low % static_cast<std::uint32_t>(rhs)) << 32) | static_cast<std::uint32_t>(lhs.low);
@@ -28,6 +35,8 @@ BOOST_INT128_FORCE_INLINE void div_mod_less_2_e_32(const T& lhs, const std::uint
 template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
+    BOOST_INT128_ASSUME(rhs != 0);
+
     #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
@@ -110,6 +119,11 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 {
     half_word_div(lhs, rhs, quotient, remainder);
 }
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#endif
+
 
 } // namespace detail
 } // namespace int128
