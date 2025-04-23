@@ -1879,13 +1879,25 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
     return {0, static_cast<eval_type>(lhs) / rhs.low};
 }
 
+constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    if (rhs == 0 || lhs < rhs)
+    {
+        return {0, 0};
+    }
+
+    uint128_t remainder {};
+
+    return detail::knuth_div_driver(lhs, rhs, remainder);
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
 {
     *this = *this / rhs;
     return *this;
 }
-/*
+
 constexpr uint128_t& uint128_t::operator/=(const uint128_t rhs) noexcept
 {
     *this = *this / rhs;
