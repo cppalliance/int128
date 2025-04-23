@@ -1890,45 +1890,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
     // If rhs is greater than 2^32, then the result is trivial to find.
     if (rhs >= UINT32_MAX)
     {
-        #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
-        if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
-        {
-            quotient.low = _udiv128(static_cast<std::uint64_t>(lhs.high), lhs.low, rhs, &remainder.low);
-        }
-        else
-        #endif
-        {
-            if (lhs < rhs)
-            {
-                remainder = lhs;
-            }
-            else
-            {
-                quotient.low = lhs.high / rhs;
-                remainder.low = lhs.low;
-                remainder.high = lhs.high % rhs;
-            }
-
-            const auto n_hi {static_cast<std::uint64_t>(remainder.high)};
-            const auto n_lo {remainder.low};
-
-            const auto temp_quo {((n_hi << 32) | (n_lo >> 32)) / rhs};
-            const auto temp_rem {((n_hi << 32) | (n_lo >> 32)) % rhs};
-
-            quotient.low = (quotient.low << 32) | temp_quo;
-
-            const auto final_dividend {(temp_rem << 32) | (n_lo & UINT32_MAX)};
-            const auto final_quo {final_dividend / rhs};
-            const auto final_rem {final_dividend % rhs};
-
-            quotient.low = (quotient.low << 32) | final_quo;
-            remainder.low = final_rem;
-            remainder.high = 0;
-        }
+        div_mod_greater_2_e_32(lhs, rhs, quotient, remainder);
     }
     else
     {
-        quotient = single_word_div(lhs, static_cast<std::uint32_t>(rhs), remainder);
+        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
     }
 
     return quotient;
