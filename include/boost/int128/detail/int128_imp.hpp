@@ -1887,15 +1887,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs
 
     int128_t quotient {};
 
-    // If rhs is greater than 2^32, then the result is trivial to find.
-    if (rhs >= UINT32_MAX)
-    {
-        div_mod_greater_2_e_32(lhs, rhs, quotient, remainder);
-    }
-    else
-    {
-        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
-    }
+    one_word_div(lhs, rhs, quotient, remainder);
 
     return quotient;
 }
