@@ -35,6 +35,8 @@ BOOST_INT128_FORCE_INLINE void div_mod_less_2_e_32(const T& lhs, const std::uint
 template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
+    using high_word_type = decltype(T{}.high);
+
     BOOST_INT128_ASSUME(rhs != 0);
 
     #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
@@ -52,9 +54,9 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
     }
     else
     {
-        quotient.low = lhs.high / rhs;
+        quotient.low = static_cast<std::uint64_t>(lhs.high) / rhs;
         remainder.low = lhs.low;
-        remainder.high = lhs.high % rhs;
+        remainder.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) % rhs);
     }
 
     const auto n_hi {static_cast<std::uint64_t>(remainder.high)};
@@ -77,17 +79,19 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
+    using high_word_type = decltype(T{}.high);
+
     BOOST_INT128_ASSUME(rhs != 0);
 
     const auto rhs32 = static_cast<std::uint32_t>(rhs);
     auto abs_lhs {abs(lhs)};
 
     auto current = static_cast<std::uint64_t>(abs_lhs.high >> 32U);
-    quotient.high = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
+    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
     remainder.low = static_cast<std::uint64_t>(current % rhs32);
 
     current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.high);
-    quotient.high |= static_cast<std::uint32_t>(current / rhs32);
+    quotient.high |= static_cast<high_word_type>(current / rhs32);
     remainder.low = static_cast<std::uint64_t>(current % rhs32);
 
     current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.low >> 32U);
