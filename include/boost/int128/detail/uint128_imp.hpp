@@ -1834,21 +1834,21 @@ constexpr uint128_t operator/(UnsignedInteger lhs, uint128_t rhs) noexcept;
 
 constexpr uint128_t operator/(uint128_t lhs, uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
 }
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return lhs < 0 ? static_cast<uint128_t>(lhs) / rhs : static_cast<eval_type>(lhs) / rhs;
 }
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
@@ -1866,7 +1866,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) no
     return quotient;
 }
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
