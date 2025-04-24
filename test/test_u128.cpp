@@ -965,9 +965,9 @@ int main()
         long,
         unsigned long,
         long long,
-        unsigned long long//,
-        //builtin_i128,
-        //builtin_u128
+        unsigned long long,
+        builtin_i128,
+        builtin_u128
     >;
 
     boost::mp11::mp_for_each<test_types>(test_caller());
