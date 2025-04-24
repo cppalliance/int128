@@ -980,6 +980,10 @@ int main()
     test_spot_div<char>(15, -91);
     test_spot_div<char>(39, -100);
 
+    test_spot_div<long>(-888610053741375541L, 3110266252672496347L);
+
+    test_spot_div<long long>(-3237361348456748317LL, 8011834041509972187LL);
+
     return boost::report_errors();
 }
 
