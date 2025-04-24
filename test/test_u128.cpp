@@ -871,6 +871,9 @@ void test_operator_div()
         auto check_1_value {emulated_value};
         check_1_value /= value2;
 
+        static_assert(sizeof(decltype(emulated_value / value2)) ==
+                      sizeof(decltype(builtin_value / value2)), "Mismatch Return Types");
+
         static_assert(sizeof(decltype(value2 / emulated_value)) ==
                       sizeof(decltype(value2 / builtin_value)), "Mismatch Return Types");
 
