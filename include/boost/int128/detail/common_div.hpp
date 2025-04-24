@@ -20,19 +20,6 @@ namespace detail {
 #endif
 
 template <typename T>
-BOOST_INT128_FORCE_INLINE void div_mod_less_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
-{
-    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
-
-    remainder.low = (lhs.high << 32) | (lhs.low >> 32);
-    quotient.low = remainder.low / static_cast<std::uint32_t>(rhs);
-    remainder.low = ((remainder.low % static_cast<std::uint32_t>(rhs)) << 32) | static_cast<std::uint32_t>(lhs.low);
-    quotient.low = (quotient.low << 32) | (remainder.low / static_cast<std::uint32_t>(rhs));
-    remainder.low %= static_cast<std::uint32_t>(rhs);
-}
-
-// If rhs is greater than 2^32 the result is trivial to find
-template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
