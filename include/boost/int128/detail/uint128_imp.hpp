@@ -1886,9 +1886,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
         return {0, 0};
     }
 
-    uint128_t remainder {};
-
-    return detail::knuth_div_driver(lhs, rhs, remainder);
+    return detail::knuth_div(lhs, rhs);
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
