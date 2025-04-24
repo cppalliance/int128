@@ -23,41 +23,35 @@ template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
-
-    #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
-    {
-        quotient.low = _udiv128(static_cast<std::uint64_t>(lhs.high), lhs.low, rhs, &remainder.low);
-    }
-
-    #endif
-
+    
     if (lhs < rhs)
     {
         remainder = lhs;
         return;
     }
 
-    // Step 1: Handle division of high part by rhs
-    const auto q1 {static_cast<std::uint64_t>(lhs.high) / rhs};
-    const auto r1 {static_cast<std::uint64_t>(lhs.high) % rhs};
+    const auto q_high {static_cast<std::uint64_t>(lhs.high) / rhs};
+    const auto r_high {static_cast<std::uint64_t>(lhs.high) % rhs};
 
-    // Step 2: Handle division of combined (r1, high 32 bits of lhs.low) by rhs
-    const auto dividend2 {(r1 << 32) | (lhs.low >> 32)};
-    const auto q2 {dividend2 / rhs};
-    const auto r2 {dividend2 % rhs};
+    // Textbook long division
+    std::uint64_t q_low {};
+    std::uint64_t rem {r_high};
+    std::uint64_t current {lhs.low};
 
-    // Step 3: Handle division of combined (r2, low 32 bits of lhs.low) by rhs
-    const auto dividend3 {(r2 << 32) | (lhs.low & UINT32_MAX)};
-    const auto q3 {dividend3 / rhs};
-    const auto r3 {dividend3 % rhs};
+    for (int i {63}; i >= 0; --i)
+    {
+        rem = (rem << 1) | ((current >> i) & 1);
 
-    // Combine results
-    // Both high words will be empty
-    quotient.low = (q1 << 32) | q2;
-    quotient.low = (quotient.low << 32) | q3;
-    remainder.low = r3;
+        if (rem >= rhs)
+        {
+            rem -= rhs;
+            q_low |= (1ULL << i);
+        }
+    }
+
+    quotient.high = q_high;
+    quotient.low = q_low;
+    remainder.low = rem;
 }
 
 template <typename T>
@@ -66,19 +60,6 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     using high_word_type = decltype(T{}.high);
 
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
-
-    #if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(_M_AMD64)
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
-    {
-        quotient.high = static_cast<high_word_type>(lhs.high / rhs);
-        remainder.low = lhs.high % rhs;
-        quotient.low = _udiv128(remainder.low, lhs.low, static_cast<std::uint64_t>(rhs), &remainder.low);
-
-        return;
-    }
-
-    #endif
 
     const auto rhs32 = static_cast<std::uint32_t>(rhs);
     auto abs_lhs {abs(lhs)};
