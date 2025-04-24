@@ -124,9 +124,16 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
     half_word_div(lhs, rhs, quotient, remainder);
 }
 
+namespace impl {
+
+#if defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable : 4127) // Pre c++17 the if constexpr remainder part will hit this
+#endif
+
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm D: Division of Non-negative integers
-template <std::size_t u_size, std::size_t v_size, std::size_t q_size>
+template <bool need_remainder, std::size_t u_size, std::size_t v_size, std::size_t q_size>
 constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
                             const std::uint32_t (&v)[v_size], const std::size_t n,
                             std::uint32_t (&q)[q_size]) noexcept
@@ -221,28 +228,36 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
     }
 
     // D.8
-    if (s > 0)
+    // If we are only calculating division we can completely skip this step
+    BOOST_INT128_IF_CONSTEXPR (need_remainder)
     {
-        for (std::size_t i {}; i < n-1; i++)
+        if (s > 0)
         {
-            u[i] = (un[i] >> s) | (un[i+1] << (32 - s));
+            for (std::size_t i {}; i < n-1; i++)
+            {
+                u[i] = (un[i] >> s) | (un[i+1] << (32 - s));
+            }
+            u[n-1] = un[n-1] >> s;
         }
-        u[n-1] = un[n-1] >> s;
-    }
-    else
-    {
-        for (std::size_t i {}; i < n; i++)
+        else
         {
-            u[i] = un[i];
+            for (std::size_t i {}; i < n; i++)
+            {
+                u[i] = un[i];
+            }
         }
-    }
 
-    // Clear anything left in u
-    for (std::size_t i {n}; i < m; i++)
-    {
-        u[i] = 0;
+        // Clear anything left in u
+        for (std::size_t i {n}; i < m; i++)
+        {
+            u[i] = 0;
+        }
     }
 }
+
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
 
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
@@ -290,8 +305,13 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
     return {static_cast<high_word_type>(high), low};
 }
 
+} // namespace impl
+
+// We only need to take the time to process the remainder in the modulo case
+// In the division case it is a waste of cycles
+
 template <typename T, typename U>
-BOOST_INT128_FORCE_INLINE constexpr T knuth_div_driver(const T& dividend, const U& divisor, T& remainder) noexcept
+BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divisor) noexcept
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
@@ -305,11 +325,31 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div_driver(const T& dividend, const 
     to_words(dividend, u, m);
     to_words(divisor, v, n);
 
-    knuth_divide(u, m, v, n, q);
+    impl::knuth_divide<false>(u, m, v, n, q);
 
-    remainder = from_words<T>(u);
+    return impl::from_words<T>(q);
+}
 
-    return from_words<T>(q);
+template <typename T, typename U>
+BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divisor, T& remainder) noexcept
+{
+    BOOST_INT128_ASSUME(divisor != 0);
+
+    std::uint32_t u[4] {};
+    std::uint32_t v[4] {};
+    std::uint32_t q[4] {};
+
+    std::size_t m {};
+    std::size_t n {};
+
+    to_words(dividend, u, m);
+    to_words(divisor, v, n);
+
+    impl::knuth_divide<true>(u, m, v, n, q);
+
+    remainder = impl::from_words<T>(u);
+
+    return impl::from_words<T>(q);
 }
 
 #if defined(__clang__)
