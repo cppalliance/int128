@@ -882,6 +882,35 @@ void test_operator_div()
     }
 }
 
+template <typename IntType>
+void test_spot_div(IntType value, IntType value2)
+{
+    auto builtin_value = static_cast<builtin_u128>(value);
+    boost::int128::uint128_t emulated_value {value};
+
+    auto check_1_value {emulated_value};
+    check_1_value /= value2;
+
+    static_assert(sizeof(decltype(emulated_value / value2)) ==
+                  sizeof(decltype(builtin_value / value2)), "Mismatch Return Types");
+
+    static_assert(sizeof(decltype(value2 / emulated_value)) ==
+                  sizeof(decltype(value2 / builtin_value)), "Mismatch Return Types");
+
+
+    // The tested values are pulled out unlike the regular test
+    // so that it's easier to read the values with GDB
+
+    auto check_1_value_builtin {(builtin_value / value2)};
+
+    BOOST_TEST(check_1_value == check_1_value_builtin);
+
+    auto check_2_value {value2 / emulated_value};
+    auto check_2_value_builtin {value2 / builtin_value};
+
+    BOOST_TEST(check_2_value == check_2_value_builtin);
+}
+
 struct test_caller
 {
     template<typename T>
@@ -946,6 +975,10 @@ int main()
     test_float_conversion_operators<float>();
     test_float_conversion_operators<double>();
     test_float_conversion_operators<long double>();
+
+    test_spot_div<char>(1, -32);
+    test_spot_div<char>(15, -91);
+    test_spot_div<char>(39, -100);
 
     return boost::report_errors();
 }
