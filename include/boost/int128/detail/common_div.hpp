@@ -260,14 +260,14 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
 #endif
 
 template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
+BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const T& x, std::uint32_t (&words)[4]) noexcept
 {
     words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
     words[1] = static_cast<std::uint32_t>(x.low >> 32);
     words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
     words[3] = static_cast<std::uint32_t>(x.high >> 32);
 
-    word_count = 4;
+    std::size_t word_count {4};
     while (word_count > 0 && words[word_count-1] == 0)
     {
         word_count--;
@@ -277,21 +277,23 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&wo
     {
         ++word_count;
     }
+
+    return word_count;
 }
 
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
+BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint64_t x, std::uint32_t (&words)[4]) noexcept
 {
     words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
     words[1] = static_cast<std::uint32_t>(x >> 32);
 
-    word_count = x > UINT32_MAX ? 2 : 1;
+    return x > UINT32_MAX ? 2 : 1;
 }
 
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[4], std::size_t& word_count) noexcept
+BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint32_t x, std::uint32_t (&words)[4]) noexcept
 {
     words[0] = x;
     
-    word_count = 1;
+    return 1;
 }
 
 template <typename T>
@@ -319,11 +321,8 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
     std::uint32_t v[4] {};
     std::uint32_t q[4] {};
 
-    std::size_t m {};
-    std::size_t n {};
-
-    to_words(dividend, u, m);
-    to_words(divisor, v, n);
+    const auto m {impl::to_words(dividend, u)};
+    const auto n {impl::to_words(divisor, v)};
 
     impl::knuth_divide<false>(u, m, v, n, q);
 
@@ -339,11 +338,8 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
     std::uint32_t v[4] {};
     std::uint32_t q[4] {};
 
-    std::size_t m {};
-    std::size_t n {};
-
-    to_words(dividend, u, m);
-    to_words(divisor, v, n);
+    const auto m {impl::to_words(dividend, u)};
+    const auto n {impl::to_words(divisor, v)};
 
     impl::knuth_divide<true>(u, m, v, n, q);
 
