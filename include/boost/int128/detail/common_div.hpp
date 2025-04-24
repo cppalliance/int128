@@ -22,6 +22,8 @@ namespace detail {
 template <typename T>
 BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
+    using high_word_type = decltype(T{}.high);
+
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
     
     if (lhs < rhs)
@@ -49,7 +51,7 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
         }
     }
 
-    quotient.high = q_high;
+    quotient.high = static_cast<high_word_type>(q_high);
     quotient.low = q_low;
     remainder.low = rem;
 }
