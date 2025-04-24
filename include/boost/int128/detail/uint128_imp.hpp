@@ -1889,6 +1889,30 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
     return detail::knuth_div(lhs, rhs);
 }
 
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr uint128_t operator/(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs / static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator/(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) / rhs;
+}
+
+constexpr uint128_t operator/(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs / static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator/(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) / rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
 {
