@@ -352,6 +352,15 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
+    if (divisor.high == 0)
+    {
+        T quotient {};
+
+        detail::one_word_div(dividend, divisor.low, quotient, remainder);
+
+        return quotient;
+    }
+
     std::uint32_t u[4] {};
     std::uint32_t v[4] {};
     std::uint32_t q[4] {};
