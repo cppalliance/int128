@@ -1868,8 +1868,26 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
     {
         return {0, 0};
     }
+    else if (rhs.high != 0)
+    {
+        return detail::knuth_div(lhs, rhs);
+    }
+    else
+    {
+        if (lhs.high == 0)
+        {
+            return {0, lhs.low / rhs.low};
+        }
+        else
+        {
+            uint128_t quotient {};
+            uint128_t remainder {};
 
-    return detail::knuth_div(lhs, rhs);
+            detail::one_word_div(lhs, rhs.low, quotient, remainder);
+
+            return quotient;
+        }
+    }
 }
 
 #ifdef BOOST_INT128_HAS_INT128
