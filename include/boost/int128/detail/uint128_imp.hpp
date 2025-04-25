@@ -1618,24 +1618,6 @@ constexpr uint128_t& uint128_t::operator-=(const uint128_t rhs) noexcept
 
 namespace detail {
 
-BOOST_INT128_FORCE_INLINE constexpr void to_words(const uint128_t& x, std::uint32_t (&words)[4]) noexcept
-{
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
-    {
-        std::memcpy(&words, &x, sizeof(uint128_t));
-        return;
-    }
-
-    #endif
-
-    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x.low >> 32);
-    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
-    words[3] = static_cast<std::uint32_t>(x.high >> 32);
-}
-
 #if defined(_M_AMD64) && !defined(__GNUC__)
 
 BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept

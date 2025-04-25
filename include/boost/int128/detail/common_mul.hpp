@@ -53,6 +53,26 @@ BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_
     return {static_cast<high_word_type>(high), low};
 }
 
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&words)[4]) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        std::memcpy(&words, &x, sizeof(T));
+        return;
+    }
+
+    #endif
+
+    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
+    words[1] = static_cast<std::uint32_t>(x.low >> 32);
+    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
+    words[3] = static_cast<std::uint32_t>(x.high >> 32);
+}
+
+
 BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
 {
     #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
