@@ -257,7 +257,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
         T quotient {};
         T remainder {};
 
-        detail::one_word_div(dividend, divisor.low, quotient, remainder);
+        one_word_div(dividend, divisor.low, quotient, remainder);
 
         return quotient;
     }
@@ -283,7 +283,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
     {
         T quotient {};
 
-        detail::one_word_div(dividend, divisor.low, quotient, remainder);
+        one_word_div(dividend, divisor.low, quotient, remainder);
 
         return quotient;
     }
