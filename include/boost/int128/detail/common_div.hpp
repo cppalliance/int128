@@ -59,28 +59,13 @@ BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::u
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
-    using high_word_type = decltype(T{}.high);
-
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-    const auto rhs32 = static_cast<std::uint32_t>(rhs);
-    auto abs_lhs {abs(lhs)};
-
-    auto current = static_cast<std::uint64_t>(abs_lhs.high >> 32U);
-    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.high);
-    quotient.high |= static_cast<high_word_type>(current / rhs32);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = static_cast<std::uint64_t>(remainder.low << 32U) | static_cast<std::uint32_t>(abs_lhs.low >> 32U);
-    quotient.low = static_cast<std::uint64_t>(static_cast<std::uint64_t>(static_cast<std::uint32_t>(current / rhs32)) << 32U);
-    remainder.low = static_cast<std::uint64_t>(current % rhs32);
-
-    current = remainder.low << 32U | static_cast<std::uint32_t>(abs_lhs.low);
-    quotient.low |= static_cast<std::uint32_t>(current / rhs32);
-    remainder.low = static_cast<std::uint32_t>(current % rhs32);
+    quotient.high = lhs.high / rhs;
+    remainder.low = ((static_cast<std::uint64_t>(lhs.high) % rhs) << 32) | (lhs.low >> 32);
+    quotient.low = (remainder.low / rhs) << 32;
+    remainder.low = ((remainder.low % rhs) << 32) | (lhs.low & UINT32_MAX);
+    quotient.low |= (remainder.low / rhs) & UINT32_MAX;
 }
 
 template <typename T>
