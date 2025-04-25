@@ -20,43 +20,6 @@ namespace detail {
 #endif
 
 template <typename T>
-BOOST_INT128_FORCE_INLINE void div_mod_greater_2_e_32(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
-{
-    using high_word_type = decltype(T{}.high);
-
-    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
-    
-    if (lhs < rhs)
-    {
-        remainder = lhs;
-        return;
-    }
-
-    const auto q_high {static_cast<std::uint64_t>(lhs.high) / rhs};
-    const auto r_high {static_cast<std::uint64_t>(lhs.high) % rhs};
-
-    // Textbook long division
-    std::uint64_t q_low {};
-    std::uint64_t rem {r_high};
-    std::uint64_t current {lhs.low};
-
-    for (int i {63}; i >= 0; --i)
-    {
-        rem = (rem << 1) | ((current >> i) & 1);
-
-        if (rem >= rhs)
-        {
-            rem -= rhs;
-            q_low |= (1ULL << i);
-        }
-    }
-
-    quotient.high = static_cast<high_word_type>(q_high);
-    quotient.low = q_low;
-    remainder.low = rem;
-}
-
-template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
