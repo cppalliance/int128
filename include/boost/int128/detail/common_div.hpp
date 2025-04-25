@@ -31,25 +31,6 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     quotient.low |= (remainder.low / rhs) & UINT32_MAX;
 }
 
-template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
-{
-    if (rhs >= UINT32_MAX)
-    {
-        div_mod_greater_2_e_32(lhs, rhs, quotient, remainder);
-    }
-    else
-    {
-        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
-    }
-}
-
-template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
-{
-    half_word_div(lhs, rhs, quotient, remainder);
-}
-
 namespace impl {
 
 #if defined(_MSC_VER)
@@ -207,7 +188,7 @@ BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const T& x, std::uint32
     return word_count;
 }
 
-BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint64_t x, std::uint32_t (&words)[4]) noexcept
+BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
 {
     words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
     words[1] = static_cast<std::uint32_t>(x >> 32);
@@ -215,7 +196,7 @@ BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint64_t x, 
     return x > UINT32_MAX ? 2 : 1;
 }
 
-BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint32_t x, std::uint32_t (&words)[4]) noexcept
+BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint32_t x, std::uint32_t (&words)[1]) noexcept
 {
     words[0] = x;
 
@@ -237,6 +218,34 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
 
 // We only need to take the time to process the remainder in the modulo case
 // In the division case it is a waste of cycles
+
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
+{
+    if (rhs <= UINT32_MAX)
+    {
+        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
+    }
+    else
+    {
+        std::uint32_t u[4] {};
+        std::uint32_t v[2] {};
+        std::uint32_t q[4] {};
+
+        const auto m {impl::to_words(lhs, u)};
+        const auto n {impl::to_words(rhs, v)};
+
+        impl::knuth_divide<false>(u, m, v, n, q);
+
+        quotient = impl::from_words<T>(q);
+    }
+}
+
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
+{
+    half_word_div(lhs, rhs, quotient, remainder);
+}
 
 template <typename T, typename U>
 BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divisor) noexcept
