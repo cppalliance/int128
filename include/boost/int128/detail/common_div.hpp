@@ -47,37 +47,31 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
 {
     // D.1
     const auto s {countl_zero(v[n - 1])};
+    const auto complement_s {32 - s};
+    const bool needs_shift {s > 0};
 
     // Create normalized versions of u and v
     std::uint32_t un[5] {};
     std::uint32_t vn[4] {};
 
-    if (s > 0)
-    {
-        for (std::size_t i {n-1}; i > 0; i--)
-        {
-            vn[i] = (v[i] << s) | (v[i-1] >> (32 - s));
-        }
-        vn[0] = v[0] << s;
+    un[4] = needs_shift ? (u[3] >> complement_s) : 0;
+    un[3] = needs_shift ? ((u[3] << s) | (u[2] >> complement_s)) : u[3];
+    un[2] = needs_shift ? ((u[2] << s) | (u[1] >> complement_s)) : u[2];
+    un[1] = needs_shift ? ((u[1] << s) | (u[0] >> complement_s)) : u[1];
+    un[0] = needs_shift ? (u[0] << s) : u[0];
 
-        un[m] = u[m-1] >> (32-s);
-        for (std::size_t i {m-1}; i > 0; i--)
-        {
-            un[i] = (u[i] << s) | (u[i-1] >> (32-s));
-        }
-        un[0] = u[0] << s;
+    static_assert(v_size == 4 || v_size == 2, "Unknown size for denominator");
+    BOOST_INT128_IF_CONSTEXPR (v_size == 4)
+    {
+        vn[3] = needs_shift ? ((v[3] << s) | (v[2] >> complement_s)) : v[3];
+        vn[2] = needs_shift ? ((v[2] << s) | (v[1] >> complement_s)) : v[2];
+        vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
+        vn[0] = needs_shift ? (v[0] << s) : v[0];
     }
     else
     {
-        // No normalization needed
-        for (std::size_t i {}; i < n; i++)
-        {
-            vn[i] = v[i];
-        }
-        for (std::size_t i {}; i < m; i++)
-        {
-            un[i] = u[i];
-        }
+        vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
+        vn[0] = needs_shift ? (v[0] << s) : v[0];
     }
 
     // D.2
