@@ -216,7 +216,7 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
-    #if defined(_M_AMD64) && defined(_MSC_VER)
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
     using high_word_type = decltype(T{}.high);
 
