@@ -1868,6 +1868,12 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
     {
         return {0, 0};
     }
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    else
+    {
+        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
+    }
+    #else
     else if (rhs.high != 0)
     {
         return detail::knuth_div(lhs, rhs);
@@ -1888,6 +1894,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
             return quotient;
         }
     }
+    #endif
 }
 
 #ifdef BOOST_INT128_HAS_INT128
