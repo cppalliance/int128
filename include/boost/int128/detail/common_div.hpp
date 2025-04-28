@@ -208,6 +208,81 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
     return {static_cast<high_word_type>(high), low};
 }
 
+#ifdef _M_AMD64
+
+template <bool needs_mod, typename T>
+constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
+{
+    const auto shift_amount {countl_zero(divisor.high)};
+    divisor <<= shift_amount;
+
+    auto high_digit {shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount)};
+    dividend <<= shift_amount;
+
+    T quotient {};
+    quotient.high = high_digit >= divisor.high;
+    std::uint64_t remainder_estimate {};
+    quotient.low = _udiv128(high_digit >= divisor.high ? high_digit - divisor.high : high_digit,
+                            dividend.high, divisor.high, &remainder_estimate);
+
+    while (true)
+    {
+        if (quotient.high > 0)
+        {
+            --quotient;
+        }
+        else
+        {
+            T product {};
+            product.low = _umul128(quotient.low, divisor.low, &product.high);
+            if (product <= T{dividend.low, remainder_estimate})
+            {
+                break;
+            }
+
+            --quotient.low;
+        }
+
+        const auto sum {remainder_estimate + divisor.high};
+        if (remainder_estimate > sum)
+        {
+            break;
+        }
+
+        remainder_estimate = sum;
+    }
+
+    std::uint64_t product0_high {};
+    auto product_low {_umul128(quotient.low, divisor.low, &product0_high)};
+    auto borrow = BOOST_INT128_SUB_BORROW(0, dividend.low, product_low, &dividend.low);
+    std::uint64_t product1_high {};
+    product_low = _umul128(quotient.low, divisor.high, &product1_high);
+    product1_high += BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low);
+    borrow = BOOST_INT128_SUB_BORROW(borrow, dividend.high, product_low, &dividend.high);
+    borrow = BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit);
+
+    if (borrow)
+    {
+        --quotient.low;
+
+        BOOST_INT128_IF_CONSTEXPR (needs_mod)
+        {
+            auto carry {BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low)};
+            BOOST_INT128_ADD_CARRY(carry, dividend.high, divisor.high, &dividend.high);
+        }
+    }
+
+    BOOST_INT128_IF_CONSTEXPR (needs_mod)
+    {
+        dividend >>= shift_amount;
+        remainder = dividend;
+    }
+
+    return quotient;
+}
+
+#endif
+
 } // namespace impl
 
 // We only need to take the time to process the remainder in the modulo case
@@ -253,8 +328,8 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
     half_word_div(lhs, rhs, quotient, remainder);
 }
 
-template <typename T, typename U>
-BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divisor) noexcept
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor) noexcept
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
@@ -268,6 +343,8 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
         return quotient;
     }
 
+    #ifndef _M_AMD64
+
     std::uint32_t u[4] {};
     std::uint32_t v[4] {};
     std::uint32_t q[4] {};
@@ -278,10 +355,17 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
     impl::knuth_divide<false>(u, m, v, n, q);
 
     return impl::from_words<T>(q);
+
+    #else
+
+    T remainder {};
+    return impl::div_mod_msvc<false>(dividend, divisor, remainder);
+
+    #endif
 }
 
-template <typename T, typename U>
-BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divisor, T& remainder) noexcept
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
@@ -293,6 +377,8 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
 
         return quotient;
     }
+
+    #ifndef _M_AMD64
 
     std::uint32_t u[4] {};
     std::uint32_t v[4] {};
@@ -306,6 +392,12 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const U& divi
     remainder = impl::from_words<T>(u);
 
     return impl::from_words<T>(q);
+
+    #else
+
+    return impl::div_mod_msvc<true>(dividend, divisor, remainder);
+
+    #endif
 }
 
 #if defined(__clang__)
