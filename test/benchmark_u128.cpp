@@ -109,7 +109,8 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
     std::mt19937_64 gen(seed);
     std::uniform_int_distribution<std::uint64_t> dist_low(UINT64_C(0), UINT64_MAX);
     std::uniform_int_distribution<std::uint64_t> dist_high(UINT64_C(0), UINT64_MAX);
-    std::uniform_int_distribution<int> size_dist(0, 1);
+    std::uniform_int_distribution<std::uint32_t> dist_small(UINT32_C(0), UINT32_MAX);
+    std::uniform_int_distribution<int> size_dist(0, 3);
 
     std::vector<T> result(size);
     for (std::size_t i = 0; i < size; ++i)
@@ -147,13 +148,23 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
             break;
 
             case 4:
-                if (size_dist(gen) == 1)
+                // 32, 64, 96, or 128 bits in length
+                switch (size_dist(gen))
                 {
-                    result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
-                }
-                else
-                {
-                    result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
+                    case 0:
+                        result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
+                        break;
+                    case 1:
+                        result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                        break;
+                    case 2:
+                        result[i] = from_uint128<T>(uint128_t{dist_small(gen), dist_low(gen)});
+                        break;
+                    case 3:
+                        result[i] = from_uint128<T>(uint128_t{dist_small(gen)});
+                        break;
+                    default:
+                        BOOST_INT128_UNREACHABLE;
                 }
             break;
         }
