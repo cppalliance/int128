@@ -208,7 +208,7 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
     return {static_cast<high_word_type>(high), low};
 }
 
-#ifdef _M_AMD64
+#if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
 template <bool needs_mod, typename T>
 constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
@@ -333,17 +333,12 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
-    if (divisor.high == 0)
-    {
-        T quotient {};
-        T remainder {};
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
-        one_word_div(dividend, divisor.low, quotient, remainder);
+    T remainder {};
+    return impl::div_mod_msvc<false>(dividend, divisor, remainder);
 
-        return quotient;
-    }
-
-    #ifndef _M_AMD64
+    #else
 
     std::uint32_t u[4] {};
     std::uint32_t v[4] {};
@@ -356,11 +351,6 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 
     return impl::from_words<T>(q);
 
-    #else
-
-    T remainder {};
-    return impl::div_mod_msvc<false>(dividend, divisor, remainder);
-
     #endif
 }
 
@@ -368,17 +358,12 @@ template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(divisor != 0);
+    
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
-    if (divisor.high == 0)
-    {
-        T quotient {};
+    return impl::div_mod_msvc<true>(dividend, divisor, remainder);
 
-        one_word_div(dividend, divisor.low, quotient, remainder);
-
-        return quotient;
-    }
-
-    #ifndef _M_AMD64
+    #else
 
     std::uint32_t u[4] {};
     std::uint32_t v[4] {};
@@ -392,10 +377,6 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
     remainder = impl::from_words<T>(u);
 
     return impl::from_words<T>(q);
-
-    #else
-
-    return impl::div_mod_msvc<true>(dividend, divisor, remainder);
 
     #endif
 }
