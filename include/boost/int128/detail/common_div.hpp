@@ -216,6 +216,14 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
+    #ifdef _M_AMD64
+
+    quotient.high = lhs.high / rhs;
+    remainder.low = static_cast<std::uint64_t>(lhs.high) % rhs;
+    quotient.low = _udiv128(remainder.low, lhs.low, rhs, &remainder.low);
+
+    #else
+
     if (rhs <= UINT32_MAX)
     {
         half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
@@ -233,6 +241,8 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 
         quotient = impl::from_words<T>(q);
     }
+
+    #endif
 }
 
 template <typename T>
