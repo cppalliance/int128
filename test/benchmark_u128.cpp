@@ -307,7 +307,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<0, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<0, builtin_u128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -369,7 +369,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<1, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<1, builtin_u128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -432,7 +432,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<2, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<2, builtin_u128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -495,7 +495,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<3, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<3, builtin_u128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -558,7 +558,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<4, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<4, builtin_u128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
