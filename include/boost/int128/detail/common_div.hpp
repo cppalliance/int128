@@ -223,20 +223,27 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
         quotient.low = dividend.high / divisor.high;
 
         std::uint64_t product0_high {};
-        auto product_low {_umul128(quotient.low, divisor.low, &product0_high)};
+        auto product0_low {_umul128(quotient.low, divisor.low, &product0_high)};
+
         std::uint64_t product1_high {};
         auto product1_low {_umul128(quotient.low, divisor.high, &product1_high)};
 
-        auto carry {BOOST_INT128_ADD_CARRY(0, product_low, product1_high << 32, &product_low)};
-        product0_high += carry + (product1_high >> 32);
+        T product {};
+        product.low = product0_low;
+        auto carry {BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, &product.high)};
+        product1_high += static_cast<std::uint64_t>(carry);
 
-        // Check if quotient estimate is too high
-        T product{product0_high, product_low};
-        if (product > dividend)
+        if (product1_high > 0 || product > dividend)
         {
             --quotient.low;
-            auto borrow {BOOST_INT128_SUB_BORROW(0, product.low, divisor.low, &product.low)};
-            BOOST_INT128_SUB_BORROW(borrow, product.high, divisor.high, &product.high);
+
+            // Recalculate with adjusted quotient
+            product0_low = _umul128(quotient.low, divisor.low, &product0_high);
+            product1_low = _umul128(quotient.low, divisor.high, &product1_high);
+
+            product.low = product0_low;
+            carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, &product.high);
+            product1_high += static_cast<std::uint64_t>(carry);
         }
 
         BOOST_INT128_IF_CONSTEXPR (needs_mod)
