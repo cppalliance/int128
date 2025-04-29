@@ -1972,10 +1972,10 @@ constexpr uint128_t operator%(UnsignedInteger lhs, uint128_t rhs) noexcept;
 constexpr uint128_t operator%(uint128_t lhs, uint128_t rhs) noexcept;
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-constexpr uint128_t operator%(const SignedInteger lhs, const uint128_t rhs) noexcept
+constexpr uint128_t operator%(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return lhs < 0 ? static_cast<uint128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
+    return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
@@ -2016,6 +2016,70 @@ constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) no
     return {0, static_cast<eval_type>(lhs) % rhs.low};
 }
 
+constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    if (rhs == 0)
+    {
+        return {0, 0};
+    }
+    else if (rhs > lhs)
+    {
+        return lhs;
+    }
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    else
+    {
+        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
+    }
+    #else
+    else if (rhs.high != 0)
+    {
+        uint128_t remainder {};
+        detail::knuth_div(lhs, rhs, remainder);
+        return remainder;
+    }
+    else
+    {
+        if (lhs.high == 0)
+        {
+            return {0, lhs.low % rhs.low};
+        }
+        else
+        {
+            uint128_t quotient {};
+            uint128_t remainder {};
+
+            detail::one_word_div(lhs, rhs.low, quotient, remainder);
+
+            return remainder;
+        }
+    }
+    #endif
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr uint128_t operator%(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs % static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator%(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) % rhs;
+}
+
+constexpr uint128_t operator%(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs % static_cast<uint128_t>(rhs);
+}
+
+constexpr uint128_t operator%(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) % rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
