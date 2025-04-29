@@ -1653,7 +1653,9 @@ BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uin
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__)
+
+    #  if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1672,12 +1674,17 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
         return library_res;
     }
 
-    #elif (defined(__s390x__) || defined(__s390x__)) && defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #  else
+    #    define BOOST_INT128_HIDE_MUL
 
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
+        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * rhs);
+
+    #  endif
+
+    #elif (defined(__s390x__) || defined(__s390x__)) && defined(__GNUC__)
+    #  define BOOST_INT128_HIDE_MUL
+
         return static_cast<uint128_t>(static_cast<builtin_u128>(lhs) * static_cast<builtin_u128>(rhs));
-    }
 
     #elif defined(__i386__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -1695,6 +1702,9 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
     #endif
 
+    // We need to hide this if we use a non-const eval method above to avoid a litany of cross-platform warnings
+    #ifndef BOOST_INT128_HIDE_MUL
+
     static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
                   std::is_same<UnsignedInteger, std::uint64_t>::value ||
                   std::is_same<UnsignedInteger, uint128_t>::value,
@@ -1708,6 +1718,10 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
     to_words(rhs, rhs_words);
 
     return knuth_multiply<uint128_t>(lhs_words, rhs_words);
+
+    #else
+    #undef BOOST_INT128_HIDE_MUL
+    #endif //BOOST_INT128_HIDE_MUL
 }
 
 } // namespace detail
