@@ -1985,6 +1985,38 @@ constexpr uint128_t operator%(const SignedInteger lhs, const uint128_t rhs) noex
     return lhs < 0 ? static_cast<uint128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
 }
 
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator%(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
+    uint128_t quotient {};
+    uint128_t remainder {};
+
+    detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
+
+    return remainder;
+}
+
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (rhs.high != 0 || rhs == 0)
+    {
+        return {0, 0};
+    }
+
+    return {0, static_cast<eval_type>(lhs) % rhs.low};
+}
+
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
 {
