@@ -31,6 +31,18 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     quotient.low |= (remainder.low / rhs) & UINT32_MAX;
 }
 
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient) noexcept
+{
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
+
+    quotient.high = lhs.high / rhs;
+    auto remainder {((static_cast<std::uint64_t>(lhs.high) % rhs) << 32) | (lhs.low >> 32)};
+    quotient.low = (remainder / rhs) << 32;
+    remainder = ((remainder % rhs) << 32) | (lhs.low & UINT32_MAX);
+    quotient.low |= (remainder / rhs) & UINT32_MAX;
+}
+
 namespace impl {
 
 #if defined(_MSC_VER)
@@ -342,6 +354,41 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 // In the division case it is a waste of cycles
 
 template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient) noexcept
+{
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+
+    using high_word_type = decltype(T{}.high);
+
+    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
+    const auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
+    quotient.low = _udiv128(remainder, lhs.low, rhs, &remainder);
+
+    #else
+
+    if (rhs <= UINT32_MAX)
+    {
+        T remainder {};
+        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
+    }
+    else
+    {
+        std::uint32_t u[4] {};
+        std::uint32_t v[2] {};
+        std::uint32_t q[4] {};
+
+        const auto m {impl::to_words(lhs, u)};
+        const auto n {impl::to_words(rhs, v)};
+
+        impl::knuth_divide<false>(u, m, v, n, q);
+
+        quotient = impl::from_words<T>(q);
+    }
+
+    #endif
+}
+
+template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
@@ -367,9 +414,10 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
         const auto m {impl::to_words(lhs, u)};
         const auto n {impl::to_words(rhs, v)};
 
-        impl::knuth_divide<false>(u, m, v, n, q);
+        impl::knuth_divide<true>(u, m, v, n, q);
 
         quotient = impl::from_words<T>(q);
+        remainder = impl::from_words<T>(u);
     }
 
     #endif
@@ -379,6 +427,12 @@ template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
     half_word_div(lhs, rhs, quotient, remainder);
+}
+
+template <typename T>
+BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient) noexcept
+{
+    half_word_div(lhs, rhs, quotient);
 }
 
 template <typename T>
