@@ -1559,58 +1559,6 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int1
 
 #endif
 
-#if defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)
-
-#ifdef __GNUC__
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wclass-memaccess"
-#endif
-
-// See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
-// Algorithm M: Multiplication of Non-negative integers
-BOOST_INT128_FORCE_INLINE int128_t msvc_32_mul(const int128_t lhs, const int128_t rhs) noexcept
-{
-    constexpr std::size_t width {4};
-
-    const auto negative {static_cast<bool>((lhs < 0) ^ (rhs < 0))};
-
-    std::uint32_t u_parts[width] {};
-    std::uint32_t v_parts[width] {};
-    std::memcpy(&u_parts, &lhs, sizeof(int128_t));
-    std::memcpy(&v_parts, &rhs, sizeof(int128_t));
-
-    std::uint32_t w[2 * width] {};
-
-    for (std::size_t j {}; j < width; ++j)
-    {
-        std::uint64_t t {};
-        for (std::size_t i {}; i < width; ++i)
-        {
-            t += static_cast<std::uint64_t>(u_parts[i]) * v_parts[j] + w[i + j];
-            w[i + j] = static_cast<std::uint32_t>(t);
-            t >>= 32u;
-        }
-        w[j + width] = static_cast<std::uint32_t>(t);
-    }
-
-    int128_t result {};
-    std::memcpy(&result, &w, sizeof(int128_t));
-
-    if (negative)
-    {
-        result.low = ~result.low + 1;
-        result.high = ~result.high + (result.low == 0);
-    }
-
-    return result;
-}
-
-#ifdef __GNUC__
-#  pragma GCC diagnostic pop
-#endif
-
-#endif
-
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
     #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__)
@@ -1670,7 +1618,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         return msvc_amd64_mul(lhs, rhs);
     }
 
-    #elif (defined(_M_IX86) || defined(_M_ARM)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
@@ -1678,7 +1626,16 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     }
     else
     {
-        return msvc_32_mul(lhs, rhs);
+        const auto negative {static_cast<bool>((lhs < 0) ^ (rhs < 0))};
+
+        std::uint32_t lhs_words[4] {};
+        std::uint32_t rhs_words[4] {};
+        to_words(abs(lhs), lhs_words);
+        to_words(abs(rhs), rhs_words);
+
+        const auto result {knuth_multiply<int128_t>(lhs_words, rhs_words)};
+
+        return negative ? -result : result;
     }
 
     #else
