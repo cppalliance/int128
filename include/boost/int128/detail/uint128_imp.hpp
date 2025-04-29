@@ -1677,7 +1677,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
     #  else
     #    define BOOST_INT128_HIDE_MUL
 
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * rhs);
+        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
 
     #  endif
 
