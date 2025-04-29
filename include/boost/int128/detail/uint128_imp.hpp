@@ -2008,9 +2008,13 @@ constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (rhs.high != 0 || rhs == 0)
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
         return {0, 0};
+    }
+    else if (rhs > lhs)
+    {
+        return lhs;
     }
 
     return {0, static_cast<eval_type>(lhs) % rhs.low};
