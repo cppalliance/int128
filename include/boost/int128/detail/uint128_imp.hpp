@@ -1975,7 +1975,7 @@ template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator%(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
+    return rhs < 0 ? lhs % static_cast<uint128_t>(rhs) : lhs % static_cast<eval_type>(rhs);
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
