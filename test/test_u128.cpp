@@ -922,6 +922,83 @@ void test_operator_div()
 }
 
 template <typename IntType>
+void test_operator_mod()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        IntType value {dist(rng)};
+        IntType value2 {dist(rng)};
+
+        // Avoid UB of div by 0
+        while (value == 0)
+        {
+            value = dist(rng);
+        }
+        while (value2 == 0)
+        {
+            value2 = dist(rng);
+        }
+
+        auto builtin_value = static_cast<builtin_u128>(value);
+        boost::int128::uint128_t emulated_value {value};
+
+        auto check_1_value {emulated_value};
+        check_1_value %= value2;
+
+        static_assert(sizeof(decltype(emulated_value % value2)) ==
+                      sizeof(decltype(builtin_value % value2)), "Mismatch Return Types");
+
+        static_assert(sizeof(decltype(value2 % emulated_value)) ==
+                      sizeof(decltype(value2 % builtin_value)), "Mismatch Return Types");
+
+        BOOST_TEST(check_1_value == (builtin_value % value2));
+        BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value));
+    }
+
+    // Test 2 word by 1 word and 1 word by 2 word
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128_t))
+    {
+        for (std::size_t i {}; i < N; ++i)
+        {
+            IntType value {dist(rng)};
+            IntType value2 {dist(rng)};
+
+            // Avoid UB of div by 0
+            while (value == 0)
+            {
+                value = dist(rng);
+            }
+            while (value2 == 0)
+            {
+                value2 = dist(rng);
+            }
+
+            const auto builtin_value = (static_cast<builtin_u128>(static_cast<std::uint64_t>(value)) << 64) | static_cast<std::uint64_t>(value);
+            const boost::int128::uint128_t emulated_value {static_cast<std::uint64_t>(value), static_cast<std::uint64_t>(value)};
+
+            auto check_1_value {emulated_value};
+            check_1_value %= value2;
+
+            static_assert(sizeof(decltype(emulated_value % value2)) ==
+                          sizeof(decltype(builtin_value % value2)), "Mismatch Return Types");
+
+            static_assert(sizeof(decltype(value2 % emulated_value)) ==
+                          sizeof(decltype(value2 % builtin_value)), "Mismatch Return Types");
+
+            BOOST_TEST(check_1_value == (builtin_value % value2));
+            BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value));
+
+            // Forces decision process
+            const boost::int128::uint128_t check_2_value {value2};
+            BOOST_TEST(check_1_value == (emulated_value % check_2_value));
+        }
+    }
+}
+
+template <typename IntType>
 void test_spot_div(IntType value, IntType value2)
 {
     auto builtin_value = static_cast<builtin_u128>(value);
@@ -986,6 +1063,7 @@ struct test_caller
         test_operator_sub<T>();
         test_operator_mul<T>();
         test_operator_div<T>();
+        test_operator_mod<T>();
     }
 };
 
