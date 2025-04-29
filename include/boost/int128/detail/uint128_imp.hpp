@@ -1950,8 +1950,24 @@ public:
     static constexpr bool has_infinity = false;
     static constexpr bool has_quiet_NaN = false;
     static constexpr bool has_signaling_NaN = false;
+
+    // C++23 deprecated the following two members
+    #if defined(__GNUC__) && __cplusplus > 202002L
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    #elif defined(_MSC_VER)
+    #  pragma warning(push)
+    #  pragma warning(disable:4996)
+    #endif
+
     static constexpr std::float_denorm_style has_denorm = std::denorm_absent;
     static constexpr bool has_denorm_loss = false;
+
+    #if defined(__GNUC__) && __cplusplus > 202002L
+    #  pragma GCC diagnostic pop
+    #elif defined(_MSC_VER)
+    #  pragma warning(pop)
+    #endif
 
     static constexpr std::float_round_style round_style = std::round_toward_zero;
     static constexpr bool is_iec559 = false;

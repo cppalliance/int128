@@ -20,6 +20,9 @@ void test_basics()
     #if defined(__GNUC__) && __cplusplus > 202002L
     #  pragma GCC diagnostic push
     #  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    #elif defined(_MSC_VER)
+    #  pragma warning(push)
+    #  pragma warning(disable:4996)
     #endif
 
     static_assert(std::numeric_limits<boost::int128::uint128_t>::has_denorm == std::denorm_absent, "No denorm");
@@ -27,6 +30,8 @@ void test_basics()
 
     #if defined(__GNUC__) && __cplusplus > 202002L
     #  pragma GCC diagnostic pop
+    #elif defined(_MSC_VER)
+    #  pragma warning(pop)
     #endif
 
     static_assert(std::numeric_limits<boost::int128::uint128_t>::round_style == std::round_toward_zero, "Integer rounding");
