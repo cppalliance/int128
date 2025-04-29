@@ -52,8 +52,8 @@ run quick.cpp ;
 
 run-fail benchmark_u128.cpp ;
 run test_u128.cpp ;
+run test_limits_u128.cpp ;
 
 run-fail benchmark_i128.cpp ;
 run test_i128.cpp ;
-
-run test_limits.cpp ;
+run test_limits_i128.cpp ;
