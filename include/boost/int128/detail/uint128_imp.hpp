@@ -1862,9 +1862,8 @@ constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) no
     }
 
     uint128_t quotient {};
-    uint128_t remainder {};
 
-    detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
+    detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient);
 
     return quotient;
 }
@@ -1907,9 +1906,8 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
         else
         {
             uint128_t quotient {};
-            uint128_t remainder {};
 
-            detail::one_word_div(lhs, rhs.low, quotient, remainder);
+            detail::one_word_div(lhs, rhs.low, quotient);
 
             return quotient;
         }

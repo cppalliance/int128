@@ -368,8 +368,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 
     if (rhs <= UINT32_MAX)
     {
-        T remainder {};
-        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
+        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient);
     }
     else
     {
