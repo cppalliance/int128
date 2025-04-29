@@ -261,21 +261,37 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     auto high_digit {shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount)};
     dividend <<= shift_amount;
 
+    // Initial quotient estimate
     T quotient {};
-    quotient.high = high_digit >= divisor.high;
+    const bool high_digit_gte_divisor {high_digit >= divisor.high};
+    quotient.high = high_digit_gte_divisor ? 1 : 0;
     std::uint64_t remainder_estimate {};
-    quotient.low = _udiv128(high_digit >= divisor.high ? high_digit - divisor.high : high_digit,
+
+    quotient.low = _udiv128(high_digit_gte_divisor ? high_digit - divisor.high : high_digit,
                             dividend.high, divisor.high, &remainder_estimate);
 
-    while (true)
+    // Bounded correction loop with early exit
+    // Typically 2 is the most number of corrections we need since this is only for 2x2 division
+    // Other cases have been filtered out well before we've made it this far
+    int correction_steps {};
+    constexpr int max_corrections {2};
+
+    while (correction_steps < max_corrections)
     {
         if (quotient.high > 0)
         {
             --quotient;
+            const auto sum {remainder_estimate + divisor.high};
+            if (remainder_estimate > sum)
+            {
+                break;
+            }
+
+            remainder_estimate = sum;
         }
         else
         {
-            T product {};
+            T product{};
             product.low = _umul128(quotient.low, divisor.low, &product.high);
             if (product <= T{dividend.low, remainder_estimate})
             {
@@ -283,39 +299,34 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
             }
 
             --quotient.low;
+            const auto sum {remainder_estimate + divisor.high};
+            if (remainder_estimate > sum)
+            {
+                break;
+            }
+            remainder_estimate = sum;
         }
 
-        const auto sum {remainder_estimate + divisor.high};
-        if (remainder_estimate > sum)
-        {
-            break;
-        }
-
-        remainder_estimate = sum;
+        correction_steps++;
     }
 
-    std::uint64_t product0_high {};
+    // Final verification and adjustment
+    std::uint64_t product0_high{};
     auto product_low {_umul128(quotient.low, divisor.low, &product0_high)};
-    auto borrow = BOOST_INT128_SUB_BORROW(0, dividend.low, product_low, &dividend.low);
-    std::uint64_t product1_high {};
+    auto borrow {BOOST_INT128_SUB_BORROW(0, dividend.low, product_low, &dividend.low)};
+
+    std::uint64_t product1_high{};
     product_low = _umul128(quotient.low, divisor.high, &product1_high);
-    product1_high += BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low);
+    product1_high += static_cast<std::uint64_t>(BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low));
+
     borrow = BOOST_INT128_SUB_BORROW(borrow, dividend.high, product_low, &dividend.high);
-    borrow = BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit);
-
-    if (borrow)
-    {
-        --quotient.low;
-
-        BOOST_INT128_IF_CONSTEXPR (needs_mod)
-        {
-            auto carry {BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low)};
-            BOOST_INT128_ADD_CARRY(carry, dividend.high, divisor.high, &dividend.high);
-        }
-    }
+    quotient.low -= static_cast<std::uint64_t>(BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit));
 
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
     {
+        auto carry = BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low);
+        BOOST_INT128_ADD_CARRY(carry, dividend.high, divisor.high, &dividend.high);
+
         dividend >>= shift_amount;
         remainder = dividend;
     }
