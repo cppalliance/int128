@@ -184,6 +184,12 @@ uint128_t
     constexpr uint128_t& operator/=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator/=(uint128_t rhs) noexcept;
+
+    // Compound modulo
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator%=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator%=(uint128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1945,6 +1951,23 @@ constexpr uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
 constexpr uint128_t& uint128_t::operator/=(const uint128_t rhs) noexcept
 {
     *this = *this / rhs;
+    return *this;
+}
+
+//=====================================
+// Modulo Operator
+//=====================================
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
+{
+    *this = *this % rhs;
+    return *this;
+}
+
+constexpr uint128_t& uint128_t::operator%=(const uint128_t rhs) noexcept
+{
+    *this = *this % rhs;
     return *this;
 }
 
