@@ -1613,7 +1613,9 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_32_mul(const int128_t lhs, const int128_
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__)
+
+    #  if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1639,6 +1641,12 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
         #pragma GCC diagnostic pop
     }
+
+    #  else
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
+
+    #  endif
 
     #elif defined(__i386__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
