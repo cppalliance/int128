@@ -57,12 +57,13 @@ void test_basics()
 void test_member_functions()
 {
     using builtin_u128 = boost::int128::detail::builtin_u128;
-    using lib_u128 = boost::int128::uint128_t;
     constexpr auto builtin_max {std::numeric_limits<builtin_u128>::max()};
 
     // Numeric limits are only defined in GNU mode for old compilers or GCC 13+ automatically
     BOOST_INT128_IF_CONSTEXPR (builtin_max != 0)
     {
+        using lib_u128 = boost::int128::uint128_t;
+
         BOOST_TEST(std::numeric_limits<builtin_u128>::min() == std::numeric_limits<lib_u128>::min());
         BOOST_TEST(std::numeric_limits<builtin_u128>::lowest() == std::numeric_limits<lib_u128>::lowest());
         BOOST_TEST(std::numeric_limits<builtin_u128>::max() == std::numeric_limits<lib_u128>::max());
