@@ -20,14 +20,38 @@ namespace detail {
 #endif
 
 template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T&, T& remainder) noexcept
+BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-    remainder.low = static_cast<std::uint64_t>(lhs.high);
-    remainder.low = ((remainder.low % rhs) << 32) | (lhs.low >> 32);
-    remainder.low = ((remainder.low % rhs) << 32) | (lhs.low & UINT32_MAX);
-    remainder.low = (remainder.low % rhs);
+    // Use Barrett reduction-inspired approach
+    const std::uint64_t divisor {rhs};
+
+    const auto q_high {static_cast<std::uint64_t>(lhs.high) / divisor};
+    const auto r_high {lhs.high % divisor};
+
+    const auto mid_dividend {(r_high << 32) | (lhs.low >> 32)};
+    const auto q_mid {mid_dividend / divisor};
+    const auto r_mid {mid_dividend % divisor};
+
+    const auto low_dividend {(r_mid << 32) | (lhs.low & UINT32_MAX)};
+    const auto q_low {low_dividend / divisor};
+    const auto r_low {low_dividend % divisor};
+
+    quotient.high = (q_high << 32) | q_mid;
+    quotient.low = (q_low << 32) | (q_low >> 32);
+    remainder.low = r_low;
+
+    // For very small divisors we might need to normalize the remainder
+    if (r_low >= divisor)
+    {
+        remainder.low -= divisor;
+        ++quotient.low;
+        if (quotient.low == 0)
+        {
+            ++quotient.high;
+        }
+    }
 }
 
 template <typename T>
