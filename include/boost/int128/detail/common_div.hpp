@@ -28,7 +28,7 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     const std::uint64_t divisor {rhs};
 
     const auto q_high {static_cast<std::uint64_t>(lhs.high) / divisor};
-    const auto r_high {lhs.high % divisor};
+    const auto r_high {static_cast<std::uint64_t>(lhs.high) % divisor};
 
     const auto mid_dividend {(r_high << 32) | (lhs.low >> 32)};
     const auto q_mid {mid_dividend / divisor};
