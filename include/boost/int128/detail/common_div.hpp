@@ -22,6 +22,8 @@ namespace detail {
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
+    using high_word_type = decltype(T{}.high);
+
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
     // Use Barrett reduction-inspired approach
@@ -38,7 +40,7 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     const auto q_low {low_dividend / divisor};
     const auto r_low {low_dividend % divisor};
 
-    quotient.high = (q_high << 32) | q_mid;
+    quotient.high = static_cast<high_word_type>((q_high << 32) | q_mid);
     quotient.low = (q_low << 32) | (q_low >> 32);
     remainder.low = r_low;
 
