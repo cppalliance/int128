@@ -2043,22 +2043,22 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
 
 constexpr int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs % static_cast<int128_t>(rhs);
+    return static_cast<detail::builtin_i128>(lhs) % rhs;
 }
 
 constexpr int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) % rhs;
+    return lhs % static_cast<detail::builtin_i128>(rhs);
 }
 
 constexpr int128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs % static_cast<int128_t>(rhs);
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % rhs);
 }
 
 constexpr int128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) % rhs;
+    return static_cast<int128_t>(lhs % static_cast<detail::builtin_i128>(rhs));
 }
 
 #endif // BOOST_INT128_HAS_INT128
