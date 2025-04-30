@@ -386,7 +386,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
     using high_word_type = decltype(T{}.high);
 
     quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
-    const auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
+    auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
     quotient.low = _udiv128(remainder, lhs.low, rhs, &remainder);
 
     #else
