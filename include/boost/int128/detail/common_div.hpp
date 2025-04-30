@@ -294,10 +294,10 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
         return quotient;
     }
 
-    const auto shift_amount {countl_zero(divisor.high)};
+    const auto shift_amount {countl_zero(static_cast<std::uint64_t>(divisor.high))};
     divisor <<= shift_amount;
 
-    const auto high_digit {static_cast<std::uint64_t>(shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount))};
+    auto high_digit {static_cast<std::uint64_t>(shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount))};
     dividend <<= shift_amount;
 
     // Initial quotient estimate
