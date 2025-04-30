@@ -267,7 +267,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 
         T product {};
         product.low = product0_low;
-        auto carry {BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, &product.high)};
+        auto carry {BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high))};
         product1_high += static_cast<std::uint64_t>(carry);
 
         if (product1_high > 0 || product > dividend)
@@ -279,7 +279,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
             product1_low = _umul128(quotient.low, divisor.high, &product1_high);
 
             product.low = product0_low;
-            carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, &product.high);
+            carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high));
             product1_high += static_cast<std::uint64_t>(carry);
         }
 
@@ -295,7 +295,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     const auto shift_amount {countl_zero(divisor.high)};
     divisor <<= shift_amount;
 
-    auto high_digit {shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount)};
+    const auto high_digit {static_cast<std::uint64_t>(shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount))};
     dividend <<= shift_amount;
 
     // Initial quotient estimate
@@ -329,7 +329,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
         else
         {
             T product{};
-            product.low = _umul128(quotient.low, divisor.low, &product.high);
+            product.low = _umul128(quotient.low, divisor.low, reinterpret_cast<std::uint64_t*>(&product.high));
             if (product <= T{dividend.low, remainder_estimate})
             {
                 break;
@@ -356,7 +356,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     product_low = _umul128(quotient.low, divisor.high, &product1_high);
     product1_high += static_cast<std::uint64_t>(BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low));
 
-    borrow = BOOST_INT128_SUB_BORROW(borrow, dividend.high, product_low, &dividend.high);
+    borrow = BOOST_INT128_SUB_BORROW(borrow, dividend.high, product_low, reinterpret_cast<std::uint64_t*>(&dividend.high));
     quotient.low -= static_cast<std::uint64_t>(BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit));
 
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
