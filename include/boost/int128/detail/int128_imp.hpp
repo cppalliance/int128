@@ -1997,7 +1997,6 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
         return {0, 0};
     }
 
-    const auto is_neg {(lhs < 0) ^ (rhs < 0)};
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
 
@@ -2011,7 +2010,10 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
         return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
     }
     #else
-    else if (abs_rhs.high != 0)
+
+    const auto is_neg {(lhs < 0) ^ (rhs < 0)};
+
+    if (abs_rhs.high != 0)
     {
         int128_t remainder {};
         detail::knuth_div(abs_lhs, abs_rhs, remainder);
@@ -2034,6 +2036,7 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
             return is_neg ? -remainder : remainder;
         }
     }
+
     #endif
 }
 
