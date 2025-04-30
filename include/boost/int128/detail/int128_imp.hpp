@@ -1992,6 +1992,53 @@ constexpr int128_t operator%(const SignedInteger lhs, const int128_t rhs) noexce
     return lhs < 0 ? static_cast<int128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
 }
 
+constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
+{
+    if (rhs == 0)
+    {
+        return {0, 0};
+    }
+
+    const auto is_neg {(lhs < 0) ^ (rhs < 0)};
+    const auto abs_lhs {abs(lhs)};
+    const auto abs_rhs {abs(rhs)};
+
+    if (abs_rhs > abs_lhs)
+    {
+        return lhs;
+    }
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__S390x__)
+    else
+    {
+        return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
+    }
+    #else
+    else if (abs_rhs.high != 0)
+    {
+        int128_t remainder {};
+        detail::knuth_div(abs_lhs, abs_rhs, remainder);
+        return is_neg ? -remainder : remainder;
+    }
+    else
+    {
+        if (abs_lhs.high == 0)
+        {
+            const int128_t remainder {0, lhs.low % rhs.low};
+            return is_neg ? -remainder : remainder;
+        }
+        else
+        {
+            int128_t quotient {};
+            int128_t remainder {};
+
+            detail::one_word_div(abs_lhs, abs_rhs.low, quotient, remainder);
+
+            return is_neg ? -remainder : remainder;
+        }
+    }
+    #endif
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
 {
