@@ -20,15 +20,14 @@ namespace detail {
 #endif
 
 template <typename T>
-BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
+BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T&, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-    quotient.high = lhs.high / rhs;
-    remainder.low = ((static_cast<std::uint64_t>(lhs.high) % rhs) << 32) | (lhs.low >> 32);
-    quotient.low = (remainder.low / rhs) << 32;
+    remainder.low = static_cast<std::uint64_t>(lhs.high);
+    remainder.low = ((remainder.low % rhs) << 32) | (lhs.low >> 32);
     remainder.low = ((remainder.low % rhs) << 32) | (lhs.low & UINT32_MAX);
-    quotient.low |= (remainder.low / rhs) & UINT32_MAX;
+    remainder.low = (remainder.low % rhs);
 }
 
 template <typename T>
