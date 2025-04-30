@@ -1922,6 +1922,62 @@ constexpr int128_t& int128_t::operator/=(const int128_t rhs) noexcept
 // Modulo Operator
 //=====================================
 
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(int128_t lhs, UnsignedInteger rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(UnsignedInteger lhs, int128_t rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(int128_t lhs, SignedInteger rhs) noexcept;
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(SignedInteger lhs, int128_t rhs) noexcept;
+
+constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
+
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept;
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
+    int128_t quotient {};
+    int128_t remainder {};
+
+    const auto abs_lhs {abs(lhs)};
+
+    detail::one_word_div(abs_lhs, static_cast<eval_type>(rhs), quotient, remainder);
+
+    return lhs < 0 ? -remainder : remainder;
+}
+
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
+    const auto abs_rhs {abs(rhs)};
+
+    if (abs_rhs > lhs)
+    {
+        return lhs;
+    }
+
+    const int128_t remainder {0, static_cast<eval_type>(lhs) % rhs.low};
+
+    return rhs < 0 ? -remainder : remainder;
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
 {
