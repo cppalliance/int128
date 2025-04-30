@@ -1937,7 +1937,7 @@ constexpr int128_t operator%(SignedInteger lhs, int128_t rhs) noexcept;
 constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept;
+constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -2038,6 +2038,30 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
     }
     #endif
 }
+
+#ifdef BOOST_INT128_HAS_INT128
+
+constexpr int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs % static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) % rhs;
+}
+
+constexpr int128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs % static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) % rhs;
+}
+
+#endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
