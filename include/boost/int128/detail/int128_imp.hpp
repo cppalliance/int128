@@ -1835,28 +1835,6 @@ constexpr void knuth_div(std::uint32_t (&u)[u_size],
     }
 }
 
-BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint32_t rhs, int128_t& remainder) noexcept
-{
-    BOOST_INT128_ASSUME(rhs != 0);
-
-    int128_t quotient {};
-
-    half_word_div(lhs, rhs, quotient, remainder);
-
-    return quotient;
-}
-
-BOOST_INT128_FORCE_INLINE constexpr int128_t single_word_div(const int128_t& lhs, const std::uint64_t rhs, int128_t& remainder) noexcept
-{
-    BOOST_INT128_ASSUME(rhs != 0);
-
-    int128_t quotient {};
-
-    one_word_div(lhs, rhs, quotient, remainder);
-
-    return quotient;
-}
-
 template <bool need_mod>
 constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
 {
@@ -1909,7 +1887,8 @@ constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_
     else if (den_size == 1)
     {
         // Division by a single word
-        int128_t quotient {single_word_div(lhs, static_cast<std::uint64_t>(rhs), remainder)};
+        int128_t quotient {};
+        one_word_div(lhs, static_cast<std::uint64_t>(rhs), quotient, remainder);
 
         return negative_res ? -quotient : quotient;
     }
@@ -2031,10 +2010,11 @@ constexpr int128_t operator/(const int128_t lhs, const UnsignedInteger rhs) noex
     BOOST_INT128_ASSUME(rhs != 0);
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    int128_t remainder {};
     const auto abs_lhs {abs(lhs)};
-    const auto quo {detail::single_word_div(abs_lhs, static_cast<eval_type>(rhs), remainder)};
-    return lhs < 0 ? -quo : quo;
+
+    int128_t quotient {};
+    detail::one_word_div(abs_lhs, static_cast<eval_type>(rhs), quotient);
+    return lhs < 0 ? -quotient : quotient;
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -2058,14 +2038,14 @@ constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexce
     BOOST_INT128_ASSUME(rhs != 0);
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
-    int128_t remainder {};
+    int128_t quotient {};
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
     const auto abs_rhs {rhs < 0 ? -rhs : rhs};
     const auto abs_lhs {abs(lhs)};
-    const auto quo {detail::single_word_div(abs_lhs, static_cast<eval_type>(abs_rhs), remainder)};
+    detail::one_word_div(abs_lhs, static_cast<eval_type>(abs_rhs), quotient);
 
-    return negative_res ? -quo : quo;
+    return negative_res ? -quotient : quotient;
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
