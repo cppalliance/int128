@@ -1770,11 +1770,8 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
         return {0, 0};
     }
 
-    const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
-
-    int128_t quotient {};
 
     if (abs_lhs < abs_rhs)
     {
@@ -1786,7 +1783,11 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
         return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
     }
     #else
-    else if (rhs.high != 0)
+
+    int128_t quotient {};
+    const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
+
+    if (rhs.high != 0)
     {
         quotient = detail::knuth_div(abs_lhs, abs_lhs);
     }
