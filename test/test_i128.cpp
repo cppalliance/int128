@@ -816,8 +816,8 @@ void test_operator_div()
                 value2 = dist(rng);
             }
 
-            const auto builtin_value = (static_cast<builtin_i128>(static_cast<std::int64_t>(value)) << 64) | static_cast<std::uint64_t>(value);
             const boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
+            const auto builtin_value = static_cast<builtin_i128>(emulated_value);
 
             auto check_1_value {emulated_value};
             check_1_value /= value2;
