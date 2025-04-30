@@ -1978,6 +1978,20 @@ constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noex
     return rhs < 0 ? -remainder : remainder;
 }
 
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<SignedInteger>;
+    return rhs < 0 ? lhs % static_cast<int128_t>(rhs) : lhs % static_cast<eval_type>(rhs);
+}
+
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+constexpr int128_t operator%(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    using eval_type = detail::evaluation_type_t<SignedInteger>;
+    return lhs < 0 ? static_cast<int128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
+}
+
 template <BOOST_INT128_INTEGER_CONCEPT>
 constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
 {
