@@ -300,7 +300,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 
     // Initial quotient estimate
     T quotient {};
-    const bool high_digit_gte_divisor {high_digit >= divisor.high};
+    const bool high_digit_gte_divisor {high_digit >= static_cast<std::uint64_t>(divisor.high)};
     quotient.high = high_digit_gte_divisor ? 1 : 0;
     std::uint64_t remainder_estimate {};
 
@@ -356,7 +356,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     product_low = _umul128(quotient.low, divisor.high, &product1_high);
     product1_high += static_cast<std::uint64_t>(BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low));
 
-    borrow = BOOST_INT128_SUB_BORROW(borrow, dividend.high, product_low, reinterpret_cast<std::uint64_t*>(&dividend.high));
+    borrow = BOOST_INT128_SUB_BORROW(borrow, static_cast<std::uint64_t>(dividend.high), product_low, reinterpret_cast<std::uint64_t*>(&dividend.high));
     quotient.low -= static_cast<std::uint64_t>(BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit));
 
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
