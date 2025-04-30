@@ -1763,245 +1763,47 @@ constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
 #  pragma clang diagnostic ignored "-Wassume"
 #endif
 
-namespace detail {
-
-// See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
-// Algorithm D: Division of Non-negative integers
-template <std::size_t u_size, std::size_t v_size, std::size_t q_size>
-constexpr void knuth_div(std::uint32_t (&u)[u_size],
-                         const std::uint32_t (&v)[v_size],
-                         std::uint32_t (&q)[q_size]) noexcept
+constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
 {
-    static_assert(u_size > v_size, "Dividend must be larger that the divisior");
-    static_assert(q_size >= (u_size - v_size), "Quotient array must be at least u_size - v_size");
-
-    constexpr auto n {static_cast<int>(v_size)};
-    constexpr auto m {static_cast<int>(u_size - v_size - 1)};
-
-    // D.2 and 7
-    for (int j {m}; j >= 0; --j)
+    if (rhs == 0)
     {
-        const auto next_two_digits {(static_cast<std::uint64_t>(u[j + n]) << 32) | u[j + n - 1]};
-
-        std::uint64_t qhat {next_two_digits / v[n - 1]};
-        std::uint64_t rhat {next_two_digits % v[n - 1]};
-
-        // D.3
-        // Test quotient and correct if needed
-        while ((qhat >> 32) != 0 ||
-               qhat * static_cast<std::uint64_t>(v[n - 2]) > ((rhat << 32) | u[j + n - 2]))
-        {
-            --qhat;
-            rhat += v[n - 1];
-            if ((rhat >> 32) != 0)
-            {
-                break;
-            }
-        }
-
-        std::int64_t k {};
-
-        // D.4
-        for (int i {}; i < n; ++i)
-        {
-            const auto prod {qhat * static_cast<std::uint64_t>(v[i])};
-            const auto prod_low {static_cast<std::uint32_t>(prod)};
-            const auto prod_high {static_cast<std::uint32_t>(prod >> 32)};
-
-            const auto t {static_cast<std::int64_t>(u[i + j]) - k - static_cast<std::int64_t>(prod_low)};
-            k = static_cast<std::int64_t>(prod_high) - (t < 0 ? 1 : 0);
-            u[i + j] = static_cast<std::uint32_t>(t);
-        }
-
-        // D.5
-        const auto t {static_cast<std::int64_t>(u[j + n]) - k};
-        u[j + n] = static_cast<std::uint32_t>(t);
-
-        // D.6
-        q[j] = static_cast<std::uint32_t>(qhat);
-        if (t < 0)
-        {
-            --q[j];
-            std::uint32_t k_prime {};
-            for (int i {}; i < n; ++i)
-            {
-                const auto sum {static_cast<std::uint64_t>(u[i + j]) + v[i] + k_prime};
-                u[i + j] = static_cast<std::uint32_t>(sum);
-                k = static_cast<std::uint32_t>(sum >> 32U);
-            }
-
-            u[j + n] += k_prime;
-        }
+        return {0, 0};
     }
-}
-
-template <bool need_mod>
-constexpr int128_t default_div(const int128_t& lhs, const int128_t& rhs, int128_t& remainder) noexcept
-{
-    BOOST_INT128_ASSUME(rhs > 0);
 
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
-
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
 
-    std::uint32_t numerator[5] = {
-        static_cast<std::uint32_t>(abs_lhs.low),
-        static_cast<std::uint32_t>(abs_lhs.low >> 32U),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_lhs.high)),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_lhs.high) >> 32U),
-        0
-    };
+    int128_t quotient {};
 
-    std::uint32_t denominator[4] = {
-        static_cast<std::uint32_t>(abs_rhs.low),
-        static_cast<std::uint32_t>(abs_rhs.low >> 32U),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_rhs.high)),
-        static_cast<std::uint32_t>(static_cast<std::uint64_t>(abs_rhs.high) >> 32U)
-    };
-
-    std::size_t num_size {4};
-    while (num_size > 0 && numerator[num_size - 1] == 0)
+    if (abs_lhs < abs_rhs)
     {
-        --num_size;
+        return {0,0};
     }
-
-    if (BOOST_INT128_UNLIKELY(num_size == 0))
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    else
     {
-        return int128_t{0, 0};
+        return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
     }
-
-    std::size_t den_size {4};
-    while (den_size > 0 && denominator[den_size - 1] == 0)
+    #else
+    else if (rhs.high != 0)
     {
-        --den_size;
-    }
-
-    // Trivial Cases
-    if (den_size > num_size)
-    {
-        // Divisor > dividend
-        remainder = rhs;
-        return int128_t{0, 0};
-    }
-    else if (den_size == 1)
-    {
-        // Division by a single word
-        int128_t quotient {};
-        one_word_div(lhs, static_cast<std::uint64_t>(rhs), quotient, remainder);
-
-        return negative_res ? -quotient : quotient;
-    }
-
-    // General Case: We need to apply Knuth's normalization in preparation to use 4.3.1.D above
-    int d {};
-    if (denominator[den_size - 1] != 0)
-    {
-        d = countl_zero(denominator[den_size - 1]);
-    }
-
-    std::uint32_t u_norm[5] {};
-    std::uint32_t v_norm[4] {};
-
-    // Apply shift
-    if (d > 0)
-    {
-        std::uint32_t carry {};
-        for (std::size_t i {}; i < den_size; ++i)
-        {
-            v_norm[i] = (denominator[i] << d) | (carry >> (32 - d));
-            carry = denominator[i];
-        }
-
-        carry = 0;
-        for (std::size_t i {}; i < num_size; ++i)
-        {
-            u_norm[i] = (numerator[i] << d) | (carry >> (32 - d));
-            carry = numerator[i];
-        }
-
-        u_norm[num_size] = carry >> (32 - d);
+        quotient = detail::knuth_div(abs_lhs, abs_lhs);
     }
     else
     {
-        for (std::size_t i {}; i < den_size; ++i)
+        if (lhs.high == 0)
         {
-            v_norm[i] = denominator[i];
-        }
-        for (std::size_t i {}; i < num_size; ++i)
-        {
-            u_norm[i] = numerator[i];
-        }
-    }
-
-    std::uint32_t q_result[4] {};
-    const auto actual_den_size {den_size > 0 ? den_size : 1};
-    const auto actual_num_size {num_size + 1};
-
-    if (actual_num_size > actual_den_size)
-    {
-        std::uint32_t q_temp[4] {};
-        knuth_div(u_norm, v_norm, q_temp);
-
-        for (std::size_t i {}; i < 4 && i < (actual_num_size - actual_den_size + 1); ++i)
-        {
-            q_result[i] = q_temp[i];
-        }
-    }
-
-    const auto q_low {(static_cast<std::uint64_t>(q_result[1]) << 32) | q_result[0]};
-    const auto q_high {(static_cast<std::int64_t>(q_result[3]) << 32) | q_result[2]};
-
-    int128_t quotient {q_high, q_low};
-
-    if (negative_res)
-    {
-        quotient = -quotient;
-    }
-
-    // De-normalize the remainder if we need it
-    // In the pure division case we can skip over this entirely (at run time or hopefully compile time)
-    BOOST_INT128_IF_CONSTEXPR (need_mod)
-    {
-        std::uint32_t r_result[4] {};
-        if (d > 0)
-        {
-            std::uint32_t carry {};
-            for (int i {static_cast<int>(actual_den_size - 1)}; i >= 0; --i)
-            {
-                const auto temp {static_cast<std::uint64_t>(u_norm[i]) | (static_cast<std::uint64_t>(carry) << 32)};
-                r_result[i] = static_cast<std::uint32_t>(temp >> d);
-                carry = static_cast<std::uint32_t>(temp) & ((1U << d) - 1);
-            }
+            quotient = {0, lhs.low / rhs.low};
         }
         else
         {
-            for (std::size_t i {}; i < actual_den_size; ++i)
-            {
-                r_result[i] = u_norm[i];
-            }
-        }
-
-        const auto r_low {(static_cast<std::uint64_t>(r_result[1]) << 32) | r_result[0]};
-        const auto r_high {(static_cast<std::int64_t>(r_result[3]) << 32) | r_result[2]};
-        remainder = {r_high, r_low};
-
-        if (lhs.high < 0 && (r_high != 0 || r_low != 0))
-        {
-            remainder = -remainder;
+            detail::one_word_div(lhs, rhs.low, quotient);
         }
     }
 
-    return quotient;
-}
-
-} // namespace detail
-
-constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
-{
-    BOOST_INT128_ASSUME(rhs != 0);
-    int128_t remainder {};
-    return detail::default_div<false>(lhs, rhs, remainder);
+    return negative_res ? -quotient : quotient;
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
