@@ -859,6 +859,13 @@ void test_operator_mod()
             value2 = dist(rng);
         }
 
+        // With too large an unsigned __int128 value we end up with bitwise equal but signed results
+        BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) == sizeof(boost::int128::int128_t))
+        {
+            value >>= 2;
+            value2 >>= 2;
+        }
+
         auto builtin_value = static_cast<builtin_i128>(value);
         boost::int128::int128_t emulated_value {value};
 
