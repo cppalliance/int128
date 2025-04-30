@@ -250,6 +250,8 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
 template <bool needs_mod, typename T>
 constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 {
+    using high_word_type = decltype(T{}.high);
+
     // Skip normalization if divisor is already large enough
     // use direct division and intrinsic
     constexpr auto divisor_lower_bound {UINT64_MAX >> 1};
@@ -257,13 +259,13 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     {
         T quotient {};
 
-        quotient.low = dividend.high / divisor.high;
+        quotient.low = static_cast<std::uint64_t>(dividend.high / divisor.high);
 
         std::uint64_t product0_high {};
         auto product0_low {_umul128(quotient.low, divisor.low, &product0_high)};
 
         std::uint64_t product1_high {};
-        auto product1_low {_umul128(quotient.low, divisor.high, &product1_high)};
+        auto product1_low {_umul128(quotient.low, static_cast<std::uint64_t>(divisor.high), &product1_high)};
 
         T product {};
         product.low = product0_low;
@@ -286,7 +288,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
         BOOST_INT128_IF_CONSTEXPR (needs_mod)
         {
             auto borrow {BOOST_INT128_SUB_BORROW(0, dividend.low, product.low, &remainder.low)};
-            BOOST_INT128_SUB_BORROW(borrow, dividend.high, product.high, &remainder.high);
+            BOOST_INT128_SUB_BORROW(borrow, dividend.high, product.high, reinterpret_cast<std::uint64_t*>(&remainder.high));
         }
 
         return quotient;
@@ -330,7 +332,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
         {
             T product{};
             product.low = _umul128(quotient.low, divisor.low, reinterpret_cast<std::uint64_t*>(&product.high));
-            if (product <= T{dividend.low, remainder_estimate})
+            if (product <= T{static_cast<high_word_type>(dividend.low), remainder_estimate})
             {
                 break;
             }
@@ -362,7 +364,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
     {
         auto carry = BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low);
-        BOOST_INT128_ADD_CARRY(carry, dividend.high, divisor.high, &dividend.high);
+        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(dividend.high), static_cast<std::uint64_t>(divisor.high), reinterpret_cast<std::uint64_t*>(&dividend.high));
 
         dividend >>= shift_amount;
         remainder = dividend;
