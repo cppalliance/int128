@@ -177,6 +177,12 @@ int128_t
     constexpr int128_t& operator/=(Integer rhs) noexcept;
 
     constexpr int128_t& operator/=(int128_t rhs) noexcept;
+
+    // Compound Modulo
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr int128_t& operator%=(Integer rhs) noexcept;
+
+    constexpr int128_t& operator%=(int128_t rhs) noexcept;
 };
 
 //=====================================
@@ -1911,6 +1917,23 @@ constexpr int128_t& int128_t::operator/=(const int128_t rhs) noexcept
 #elif defined(__GNUC__)
 #  pragma GCC diagnostic pop
 #endif
+
+//=====================================
+// Modulo Operator
+//=====================================
+
+template <BOOST_INT128_INTEGER_CONCEPT>
+constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
+{
+    *this = *this % rhs;
+    return *this;
+}
+
+constexpr int128_t& int128_t::operator%=(const int128_t rhs) noexcept
+{
+    *this = *this % rhs;
+    return *this;
+}
 
 } // namespace int128
 } // namespace boost
