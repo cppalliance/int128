@@ -385,12 +385,6 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
         xcode_version = "14.3.1", osx_version = "sonoma", arch = "arm64",
     ),
 
-    macos_pipeline(
-        "MacOS Xcode 15.0.1",
-        { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
-        xcode_version = "15.0.1", osx_version = "sequoia", arch = "arm64",
-    ),
-
     windows_pipeline(
         "Windows VS2019 msvc-14.2",
         "cppalliance/dronevs2019",
