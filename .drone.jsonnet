@@ -374,9 +374,21 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     ),
 
     macos_pipeline(
-        "MacOS 12.4 Xcode 13.4.1 ASAN",
+        "MacOS Xcode 13.4.1",
         { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
         xcode_version = "13.4.1", osx_version = "monterey", arch = "arm64",
+    ),
+
+    macos_pipeline(
+        "MacOS Xcode 14.3.1",
+        { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
+        xcode_version = "14.3.1", osx_version = "sonoma", arch = "arm64",
+    ),
+
+    macos_pipeline(
+        "MacOS Xcode 15.0.1",
+        { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
+        xcode_version = "15.0.1", osx_version = "sequoia", arch = "arm64",
     ),
 
     windows_pipeline(
