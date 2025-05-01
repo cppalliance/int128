@@ -2012,30 +2012,27 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
     #else
 
     const auto is_neg {(lhs < 0) ^ (rhs < 0)};
+    int128_t remainder {};
 
     if (abs_rhs.high != 0)
     {
-        int128_t remainder {};
         detail::knuth_div(abs_lhs, abs_rhs, remainder);
-        return is_neg ? -remainder : remainder;
     }
     else
     {
         if (abs_lhs.high == 0)
         {
-            const int128_t remainder {0, lhs.low % rhs.low};
-            return is_neg ? -remainder : remainder;
+            remainder = int128_t{0, lhs.low % rhs.low};
         }
         else
         {
             int128_t quotient {};
-            int128_t remainder {};
 
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient, remainder);
-
-            return is_neg ? -remainder : remainder;
         }
     }
+
+    return is_neg ? -remainder : remainder;
 
     #endif
 }
