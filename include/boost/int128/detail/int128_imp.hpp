@@ -1771,7 +1771,7 @@ constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
 
 constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
 {
-    if (rhs == 0)
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
         return {0, 0};
     }
