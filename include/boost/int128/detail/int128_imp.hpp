@@ -1783,7 +1783,7 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
     {
         return {0,0};
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    #if defined(BOOST_INT128_HAS_INT128)
     else
     {
         return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
@@ -2004,7 +2004,7 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
     {
         return lhs;
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__S390x__)
+    #if defined(BOOST_INT128_HAS_INT128)
     else
     {
         return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
