@@ -1795,7 +1795,7 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
 
     if (rhs.high != 0)
     {
-        quotient = detail::knuth_div(abs_lhs, abs_lhs);
+        quotient = detail::knuth_div(abs_lhs, abs_rhs);
     }
     else
     {
