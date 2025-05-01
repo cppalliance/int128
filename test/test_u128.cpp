@@ -1051,7 +1051,7 @@ struct test_caller
         test_operator_and<T>();
         test_operator_xor<T>();
 
-        #ifndef UBSAN
+        #if !defined(UBSAN) && !defined(ASAN) && !defined(__SANITIZE_ADDRESS__)
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
         #endif
