@@ -116,8 +116,13 @@ using builtin_u128 = unsigned __int128;
 
 #  include <intrin.h>
 
-#  define BOOST_INT128_ADD_CARRY _addcarryx_u64
-#  define BOOST_INT128_SUB_BORROW _subborrow_u64
+#  ifdef __ADX__
+#    define BOOST_INT128_ADD_CARRY _addcarryx_u64
+#    define BOOST_INT128_SUB_BORROW _subborrow_u64
+#  else
+#    define BOOST_INT128_ADD_CARRY _addcarry_u64
+#    define BOOST_INT128_SUB_BORROW _subborrow_u64
+#  endif
 
 #elif defined(__i386__)
 
