@@ -368,6 +368,15 @@ int main()
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
         std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
+        test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        std::cerr << std::endl;
     }
     // Single word operations
     {
@@ -428,6 +437,15 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
+        test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
 
         std::cerr << std::endl;
     }
@@ -493,6 +511,15 @@ int main()
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
         std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
+        test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        std::cerr << std::endl;
     }
     {
         // Two word and one word operations Even = 1, odd = 2
@@ -556,6 +583,15 @@ int main()
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
         std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
+        test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        std::cerr << std::endl;
     }
     {
         // Two word and one word operations Even = 1, odd = 2
@@ -617,6 +653,15 @@ int main()
 
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
+        test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
 
         std::cerr << std::endl;
 
