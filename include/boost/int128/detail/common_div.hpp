@@ -359,7 +359,8 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
     product1_high += static_cast<std::uint64_t>(BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low));
 
     borrow = BOOST_INT128_SUB_BORROW(borrow, static_cast<std::uint64_t>(dividend.high), product_low, reinterpret_cast<std::uint64_t*>(&dividend.high));
-    quotient.low -= static_cast<std::uint64_t>(BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit));
+    borrow = BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit);
+    quotient.low -= static_cast<std::uint64_t>(borrow);
 
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
     {
