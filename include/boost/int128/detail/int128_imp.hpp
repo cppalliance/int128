@@ -1801,11 +1801,11 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
     {
         if (lhs.high == 0)
         {
-            quotient = {0, lhs.low / rhs.low};
+            quotient = {0, abs_lhs.low / abs_rhs.low};
         }
         else
         {
-            detail::one_word_div(lhs, rhs.low, quotient);
+            detail::one_word_div(abs_lhs, abs_rhs.low, quotient);
         }
     }
 
