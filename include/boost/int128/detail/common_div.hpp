@@ -364,8 +364,11 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 
     BOOST_INT128_IF_CONSTEXPR (needs_mod)
     {
-        auto carry = BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low);
-        BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(dividend.high), static_cast<std::uint64_t>(divisor.high), reinterpret_cast<std::uint64_t*>(&dividend.high));
+        if (borrow)
+        {
+            auto carry { BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low) };
+            BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(dividend.high), static_cast<std::uint64_t>(divisor.high), reinterpret_cast<std::uint64_t*>(&dividend.high));
+        }
 
         dividend >>= shift_amount;
         remainder = dividend;
