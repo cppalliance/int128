@@ -2022,7 +2022,7 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
     {
         if (abs_lhs.high == 0)
         {
-            remainder = int128_t{0, lhs.low % rhs.low};
+            remainder = int128_t{0, abs_lhs.low % abs_rhs.low};
         }
         else
         {
