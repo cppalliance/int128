@@ -1791,15 +1791,15 @@ constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
     #else
 
     int128_t quotient {};
-    const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs.high < 0))};
+    const auto negative_res {(lhs.high < 0) != (rhs.high < 0)};
 
-    if (rhs.high != 0)
+    if (abs_rhs.high != 0)
     {
         quotient = detail::knuth_div(abs_lhs, abs_rhs);
     }
     else
     {
-        if (lhs.high == 0)
+        if (abs_lhs.high == 0)
         {
             quotient = {0, abs_lhs.low / abs_rhs.low};
         }
