@@ -492,7 +492,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 {
     BOOST_INT128_ASSUME(divisor != 0);
     
-    #if 0
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
     return impl::div_mod_msvc<true>(dividend, divisor, remainder);
 
