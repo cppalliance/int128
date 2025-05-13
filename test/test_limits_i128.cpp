@@ -9,7 +9,7 @@
 void test_basics()
 {
     static_assert(std::numeric_limits<boost::int128::int128_t>::is_specialized, "Should be true");
-    static_assert(!std::numeric_limits<boost::int128::int128_t>::is_signed, "Should be false");
+    static_assert(std::numeric_limits<boost::int128::int128_t>::is_signed, "Should be true");
     static_assert(std::numeric_limits<boost::int128::int128_t>::is_integer, "Should be true");
     static_assert(std::numeric_limits<boost::int128::int128_t>::is_exact, "Should be true");
     static_assert(!std::numeric_limits<boost::int128::int128_t>::has_infinity, "Should be false");
