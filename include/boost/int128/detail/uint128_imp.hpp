@@ -464,7 +464,7 @@ constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept
 
     return static_cast<detail::builtin_u128>(lhs) < static_cast<detail::builtin_u128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -575,7 +575,7 @@ constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
 
     return static_cast<detail::builtin_u128>(lhs) < static_cast<detail::builtin_u128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -686,7 +686,7 @@ constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 
     return static_cast<detail::builtin_u128>(lhs) > static_cast<detail::builtin_u128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -797,7 +797,7 @@ constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
 
     return static_cast<detail::builtin_u128>(lhs) >= static_cast<detail::builtin_u128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1420,7 +1420,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, c
 
     return res;
 
-    #elif (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_MSC_VER)
+    #elif (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_MSC_VER) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs));
 
@@ -1659,7 +1659,7 @@ BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uin
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__)
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && defined(BOOST_INT128_HAS_INT128)
 
     #  if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -1680,7 +1680,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
         return library_res;
     }
 
-    #  else
+    #  elif defined(BOOST_INT128_HAS_INT128)
     #    define BOOST_INT128_HIDE_MUL
 
         return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
