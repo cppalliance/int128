@@ -465,6 +465,11 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
     half_word_div(lhs, rhs, quotient);
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4127) // Conditional expression is constant is true pre-C++17
+#endif
+
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor) noexcept
 {
@@ -472,23 +477,25 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
-    T remainder {};
-    return impl::div_mod_msvc<false>(dividend, divisor, remainder);
-
-    #else
-
-    std::uint32_t u[4] {};
-    std::uint32_t v[4] {};
-    std::uint32_t q[4] {};
-
-    const auto m {impl::to_words(dividend, u)};
-    const auto n {impl::to_words(divisor, v)};
-
-    impl::knuth_divide<false>(u, m, v, n, q);
-
-    return impl::from_words<T>(q);
-
+    BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
+    {
+        T remainder{};
+        return impl::div_mod_msvc<false>(dividend, divisor, remainder);
+    }
+    else
     #endif
+    {
+        std::uint32_t u[4]{};
+        std::uint32_t v[4]{};
+        std::uint32_t q[4]{};
+
+        const auto m{ impl::to_words(dividend, u) };
+        const auto n{ impl::to_words(divisor, v) };
+
+        impl::knuth_divide<false>(u, m, v, n, q);
+
+        return impl::from_words<T>(q);
+    }
 }
 
 template <typename T>
@@ -498,25 +505,31 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
     
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
 
-    return impl::div_mod_msvc<true>(dividend, divisor, remainder);
-
-    #else
-
-    std::uint32_t u[4] {};
-    std::uint32_t v[4] {};
-    std::uint32_t q[4] {};
-
-    const auto m {impl::to_words(dividend, u)};
-    const auto n {impl::to_words(divisor, v)};
-
-    impl::knuth_divide<true>(u, m, v, n, q);
-
-    remainder = impl::from_words<T>(u);
-
-    return impl::from_words<T>(q);
-
+    BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
+    {
+        return impl::div_mod_msvc<true>(dividend, divisor, remainder);
+    }
+    else
     #endif
+    {
+        std::uint32_t u[4]{};
+        std::uint32_t v[4]{};
+        std::uint32_t q[4]{};
+
+        const auto m{ impl::to_words(dividend, u) };
+        const auto n{ impl::to_words(divisor, v) };
+
+        impl::knuth_divide<true>(u, m, v, n, q);
+
+        remainder = impl::from_words<T>(u);
+
+        return impl::from_words<T>(q);
+    }
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 #if defined(__clang__)
 #  pragma clang diagnostic pop
