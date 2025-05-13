@@ -344,7 +344,7 @@ constexpr bool operator!=(const int128_t lhs, const int128_t rhs) noexcept
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -439,11 +439,11 @@ constexpr bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) no
 constexpr bool operator<(const int128_t lhs, const int128_t rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_i128>(lhs) < static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -522,11 +522,11 @@ constexpr bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noe
 constexpr bool operator>(const int128_t lhs, const int128_t rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_i128>(lhs) > static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -605,11 +605,11 @@ constexpr bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noe
 constexpr bool operator<=(const int128_t lhs, const int128_t rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_i128>(lhs) <= static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -688,11 +688,11 @@ constexpr bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) no
 constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
-    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__)
+    #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_i128>(lhs) >= static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__)
+    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1267,11 +1267,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
 
-    #elif defined(__x86_64__) && !defined(_WIN32)
+    #elif defined(__x86_64__) && !defined(_WIN32) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs);
 
-    #elif defined(__aarch64__) && !defined(__APPLE__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__)
+    #elif defined(__aarch64__) && !defined(__APPLE__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -1567,7 +1567,7 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int1
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__)
+    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     #  if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -1596,9 +1596,13 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         #pragma GCC diagnostic pop
     }
 
-    #  else
+    #  elif defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
+
+    #  else
+
+    return library_mul(lhs, rhs);
 
     #  endif
 
