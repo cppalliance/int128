@@ -69,8 +69,8 @@ using namespace std::chrono_literals;
 #include <boost/random/uniform_int_distribution.hpp>
 using mp_u128 = boost::multiprecision::uint128_t;
 
-// 0 = 1 word
-// 1 = 2 words
+// 0 = 2 words
+// 1 = 1 word
 // 2 = 2 word / 1 word alternating
 // 3 = 1 word / 2 word alternating
 // 4 = Random width
@@ -118,12 +118,12 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
         switch (words)
         {
             case 0:
-                result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
-            break;
+                result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                break;
 
             case 1:
-                result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
-            break;
+                result[i] = from_uint128<T>(uint128_t{ dist_low(gen) });
+                break;
 
             case 2:
                 if (i % 2 == 0)
