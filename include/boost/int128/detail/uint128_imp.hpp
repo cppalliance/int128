@@ -2044,13 +2044,11 @@ constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
     }
     else
     {
-        #ifndef _M_AMD64
         if (lhs.high == 0)
         {
             return {0, lhs.low % rhs.low};
         }
         else
-        #endif
         {
             uint128_t quotient {};
             uint128_t remainder {};
