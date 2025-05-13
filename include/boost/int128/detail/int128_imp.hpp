@@ -2084,7 +2084,7 @@ public:
 
     // Member constants
     static constexpr bool is_specialized = true;
-    static constexpr bool is_signed = false;
+    static constexpr bool is_signed = true;
     static constexpr bool is_integer = true;
     static constexpr bool is_exact = true;
     static constexpr bool has_infinity = false;
