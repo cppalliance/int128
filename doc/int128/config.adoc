@@ -1,5 +1,5 @@
 ////
-Copyright 2023 Matt Borland
+Copyright 2025 Matt Borland
 Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
@@ -10,8 +10,8 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == User Configurable Macros
 
-- None at this time
+- `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `\__int128` or `unsigned __int128` types.
 
 == Automatic Configuration Macros
 
-- `BOOST_CRYPT_HAS_CUDA`: This is defined when compiling with NVCC regardless of the host compiler.
+- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `\___int128` or `unsigned __int128` types (e.g. `\__x86_64___`).
