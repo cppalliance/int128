@@ -476,7 +476,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 {
     BOOST_INT128_ASSUME(divisor != 0);
 
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
     BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
     {
@@ -504,7 +504,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 {
     BOOST_INT128_ASSUME(divisor != 0);
     
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
     BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
     {
