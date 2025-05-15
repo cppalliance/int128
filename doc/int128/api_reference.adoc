@@ -1,5 +1,5 @@
 ////
-Copyright 2024 Matt Borland
+Copyright 2025 Matt Borland
 Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
@@ -8,101 +8,27 @@ https://www.boost.org/LICENSE_1_0.txt
 = API Reference
 :idprefix: api_ref_
 
-== Namespace
+== Namespaces
 
-- `compat` Any time you see the namespace `compat` it is an alias to either `std::` or `cuda::std::` depending on the compiler being used
+- `boost::int128` contains all components of the library
 
 == Types
 
-- `boost::crypt::expected` - either an alias to https://tl.tartanllama.xyz/en/latest/api/expected.html[`tl::expected`] or `cuda::std::expected` depending on context.
+- <<uint128_t, `uint128_t`>>
+- <<int128_t, `int128_t`>>
 
 == Structures and Classes
 
-=== Hashers
+- `std::numeric_limits<uint128_t>`
+- `std::numeric_limits<int128_t>`
 
-==== SHA1
-- <<sha1_hasher, `sha1_hasher`>>
+== Functions
 
-==== SHA2 Family of Hashers
-- <<sha224_hasher, `sha224_hasher`>>
-
-- <<sha256_hasher, `sha256_hasher`>>
-- <<sha384_hasher, `sha384_hasher`>>
-- <<sha512_hasher, `sha512_hasher`>>
-- <<sha512_224_hasher, `sha512_224_hasher`>>
-- <<sha512_256_hasher, `sha512_256_hasher`>>
-
-==== SHA3 Family of Hashers
-- <<sha3_224_hasher, `sha3_224_hasher`>>
-- <<sha3_256_hasher, `sha3_256_hasher`>>
-- <<sha3_384_hasher, `sha3_384_hasher`>>
-- <<sha3_512_hasher, `sha3_512_hasher`>>
-
-==== Extendable-Output Functions
-- <<shake128_hasher, `shake128_hasher`>>
-- <<shake256_hasher, `shake256_hasher`>>
-
-=== Hash-Based Message Authentication Codes (HMAC)
-- <<hmac, `hmac`>>
-
-=== Deterministic Random Bit Generators (DRBG)
-==== Hash-Based
-===== Non-Prediction Resistant
-- <<hash_drgb, `sha1_hash_drbg`>>
-- <<hash_drgb, `sha224_hash_drbg`>>
-- <<hash_drgb, `sha256_hash_drbg`>>
-- <<hash_drgb, `sha384_hash_drbg`>>
-- <<hash_drgb, `sha512_hash_drbg`>>
-- <<hash_drgb, `sha512_224_hash_drbg`>>
-- <<hash_drgb, `sha512_256_hash_drbg`>>
-- <<hash_drgb, `sha3_224_hash_drbg`>>
-- <<hash_drgb, `sha3_256_hash_drbg`>>
-- <<hash_drgb, `sha3_384_hash_drbg`>>
-- <<hash_drgb, `sha3_512_hash_drbg`>>
-
-===== Prediction Resistant
-- <<hash_drgb, `sha1_hash_drbg_pr`>>
-- <<hash_drgb, `sha224_hash_drbg_pr`>>
-- <<hash_drgb, `sha256_hash_drbg_pr`>>
-- <<hash_drgb, `sha384_hash_drbg_pr`>>
-- <<hash_drgb, `sha512_hash_drbg_pr`>>
-- <<hash_drgb, `sha512_224_hash_drbg_pr`>>
-- <<hash_drgb, `sha512_256_hash_drbg_pr`>>
-- <<hash_drgb, `sha3_224_hash_drbg_pr`>>
-- <<hash_drgb, `sha3_256_hash_drbg_pr`>>
-- <<hash_drgb, `sha3_384_hash_drbg_pr`>>
-- <<hash_drgb, `sha3_512_hash_drbg_pr`>>
-
-==== HMAC-Based
-===== Non-Prediction Resistant
-- <<hmac_drbg, `sha1_hmac_drbg`>>
-- <<hmac_drbg, `sha224_hmac_drbg`>>
-- <<hmac_drbg, `sha256_hmac_drbg`>>
-- <<hmac_drbg, `sha384_hmac_drbg`>>
-- <<hmac_drbg, `sha512_hmac_drbg`>>
-- <<hmac_drbg, `sha512_224_hmac_drbg`>>
-- <<hmac_drbg, `sha512_256_hmac_drbg`>>
-- <<hmac_drbg, `sha3_224_hmac_drbg`>>
-- <<hmac_drbg, `sha3_256_hmac_drbg`>>
-- <<hmac_drbg, `sha3_384_hmac_drbg`>>
-- <<hmac_drbg, `sha3_512_hmac_drbg`>>
-
-===== Prediction Resistant
-- <<hmac_drbg, `sha1_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha224_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha256_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha384_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha512_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha512_224_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha512_256_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha3_224_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha3_256_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha3_384_hmac_drbg_pr`>>
-- <<hmac_drbg, `sha3_512_hmac_drbg_pr`>>
+- None
 
 == Enums
 
-- <<state, `state`>>
+- None
 
 == Constants
 
@@ -110,8 +36,9 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Concepts
 
-- <<file_system_path, `file_system_path`>>
-- <<writeable_output_range, `writeable_output_range`>>
+- <<unsigned_integer, `unsigned_integer`>>
+- <<signed_integer, `signed_integer`>>
+- <<integer, `integer`>>
 
 == Macros
 
