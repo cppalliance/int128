@@ -1,5 +1,5 @@
 ////
-Copyright 2024 Matt Borland
+Copyright 2025 Matt Borland
 Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
@@ -8,5 +8,5 @@ https://www.boost.org/LICENSE_1_0.txt
 = Copyright and License
 :idprefix: license_
 
-This documentation is copyright 2024 - 2025 Matt Borland and Chris Kormanyos and is distributed under
+This documentation is copyright 2025 Matt Borland, and is distributed under
 the http://www.boost.org/LICENSE_1_0.txt[Boost Software License, Version 1.0].
