@@ -23,7 +23,6 @@ project : requirements
     <toolset>gcc:<cxxflags>-Wlogical-op
     <toolset>gcc:<cxxflags>-Wdouble-promotion
     <toolset>gcc:<cxxflags>-Wformat=2
-    <toolset>gcc:<cxxflags>-Wnull-dereference
     <toolset>gcc:<cxxflags>-Wstack-protector
 
     <toolset>clang:<cxxflags>-Wsign-conversion
