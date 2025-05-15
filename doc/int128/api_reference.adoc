@@ -24,7 +24,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Functions
 
-- None
+- `abs` - Absolute Value
 
 == Enums
 
