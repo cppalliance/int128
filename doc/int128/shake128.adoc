@@ -1,0 +1,111 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#shake128]
+:idprefix: shake128_
+
+= SHAKE128
+
+This library supports shake128 as described in https://doi.org/10.6028/NIST.FIPS.202[SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions].
+There is a wide range of acceptable inputs for the base shake128 function:
+
+== Hashing Object
+
+[#shake128_hasher]
+Lastly, there is also the ability to create a shake128 hashing object and feed it bytes as the user parses them.
+This class does not use any dynamic memory allocation.
+
+[source, c++]
+----
+namespace boost::crypt {
+
+class shake128_hasher
+{
+public:
+    uisng return_type = compat::array<compat::byte, 16U>;
+
+    // Initialize the hasher
+    BOOST_CRYPT_GPU_ENABLED constexpr void init() noexcept;
+
+    // Process bytes piecewise
+    BOOST_CRYPT_GPU_ENABLED constexpr state process_bytes(compat::span<const compat::byte> data) noexcept;
+
+    template <concepts::sized_range Range>
+    BOOST_CRYPT_GPU_ENABLED constexpr state process_bytes(Range&& data) noexcept;
+
+    // Finalize the calculation of the hash
+    BOOST_CRYPT_GPU_ENABLED constexpr state finalize() noexcept;
+
+    // Get the digest including variable length output
+    [[nodiscard]] constexpr expected<return_type, state> get_digest() noexcept;
+
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED_CONSTEXPR state get_digest(compat::span<compat::byte> data) noexcept;
+
+    template <concepts::writable_output_range Range>
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED state get_digest(Range&& data) noexcept;
+
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED_CONSTEXPR state get_digest(compat::span<compat::byte> data, compat::size_t amount) noexcept;
+
+    template <concepts::writable_output_range Range>
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED state get_digest(Range&& data, compat::size_t amount) noexcept;
+};
+
+} // namespace boost::crypt
+----
+
+IMPORTANT: The `get_digest` methods here are not marked `const` as each time you call `get_digest` the state is updated and you will receive a different digest.
+
+When a container is passed without the `amount` parameter passed the hasher will fill the complete span or range being passed.
+
+== One-Shot Hashing Functions
+
+[source, c++]
+----
+namespace boost::crypt {
+
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED constexpr auto shake128(compat::span<const compat::byte> data) noexcept -> expected<shake128_hasher::return_type, state>;
+
+template <concepts::sized_range SizedRange>
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED auto shake128(SizedRange&& data) noexcept -> expected<shake128_hasher::return_type, state>;
+
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED constexpr auto shake128(compat::span<const compat::byte> data, compat::span<compat::byte> return_container) noexcept -> expected<shake128_hasher::return_type, state>;
+
+template <concepts::sized_range SizedRange, concepts::writeable_output_range OutputRange>
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED auto shake128(SizedRange&& data, OutputRange&& output) noexcept -> expected<shake128_hasher::return_type, state>;
+
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED constexpr auto shake128(compat::span<const compat::byte> data, compat::span<compat::byte> return_container, compat::size_t amount) noexcept -> expected<shake128_hasher::return_type, state>;
+
+template <concepts::sized_range SizedRange, concepts::writeable_output_range OutputRange>
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED auto shake128(SizedRange&& data, OutputRange&& output, std::size_t amount) noexcept -> expected<shake128_hasher::return_type, state>;
+
+} // namespace boost::crypt
+----
+
+== File Hashing Functions
+
+We also have the ability to scan files and return the shake128 value:
+
+[source, c++]
+----
+namespace boost::crypt {
+
+template <concepts::file_system_path T>
+[[nodiscard]] inline auto shake128_file(const T& filepath) -> expected<shake128_hasher::return_type, state>;
+
+template <concepts::file_system_path T, std::size_t Extent = std::dynamic_extent>
+[[nodiscard]] inline auto shake128_file(const T& filepath, std::span<std::byte, Extent> out) -> state;
+
+template <concepts::file_system_path T, std::size_t Extent = std::dynamic_extent>
+[[nodiscard]] inline auto shake128_file(const T& filepath, std::span<std::byte, Extent> out, std::size_t amount) -> state;
+
+template <concepts::file_system_path T, concepts::writeable_output_range OutputRange>
+[[nodiscard]] inline auto shake128_file(const T& filepath, OutputRange&& out) -> state;
+
+template <concepts::file_system_path T, concepts::writeable_output_range OutputRange>
+[[nodiscard]] inline auto shake128_file(const T& filepath, OutputRange&& out, std::size_t amount) -> state;
+
+} // namespace boost::crypt
+----

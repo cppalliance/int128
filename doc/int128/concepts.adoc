@@ -1,0 +1,54 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#Concepts]
+= Concepts
+:idprefix: concepts_
+
+The following are the definitions of the concepts used throughout the library to ensure consistency.
+
+[#file_system_path]
+== File System Path
+
+Used for the one-shot hashing of files.
+Allows a diverse range of ways to specify the file path.
+This concept is disabled on CUDA because there is no `std::ifstream` on that platform.
+
+[source, c++]
+----
+namespace boost::crypt::concepts {
+
+#ifndef BOOST_CRYPT_HAS_CUDA
+
+template <typename T>
+concept file_system_path =
+    std::is_convertible_v<T, std::string> ||
+    std::is_convertible_v<T, std::string_view> ||
+    std::is_convertible_v<T, const char*> ||
+    std::is_same_v<std::remove_cvref_t<T>, std::filesystem::path> ||
+    std::is_same_v<std::remove_cvref_t<T>, char*>;
+
+#endif
+
+} // namespace boost::crypt::concepts
+----
+
+[#writeable_output_range]
+== Writeable Output Range
+
+This concept is used to define the ranges that we can write to such as the `get_digest(Range&& data)` function of the hashers.
+
+[source, c++]
+----
+namespace boost::crypt::concepts {
+
+template <typename Range>
+concept writable_output_range = compat::output_range<Range, compat::range_value_t<Range>> &&
+                                compat::sized_range<Range> &&
+                                compat::is_trivially_copyable_v<compat::range_value_t<Range>>;
+
+} // namespace boost::crypt::concepts
+----

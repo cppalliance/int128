@@ -1,0 +1,25 @@
+# Copyright 2017, 2018 Peter Dimov
+# Copyright 2024 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
+
+import asciidoctor ;
+
+html crypt.html : crypt.adoc
+    :   <use>/boost/boostlook//boostlook
+        <dependency>crypt-docinfo-footer.html
+    ;
+
+install html_ : crypt.html : <location>html ;
+
+pdf crypt.pdf : crypt.adoc ;
+explicit crypt.pdf ;
+
+install pdf_ : crypt.pdf : <location>pdf ;
+explicit pdf_ ;
+
+###############################################################################
+alias boostdoc ;
+explicit boostdoc ;
+alias boostrelease : html_ ;
+explicit boostrelease ;

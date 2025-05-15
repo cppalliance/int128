@@ -1,0 +1,80 @@
+////
+Copyright 2024 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#sha384]
+:idprefix: sha384_
+
+= SHA384
+
+This library supports sha384 as described in https://datatracker.ietf.org/doc/html/rfc6234[RFC 6234].
+There is a wide range of acceptable inputs for the base sha384 function:
+
+== Hashing Object
+
+[#sha384_hasher]
+Lastly, there is also the ability to create a sha384 hashing object and feed it bytes as the user parses them.
+This class does not use any dynamic memory allocation.
+
+[source, c++]
+----
+namespace boost::crypt {
+
+class sha384_hasher
+{
+public:
+    uisng return_type = compat::array<compat::byte, 48>;
+
+    // Initialize the hasher
+    BOOST_CRYPT_GPU_ENABLED constexpr void init() noexcept;
+
+    // Process bytes piecewise
+    BOOST_CRYPT_GPU_ENABLED constexpr state process_bytes(compat::span<const compat::byte> data) noexcept;
+
+    template <concepts::sized_range Range>
+    BOOST_CRYPT_GPU_ENABLED constexpr state process_bytes(Range&& data) noexcept;
+
+    // Finalize the calculation of the hash
+    BOOST_CRYPT_GPU_ENABLED constexpr state finalize() noexcept;
+
+    // Get the digest
+    [[nodiscard]] constexpr expected<return_type, state> get_digest() const noexcept;
+
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED_CONSTEXPR state get_digest(compat::span<compat::byte> data) const noexcept;
+
+    template <concepts::writable_output_range Range>
+    [[nodiscard]] BOOST_CRYPT_GPU_ENABLED state get_digest(Range&& data) const noexcept;
+};
+
+} // namespace boost::crypt
+----
+
+== One-Shot Hashing Functions
+
+[source, c++]
+----
+namespace boost::crypt {
+
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED constexpr auto sha384(compat::span<const compat::byte> data) noexcept -> expected<sha384_hasher::return_type, state>;
+
+template <concepts::sized_range SizedRange>
+[[nodiscard]] BOOST_CRYPT_GPU_ENABLED auto sha384(SizedRange&& data) noexcept -> expected<sha384_hasher::return_type, state>;
+
+} // namespace boost::crypt
+----
+
+== File Hashing Functions
+
+We also have the ability to scan files and return the sha384 value:
+
+[source, c++]
+----
+namespace boost::crypt {
+
+template <concepts::file_system_path T>
+[[nodiscard]] inline auto sha384_file(const T& filepath) -> expected<sha384_hasher::return_type, state>;
+
+} // namespace boost::crypt
+----

@@ -1,0 +1,118 @@
+////
+Copyright 2024 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#hmac_drbg]
+:idprefix: hmac_drbg_
+
+= HMAC-Based Deterministic Random Bit Generators
+
+== Overview
+The HMAC based DRBGs are nearly the same as the hash DRBGs, but internally they use the hmac of a hasher instead of just that hasher directly.
+These should be preferred for use in new code over the hash equivalents.
+
+== Reference
+
+[source, c++]
+----
+namespace boost {
+namespace crypt {
+
+namespace drbg {
+
+template <bool prediction_resistance>
+using sha1_hmac_drbg_t = hmac_drbg<hmac<sha1_hasher>, 128U, 160U, prediction_resistance>;
+
+} // namespace drbg
+
+BOOST_CRYPT_EXPORT using sha1_hmac_drbg = drbg::sha1_hmac_drbg_t<false>;
+BOOST_CRYPT_EXPORT using sha1_hmac_drbg_pr = drbg::sha1_hmac_drbg_t<true>;
+
+namespace drbg {
+
+// Max hasher security is defined in NIST SP 800-57 Table 3:
+// See: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
+//
+// 112: None
+// 128: SHA-1
+// 192: SHA-224, SHA-512/224, SHA3-224
+// 256: SHA-256, SHA-512/256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512
+//
+// Outlen is defined in NIST SP 800-90A Rev 1 Section 10.1 table 2
+// 160: SHA-1
+// 224: SHA-224, SHA-512/224
+// 256: SHA-256, SHA-512/256
+// 384: SHA-384
+// 512: SHA-512
+// Max hasher security is defined in NIST SP 800-57 Table 3:
+// See: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf
+//
+// 112: None
+// 128: SHA-1
+// 192: SHA-224, SHA-512/224, SHA3-224
+// 256: SHA-256, SHA-512/256, SHA-384, SHA-512, SHA3-256, SHA3-384, SHA3-512
+//
+// Outlen is defined in NIST SP 800-90A Rev 1 Section 10.1 table 2
+// 160: SHA-1
+// 224: SHA-224, SHA-512/224
+// 256: SHA-256, SHA-512/256
+// 384: SHA-384
+// 512: SHA-512
+template <typename HMACType, compat::size_t max_hasher_security, compat::size_t outlen, bool prediction_resistance>
+class hmac_drbg
+{
+public:
+
+    BOOST_CRYPT_GPU_ENABLED_CONSTEXPR hmac_drbg() noexcept = default;
+    BOOST_CRYPT_GPU_ENABLED_CONSTEXPR ~hmac_drbg() noexcept;
+
+    template <compat::size_t Extent1, compat::size_t Extent2 = 0U, compat::size_t Extent3 = 0U>
+    BOOST_CRYPT_GPU_ENABLED_CONSTEXPR auto init(
+        compat::span<const compat::byte, Extent1> entropy,
+        compat::span<const compat::byte, Extent2> nonce = compat::span<const compat::byte, 0U> {},
+        compat::span<const compat::byte, Extent3> personalization = compat::span<const compat::byte, 0U>{}) noexcept -> state;
+
+    template <concepts::sized_range SizedRange1,
+              concepts::sized_range SizedRange2 = compat::span<const compat::byte, 0U>,
+              concepts::sized_range SizedRange3 = compat::span<const compat::byte, 0U>>
+    BOOST_CRYPT_GPU_ENABLED auto init(
+        SizedRange1&& entropy,
+        SizedRange2&& nonce = compat::span<const compat::byte, 0U>{},
+        SizedRange3&& personalization = compat::span<const compat::byte, 0U>{}) noexcept -> state;
+
+    template <compat::size_t Extent1, compat::size_t Extent2 = 0U>
+    BOOST_CRYPT_GPU_ENABLED_CONSTEXPR auto reseed(
+        compat::span<const compat::byte, Extent1> entropy,
+        compat::span<const compat::byte, Extent2> additional_input = compat::span<const compat::byte, 0>{}) noexcept -> state;
+
+    template <concepts::sized_range SizedRange1,
+              concepts::sized_range SizedRange2 = compat::span<const compat::byte, 0U>>
+    BOOST_CRYPT_GPU_ENABLED auto reseed(
+        SizedRange1&& entropy,
+        SizedRange2&& additional_data = compat::span<const compat::byte, 0U>{}) noexcept -> state;
+
+    template <compat::size_t Extent1, compat::size_t Extent2 = 0U, compat::size_t Extent3 = 0U>
+    BOOST_CRYPT_GPU_ENABLED_CONSTEXPR auto generate(
+        compat::span<compat::byte, Extent1> return_data, compat::size_t requested_bits,
+        compat::span<const compat::byte, Extent2> additional_data_1 = compat::span<const compat::byte, 0U>{},
+        compat::span<const compat::byte, Extent3> additional_data_2 = compat::span<const compat::byte, 0U>{}) noexcept -> state;
+
+    template <concepts::sized_range SizedRange1,
+              concepts::sized_range SizedRange2 = compat::span<const compat::byte, 0U>,
+              concepts::sized_range SizedRange3 = compat::span<const compat::byte, 0U>>
+    BOOST_CRYPT_GPU_ENABLED auto generate(
+        SizedRange1&& return_data, compat::size_t requested_bits,
+        SizedRange2&& additional_data_1 = compat::span<const compat::byte, 0U>{},
+        SizedRange3&& additional_data_2 = compat::span<const compat::byte, 0U>{}) noexcept -> state;
+
+};
+
+} // namespace drbg
+} // namespace crypt
+} // namespace boost
+
+----
+
+IMPORTANT: In the generate methods if you are using a prediction resistant DRBG you are required at add additional entropy as `addtional_data_1` and optionally add personalization with `additional_data_2`. These are both optional with a non-prediction resistant DRBG.
