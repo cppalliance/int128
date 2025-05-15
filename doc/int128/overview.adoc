@@ -21,7 +21,7 @@ An example is a 64-bit machine running Linux (say Ubuntu 24.04) has `__int128`, 
 
 == Use Cases
 
-Anywhere
+Anywhere 128-bits are needed.
 
 == Supported Compilers
 

@@ -1,0 +1,159 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#uint128_t]
+= uint128_t
+:idprefix: uint128_t_
+
+== Description
+
+`uint128_t` is an unsigned 128-bit integer
+
+[source, c++]
+----
+#include <boost/int128.hpp>
+
+namespace boost {
+namespace int128 {
+
+struct uint128_t {
+
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
+
+    std::uint64_t low {};
+    std::uint64_t high {};
+
+    #else
+
+    std::uint64_t high {};
+    std::uint64_t low {};
+
+    #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
+
+    // Defaulted basic construction
+    constexpr uint128_t() noexcept = default;
+    constexpr uint128_t(const uint128_t&) noexcept = default;
+    constexpr uint128_t(uint128_t&&) noexcept = default;
+    constexpr uint128_t& operator=(const uint128_t&) noexcept = default;
+    constexpr uint128_t& operator=(uint128_t&&) noexcept = default;
+
+    // Requires conversion file to be implemented
+    constexpr uint128_t(const int128_t& v) noexcept;
+
+    // Construct from integral types
+    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
+
+    constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const SignedInteger v) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    constexpr uint128_t(const UnsignedInteger v) noexcept;
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    constexpr uint128_t(const detail::builtin_i128 v) noexcept;
+
+    constexpr uint128_t(const detail::builtin_u128 v) noexcept;
+
+    #endif // BOOST_INT128_HAS_INT128
+
+    // Integer conversion operators
+    constexpr operator bool() const noexcept;
+
+    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    explicit constexpr operator SignedInteger() const noexcept;
+
+    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    explicit constexpr operator UnsignedInteger() const noexcept;
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    explicit constexpr operator detail::builtin_i128() const noexcept;
+
+    explicit constexpr operator detail::builtin_u128() const noexcept;
+
+    #endif // BOOST_INT128_HAS_INT128
+
+    // Conversion to float
+    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
+    // but can be constexpr at C++11 instead of C++26
+    explicit constexpr operator float() const noexcept;
+    explicit constexpr operator double() const noexcept;
+    explicit constexpr operator long double() const noexcept;
+
+    // Compound OR
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator|=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator|=(uint128_t rhs) noexcept;
+
+    // Compound AND
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator&=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator&=(uint128_t rhs) noexcept;
+
+    // Compound XOR
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator^=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator^=(uint128_t rhs) noexcept;
+
+    // Compound Left Shift
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator<<=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator<<=(uint128_t rhs) noexcept;
+
+    // Compound Right Shift
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t operator>>=(Integer rhs) noexcept;
+
+    constexpr uint128_t operator>>=(uint128_t rhs) noexcept;
+
+    constexpr uint128_t& operator++() noexcept;
+    constexpr uint128_t& operator++(int) noexcept;
+    constexpr uint128_t& operator--() noexcept;
+    constexpr uint128_t& operator--(int) noexcept;
+
+    // Compound Addition
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator+=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator+=(uint128_t rhs) noexcept;
+
+    // Compound Subtraction
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator-=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator-=(uint128_t rhs) noexcept;
+
+    // Compound Multiplication
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator*=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator*=(uint128_t rhs) noexcept;
+
+    // Compound Division
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator/=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator/=(uint128_t rhs) noexcept;
+
+    // Compound modulo
+    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    constexpr uint128_t& operator%=(Integer rhs) noexcept;
+
+    constexpr uint128_t& operator%=(uint128_t rhs) noexcept;
+
+}; // struct uint128_t
+
+} //namespace int128
+} //namespace boost
+
+----
