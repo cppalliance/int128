@@ -30,7 +30,7 @@ as well as emulated PPC64LE and STM32 using QEMU with the following compilers:
 
 * GCC 5 and later
 * Clang 5 and later
-* Visual Studio 2019 (14.2) and later
+* Visual Studio 2017 (14.1) and later
 * Intel OneAPI DPC++ 2024.2 and later
 
 Tested on https://github.com/cppalliance/int128/actions[Github Actions] and https://drone.cpp.al/cppalliance/int128[Drone].
