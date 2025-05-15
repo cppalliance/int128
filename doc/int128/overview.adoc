@@ -1,5 +1,5 @@
 ////
-Copyright 2024 Matt Borland
+Copyright 2025 Matt Borland
 Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
@@ -10,33 +10,28 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Description
 
-Boost.Crypt is cryptographic module aiming for FIPS 140-3 certification.
-The primary goal of this library is to be the safest implemenation, not the fastest.
+Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (e.g. bit counting).
 
-WARNING: This library is currently uncertified
-
-The library is header-only, has no dependencies, and requires C++20.
+The library is header-only, has no dependencies, and requires only C++14.
 
 == Motivation
 
-This library will be a ground-up, modern, and memory safe implementation of standard cryptographic routines.
-Since it is header only and has no dependencies it is trivial to integrate into any project.
-It also offers native CUDA support to massively parallelize these routines (such as hashing thousands of files simultaneously)
+128-bit integers are remarkably useful in a number of domains, but portability is often an issue.
+An example is a 64-bit machine running Linux (say Ubuntu 24.04) has `__int128`, but the same exact machine running Windows does not have this type.
 
 == Use Cases
 
-Anywhere where security is needed.
+Anywhere
 
 == Supported Compilers
 
-Boost.Crypt is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
+Boost.Int128 is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
 as well as emulated PPC64LE and STM32 using QEMU with the following compilers:
 
-* GCC 11 and later
-* Clang 15 and later
+* GCC 6 and later
+* Clang 5 and later
 * Visual Studio 2019 (14.2) and later
 * Intel OneAPI DPC++ 2024.2 and later
-* CUDA Toolkit 12.5 and later (Both NVCC and NVRTC)
 
-Tested on https://github.com/cppalliance/crypt/actions[Github Actions] and https://drone.cpp.al/cppalliance/crypt[Drone].
-Coverage can be found on https://app.codecov.io/gh/cppalliance/crypt[Codecov].
+Tested on https://github.com/cppalliance/int128/actions[Github Actions] and https://drone.cpp.al/cppalliance/int128[Drone].
+Coverage can be found on https://app.codecov.io/gh/cppalliance/int128[Codecov].
