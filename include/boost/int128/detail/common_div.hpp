@@ -245,7 +245,7 @@ BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]
     return {static_cast<high_word_type>(high), low};
 }
 
-#if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+#if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
 template <bool needs_mod, typename T>
 constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
@@ -387,7 +387,7 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
     using high_word_type = decltype(T{}.high);
 
@@ -421,7 +421,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__)
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
     using high_word_type = decltype(T{}.high);
 
