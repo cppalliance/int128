@@ -19,6 +19,8 @@ Matt Borland
 
 include::int128/overview.adoc[]
 
+include::int128/reference.adoc[]
+
 include::int128/copyright.adoc[]
 
 :leveloffset: -1
