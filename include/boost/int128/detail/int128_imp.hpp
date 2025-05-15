@@ -2081,8 +2081,10 @@ constexpr int128_t& int128_t::operator%=(const int128_t rhs) noexcept
 } // namespace int128
 } // namespace boost
 
+namespace std {
+
 template <>
-class std::numeric_limits<boost::int128::int128_t>
+class numeric_limits<boost::int128::int128_t>
 {
 public:
 
@@ -2139,5 +2141,7 @@ public:
     static constexpr auto signaling_NaN() -> boost::int128::int128_t { return {0, 0}; }
     static constexpr auto denorm_min   () -> boost::int128::int128_t { return {0, 0}; }
 };
+
+} // namespace std
 
 #endif // BOOST_INT128_DETAIL_INT128_HPP
