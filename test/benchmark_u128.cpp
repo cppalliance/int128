@@ -6,6 +6,11 @@
 #define BOOST_INT128_BENCHMARK_U128
 #endif // NDEBUG
 
+// GCC-5 support breaks down with errors propagating from Boost.Multiprecision
+#if defined(BOOST_INT128_BENCHMARK_U128) && defined(__GNUC__) && __GNUC__ == 5
+#  undef BOOST_INT128_BENCHMARK_U128
+#endif
+
 #include <iostream>
 
 #ifdef BOOST_INT128_BENCHMARK_U128
