@@ -1,5 +1,5 @@
 ////
-Copyright 2024 Matt Borland
+Copyright 2025 Matt Borland
 Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
@@ -22,6 +22,8 @@ include::int128/overview.adoc[]
 include::int128/api_reference.adoc[]
 
 include::int128/uint128_t.adoc[]
+
+include::int128/int128_t.adoc[]
 
 include::int128/reference.adoc[]
 
