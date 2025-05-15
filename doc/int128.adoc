@@ -1,0 +1,66 @@
+////
+Copyright 2024 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+:toc: left
+:toclevels: 4
+:idprefix:
+:listing-caption: Code Example
+:docinfo: private-footer
+:source-highlighter: rouge
+:source-language: c++
+
+:leveloffset: +1
+
+= Crypt: A Modern Cryptographic Module in C++20
+Matt Borland and Chris Kormanyos
+
+include::crypt/overview.adoc[]
+
+include::crypt/api_reference.adoc[]
+
+include::crypt/state.adoc[]
+
+include::crypt/sha1.adoc[]
+
+include::crypt/sha224.adoc[]
+
+include::crypt/sha256.adoc[]
+
+include::crypt/sha384.adoc[]
+
+include::crypt/sha512.adoc[]
+
+include::crypt/sha512_224.adoc[]
+
+include::crypt/sha512_256.adoc[]
+
+include::crypt/sha3_224.adoc[]
+
+include::crypt/sha3_256.adoc[]
+
+include::crypt/sha3_384.adoc[]
+
+include::crypt/sha3_512.adoc[]
+
+include::crypt/shake128.adoc[]
+
+include::crypt/shake256.adoc[]
+
+include::crypt/hmac.adoc[]
+
+include::crypt/hash_drbg.adoc[]
+
+include::crypt/hmac_drbg.adoc[]
+
+include::crypt/concepts.adoc[]
+
+include::crypt/config.adoc[]
+
+include::crypt/reference.adoc[]
+
+include::crypt/copyright.adoc[]
+
+:leveloffset: -1
