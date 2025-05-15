@@ -468,6 +468,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 #ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable : 4127) // Conditional expression is constant is true pre-C++17
+#  pragma warning(disable : 4804) // Unsafe comparison with bool
 #endif
 
 template <typename T>
