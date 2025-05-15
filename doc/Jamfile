@@ -5,17 +5,17 @@
 
 import asciidoctor ;
 
-html crypt.html : crypt.adoc
+html int128.html : int128.adoc
     :   <use>/boost/boostlook//boostlook
-        <dependency>crypt-docinfo-footer.html
+        <dependency>int128-docinfo-footer.html
     ;
 
-install html_ : crypt.html : <location>html ;
+install html_ : int128.html : <location>html ;
 
-pdf crypt.pdf : crypt.adoc ;
-explicit crypt.pdf ;
+pdf int128.pdf : int128.adoc ;
+explicit int128.pdf ;
 
-install pdf_ : crypt.pdf : <location>pdf ;
+install pdf_ : int128.pdf : <location>pdf ;
 explicit pdf_ ;
 
 ###############################################################################
