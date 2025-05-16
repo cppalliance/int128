@@ -46,3 +46,22 @@ constexpr int countl_zero(uint128_t x) noexcept;
 } // namespace boost
 
 ----
+
+[#bit_width]
+== bit_width
+
+If `x` is not zero, returns the number of bits needed to store the value `x`.
+If `x` is zero, returns 0
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int bit_width(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
