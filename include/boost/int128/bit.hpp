@@ -27,6 +27,11 @@ constexpr int bit_width(const uint128_t x) noexcept
     return x ? 128 - countl_zero(x) : 0;
 }
 
+constexpr uint128_t bit_ceil(const uint128_t x) noexcept
+{
+    return x <= 1 ? 1 : static_cast<uint128_t>(1) << bit_width(x - 1);
+}
+
 } // namespace int128
 } // namespace boost
 
