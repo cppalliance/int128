@@ -6,6 +6,8 @@
 #define BOOST_INT128_BIT_HPP
 
 #include <boost/int128/int128.hpp>
+#include <boost/int128/detail/config.hpp>
+#include <boost/int128/detail/clz.hpp>
 
 namespace boost {
 namespace int128 {
@@ -13,6 +15,11 @@ namespace int128 {
 constexpr bool has_single_bit(const uint128_t x) noexcept
 {
     return x && !(x & (x - 1));
+}
+
+constexpr int countl_zero(const uint128_t x) noexcept
+{
+    return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
 }
 
 } // namespace int128
