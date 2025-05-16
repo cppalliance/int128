@@ -48,6 +48,11 @@ constexpr int countr_zero(const uint128_t x) noexcept
     return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
 }
 
+constexpr int countr_one(const uint128_t x) noexcept
+{
+    return countr_zero(~x);
+}
+
 } // namespace int128
 } // namespace boost
 
