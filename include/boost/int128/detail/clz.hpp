@@ -43,7 +43,7 @@ constexpr int bit_scan_reverse(std::uint64_t bb) noexcept
     return index64[(bb * debruijn64) >> 58];
 }
 
-static constexpr int mod37[37] = {
+static constexpr int countl_mod37[37] = {
     32, 31, 6, 30, 9, 5, 0, 29,
     16, 8, 2, 4, 21, 0, 19, 28,
     25, 15, 0, 7, 10, 1, 17, 3,
@@ -59,7 +59,7 @@ constexpr int backup_countl_impl(std::uint32_t x) noexcept
     x |= x >> 8;
     x |= x >> 16;
 
-    return mod37[x % 37];
+    return countl_mod37[x % 37];
 }
 
 #if BOOST_INT128_HAS_BUILTIN(__builtin_clz)
