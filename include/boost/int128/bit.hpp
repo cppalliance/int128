@@ -10,9 +10,9 @@
 namespace boost {
 namespace int128 {
 
-constexpr bool has_single_bit(uint128_t x) noexcept
+constexpr bool has_single_bit(const uint128_t x) noexcept
 {
-    return x && !(x & (--x));
+    return x && !(x & (x - 1));
 }
 
 } // namespace int128
