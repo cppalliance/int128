@@ -6,7 +6,7 @@
 #include <boost/int128/bit.hpp>
 #include <boost/core/lightweight_test.hpp>
 
-int main()
+void test_has_single_bit()
 {
     boost::int128::uint128_t x {1};
 
@@ -22,6 +22,11 @@ int main()
         BOOST_TEST(!boost::int128::has_single_bit(x));
         x *= 2;
     }
+}
+
+int main()
+{
+    test_has_single_bit();
 
     return boost::report_errors();
 }
