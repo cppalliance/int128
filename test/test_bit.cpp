@@ -115,6 +115,19 @@ void test_countr_zero()
     }
 }
 
+void test_countr_one()
+{
+    BOOST_TEST_EQ(boost::int128::countr_one(0), 0);
+
+    boost::int128::uint128_t x {UINT64_MAX, UINT64_MAX};
+
+    for (int i {128}; i >= 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::countr_one(x), i);
+        x >>= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -124,6 +137,7 @@ int main()
     test_bit_floor();
     test_countl_one();
     test_countl_zero();
+    test_countr_one();
 
     return boost::report_errors();
 }
