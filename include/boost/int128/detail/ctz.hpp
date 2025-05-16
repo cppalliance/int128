@@ -74,7 +74,7 @@ constexpr int countr_impl(std::uint32_t x) noexcept
 
 #endif
 
-#if (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+#if (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_ctz)
 
 constexpr int countr_impl(std::uint64_t x) noexcept
 {
