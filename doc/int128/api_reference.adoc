@@ -29,6 +29,7 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<countl_zero, `countl_zero`>>
 - <<bit_width, `bit_width`>>
 - <<bit_ceil, `bit_ceil`>>
+- <<bit_floor, `bit_floor`>>
 
 == Enums
 
