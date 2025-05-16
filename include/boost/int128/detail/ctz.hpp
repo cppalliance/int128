@@ -42,7 +42,10 @@ static constexpr int countr_mod37[37] = {
     5, 20, 8, 19, 18
 };
 
-#if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+#if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_ctz)
+
+#pragma warning(push)
+#pragma warning(disable : 4146)
 
 constexpr int countr_impl(std::uint32_t x) noexcept
 {
@@ -64,6 +67,8 @@ constexpr int countr_impl(std::uint32_t x) noexcept
         }
     }
 }
+
+#pragma warning(pop)
 
 #elif !BOOST_INT128_HAS_BUILTIN(__builtin_ctz)
 
