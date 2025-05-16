@@ -47,6 +47,24 @@ constexpr int countl_zero(uint128_t x) noexcept;
 
 ----
 
+[#countl_one]
+== countl_one
+
+Returns the number of consecutive 1 bits in the value `x`, starting from the most significant.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int countl_one(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
+
 [#bit_width]
 == bit_width
 
