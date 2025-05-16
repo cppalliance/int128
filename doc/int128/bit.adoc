@@ -23,8 +23,26 @@ Returns `true` if `x` is a power of two; otherwise `false`
 namespace boost {
 namespace int128 {
 
-constexpr bool has_single_bit(const uint128_t x) noexcept;
+constexpr bool has_single_bit(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
+----
+
+[#countl_zero]
+== countl_zero
+
+Returns the number of consecutive 0 bits in the value `x`, starting from the most significant.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int countl_zero(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
 ----

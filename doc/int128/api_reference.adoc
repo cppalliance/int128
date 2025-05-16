@@ -26,6 +26,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 - `abs` - Absolute Value
 - <<has_single_bit, `has_single_bit`>>
+- <<countl_zero, `countl_zero`>>
 
 == Enums
 
