@@ -22,6 +22,11 @@ constexpr int countl_zero(const uint128_t x) noexcept
     return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
 }
 
+constexpr int countl_one(const uint128_t x) noexcept
+{
+    return countl_zero(~x);
+}
+
 constexpr int bit_width(const uint128_t x) noexcept
 {
     return x ? 128 - countl_zero(x) : 0;
