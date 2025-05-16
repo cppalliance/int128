@@ -37,10 +37,31 @@ void test_countl_zero()
     }
 }
 
+void test_bit_width()
+{
+    BOOST_TEST_EQ(boost::int128::bit_width(0), 0);
+
+    boost::int128::uint128_t x {1};
+
+    for (unsigned i {1}; i < 128U; ++i)
+    {
+        BOOST_TEST_EQ(boost::int128::bit_width(x), i);
+        x <<= 1;
+    }
+
+    x = 3;
+    for (unsigned i {2}; i < 128U; ++i)
+    {
+        BOOST_TEST_EQ(boost::int128::bit_width(x), i);
+        x <<= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
     test_countl_zero();
+    test_bit_width();
 
     return boost::report_errors();
 }
