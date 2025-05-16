@@ -116,3 +116,39 @@ constexpr uint128_t bit_floor(uint128_t x) noexcept;
 } // namespace int128
 } // namespace boost
 ----
+
+[#countr_zero]
+== countr_zero
+
+Returns the number of consecutive 0 bits in the value `x`, starting from the least significant.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int countr_zero(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
+
+[#countr_one]
+== countr_one
+
+Returns the number of consecutive 1 bits in the value `x`, starting from the least significant.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int countr_one(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
