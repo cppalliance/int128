@@ -76,7 +76,7 @@ Returns the smallest integral power of two that is not smaller than `x`.
 namespace boost {
 namespace int128 {
 
-constexpr int bit_ceil(uint128_t x) noexcept;
+constexpr uint128_t bit_ceil(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
