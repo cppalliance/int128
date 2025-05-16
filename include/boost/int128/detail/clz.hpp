@@ -125,7 +125,7 @@ constexpr int countl_impl(std::uint64_t x) noexcept
 
 #elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-constexpr int countl_impl(unsigned long x) noexcept
+constexpr int countl_impl(std::uint32_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
