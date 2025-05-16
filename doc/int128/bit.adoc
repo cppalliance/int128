@@ -65,3 +65,19 @@ constexpr int bit_width(uint128_t x) noexcept;
 } // namespace boost
 
 ----
+
+[#bit_ceil]
+== bit_ceil
+
+Returns the smallest integral power of two that is not smaller than `x`.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+constexpr int bit_ceil(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
