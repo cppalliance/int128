@@ -16,5 +16,12 @@ int main()
         x *= 2;
     }
 
+    x = 3;
+    for (unsigned i {1}; i < 128U; ++i)
+    {
+        BOOST_TEST(!boost::int128::has_single_bit(x));
+        x *= 2;
+    }
+
     return boost::report_errors();
 }
