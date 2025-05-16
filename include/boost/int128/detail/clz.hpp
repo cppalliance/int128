@@ -146,6 +146,11 @@ constexpr int countl_impl(unsigned long x) noexcept
     }
 }
 
+constexpr int countl_impl(std::uint64_t x) noexcept
+{
+    return x ? bit_scan_reverse(static_cast<std::uint64_t>(x)) ^ 63 : std::numeric_limits<std::uint64_t>::digits;
+}
+
 #else
 
 template <typename T>
