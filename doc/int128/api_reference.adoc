@@ -19,12 +19,13 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Structures and Classes
 
-- `std::numeric_limits<uint128_t>`
-- `std::numeric_limits<int128_t>`
+- https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
+- https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
 
 == Functions
 
 - `abs` - Absolute Value
+- <<has_single_bit, `has_single_bit`>>
 
 == Enums
 

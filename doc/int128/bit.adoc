@@ -1,0 +1,30 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#Bit]
+= <bit>
+:idprefix: bit_
+
+The following are functions analagous to those found in C\++20's https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
+None of these functions applied to signed integral types, and thus none have overloads for `boost::int128::int128_t`.
+All of these functions are available using C ++14 like the rest of the library.
+
+[#has_single_bit]
+== has_single_bit
+
+Checks if `x` is an integral power of two.
+Returns `true` if `x` is a power of two; otherwise `false`
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+constexpr bool has_single_bit(const uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
