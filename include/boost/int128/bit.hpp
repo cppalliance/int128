@@ -8,6 +8,7 @@
 #include <boost/int128/int128.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/clz.hpp>
+#include <boost/int128/detail/ctz.hpp>
 
 namespace boost {
 namespace int128 {
@@ -40,6 +41,11 @@ constexpr uint128_t bit_ceil(const uint128_t x) noexcept
 constexpr uint128_t bit_floor(const uint128_t x) noexcept
 {
     return x >= 0 ? static_cast<uint128_t>(1) << (bit_width(x) - 1) : static_cast<uint128_t>(0);
+}
+
+constexpr int countr_zero(const uint128_t x) noexcept
+{
+    return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
 }
 
 } // namespace int128
