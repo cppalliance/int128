@@ -13,20 +13,34 @@ void test_has_single_bit()
     for (unsigned i {1}; i < 128U; ++i)
     {
         BOOST_TEST(boost::int128::has_single_bit(x));
-        x *= 2;
+        x <<= 1;
     }
 
     x = 3;
     for (unsigned i {1}; i < 128U; ++i)
     {
         BOOST_TEST(!boost::int128::has_single_bit(x));
-        x *= 2;
+        x <<= 1;
+    }
+}
+
+void test_countl_zero()
+{
+    BOOST_TEST_EQ(boost::int128::countl_zero(0), 128);
+
+    boost::int128::uint128_t x {1};
+
+    for (unsigned i {1}; i < 128U; ++i)
+    {
+        BOOST_TEST_EQ(boost::int128::countl_zero(x), 128 - i);
+        x <<= 1;
     }
 }
 
 int main()
 {
     test_has_single_bit();
+    test_countl_zero();
 
     return boost::report_errors();
 }
