@@ -90,6 +90,18 @@ void test_bit_floor()
     }
 }
 
+void test_countl_one()
+{
+    BOOST_TEST_EQ(boost::int128::countl_one(0), 0);
+    boost::int128::uint128_t x {UINT64_MAX, UINT64_MAX};
+
+    for (int i {128}; i >= 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::countl_one(x), i);
+        x <<= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -97,6 +109,7 @@ int main()
     test_bit_width();
     test_bit_ceil();
     test_bit_floor();
+    test_countl_one();
 
     return boost::report_errors();
 }
