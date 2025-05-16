@@ -90,6 +90,44 @@ void test_bit_floor()
     }
 }
 
+void test_countl_one()
+{
+    BOOST_TEST_EQ(boost::int128::countl_one(0), 0);
+    boost::int128::uint128_t x {UINT64_MAX, UINT64_MAX};
+
+    for (int i {128}; i >= 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::countl_one(x), i);
+        x <<= 1;
+    }
+}
+
+void test_countr_zero()
+{
+    BOOST_TEST_EQ(boost::int128::countr_zero(0), 128);
+
+    boost::int128::uint128_t x {0x8000000000000000ULL, 0};
+
+    for (int i {127}; i >= 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::countr_zero(x), i);
+        x >>= 1;
+    }
+}
+
+void test_countr_one()
+{
+    BOOST_TEST_EQ(boost::int128::countr_one(0), 0);
+
+    boost::int128::uint128_t x {UINT64_MAX, UINT64_MAX};
+
+    for (int i {128}; i >= 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::countr_one(x), i);
+        x >>= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -97,6 +135,9 @@ int main()
     test_bit_width();
     test_bit_ceil();
     test_bit_floor();
+    test_countl_one();
+    test_countl_zero();
+    test_countr_one();
 
     return boost::report_errors();
 }
