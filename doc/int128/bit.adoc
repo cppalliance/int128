@@ -32,7 +32,7 @@ constexpr bool has_single_bit(uint128_t x) noexcept;
 [#countl_zero]
 == countl_zero
 
-Returns the number of consecutive 0 bits in the value `x`, starting from the most significant.
+Returns the number of consecutive `0` bits in the value `x`, starting from the most significant.
 
 [source,c++]
 ----
@@ -50,7 +50,7 @@ constexpr int countl_zero(uint128_t x) noexcept;
 [#countl_one]
 == countl_one
 
-Returns the number of consecutive 1 bits in the value `x`, starting from the most significant.
+Returns the number of consecutive `1` bits in the value `x`, starting from the most significant.
 
 [source,c++]
 ----
@@ -120,7 +120,7 @@ constexpr uint128_t bit_floor(uint128_t x) noexcept;
 [#countr_zero]
 == countr_zero
 
-Returns the number of consecutive 0 bits in the value `x`, starting from the least significant.
+Returns the number of consecutive `0` bits in the value `x`, starting from the least significant.
 
 [source,c++]
 ----
@@ -138,7 +138,7 @@ constexpr int countr_zero(uint128_t x) noexcept;
 [#countr_one]
 == countr_one
 
-Returns the number of consecutive 1 bits in the value `x`, starting from the least significant.
+Returns the number of consecutive `1` bits in the value `x`, starting from the least significant.
 
 [source,c++]
 ----
@@ -190,3 +190,22 @@ constexpr uint128_t rotr(uint128_t x, int s) noexcept;
 } // namespace boost
 
 ----
+
+[#popcount]
+== popcount
+
+Returns the number of `1` bits in `x`.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int popcount(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
+
