@@ -45,7 +45,7 @@ static constexpr int countr_mod37[37] = {
 #if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_ctz)
 
 #pragma warning(push)
-#pragma warning(disable : 4146)
+#pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
 
 constexpr int countr_impl(std::uint32_t x) noexcept
 {
@@ -72,10 +72,19 @@ constexpr int countr_impl(std::uint32_t x) noexcept
 
 #elif !BOOST_INT128_HAS_BUILTIN(__builtin_ctz)
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+
 constexpr int countr_impl(std::uint32_t x) noexcept
 {
     return countr_mod37[(-x & x) % 37];
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif
 
