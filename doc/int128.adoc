@@ -21,6 +21,8 @@ include::int128/overview.adoc[]
 
 include::int128/api_reference.adoc[]
 
+include::int128/concepts.adoc[]
+
 include::int128/uint128_t.adoc[]
 
 include::int128/int128_t.adoc[]
@@ -28,8 +30,6 @@ include::int128/int128_t.adoc[]
 include::int128/bit.adoc[]
 
 include::int128/reference.adoc[]
-
-include::int128/concepts.adoc[]
 
 include::int128/copyright.adoc[]
 
