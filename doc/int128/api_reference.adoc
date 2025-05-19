@@ -22,7 +22,7 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<literals, `_u128`>>
 - <<literals, `_U128`>>
 - <<literals, `_i128`>>
-- <<literals, `_i128`>>
+- <<literals, `_I128`>>
 
 == Structures and Classes
 
