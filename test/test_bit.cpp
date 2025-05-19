@@ -128,6 +128,18 @@ void test_countr_one()
     }
 }
 
+void test_rotl()
+{
+    constexpr boost::int128::uint128_t x {1};
+    boost::int128::uint128_t y {1};
+
+    for (int i {0}; i < 128; ++i)
+    {
+        BOOST_TEST(boost::int128::rotl(x, i) == y);
+        y <<= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -138,6 +150,7 @@ int main()
     test_countl_one();
     test_countl_zero();
     test_countr_one();
+    test_rotl();
 
     return boost::report_errors();
 }
