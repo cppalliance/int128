@@ -27,6 +27,8 @@ include::int128/uint128_t.adoc[]
 
 include::int128/int128_t.adoc[]
 
+include::int128/literals.adoc[]
+
 include::int128/bit.adoc[]
 
 include::int128/reference.adoc[]

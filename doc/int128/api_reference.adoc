@@ -17,6 +17,13 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<uint128_t, `uint128_t`>>
 - <<int128_t, `int128_t`>>
 
+== Literals
+
+- <<literals, `_u128`>>
+- <<literals, `_U128`>>
+- <<literals, `_i128`>>
+- <<literals, `_i128`>>
+
 == Structures and Classes
 
 - https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
@@ -54,4 +61,5 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Macros
 
-See: <<configuration>>
+- <<literals, `BOOST_INT128_UINT128_C`>>
+- <<literals, `BOOST_INT128_INT128_C`>>
