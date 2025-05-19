@@ -159,7 +159,7 @@ constexpr uint128_t byteswap(const uint128_t x) noexcept
 
 namespace impl {
 
-constexpr uint128_t byteswap_impl(const std::uint64_t x) noexcept
+constexpr std::uint64_t byteswap_impl(const std::uint64_t x) noexcept
 {
     const auto step32 {x << 32U | x >> 32U};
     const auto step16 {(step32 & UINT64_C(0x0000FFFF0000FFFF)) << 16U | (step32 & UINT64_C(0xFFFF0000FFFF0000)) >> 16U};
