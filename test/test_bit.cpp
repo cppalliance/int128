@@ -164,6 +164,67 @@ void test_popcount()
     }
 }
 
+void test_byteswap()
+{
+    // Test 1: Basic test with specific byte values
+    {
+        // Create a value with distinct byte pattern
+        boost::int128::uint128_t original{
+            0x0123456789ABCDEFULL,
+            0xFEDCBA9876543210ULL
+        };
+
+        // Expected result after byteswap
+        boost::int128::uint128_t expected{
+            0x1032547698BADCFEULL,
+            0xEFCDAB8967452301ULL
+        };
+
+        BOOST_TEST(boost::int128::byteswap(original) == expected);
+        BOOST_TEST(boost::int128::byteswap(expected) == original);
+    }
+
+    // Test 2: Verify double byteswap returns original
+    {
+        boost::int128::uint128_t values[] = {
+            {0, 0},                                               // All zeros
+            {~0ULL, ~0ULL},                                             // All ones
+            {0x0123456789ABCDEFULL, 0xFEDCBA9876543210ULL},       // Mixed pattern
+            {1ULL, 0},                                            // Single bit in high
+            {0, 1ULL}                                             // Single bit in low
+        };
+
+        for (const auto& val : values) {
+            BOOST_TEST(boost::int128::byteswap(boost::int128::byteswap(val)) == val);
+        }
+    }
+
+    // Test 3: Verify each byte position is correctly swapped
+    for (int i = 0; i < 16; ++i)
+    {
+        // Set a single byte to 0xFF
+        boost::int128::uint128_t input{0, 0};
+        auto bytes = reinterpret_cast<uint8_t*>(&input);
+        bytes[i] = 0xFF;
+
+        // After byteswap, the 0xFF should be at position (15-i)
+        boost::int128::uint128_t result = boost::int128::byteswap(input);
+        auto result_bytes = reinterpret_cast<uint8_t*>(&result);
+
+        for (int j = 0; j < 16; ++j)
+        {
+            if (j == 15 - i)
+            {
+                BOOST_TEST(result_bytes[j] == 0xFF);
+            }
+            else
+            {
+                BOOST_TEST(result_bytes[j] == 0);
+            }
+        }
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -177,6 +238,7 @@ int main()
     test_rotl();
     test_rotr();
     test_popcount();
+    test_byteswap();
 
     return boost::report_errors();
 }
