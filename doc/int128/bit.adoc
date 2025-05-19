@@ -209,3 +209,21 @@ constexpr int popcount(uint128_t x) noexcept;
 
 ----
 
+[#byteswap]
+== byteswap
+
+Reverses the bytes in the given integer value `x`.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr int byteswap(uint128_t x) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
+

@@ -36,6 +36,7 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<rotl, `rotl`>>
 - <<rotr, `rotr`>>
 - <<popcount, `popcount`>>
+- <<byteswap, `byteswap`>>
 
 == Enums
 
