@@ -101,11 +101,11 @@ constexpr int popcount(const uint128_t x) noexcept
     {
         #ifdef __AVX__
 
-        return  _mm_popcnt_u64(x.high) +  _mm_popcnt_u64(x.low);
+        return static_cast<int>(_mm_popcnt_u64(x.high) +  _mm_popcnt_u64(x.low));
 
         #else
 
-        return __popcnt64(x.high) + __popcnt64(x.low);
+        return static_cast<int>(__popcnt64(x.high) + __popcnt64(x.low));
 
         #endif
     }
@@ -123,17 +123,19 @@ constexpr int popcount(const uint128_t x) noexcept
     {
         #ifdef __AVX__
 
-        return _mm_popcnt_u32(static_cast<unsigned>(x.high)) +
+        return static_cast<int>(
+               _mm_popcnt_u32(static_cast<unsigned>(x.high)) +
                _mm_popcnt_u32(static_cast<unsigned>(x.high >> 32U)) +
                _mm_popcnt_u32(static_cast<unsigned>(x.low)) +
-               _mm_popcnt_u32(static_cast<unsigned>(x.low >> 32U)) +
+               _mm_popcnt_u32(static_cast<unsigned>(x.low >> 32U)));
 
         #else
 
-        return __popcnt(static_cast<unsigned>(x.high)) +
+        return static_cast<int>(
+               __popcnt(static_cast<unsigned>(x.high)) +
                __popcnt(static_cast<unsigned>(x.high >> 32U)) +
                __popcnt(static_cast<unsigned>(x.low)) +
-               __popcnt(static_cast<unsigned>(x.low >> 32U)) +
+               __popcnt(static_cast<unsigned>(x.low >> 32U)))
 
         #endif
     }
