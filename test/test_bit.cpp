@@ -152,6 +152,18 @@ void test_rotr()
     }
 }
 
+void test_popcount()
+{
+    BOOST_TEST_EQ(boost::int128::popcount(0), 0);
+    boost::int128::uint128_t x {0, 2};
+
+    for (int i {1}; i < 128; ++i)
+    {
+        BOOST_TEST_EQ(boost::int128::popcount(x - 1), i);
+        x <<= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -164,6 +176,7 @@ int main()
     test_countr_one();
     test_rotl();
     test_rotr();
+    test_popcount();
 
     return boost::report_errors();
 }
