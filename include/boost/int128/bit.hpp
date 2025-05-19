@@ -76,7 +76,7 @@ constexpr int popcount(const uint128_t x) noexcept
 
 namespace impl {
 
-constexpr int popcount_impl(const std::uint64_t x) noexcept
+constexpr int popcount_impl(std::uint64_t x) noexcept
 {
     x = x - ((x >> 1U) & UINT64_C(0x5555555555555555));
     x = (x & UINT64_C(0x3333333333333333)) + ((x >> 2U) & UINT64_C(0x3333333333333333));
