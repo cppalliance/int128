@@ -135,7 +135,7 @@ constexpr int popcount(const uint128_t x) noexcept
                __popcnt(static_cast<unsigned>(x.high)) +
                __popcnt(static_cast<unsigned>(x.high >> 32U)) +
                __popcnt(static_cast<unsigned>(x.low)) +
-               __popcnt(static_cast<unsigned>(x.low >> 32U)))
+               __popcnt(static_cast<unsigned>(x.low >> 32U)));
 
         #endif
     }
