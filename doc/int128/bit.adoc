@@ -152,3 +152,22 @@ constexpr int countr_one(uint128_t x) noexcept;
 } // namespace boost
 
 ----
+
+[#rotl]
+== rotl
+
+Computes the result of bitwise left-rotating the value of `x` by `s` positions.
+This operation is also known as a left circular shift.
+
+[source,c++]
+----
+
+namespace boost {
+namespace int128 {
+
+constexpr uint128_t rotl(uint128_t x, int s) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
