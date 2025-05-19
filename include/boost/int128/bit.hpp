@@ -148,6 +148,56 @@ constexpr int popcount(const uint128_t x) noexcept
 
 #endif
 
+#if BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
+
+constexpr uint128_t byteswap(const uint128_t x) noexcept
+{
+    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
+}
+
+#else
+
+namespace impl {
+
+constexpr uint128_t byteswap_impl(const std::uint64_t x) noexcept
+{
+    const auto step32 {x << 32U | x >> 32U};
+    const auto step16 {(step32 & UINT64_C(0x0000FFFF0000FFFF)) << 16U | (step32 & UINT64_C(0xFFFF0000FFFF0000)) >> 16U};
+    return (step16 & UINT64_C(0x00FF00FF00FF00FF)) << 8U | (step16 & UINT64_C(0xFF00FF00FF00FF00)) >> 8U;
+}
+
+constexpr uint128_t byteswap_impl(const uint128_t x) noexcept
+{
+    return {byteswap_impl(x.low), byteswap_impl(x.high)};
+}
+
+} // namespace impl
+
+#endif
+
+#if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
+
+constexpr uint128_t byteswap(const uint128_t x) noexcept
+{
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::byteswap_impl(x);
+    }
+    else
+    {
+        return {_byteswap_uint64(x.low), _byteswap_uint64(x.high)};
+    }
+}
+
+#elif !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
+
+constexpr uint128_t byteswap(const uint128_t x) noexcept
+{
+    return impl::byteswap_impl(x);
+}
+
+#endif
+
 } // namespace int128
 } // namespace boost
 
