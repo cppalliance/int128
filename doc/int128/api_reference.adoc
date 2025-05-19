@@ -33,6 +33,7 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<bit_floor, `bit_floor`>>
 - <<countr_zero, `countr_zero`>>
 - <<countr_one, `countr_one`>>
+- <<rotl, `rotl`>>
 
 == Enums
 
