@@ -58,7 +58,7 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
     static_cast<void>(is_negative);
     auto next = first;
 
-    BOOST_INT128_IF_CONSTEXPR (std::is_signed<Integer>::value)
+    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
     {
         if (next != last)
         {
