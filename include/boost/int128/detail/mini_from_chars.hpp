@@ -138,8 +138,8 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
             }
             else
             {
-                // Required to keep updating the value of next, but the result is garbage
                 overflowed = true;
+                break;
             }
 
             ++next;
