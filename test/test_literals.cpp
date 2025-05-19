@@ -12,7 +12,7 @@ using namespace boost::int128::literals;
 void test_u128_literals()
 {
     BOOST_TEST(boost::int128::uint128_t{0} == 0_u128);
-    BOOST_TEST(boost::int128::uint128_t{0} == 0_U128);
+    BOOST_TEST(boost::int128::uint128_t{10} == "10"_U128);
     BOOST_TEST(boost::int128::uint128_t{0} == BOOST_INT128_UINT128_C(0));
 
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
@@ -23,7 +23,7 @@ void test_u128_literals()
 void test_i128_literals()
 {
     BOOST_TEST(boost::int128::int128_t{0} == 0_i128);
-    BOOST_TEST(boost::int128::int128_t{0} == 0_i128);
+    BOOST_TEST(boost::int128::int128_t{10} == "10"_I128);
     BOOST_TEST(boost::int128::int128_t{0} == BOOST_INT128_INT128_C(0));
 
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
