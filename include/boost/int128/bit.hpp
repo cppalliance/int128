@@ -65,6 +65,89 @@ constexpr uint128_t rotr(const uint128_t x, const int s) noexcept
     return x >> (static_cast<unsigned>(s) & mask) | x << (static_cast<unsigned>(-s) & mask);
 }
 
+#if BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+
+constexpr int popcount(const uint128_t x) noexcept
+{
+    return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
+}
+
+#else
+
+namespace impl {
+
+constexpr int popcount_impl(const std::uint64_t x) noexcept
+{
+    x = x - ((x >> 1U) & UINT64_C(0x5555555555555555));
+    x = (x & UINT64_C(0x3333333333333333)) + ((x >> 2U) & UINT64_C(0x3333333333333333));
+    x = (x + (x >> 4U)) & UINT64_C(0x0F0F0F0F0F0F0F0F);
+
+    return static_cast<int>((x * UINT64_C(0x0101010101010101)) >> 56U);
+}
+
+} // namespace impl
+
+#endif
+
+#if defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+
+constexpr int popcount(const uint128_t x) noexcept
+{
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
+    }
+    else
+    {
+        #ifdef __AVX__
+
+        return  _mm_popcnt_u64(x.high) +  _mm_popcnt_u64(x.low);
+
+        #else
+
+        return __popcnt64(x.high) + __popcnt64(x.low);
+
+        #endif
+    }
+}
+
+#elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+
+constexpr int popcount(const uint128_t x) noexcept
+{
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
+    }
+    else
+    {
+        #ifdef __AVX__
+
+        return _mm_popcnt_u32(static_cast<unsigned>(x.high)) +
+               _mm_popcnt_u32(static_cast<unsigned>(x.high >> 32U)) +
+               _mm_popcnt_u32(static_cast<unsigned>(x.low)) +
+               _mm_popcnt_u32(static_cast<unsigned>(x.low >> 32U)) +
+
+        #else
+
+        return __popcnt(static_cast<unsigned>(x.high)) +
+               __popcnt(static_cast<unsigned>(x.high >> 32U)) +
+               __popcnt(static_cast<unsigned>(x.low)) +
+               __popcnt(static_cast<unsigned>(x.low >> 32U)) +
+
+        #endif
+    }
+}
+
+#elif !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+
+constexpr int popcount(const uint128_t x) noexcept
+{
+    return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
+}
+
+#endif
+
 } // namespace int128
 } // namespace boost
 
