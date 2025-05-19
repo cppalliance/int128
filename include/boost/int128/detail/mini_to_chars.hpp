@@ -1,0 +1,52 @@
+// Copyright 2022 Peter Dimov
+// Copyright 2023 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+#ifndef BOOST_INT128_DETAIL_MINI_TO_CHARS_HPP
+#define BOOST_INT128_DETAIL_MINI_TO_CHARS_HPP
+
+#include <boost/int128/detail/uint128_imp.hpp>
+#include <boost/int128/detail/int128_imp.hpp>
+
+namespace boost {
+namespace int128 {
+namespace detail {
+
+constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v) noexcept
+{
+    char* p {buffer + 64};
+    *--p = '\0';
+
+    do
+    {
+        *--p = "0123456789"[v % 10];
+        v /= 10;
+    } while (v);
+
+    return p;
+}
+
+constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v) noexcept
+{
+    char* p {nullptr};
+
+    if (v < 0)
+    {
+        const auto neg_v {-v};
+        p = mini_to_chars(buffer, uint128_t{static_cast<std::uint64_t>(neg_v.high), neg_v.low});
+        *--p = '-';
+    }
+    else
+    {
+        p = mini_to_chars(buffer, uint128_t{static_cast<std::uint64_t>(v.high), v.low});
+    }
+
+    return p;
+}
+
+} // namespace detail
+} // namespace int128
+} // namespace boost
+
+#endif // BOOST_INT128_DETAIL_MINI_TO_CHARS_HPP
