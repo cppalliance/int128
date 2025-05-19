@@ -59,6 +59,12 @@ constexpr uint128_t rotl(const uint128_t x, const int s) noexcept
     return x << (static_cast<unsigned>(s) & mask) | x >> (static_cast<unsigned>(-s) & mask);
 }
 
+constexpr uint128_t rotr(const uint128_t x, const int s) noexcept
+{
+    constexpr auto mask {127U};
+    return x >> (static_cast<unsigned>(s) & mask) | x << (static_cast<unsigned>(-s) & mask);
+}
+
 } // namespace int128
 } // namespace boost
 
