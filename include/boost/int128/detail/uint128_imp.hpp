@@ -1702,13 +1702,6 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
         return static_cast<uint128_t>(static_cast<builtin_u128>(lhs) * static_cast<builtin_u128>(rhs));
 
-    #elif defined(__i386__) && defined(__SSE2__) && !defined(_WIN32) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return sse_mul(lhs, static_cast<uint128_t>(rhs));
-    }
-
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))

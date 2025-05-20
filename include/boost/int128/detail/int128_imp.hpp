@@ -1606,17 +1606,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
     #  endif
 
-    #elif defined(__i386__) && defined(__SSE2__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return library_mul(lhs, rhs);
-    }
-    else
-    {
-        return sse_mul(lhs, rhs);
-    }
-
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
