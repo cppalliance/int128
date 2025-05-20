@@ -81,16 +81,14 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_ostream<charT, traits>&>
 {
     char buffer[64U] {};
-    const auto last {detail::mini_to_chars(v, buffer)};
-    *last = '\0';
+    auto first {detail::mini_to_chars(buffer, v)};
 
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
     {
         charT t_buffer[64U] {};
 
-        auto first {buffer};
         auto t_first {t_buffer};
-        while (first != last)
+        while (*first != '\0')
         {
             *t_first++ = static_cast<charT>(*first++);
         }
@@ -99,7 +97,7 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     }
     else
     {
-        os << buffer;
+        os << first;
     }
 
     return os;
