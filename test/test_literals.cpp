@@ -4,6 +4,7 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/int128/literals.hpp>
+#include <boost/int128/iostream.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <limits>
 
@@ -12,8 +13,18 @@ using namespace boost::int128::literals;
 void test_u128_literals()
 {
     BOOST_TEST(boost::int128::uint128_t{0} == 0_u128);
-    BOOST_TEST(boost::int128::uint128_t{10} == "10"_U128);
-    BOOST_TEST(boost::int128::uint128_t{0} == BOOST_INT128_UINT128_C(0));
+
+    if (!BOOST_TEST(boost::int128::uint128_t{10} == "10"_U128))
+    {
+        std::cerr << "LHS: " << boost::int128::uint128_t{10} << '\n'
+                  << "RHS: " << "10"_U128 << std::endl;
+    }
+
+    if (!BOOST_TEST(boost::int128::uint128_t{0} == BOOST_INT128_UINT128_C(0)))
+    {
+        std::cerr << "LHS: " << boost::int128::uint128_t{0} << '\n'
+                  << "RHS: " << BOOST_INT128_UINT128_C(0) << std::endl;
+    }
 
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     const auto macro_val {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
