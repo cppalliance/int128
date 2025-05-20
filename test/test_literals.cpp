@@ -28,7 +28,11 @@ void test_u128_literals()
 
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     const auto macro_val {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
-    BOOST_TEST(max_val == macro_val);
+    if (!BOOST_TEST(max_val == macro_val))
+    {
+        std::cerr << "LHS: " << max_val << '\n'
+                  << "RHS: " << macro_val << std::endl;
+    }
 }
 
 void test_i128_literals()
@@ -39,11 +43,19 @@ void test_i128_literals()
 
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
     const auto macro_val {BOOST_INT128_INT128_C(170141183460469231731687303715884105727)};
-    BOOST_TEST(max_val == macro_val);
+    if (!BOOST_TEST(max_val == macro_val))
+    {
+        std::cerr << "LHS: " << max_val << '\n'
+                  << "RHS: " << macro_val << std::endl;
+    }
 
     const boost::int128::int128_t min_val {std::numeric_limits<boost::int128::int128_t>::min()};
     const auto min_macro_val {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
-    BOOST_TEST(min_val == min_macro_val);
+    if (!BOOST_TEST(min_val == min_macro_val))
+    {
+        std::cerr << "LHS: " << min_val << '\n'
+                  << "RHS: " << min_macro_val << std::endl;
+    }
 }
 
 int main()
