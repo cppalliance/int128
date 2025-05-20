@@ -1147,6 +1147,17 @@ void test_operator_mul()
         test_value *= value2;
         BOOST_TEST(test_value == res);
     }
+
+    boost::int128::uint128_t shift_val {1};
+    boost::int128::uint128_t mul_val {1};
+
+    for (std::size_t i {1}; i < 128; ++i)
+    {
+        BOOST_TEST(shift_val == mul_val);
+
+        shift_val <<= 1;
+        mul_val *= 2;
+    }
 }
 
 struct test_caller
