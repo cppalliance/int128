@@ -46,15 +46,27 @@
 #endif
 
 template <typename IntType>
-constexpr IntType get_max()
+IntType get_max()
 {
     return std::numeric_limits<IntType>::max();
 }
 
 template <typename IntType>
-constexpr IntType get_min()
+IntType get_min()
 {
     return std::numeric_limits<IntType>::min();
+}
+
+template <typename T>
+T get_root_max()
+{
+    return static_cast<T>(std::sqrt(std::numeric_limits<T>::max()));
+}
+
+template <typename T>
+T get_root_min()
+{
+    return static_cast<T>(std::sqrt(std::numeric_limits<T>::min()));
 }
 
 #include <boost/random/uniform_int_distribution.hpp>
@@ -84,49 +96,37 @@ constexpr builtin_u128 get_min<builtin_u128>()
 }
 
 template <>
-constexpr builtin_i128 get_max<builtin_i128>()
+builtin_i128 get_max<builtin_i128>()
 {
     return static_cast<builtin_i128>((static_cast<builtin_u128>(1) << 127) - 1) / 32;
 }
 
 template <>
-constexpr builtin_i128 get_min<builtin_i128>()
+builtin_i128 get_min<builtin_i128>()
 {
     return -get_max<builtin_i128>() - 1;
 }
 
-template <typename T>
-constexpr T get_root_max()
-{
-    return std::numeric_limits<T>::max() / 10;
-}
-
-template <typename T>
-constexpr T get_root_min()
-{
-    return std::numeric_limits<T>::min() / 10;
-}
-
 template <>
-constexpr builtin_u128 get_root_max<builtin_u128>()
+builtin_u128 get_root_max<builtin_u128>()
 {
     return (UINT64_MAX >> 2);
 }
 
 template <>
-constexpr builtin_u128 get_root_min<builtin_u128>()
+builtin_u128 get_root_min<builtin_u128>()
 {
     return 0;
 }
 
 template <>
-constexpr builtin_i128 get_root_max<builtin_i128>()
+builtin_i128 get_root_max<builtin_i128>()
 {
     return INT64_MAX;
 }
 
 template <>
-constexpr builtin_i128 get_root_min<builtin_i128>()
+builtin_i128 get_root_min<builtin_i128>()
 {
     return INT64_MIN;
 }
@@ -1106,10 +1106,80 @@ int main()
 
 #else
 
+template <typename IntType>
+void test_operator_add()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0,
+                                                          get_max<IntType>() / 2);
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const IntType res = value + value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+        BOOST_TEST(test_value + test_value2 == res);
+
+        test_value += value2;
+        BOOST_TEST(test_value == res);
+    }
+}
+
+template <typename IntType>
+void test_operator_mul()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0,
+                                                          get_root_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const IntType res = value * value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+
+        BOOST_TEST(test_value * test_value2 == res);
+
+        test_value *= value2;
+        BOOST_TEST(test_value == res);
+    }
+}
+
+struct test_caller
+{
+    template<typename T>
+    void operator()(T) const
+    {
+        test_operator_add<T>();
+        test_operator_mul<T>();
+    }
+};
+
 int main()
 {
-    static_cast<void>(N);
-    return 0;
+    using test_types = boost::mp11::mp_list<
+        char,
+        unsigned char,
+        char16_t,
+        char32_t,
+        wchar_t,
+        short,
+        unsigned short,
+        int,
+        unsigned int,
+        long,
+        unsigned long,
+        long long,
+        unsigned long long
+    >;
+
+    boost::mp11::mp_for_each<test_types>(test_caller());
+
+    return boost::report_errors();
 }
 
 #endif // BOOST_INT128_HAS_INT128
