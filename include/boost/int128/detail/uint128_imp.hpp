@@ -1465,6 +1465,11 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, c
 
 } // namespace impl
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146)
+#endif
+
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator+(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
@@ -1478,6 +1483,10 @@ constexpr uint128_t operator+(const SignedInteger lhs, const uint128_t rhs) noex
     return lhs < 0 ? impl::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
                      impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator+(const uint128_t lhs, const UnsignedInteger rhs) noexcept
@@ -1737,6 +1746,11 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 #  pragma GCC diagnostic pop
 #endif
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146)
+#endif
+
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator*(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
@@ -1764,6 +1778,10 @@ constexpr uint128_t operator*(const uint128_t lhs, const UnsignedInteger rhs) no
 {
     return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr uint128_t operator*(const UnsignedInteger lhs, const uint128_t rhs) noexcept
