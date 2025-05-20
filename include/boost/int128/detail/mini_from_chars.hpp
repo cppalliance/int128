@@ -46,9 +46,9 @@ BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> u
 template <typename Integer, typename Unsigned_Integer>
 constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
 {
-    Unsigned_Integer result = 0;
-    Unsigned_Integer overflow_value = 0;
-    Unsigned_Integer max_digit = 0;
+    Unsigned_Integer result {};
+    Unsigned_Integer overflow_value {};
+    Unsigned_Integer max_digit {};
 
     const auto unsigned_base = static_cast<Unsigned_Integer>(base);
 
