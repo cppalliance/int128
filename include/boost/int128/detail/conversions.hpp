@@ -89,6 +89,30 @@ constexpr bool operator>=(const uint128_t& lhs, const int128_t& rhs) noexcept
     return rhs < 0 ? true : lhs.high == rhs.high ? rhs.low <= lhs.low : rhs.high <= lhs.high;
 }
 
+//=====================================
+// Arithmetic Operators
+//=====================================
+
+namespace detail {
+
+template <typename T>
+struct valid_overload
+{
+    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+};
+
+template <typename T>
+static constexpr bool is_valid_overload_v = valid_overload<T>::value;
+
+} // namespace detail
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr T operator+(T lhs, U) noexcept
+{
+    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
+    return lhs;
+}
+
 } // namespace int128
 } // namespace boost
 
