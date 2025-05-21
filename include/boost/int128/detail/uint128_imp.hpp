@@ -5,6 +5,7 @@
 #ifndef BOOST_INT128_DETAIL_UINT128_HPP
 #define BOOST_INT128_DETAIL_UINT128_HPP
 
+#include <boost/int128/detail/fwd.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/traits.hpp>
 #include <boost/int128/detail/constants.hpp>
@@ -1524,7 +1525,7 @@ constexpr uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rh
 
 constexpr uint128_t operator+(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
 {
-    return impl::default_add(static_cast<int128_t>(lhs), rhs);
+    return impl::default_add(static_cast<uint128_t>(lhs), rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
