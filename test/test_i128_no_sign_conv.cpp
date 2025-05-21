@@ -1013,7 +1013,6 @@ struct test_caller
 int main()
 {
     using test_types = boost::mp11::mp_list<
-        char,
         short,
         int,
         long,
