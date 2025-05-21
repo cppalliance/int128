@@ -127,6 +127,13 @@ constexpr T operator*(T lhs, U) noexcept
     return lhs;
 }
 
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr T operator/(T lhs, U) noexcept
+{
+    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
+    return lhs;
+}
+
 } // namespace int128
 } // namespace boost
 
