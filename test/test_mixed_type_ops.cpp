@@ -70,9 +70,31 @@ void test_construction()
     }
 }
 
+void test_conversion()
+{
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto builtin_signed_val {signed_dist(rng)};
+        const auto builtin_unsigned_val {unsigned_dist(rng)};
+
+        const auto builtin_converted_signed_val {static_cast<builtin_i128>(builtin_unsigned_val)};
+        const auto builtin_converted_unsigned_val {static_cast<builtin_u128>(builtin_signed_val)};
+
+        const auto emulated_signed_val {static_cast<boost::int128::int128_t>(builtin_signed_val)};
+        const auto emulated_unsigned_val {static_cast<boost::int128::uint128_t>(builtin_unsigned_val)};
+
+        const auto emulated_converted_signed_val {static_cast<boost::int128::int128_t>(emulated_unsigned_val)};
+        const auto emulated_converted_unsigned_val {static_cast<boost::int128::uint128_t>(emulated_signed_val)};
+
+        BOOST_TEST(builtin_converted_signed_val == emulated_converted_signed_val);
+        BOOST_TEST(builtin_converted_unsigned_val == emulated_converted_unsigned_val);
+    }
+}
+
 int main()
 {
     test_construction();
+    test_conversion();
 
     return boost::report_errors();
 }
