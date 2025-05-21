@@ -4,7 +4,6 @@
 
 
 #include <boost/int128/detail/uint128_imp.hpp>
-#include <boost/int128/detail/conversions.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11.hpp>
 #include <cstring>
@@ -670,8 +669,8 @@ void test_operator_left_shift()
 
     // Edge cases
     const boost::int128::uint128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0);
-    BOOST_TEST((val << -5) == 0);
+    BOOST_TEST((val << 130) == 0U);
+    BOOST_TEST((val << -5) == 0U);
 }
 
 template <typename IntType>
@@ -716,8 +715,8 @@ void test_operator_right_shift()
 
     // Edge cases
     const boost::int128::uint128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0);
-    BOOST_TEST((val << -5) == 0);
+    BOOST_TEST((val << 130) == 0U);
+    BOOST_TEST((val << -5) == 0U);
 }
 
 void test_increment_operator()
