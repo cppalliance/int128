@@ -11,6 +11,19 @@
 namespace boost {
 namespace int128 {
 
+namespace detail {
+
+template <typename T>
+struct valid_overload
+{
+    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+};
+
+template <typename T>
+static constexpr bool is_valid_overload_v = valid_overload<T>::value;
+
+} // namespace detail
+
 #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
 constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {static_cast<std::int64_t>(v.high)} {}
@@ -29,82 +42,51 @@ constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {static_cast<s
 // Comparison Operators
 //=====================================
 
-constexpr bool operator==(const int128_t& lhs, const uint128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator==(T, U) noexcept
 {
-    return lhs < 0 ? false : lhs.low == rhs.low && static_cast<std::uint64_t>(lhs.high) == rhs.high;
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
-constexpr bool operator==(const uint128_t& lhs, const int128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator!=(T, U) noexcept
 {
-    return rhs < 0 ? false : lhs.low == rhs.low && static_cast<std::uint64_t>(lhs.high) == rhs.high;
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
-constexpr bool operator!=(const int128_t& lhs, const uint128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator<(T, U) noexcept
 {
-    return !(lhs == rhs);
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
-constexpr bool operator!=(const uint128_t& lhs, const int128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator<=(T, U) noexcept
 {
-    return !(lhs == rhs);
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
-constexpr bool operator<(const int128_t& lhs, const uint128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator>(T, U) noexcept
 {
-    return lhs < 0 ? true : lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
-constexpr bool operator<(const uint128_t& lhs, const int128_t& rhs) noexcept
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+constexpr bool operator>=(T, U) noexcept
 {
-    return rhs < 0 ? false : lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
-}
-
-constexpr bool operator<=(const int128_t& lhs, const uint128_t& rhs) noexcept
-{
-    return lhs < 0 ? true : lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high;
-}
-
-constexpr bool operator<=(const uint128_t& lhs, const int128_t& rhs) noexcept
-{
-    return rhs < 0 ? false : lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high;
-}
-
-constexpr bool operator>(const int128_t& lhs, const uint128_t& rhs) noexcept
-{
-    return lhs < 0 ? false : lhs.high == rhs.high ? rhs.low < lhs.low : rhs.high < lhs.high;
-}
-
-constexpr bool operator>(const uint128_t& lhs, const int128_t& rhs) noexcept
-{
-    return rhs < 0 ? true : lhs.high == rhs.high ? rhs.low < lhs.low : rhs.high < lhs.high;
-}
-
-constexpr bool operator>=(const int128_t& lhs, const uint128_t& rhs) noexcept
-{
-    return lhs < 0 ? false : lhs.high == rhs.high ? rhs.low <= lhs.low : rhs.high <= lhs.high;
-}
-
-constexpr bool operator>=(const uint128_t& lhs, const int128_t& rhs) noexcept
-{
-    return rhs < 0 ? true : lhs.high == rhs.high ? rhs.low <= lhs.low : rhs.high <= lhs.high;
+    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
+    return lhs;
 }
 
 //=====================================
 // Arithmetic Operators
 //=====================================
-
-namespace detail {
-
-template <typename T>
-struct valid_overload
-{
-    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
-};
-
-template <typename T>
-static constexpr bool is_valid_overload_v = valid_overload<T>::value;
-
-} // namespace detail
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr T operator+(T lhs, U) noexcept
