@@ -675,13 +675,35 @@ constexpr bool operator<(const detail::builtin_u128 lhs, const uint128_t rhs) no
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
+    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
     return rhs >= 0 && lhs.high == UINT64_C(0) && lhs.low <= static_cast<std::uint64_t>(rhs);
+
+    #else
+
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
     return lhs < 0 || rhs.high > UINT64_C(0) || static_cast<std::uint64_t>(lhs) <= rhs.low;
+
+    #else
+
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -757,6 +779,8 @@ constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
 
 #ifdef BOOST_INT128_HAS_INT128
 
+#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
 constexpr bool operator<=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return lhs <= static_cast<uint128_t>(rhs);
@@ -776,6 +800,24 @@ constexpr bool operator<=(const detail::builtin_u128 lhs, const uint128_t rhs) n
 {
     return static_cast<uint128_t>(lhs) <= rhs;
 }
+
+#else
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
+constexpr bool operator<=(const uint128_t, const T) noexcept
+{
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    return true;
+}
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
+constexpr bool operator<=(const T, const uint128_t) noexcept
+{
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    return true;
+}
+
+#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
