@@ -55,6 +55,7 @@ run test_limits_u128.cpp ;
 
 run-fail benchmark_i128.cpp ;
 run test_i128.cpp ;
+run test_i128_no_sign_conv.cpp ;
 run test_limits_i128.cpp ;
 
 run test_bit.cpp ;
