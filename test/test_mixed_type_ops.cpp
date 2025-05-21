@@ -32,13 +32,13 @@ constexpr builtin_u128 get_min<builtin_u128>()
 }
 
 template <>
-builtin_i128 get_max<builtin_i128>()
+constexpr builtin_i128 get_max<builtin_i128>()
 {
     return static_cast<builtin_i128>((static_cast<builtin_u128>(1) << 127) - 1);
 }
 
 template <>
-builtin_i128 get_min<builtin_i128>()
+constexpr builtin_i128 get_min<builtin_i128>()
 {
     return -get_max<builtin_i128>() - 1;
 }
@@ -151,12 +151,29 @@ void test_ne()
     }
 }
 
+void test_lt()
+{
+    // Should have several instances of equality
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto builtin_signed_val {small_signed_dist(rng)};
+        const auto builtin_unsigned_val {small_unsigned_dist(rng)};
+
+        const auto emulated_signed_val {static_cast<boost::int128::int128_t>(builtin_signed_val)};
+        const auto emulated_unsigned_val {static_cast<boost::int128::uint128_t>(builtin_unsigned_val)};
+
+        BOOST_TEST((builtin_signed_val < builtin_unsigned_val) == (emulated_signed_val < emulated_unsigned_val));
+        BOOST_TEST((builtin_unsigned_val < builtin_signed_val) == (emulated_unsigned_val < emulated_signed_val));
+    }
+}
+
 int main()
 {
     test_construction();
     test_conversion();
     test_eq();
     test_ne();
+    test_lt();
 
     return boost::report_errors();
 }
