@@ -73,6 +73,16 @@ constexpr bool operator<(const uint128_t& lhs, const uint128_t& rhs) noexcept
     return rhs < 0 ? false : lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high
 }
 
+constexpr bool operator<=(const int128_t& lhs, const uint128_t& rhs) noexcept
+{
+    return lhs < 0 ? true : lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high;
+}
+
+constexpr bool operator<=(const uint128_t& lhs, const int128_t& rhs) noexcept
+{
+    return rhs < 0 ? false : lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high;
+}
+
 } // namespace int128
 } // namespace boost
 
