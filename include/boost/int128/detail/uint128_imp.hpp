@@ -265,13 +265,35 @@ constexpr bool operator==(const bool lhs, const uint128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator==(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
+    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
     return rhs >= 0 && lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
+
+    #else
+
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator==(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
     return lhs >= 0 && rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
+
+    #else
+
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -318,6 +340,8 @@ constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
 
 #ifdef BOOST_INT128_HAS_INT128
 
+#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
 constexpr bool operator==(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return lhs == static_cast<uint128_t>(rhs);
@@ -327,6 +351,24 @@ constexpr bool operator==(const detail::builtin_i128 lhs, const uint128_t rhs) n
 {
     return static_cast<uint128_t>(lhs) == rhs;
 }
+
+#else
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
+constexpr bool operator==(const uint128_t, const T) noexcept
+{
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    return true;
+}
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
+constexpr bool operator==(const T, const uint128_t) noexcept
+{
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    return true;
+}
+
+#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 constexpr bool operator==(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1175,7 +1217,7 @@ constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcep
         return {0, 0};
     }
 
-    if (rhs.low == 0)
+    if (rhs.low == 0U)
     {
         return lhs;
     }
@@ -1288,7 +1330,7 @@ constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcep
         return {0, 0};
     }
 
-    if (rhs.low == 0)
+    if (rhs.low == 0U)
     {
         return lhs;
     }
@@ -1869,7 +1911,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
         return {0, 0};
     }
@@ -1886,7 +1928,7 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (rhs.high != 0 || rhs == 0)
+    if (rhs.high != 0U || rhs == 0U)
     {
         return {0, 0};
     }
@@ -1896,7 +1938,7 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
 
 constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs == 0 || lhs < rhs)
+    if (rhs == 0U || lhs < rhs)
     {
         return {0, 0};
     }
@@ -1912,7 +1954,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
     }
     else
     {
-        if (lhs.high == 0)
+        if (lhs.high == 0U)
         {
             return {0, lhs.low / rhs.low};
         }
@@ -2003,7 +2045,7 @@ constexpr uint128_t operator%(const uint128_t lhs, const UnsignedInteger rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
         return {0, 0};
     }
@@ -2021,7 +2063,7 @@ constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
         return {0, 0};
     }
@@ -2035,7 +2077,7 @@ constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) no
 
 constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs == 0)
+    if (rhs == 0U)
     {
         return {0, 0};
     }
@@ -2057,7 +2099,7 @@ constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
     }
     else
     {
-        if (lhs.high == 0)
+        if (lhs.high == 0U)
         {
             return {0, lhs.low % rhs.low};
         }
