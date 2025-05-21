@@ -14,6 +14,7 @@ int main()
     BOOST_TEST(lhs - rhs == -6);
     BOOST_TEST(lhs * rhs == -9);
     BOOST_TEST(lhs / rhs == -1);
+    BOOST_TEST(lhs % rhs == 0);
 
     return boost::report_errors();
 }
