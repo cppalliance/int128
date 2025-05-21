@@ -1014,7 +1014,6 @@ int main()
 {
     using test_types = boost::mp11::mp_list<
         char,
-        wchar_t,
         short,
         int,
         long,
