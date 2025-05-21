@@ -199,6 +199,22 @@ void test_gt()
     }
 }
 
+void test_ge()
+{
+    // Should have several instances of equality
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto builtin_signed_val {small_signed_dist(rng)};
+        const auto builtin_unsigned_val {small_unsigned_dist(rng)};
+
+        const auto emulated_signed_val {static_cast<boost::int128::int128_t>(builtin_signed_val)};
+        const auto emulated_unsigned_val {static_cast<boost::int128::uint128_t>(builtin_unsigned_val)};
+
+        BOOST_TEST((builtin_signed_val >= builtin_unsigned_val) == (emulated_signed_val >= emulated_unsigned_val));
+        BOOST_TEST((builtin_unsigned_val >= builtin_signed_val) == (emulated_unsigned_val >= emulated_signed_val));
+    }
+}
+
 int main()
 {
     test_construction();
@@ -208,6 +224,7 @@ int main()
     test_lt();
     test_le();
     test_gt();
+    test_ge();
 
     return boost::report_errors();
 }
