@@ -53,6 +53,16 @@ constexpr bool operator==(const uint128_t& lhs, const int128_t& rhs) noexcept
     return rhs < 0 ? false : lhs.low == rhs.low && static_cast<std::uint64_t>(lhs.high) == rhs.high;
 }
 
+constexpr bool operator!=(const int128_t& lhs, const uint128_t& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+constexpr bool operator!=(const uint128_t& lhs, const int128_t& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
 } // namespace int128
 } // namespace boost
 
