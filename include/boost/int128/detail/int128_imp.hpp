@@ -749,14 +749,14 @@ constexpr bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noe
 #else // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator<(const int128_t, const T) noexcept
+constexpr bool operator>(const int128_t, const T) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator<(const T, const int128_t) noexcept
+constexpr bool operator>(const T, const int128_t) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
@@ -999,14 +999,14 @@ constexpr bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) no
 #else // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator<=(const int128_t, const T) noexcept
+constexpr bool operator>=(const int128_t, const T) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator<=(const T, const int128_t) noexcept
+constexpr bool operator>=(const T, const int128_t) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
@@ -1347,14 +1347,14 @@ constexpr int128_t operator^(const detail::builtin_u128 lhs, const int128_t rhs)
 #else // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr int128_t operator&(const int128_t, const T) noexcept
+constexpr int128_t operator^(const int128_t, const T) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return {0, 0};
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr int128_t operator&(const T, const int128_t) noexcept
+constexpr int128_t operator^(const T, const int128_t) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return {0, 0};
