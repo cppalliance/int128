@@ -46,42 +46,42 @@ template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T
 constexpr bool operator==(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr bool operator!=(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr bool operator<(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr bool operator<=(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr bool operator>(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 constexpr bool operator>=(T, U) noexcept
 {
     static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    return lhs;
+    return true;
 }
 
 //=====================================
