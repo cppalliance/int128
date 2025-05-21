@@ -2,11 +2,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-#  define BOOST_INT128_ALLOW_SIGN_CONVERSION
-#endif
 
-#include <boost/int128.hpp>
+#include <boost/int128/detail/uint128_imp.hpp>
+#include <boost/int128/detail/conversions.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11.hpp>
 #include <cstring>
@@ -1035,6 +1033,8 @@ struct test_caller
     template<typename T>
     void operator()(T) const
     {
+        static_assert(std::is_unsigned<T>::value, "Only testing unsigned types");
+
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
         test_integer_conversion_operators<T>();
@@ -1073,20 +1073,11 @@ struct test_caller
 int main()
 {
     using test_types = boost::mp11::mp_list<
-        char,
         unsigned char,
-        char16_t,
-        char32_t,
-        wchar_t,
-        short,
         unsigned short,
-        int,
         unsigned int,
-        long,
         unsigned long,
-        long long,
         unsigned long long,
-        builtin_i128,
         builtin_u128
     >;
 
@@ -1095,14 +1086,6 @@ int main()
     test_float_conversion_operators<float>();
     test_float_conversion_operators<double>();
     test_float_conversion_operators<long double>();
-
-    test_spot_div<char>(1, -32);
-    test_spot_div<char>(15, -91);
-    test_spot_div<char>(39, -100);
-
-    test_spot_div<long>(-888610053741375541L, 3110266252672496347L);
-
-    test_spot_div<long long>(-3237361348456748317LL, 8011834041509972187LL);
 
     return boost::report_errors();
 }
