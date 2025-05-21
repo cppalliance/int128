@@ -59,3 +59,4 @@ run test_limits_i128.cpp ;
 
 run test_bit.cpp ;
 run test_literals.cpp ;
+run test_mixed_type_ops.cpp ;
