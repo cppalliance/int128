@@ -978,8 +978,6 @@ struct test_caller
     template<typename T>
     void operator()(T) const
     {
-        static_assert(boost::int128::detail::is_signed_integer_v<T>, "Only testing signed types");
-
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
         test_integer_conversion_operators<T>();
