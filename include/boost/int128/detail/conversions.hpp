@@ -25,6 +25,11 @@ constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {static_cast<s
 
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
+constexpr uint128_t::operator int128_t() const noexcept
+{
+    return {static_cast<std::int64_t>(this->high), this->low};
+}
+
 } // namespace int128
 } // namespace boost
 
