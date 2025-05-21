@@ -48,6 +48,8 @@ static constexpr std::size_t N {1024};
 static boost::random::xoshiro256pp rng;
 static boost::random::uniform_int_distribution<builtin_i128> signed_dist(get_min<builtin_i128>(),get_max<builtin_i128>());
 static boost::random::uniform_int_distribution<builtin_u128> unsigned_dist(get_min<builtin_u128>(),get_max<builtin_u128>());
+static boost::random::uniform_int_distribution<builtin_i128> small_signed_dist(-50, 50);
+static boost::random::uniform_int_distribution<builtin_u128> small_unsigned_dist(0, 50);
 
 void test_construction()
 {
@@ -91,10 +93,40 @@ void test_conversion()
     }
 }
 
+void test_eq()
+{
+    // Probably not equal
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto builtin_signed_val {signed_dist(rng)};
+        const auto builtin_unsigned_val {unsigned_dist(rng)};
+
+        const auto emulated_signed_val {static_cast<boost::int128::int128_t>(builtin_signed_val)};
+        const auto emulated_unsigned_val {static_cast<boost::int128::uint128_t>(builtin_unsigned_val)};
+
+        BOOST_TEST((builtin_signed_val == builtin_unsigned_val) == (emulated_signed_val == emulated_unsigned_val));
+        BOOST_TEST((builtin_unsigned_val == builtin_signed_val) == (emulated_unsigned_val == emulated_signed_val));
+    }
+
+    // Should have several instances of equality
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto builtin_signed_val {small_signed_dist(rng)};
+        const auto builtin_unsigned_val {small_unsigned_dist(rng)};
+
+        const auto emulated_signed_val {static_cast<boost::int128::int128_t>(builtin_signed_val)};
+        const auto emulated_unsigned_val {static_cast<boost::int128::uint128_t>(builtin_unsigned_val)};
+
+        BOOST_TEST((builtin_signed_val == builtin_unsigned_val) == (emulated_signed_val == emulated_unsigned_val));
+        BOOST_TEST((builtin_unsigned_val == builtin_signed_val) == (emulated_unsigned_val == emulated_signed_val));
+    }
+}
+
 int main()
 {
     test_construction();
     test_conversion();
+    test_eq();
 
     return boost::report_errors();
 }
