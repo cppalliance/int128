@@ -11,6 +11,7 @@ int main()
     constexpr boost::int128::int128_t rhs {-3};
 
     BOOST_TEST(lhs + rhs == 0);
+    BOOST_TEST(lhs - rhs == -6);
 
     return boost::report_errors();
 }
