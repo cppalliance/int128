@@ -119,6 +119,8 @@ uint128_t
 
     #endif // BOOST_INT128_HAS_INT128
 
+    constexpr operator int128_t() const noexcept;
+
     // Conversion to float
     // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
     // but can be constexpr at C++11 instead of C++26
