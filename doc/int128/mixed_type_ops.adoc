@@ -1,0 +1,82 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#mixed_ops]
+= Mixed Type Operations
+:idprefix: mixed_ops
+
+== Conversions
+
+The ability to convert between the two types via `static_cast` is available as documented in the above class descriptions.
+
+== Comparisons and Arithmetics
+
+The following operations are *ALL ILLEGAL*.
+Since we can not enforce `-Wsign-conversion` and `-Wsign-compare` through the compiler we instead `static_assert` that the operation is unavailable, and that the *USER MUST CAST TO A COMMON TYPE*.
+This removes a common source of error (search "Sign Conversion" on Stack Overflow)
+
+[source, c++]
+----
+
+namespace boost {
+namespace int128 {
+
+//=====================================
+// Comparison Operators
+//=====================================
+
+constexpr bool operator==(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator==(int128_t lhs, uint128_t rhs);
+
+constexpr bool operator!=(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator!=(int128_t lhs, uint128_t rhs);
+
+constexpr bool operator<(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator<(int128_t lhs, uint128_t rhs);
+
+constexpr bool operator<=(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator<=(int128_t lhs, uint128_t rhs);
+
+constexpr bool operator>(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator>(int128_t lhs, uint128_t rhs);
+
+constexpr bool operator>=(uint128_t lhs, int128_t rhs);
+
+constexpr bool operator>=(int128_t lhs, uint128_t rhs);
+
+//=====================================
+// Arithmetic Operators
+//=====================================
+
+constexpr uint128_t operator+(uint128_t lhs, int128_t rhs);
+
+constexpr uint128_t operator+(int128_t lhs, uint128_t rhs);
+
+constexpr uint128_t operator-(uint128_t lhs, int128_t rhs);
+
+constexpr uint128_t operator-(int128_t lhs, uint128_t rhs);
+
+constexpr uint128_t operator*(uint128_t lhs, int128_t rhs);
+
+constexpr uint128_t operator*(int128_t lhs, uint128_t rhs);
+
+constexpr uint128_t operator/(uint128_t lhs, int128_t rhs);
+
+constexpr uint128_t operator/(int128_t lhs, uint128_t rhs);
+
+constexpr uint128_t operator%(uint128_t lhs, int128_t rhs);
+
+constexpr uint128_t operator%(int128_t lhs, uint128_t rhs);
+
+} // namespace int128
+} // namespace boost
+
+----
