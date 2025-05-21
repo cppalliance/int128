@@ -30,6 +30,11 @@ constexpr uint128_t::operator int128_t() const noexcept
     return {static_cast<std::int64_t>(this->high), this->low};
 }
 
+constexpr int128_t::operator uint128_t() const noexcept
+{
+    return {static_cast<std::uint64_t>(this->high), this->low};
+}
+
 } // namespace int128
 } // namespace boost
 
