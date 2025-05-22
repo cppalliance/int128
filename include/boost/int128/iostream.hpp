@@ -37,6 +37,7 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     is >> t_buffer;
 
     char buffer[1024] {};
+    auto buffer_start {buffer};
 
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
     {
@@ -59,10 +60,12 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     if (flags & std::ios_base::oct)
     {
         base = 8;
+        ++buffer_start; // 0
     }
     else if (flags & std::ios_base::hex)
     {
         base = 16;
+        buffer_start += 2; // 0x
     }
     else if (flags & std::ios_base::dec)
     {
@@ -71,7 +74,7 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
 
     BOOST_INT128_ASSERT_MSG(base != 0, "Incompatible base found");
 
-    detail::from_chars(buffer, buffer + detail::strlen(buffer), v, base);
+    detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base);
 
     return is;
 }
