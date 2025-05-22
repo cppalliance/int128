@@ -47,7 +47,10 @@ void test_ostream()
 int main()
 {
     test_istream<boost::int128::uint128_t>();
+    test_istream<boost::int128::int128_t>();
+
     test_ostream<boost::int128::uint128_t>();
+    test_ostream<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
