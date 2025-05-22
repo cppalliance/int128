@@ -2197,14 +2197,11 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
     // We need to hide this if we use a non-const eval method above to avoid a litany of cross-platform warnings
     #ifndef BOOST_INT128_HIDE_MUL
 
-    static_assert(std::is_same<UnsignedInteger, std::uint32_t>::value ||
-                  std::is_same<UnsignedInteger, std::uint64_t>::value ||
-                  std::is_same<UnsignedInteger, uint128_t>::value,
-                  "Must be 32, 64 or 128 bit unsigned integer");
+    constexpr std::size_t rhs_words_needed {std::is_same<UnsignedInteger, std::uint32_t>::value ? 1 :
+                                            std::is_same<UnsignedInteger, std::uint64_t>::value ? 2 :
+                                            std::is_same<UnsignedInteger, uint128_t>::value ? 4 : 0};
 
-    constexpr std::size_t rhs_words_needed {sizeof(UnsignedInteger) / sizeof(std::uint32_t)};
-
-    static_assert(rhs_words_needed <= 4, "128 / 32 is the largest possible combination");
+    static_assert(rhs_words_needed != 0, "Must be 32, 64 or 128 bit unsigned integer");
 
     std::uint32_t lhs_words[4] {};
     std::uint32_t rhs_words[rhs_words_needed] {};
