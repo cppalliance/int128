@@ -2604,12 +2604,19 @@ constexpr uint128_t operator%(const uint128_t lhs, const UnsignedInteger rhs) no
         return {0, 0};
     }
 
-    uint128_t quotient {};
-    uint128_t remainder {};
+    if (lhs.high != 0)
+    {
+        uint128_t quotient {};
+        uint128_t remainder {};
 
-    detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
+        detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
 
-    return remainder;
+        return remainder;
+    }
+    else
+    {
+        return {0, lhs.low % rhs};
+    }
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
