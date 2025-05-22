@@ -65,3 +65,5 @@ run test_stream.cpp ;
 
 compile-fail test_mixed_type_ops.cpp ;
 compile-fail test_mixed_arithmetic.cpp ;
+
+run test_consteval_funcs.cpp ;
