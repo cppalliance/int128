@@ -396,7 +396,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 {
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
         using high_word_type = decltype(T{}.high);
 
@@ -432,7 +432,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 {
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
         using high_word_type = decltype(T{}.high);
 
