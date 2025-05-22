@@ -898,7 +898,7 @@ constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
+        return lhs.high == rhs.high ? rhs.low < lhs.low : rhs.high < lhs.high;
     }
     else
     {
@@ -1051,7 +1051,7 @@ constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
+        return lhs.high == rhs.high ? rhs.low <= lhs.low : rhs.high <= lhs.high;
     }
     else
     {
