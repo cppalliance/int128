@@ -75,6 +75,24 @@ namespace impl {
 #  pragma warning(disable : 4127) // Pre c++17 the if constexpr remainder part will hit this
 #endif
 
+template <std::size_t v_size>
+BOOST_INT128_FORCE_INLINE void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
+    const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 2>&) noexcept
+{
+    vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
+    vn[0] = needs_shift ? (v[0] << s) : v[0];
+}
+
+template <std::size_t v_size>
+BOOST_INT128_FORCE_INLINE void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
+    const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 4>&) noexcept
+{
+    vn[3] = needs_shift ? ((v[3] << s) | (v[2] >> complement_s)) : v[3];
+    vn[2] = needs_shift ? ((v[2] << s) | (v[1] >> complement_s)) : v[2];
+    vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
+    vn[0] = needs_shift ? (v[0] << s) : v[0];
+}
+
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm D: Division of Non-negative integers
 template <bool need_remainder, std::size_t u_size, std::size_t v_size, std::size_t q_size>
@@ -98,18 +116,7 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
     un[0] = needs_shift ? (u[0] << s) : u[0];
 
     static_assert(v_size == 4 || v_size == 2, "Unknown size for denominator");
-    BOOST_INT128_IF_CONSTEXPR (v_size == 4)
-    {
-        vn[3] = needs_shift ? ((v[3] << s) | (v[2] >> complement_s)) : v[3];
-        vn[2] = needs_shift ? ((v[2] << s) | (v[1] >> complement_s)) : v[2];
-        vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
-        vn[0] = needs_shift ? (v[0] << s) : v[0];
-    }
-    else
-    {
-        vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
-        vn[0] = needs_shift ? (v[0] << s) : v[0];
-    }
+    unpack_v(vn, v, needs_shift, s, complement_s, std::integral_constant<std::size_t, v_size>{});
 
     // D.2
     for (std::size_t j {m - n}; j != static_cast<std::size_t>(-1); --j)
