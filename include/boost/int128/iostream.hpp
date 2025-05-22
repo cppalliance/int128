@@ -60,12 +60,18 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     if (flags & std::ios_base::oct)
     {
         base = 8;
-        ++buffer_start; // 0
+        if (*buffer_start == '0')
+        {
+            ++buffer_start;
+        }
     }
     else if (flags & std::ios_base::hex)
     {
         base = 16;
-        buffer_start += 2; // 0x
+        if (*buffer_start == '0')
+        {
+            buffer_start += 2;
+        }
     }
     else if (flags & std::ios_base::dec)
     {
