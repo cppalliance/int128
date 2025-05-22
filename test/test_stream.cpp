@@ -38,6 +38,18 @@ void test_ostream()
         max_out << max_val;
         BOOST_TEST_CSTR_EQ(max_out.str().c_str(), "340282366920938463463374607431768211455");
     }
+    else
+    {
+        boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
+        std::stringstream max_out;
+        max_out << max_val;
+        BOOST_TEST_CSTR_EQ(max_out.str().c_str(), "170141183460469231731687303715884105727");
+
+        boost::int128::int128_t min_val {std::numeric_limits<boost::int128::int128_t>::min()};
+        std::stringstream min_out;
+        min_out << min_val;
+        BOOST_TEST_CSTR_EQ(min_out.str().c_str(), "-170141183460469231731687303715884105728");
+    }
 }
 
 #if defined(_MSC_VER)
