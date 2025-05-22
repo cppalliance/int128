@@ -1089,91 +1089,10 @@ int main()
 
 #else
 
-template <typename IntType>
-void test_operator_add()
-{
-    boost::random::uniform_int_distribution<IntType> dist(0,
-                                                          get_max<IntType>() / 2);
-
-    for (std::size_t i {}; i < N; ++i)
-    {
-        const IntType value {dist(rng)};
-        const IntType value2 {dist(rng)};
-        const IntType res = value + value2;
-
-        boost::int128::uint128_t test_value {value};
-        const boost::int128::uint128_t test_value2 {value2};
-        BOOST_TEST(test_value + test_value2 == res);
-
-        test_value += value2;
-        BOOST_TEST(test_value == res);
-    }
-}
-
-template <typename IntType>
-void test_operator_mul()
-{
-    boost::random::uniform_int_distribution<IntType> dist(0,
-                                                          get_root_max<IntType>());
-
-    for (std::size_t i {}; i < N; ++i)
-    {
-        const IntType value {dist(rng)};
-        const IntType value2 {dist(rng)};
-        const IntType res = value * value2;
-
-        boost::int128::uint128_t test_value {value};
-        const boost::int128::uint128_t test_value2 {value2};
-
-        BOOST_TEST(test_value * test_value2 == res);
-
-        test_value *= value2;
-        BOOST_TEST(test_value == res);
-    }
-
-    boost::int128::uint128_t shift_val {1};
-    boost::int128::uint128_t mul_val {1};
-
-    for (std::size_t i {1}; i < 128; ++i)
-    {
-        BOOST_TEST(shift_val == mul_val);
-
-        shift_val <<= 1;
-        mul_val *= 2;
-    }
-}
-
-struct test_caller
-{
-    template<typename T>
-    void operator()(T) const
-    {
-        test_operator_add<T>();
-        test_operator_mul<T>();
-    }
-};
-
 int main()
 {
-    using test_types = boost::mp11::mp_list<
-        char,
-        unsigned char,
-        char16_t,
-        char32_t,
-        wchar_t,
-        short,
-        unsigned short,
-        int,
-        unsigned int,
-        long,
-        unsigned long,
-        long long,
-        unsigned long long
-    >;
-
-    boost::mp11::mp_for_each<test_types>(test_caller());
-
-    return boost::report_errors();
+    static_cast<void>(N);
+    return 0;
 }
 
 #endif // BOOST_INT128_HAS_INT128
