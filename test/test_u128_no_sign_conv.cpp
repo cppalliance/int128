@@ -1032,8 +1032,6 @@ struct test_caller
     template<typename T>
     void operator()(T) const
     {
-        static_assert(std::is_unsigned<T>::value, "Only testing unsigned types");
-
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
         test_integer_conversion_operators<T>();
