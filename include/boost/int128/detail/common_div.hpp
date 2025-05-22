@@ -394,15 +394,19 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-    using high_word_type = decltype(T{}.high);
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        using high_word_type = decltype(T{}.high);
 
-    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
-    auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
-    quotient.low = _udiv128(remainder, lhs.low, rhs, &remainder);
+        quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
+        auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
+        quotient.low = _udiv128(remainder, lhs.low, rhs, &remainder);
+        return;
+    }
 
-    #else
+    #endif
 
     if (rhs <= UINT32_MAX)
     {
@@ -421,20 +425,22 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 
         quotient = impl::from_words<T>(q);
     }
-
-    #endif
 }
 
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
+    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-    using high_word_type = decltype(T{}.high);
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        using high_word_type = decltype(T{}.high);
 
-    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
-    remainder.low = static_cast<std::uint64_t>(lhs.high) % rhs;
-    quotient.low = _udiv128(remainder.low, lhs.low, rhs, &remainder.low);
+        quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
+        remainder.low = static_cast<std::uint64_t>(lhs.high) % rhs;
+        quotient.low = _udiv128(remainder.low, lhs.low, rhs, &remainder.low);
+        return;
+    }
 
     #else
 
