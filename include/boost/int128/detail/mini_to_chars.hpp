@@ -20,7 +20,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v) noexcept
 
     do
     {
-        *--p = "0123456789"[v % 10U];
+        *--p = "0123456789"[static_cast<std::size_t>(v % 10U)];
         v /= 10U;
     } while (v != 0U);
 
@@ -34,12 +34,12 @@ constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v) noexcept
     if (v < 0)
     {
         const auto neg_v {-v};
-        p = mini_to_chars(buffer, uint128_t{static_cast<std::uint64_t>(neg_v.high), neg_v.low});
+        p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v));
         *--p = '-';
     }
     else
     {
-        p = mini_to_chars(buffer, uint128_t{static_cast<std::uint64_t>(v.high), v.low});
+        p = mini_to_chars(buffer, static_cast<uint128_t>(v));
     }
 
     return p;
