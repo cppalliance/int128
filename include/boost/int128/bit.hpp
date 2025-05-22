@@ -15,7 +15,7 @@ namespace int128 {
 
 constexpr bool has_single_bit(const uint128_t x) noexcept
 {
-    return x && !(x & (x - 1));
+    return x && !(x & (x - 1U));
 }
 
 constexpr int countl_zero(const uint128_t x) noexcept
@@ -35,12 +35,12 @@ constexpr int bit_width(const uint128_t x) noexcept
 
 constexpr uint128_t bit_ceil(const uint128_t x) noexcept
 {
-    return x <= 1 ? static_cast<uint128_t>(1) : static_cast<uint128_t>(1) << bit_width(x - 1);
+    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(1) << bit_width(x - 1U);
 }
 
 constexpr uint128_t bit_floor(const uint128_t x) noexcept
 {
-    return x >= 0 ? static_cast<uint128_t>(1) << (bit_width(x) - 1) : static_cast<uint128_t>(0);
+    return x >= 0U ? static_cast<uint128_t>(1) << (bit_width(x) - 1) : static_cast<uint128_t>(0);
 }
 
 constexpr int countr_zero(const uint128_t x) noexcept
