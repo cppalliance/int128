@@ -2204,6 +2204,8 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
     constexpr std::size_t rhs_words_needed {sizeof(UnsignedInteger) / sizeof(std::uint32_t)};
 
+    static_assert(rhs_words_needed <= 4, "128 / 32 is the largest possible combination");
+
     std::uint32_t lhs_words[4] {};
     std::uint32_t rhs_words[rhs_words_needed] {};
     to_words(lhs, lhs_words);
