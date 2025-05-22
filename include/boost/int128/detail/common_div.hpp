@@ -481,7 +481,7 @@ BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::u
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor) noexcept
 {
-    BOOST_INT128_ASSUME(divisor != 0U);
+    BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
 
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
@@ -509,7 +509,7 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor, T& remainder) noexcept
 {
-    BOOST_INT128_ASSUME(divisor != 0U);
+    BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
     
     #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
