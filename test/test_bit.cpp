@@ -59,9 +59,9 @@ void test_bit_width()
 
 void test_bit_ceil()
 {
-    BOOST_TEST_EQ(boost::int128::bit_ceil(0), 1);
-    BOOST_TEST_EQ(boost::int128::bit_ceil(1), 1);
-    BOOST_TEST_EQ(boost::int128::bit_ceil(2), 2);
+    BOOST_TEST_EQ(boost::int128::bit_ceil(0), 1U);
+    BOOST_TEST_EQ(boost::int128::bit_ceil(1), 1U);
+    BOOST_TEST_EQ(boost::int128::bit_ceil(2), 2U);
 
     boost::int128::uint128_t x {3};
     boost::int128::uint128_t y {4};
@@ -76,7 +76,7 @@ void test_bit_ceil()
 
 void test_bit_floor()
 {
-    BOOST_TEST_EQ(boost::int128::bit_floor(0), 0);
+    BOOST_TEST_EQ(boost::int128::bit_floor(0), 0U);
 
     boost::int128::uint128_t x {3};
     boost::int128::uint128_t y {2};
@@ -159,7 +159,7 @@ void test_popcount()
 
     for (int i {1}; i < 128; ++i)
     {
-        BOOST_TEST_EQ(boost::int128::popcount(x - 1), i);
+        BOOST_TEST_EQ(boost::int128::popcount(x - 1U), i);
         x <<= 1;
     }
 }

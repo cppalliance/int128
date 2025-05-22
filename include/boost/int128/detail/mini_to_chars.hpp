@@ -20,9 +20,9 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v) noexcept
 
     do
     {
-        *--p = "0123456789"[v % 10];
-        v /= 10;
-    } while (v);
+        *--p = "0123456789"[v % 10U];
+        v /= 10U;
+    } while (v != 0U);
 
     return p;
 }
