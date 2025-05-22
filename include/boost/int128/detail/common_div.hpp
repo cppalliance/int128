@@ -76,7 +76,7 @@ namespace impl {
 #endif
 
 template <std::size_t v_size>
-BOOST_INT128_FORCE_INLINE void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
+BOOST_INT128_FORCE_INLINE constexpr void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
     const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 2>&) noexcept
 {
     vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
@@ -84,7 +84,7 @@ BOOST_INT128_FORCE_INLINE void unpack_v(std::uint32_t (&vn)[4], const std::uint3
 }
 
 template <std::size_t v_size>
-BOOST_INT128_FORCE_INLINE void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
+BOOST_INT128_FORCE_INLINE constexpr void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
     const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 4>&) noexcept
 {
     vn[3] = needs_shift ? ((v[3] << s) | (v[2] >> complement_s)) : v[3];
