@@ -1149,7 +1149,7 @@ constexpr uint128_t operator|(const uint128_t lhs, const SignedInteger rhs) noex
 
     #else
 
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
     static_cast<void>(lhs);
     static_cast<void>(rhs);
     return true;
@@ -1166,7 +1166,7 @@ constexpr uint128_t operator|(const SignedInteger lhs, const uint128_t rhs) noex
 
     #else
 
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
     static_cast<void>(lhs);
     static_cast<void>(rhs);
     return true;
@@ -1210,14 +1210,14 @@ constexpr uint128_t operator|(const detail::builtin_i128 lhs, const uint128_t rh
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
 constexpr uint128_t operator|(const uint128_t, const T) noexcept
 {
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
 constexpr uint128_t operator|(const T, const uint128_t) noexcept
 {
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
 }
 
@@ -1265,7 +1265,7 @@ constexpr uint128_t operator&(const uint128_t lhs, const SignedInteger rhs) noex
 
     #else
 
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
     static_cast<void>(lhs);
     static_cast<void>(rhs);
     return true;
@@ -1282,7 +1282,7 @@ constexpr uint128_t operator&(const SignedInteger lhs, const uint128_t rhs) noex
 
     #else
 
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
     static_cast<void>(lhs);
     static_cast<void>(rhs);
     return true;
@@ -1326,14 +1326,14 @@ constexpr uint128_t operator&(const detail::builtin_i128 lhs, const uint128_t rh
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
 constexpr uint128_t operator&(const uint128_t, const T) noexcept
 {
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
 constexpr uint128_t operator&(const T, const uint128_t) noexcept
 {
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
+    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
 }
 
