@@ -80,6 +80,7 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::ui
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
         std::memcpy(&words, &x, sizeof(std::uint64_t));
+        return;
     }
 
     #endif
