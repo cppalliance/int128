@@ -33,6 +33,8 @@ include::int128/literals.adoc[]
 
 include::int128/bit.adoc[]
 
+include::int128/stream.adoc[]
+
 include::int128/reference.adoc[]
 
 include::int128/copyright.adoc[]
