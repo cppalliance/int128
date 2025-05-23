@@ -8,7 +8,9 @@
 
 void test_has_single_bit()
 {
-    boost::int128::uint128_t x {1};
+    boost::int128::uint128_t x {0};
+    BOOST_TEST(!boost::int128::has_single_bit(x));
+    ++x;
 
     for (unsigned i {1}; i < 128U; ++i)
     {
