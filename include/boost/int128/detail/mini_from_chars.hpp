@@ -46,6 +46,11 @@ BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> u
 template <typename Integer, typename Unsigned_Integer>
 constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
 {
+    if (first >= last)
+    {
+        return EINVAL;
+    }
+
     Unsigned_Integer result {};
     Unsigned_Integer overflow_value {};
     Unsigned_Integer max_digit {};
@@ -60,13 +65,10 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
 
     BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
     {
-        if (next != last)
+        if (*next == '-')
         {
-            if (*next == '-')
-            {
-                is_negative = true;
-                ++next;
-            }
+            is_negative = true;
+            ++next;
         }
 
         overflow_value = (std::numeric_limits<Integer>::max)();
@@ -80,7 +82,7 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
     }
     else
     {
-        if (next != last && (*next == '-' || *next == '+'))
+        if (*next == '-' || *next == '+')
         {
             return EINVAL;
         }
