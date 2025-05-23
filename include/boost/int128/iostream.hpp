@@ -84,7 +84,19 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_ostream<charT, traits>&>
 {
     char buffer[64U] {};
-    auto first {detail::mini_to_chars(buffer, v)};
+
+    const auto flags {os.flags()};
+    int base {10};
+    if (flags & std::ios_base::oct)
+    {
+        base = 8;
+    }
+    else if (flags & std::ios_base::hex)
+    {
+        base = 16;
+    }
+
+    auto first {detail::mini_to_chars(buffer, v, base)};
 
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
     {
