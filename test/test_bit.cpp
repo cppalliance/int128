@@ -227,6 +227,24 @@ void test_byteswap()
     }
 }
 
+void test_clz()
+{
+    unsigned int x {};
+    std::uint32_t y {};
+
+    BOOST_TEST_EQ(boost::int128::detail::impl::countl_impl(x), boost::int128::detail::impl::backup_countl_impl(y));
+
+    x = 1;
+    y = 1;
+
+    for (int i {1}; i < 16; ++i)
+    {
+        BOOST_TEST_EQ(boost::int128::detail::impl::countl_impl(x), boost::int128::detail::impl::backup_countl_impl(y));
+        x <<= 1;
+        y <<= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -241,6 +259,8 @@ int main()
     test_rotr();
     test_popcount();
     test_byteswap();
+
+    test_clz();
 
     return boost::report_errors();
 }
