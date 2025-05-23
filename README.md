@@ -37,7 +37,7 @@ struct int128_t;
 
 These types operate like built-in integer types.
 They have their own implementations of the Standard-Library functions
-(e.g. like those found in `<limits>`, `<charconv>`(TODO), etc.).
+(e.g. like those found in `<limits>`, `<iostream>`, etc.).
 
 The entire library can be conveniently included with `#include <boost/int128.hpp>`
 
@@ -46,8 +46,5 @@ The entire library can be conveniently included with `#include <boost/int128.hpp
 The complete documentation can be found at: https://master.int128.cpp.al
 
 ## References
-
-[1] IEEE Computer Society. _IEEE_ _Standard_ _for_ _Floating-Point_ _Arithmetic_,
-Std. IEEE:754-2008, August 29, 2008 (doi:10.1109/IEEESTD.2008.4610935).
 
 [1] Donald E. Knuth, _The_ _Art_ _of_ _Computer_ _Programming_ _Volume_ _2_ _Seminumerical_ _Algorithms_, 3rd edition, 1998
