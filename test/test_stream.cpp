@@ -82,6 +82,54 @@ void test_ostream()
     }
 }
 
+void test_error_values()
+{
+    using boost::int128::uint128_t;
+    using boost::int128::int128_t;
+
+    uint128_t val;
+    std::stringstream in;
+    in.str("-42");
+    in >> val;
+    BOOST_TEST_EQ(val, 0U);
+
+    uint128_t val2;
+    std::stringstream in2;
+    in2.str("+42");
+    in2 >> val2;
+    BOOST_TEST_EQ(val2, 0U);
+
+    uint128_t val3;
+    std::stringstream in3;
+    in3.str("");
+    in3 >> val3;
+    BOOST_TEST_EQ(val3, 0U);
+
+    int128_t val4;
+    std::stringstream in4;
+    in4.str("-");
+    in4 >> val4;
+    BOOST_TEST_EQ(val4, 0);
+
+    uint128_t val5;
+    std::stringstream in5;
+    in5.str("F");
+    in5 >> val5;
+    BOOST_TEST_EQ(val5, 0U);
+
+    uint128_t val6;
+    std::stringstream in6;
+    in6.str("3F");
+    in6 >> val6;
+    BOOST_TEST_EQ(val6, 3U);
+
+    uint128_t val7;
+    std::stringstream in7;
+    in7.str("100000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+    in7 >> val7;
+    BOOST_TEST_EQ(val7, 0U);
+}
+
 #if defined(_MSC_VER)
 #  pragma warning(pop)
 #endif
@@ -93,6 +141,8 @@ int main()
 
     test_ostream<boost::int128::uint128_t>();
     test_ostream<boost::int128::int128_t>();
+
+    test_error_values();
 
     return boost::report_errors();
 }
