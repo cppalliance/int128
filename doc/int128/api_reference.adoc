@@ -52,7 +52,7 @@ Listed by analogous STL header.
 
 === `<iostream>`
 - <<stream, `operator<<`>>
-- <<stream, `operator\>>`>>
+- <<stream, `operator>>`>>
 
 == Enums
 
