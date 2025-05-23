@@ -98,6 +98,16 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
 
     auto first {detail::mini_to_chars(buffer, v, base)};
 
+    if (base == 8)
+    {
+        *--first = '0';
+    }
+    else if (base == 16)
+    {
+        *--first = 'x';
+        *--first = '0';
+    }
+
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
     {
         charT t_buffer[64U] {};
