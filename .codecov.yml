@@ -49,4 +49,8 @@ comment:
   show_branch: true
   # Show uncovered lines in comments
   show_uncovered: true
-  
+
+# Ignore specific files or folders. Glob patterns are supported.
+# See https://docs.codecov.com/docs/ignoring-paths
+ignore:
+  - test/**/*
