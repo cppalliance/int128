@@ -13,21 +13,61 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v) noexcept
+static constexpr char digit_table[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z'
+};
+
+static_assert(sizeof(digit_table) == sizeof(char) * 36, "10 numbers, and 26 letters");
+
+constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base = 10) noexcept
 {
-    char* p {buffer + 64};
-    *--p = '\0';
+    char* last {buffer + 64U};
+    *--last = '\0';
 
-    do
+    if (v == 0U)
     {
-        *--p = "0123456789"[static_cast<std::size_t>(v % 10U)];
-        v /= 10U;
-    } while (v != 0U);
+        *--last = '0';
+        return last;
+    }
 
-    return p;
+    switch (base)
+    {
+        case 8:
+            while (v != 0U)
+            {
+                constexpr unsigned zero {48U};
+                *--last = static_cast<char>(zero + (v & 7U));
+                v >>= 3U;
+            }
+            break;
+
+        case 10:
+            while (v != 0U)
+            {
+                *--last = digit_table[static_cast<std::size_t>(v % 10U)];
+                v /= 10U;
+            }
+            break;
+
+        case 16:
+            while (v != 0U)
+            {
+                *--last = digit_table[static_cast<std::size_t>(v & 15U)];
+                v >>= 4U;
+            }
+            break;
+
+        default:
+            BOOST_INT128_UNREACHABLE; // LCOV_EXCL_LINE
+    }
+
+    return last;
 }
 
-constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v) noexcept
+constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base = 10) noexcept
 {
     char* p {nullptr};
 
@@ -36,19 +76,19 @@ constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v) noexcept
         // We cant negate the min value inside the signed type, but we know what the result will be
         if (v == std::numeric_limits<int128_t>::min())
         {
-            p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0});
+            p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0}, base);
         }
         else
         {
             const auto neg_v {-v};
-            p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v));
+            p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v), base);
         }
 
         *--p = '-';
     }
     else
     {
-        p = mini_to_chars(buffer, static_cast<uint128_t>(v));
+        p = mini_to_chars(buffer, static_cast<uint128_t>(v), base);
     }
 
     return p;
