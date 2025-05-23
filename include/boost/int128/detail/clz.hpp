@@ -31,7 +31,7 @@ constexpr int bit_scan_reverse(std::uint64_t bb) noexcept
 {
     constexpr auto debruijn64 {UINT64_C(0x03f79d71b4cb0a89)};
 
-    BOOST_INT128_ASSUME(bb != 0);
+    BOOST_INT128_ASSUME(bb != 0); // LCOV_EXCL_LINE
 
     bb |= bb >> 1;
     bb |= bb >> 2;
