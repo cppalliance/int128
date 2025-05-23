@@ -61,11 +61,16 @@ void test_ostream()
     out << val;
     BOOST_TEST_CSTR_EQ(out.str().c_str(), "42");
 
-    T hex_val {0xF};
+    T hex_val {0xFF};
     std::stringstream hex_out;
     hex_out.flags(std::ios_base::hex);
     hex_out << hex_val;
-    BOOST_TEST_CSTR_EQ(hex_out.str().c_str(), "0xf");
+    BOOST_TEST_CSTR_EQ(hex_out.str().c_str(), "0xff");
+
+    std::stringstream hex_out_upper;
+    hex_out_upper.flags(std::ios_base::hex | std::ios_base::uppercase);
+    hex_out_upper << hex_val;
+    BOOST_TEST_CSTR_EQ(hex_out_upper.str().c_str(), "0XFF");
 
     T octal_val {04};
     std::stringstream octal_out;
