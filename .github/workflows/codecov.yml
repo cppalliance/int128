@@ -199,3 +199,65 @@ jobs:
           name: Github Actions
           token: ${{secrets.CODECOV_TOKEN}}
           verbose: true
+
+  windows:
+    defaults:
+      run:
+        shell: cmd
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Collect MSVC coverage, coverage: yes,
+              toolset: msvc-14.3, cxxstd: 'latest',         addrmd: '32,64', os: windows-2022 }
+
+    runs-on: ${{matrix.os}}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Boost.CI
+        uses: actions/checkout@v4
+        with:
+          repository: boostorg/boost-ci
+          ref: master
+          path: boost-ci-cloned
+      - name: Get CI scripts folder
+        run: |
+          REM Copy ci folder if not testing Boost.CI
+          if "%GITHUB_REPOSITORY%" == "%GITHUB_REPOSITORY:boost-ci=%" xcopy /s /e /q /i /y boost-ci-cloned\ci .\ci
+          rmdir /s /q boost-ci-cloned
+      - name: Setup Boost
+        run: ci\github\install.bat
+
+      - name: Run tests
+        if: '!matrix.coverage'
+        run: ci\build.bat
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
+          B2_DEFINES: ${{matrix.defines}}
+          B2_VARIANT: ${{matrix.variant}}
+          B2_LINK: ${{matrix.link}}
+
+      - name: Collect coverage
+        shell: powershell
+        if: matrix.coverage
+        run: ci\opencppcoverage.ps1
+        env:
+          B2_TOOLSET: ${{matrix.toolset}}
+          B2_CXXSTD: ${{matrix.cxxstd}}
+          B2_ADDRESS_MODEL: ${{matrix.addrmd}}
+          B2_DEFINES: ${{matrix.defines}}
+          B2_VARIANT: ${{matrix.variant}}
+          B2_LINK: ${{matrix.link}}
+
+      - name: Upload
+        uses: codecov/codecov-action@v5
+        with:
+          disable_search: true
+          files: __out/cobertura.xml
+          name: ${{env.CODECOV_NAME}} (Windows)
+          token: ${{secrets.CODECOV_TOKEN}}
+          verbose: true
