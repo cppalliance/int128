@@ -30,6 +30,13 @@ void test_istream()
     in_hex >> hex_val;
     BOOST_TEST_EQ(hex_val, static_cast<T>(0xFFFF));
 
+    T hex_val_2;
+    std::stringstream in_hex_2;
+    in_hex_2.flags(std::ios_base::hex);
+    in_hex_2.str("FFFFFFFFFFFF");
+    in_hex_2 >> hex_val_2;
+    BOOST_TEST_EQ(hex_val_2, static_cast<T>(0xFFFFFFFFFFFF));
+
     // Octal Value
     T oct_val;
     std::stringstream in_oct;
@@ -37,6 +44,13 @@ void test_istream()
     in_oct.str("01111");
     in_oct >> oct_val;
     BOOST_TEST_EQ(oct_val, static_cast<T>(01111));
+
+    T oct_val_2;
+    std::stringstream in_oct_2;
+    in_oct_2.flags(std::ios_base::oct);
+    in_oct_2.str("42");
+    in_oct_2 >> oct_val_2;
+    BOOST_TEST_EQ(oct_val_2, static_cast<T>(042));
 }
 
 template <typename T>
