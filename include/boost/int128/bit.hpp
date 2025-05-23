@@ -40,7 +40,7 @@ constexpr uint128_t bit_ceil(const uint128_t x) noexcept
 
 constexpr uint128_t bit_floor(const uint128_t x) noexcept
 {
-    return x >= 0U ? static_cast<uint128_t>(1) << (bit_width(x) - 1) : static_cast<uint128_t>(0);
+    return x > 0U ? static_cast<uint128_t>(1) << (bit_width(x) - 1) : static_cast<uint128_t>(0);
 }
 
 constexpr int countr_zero(const uint128_t x) noexcept
