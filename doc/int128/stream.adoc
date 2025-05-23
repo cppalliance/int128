@@ -35,4 +35,12 @@ std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>&
 
 ----
 
-NOTE: ostream only supports output in decimal format. Istream supports decimal, hex, and octal formats
+== Flags
+
+The following flags are supported for both streaming directions:
+
+- `std::ios_base::oct` - Octal Numbers
+- `std::ios_base::dec` - Decimal Numbers
+- `std::ios_base::hex` - Hexadecimal Numbers
+- `std::ios_base::upper` - Upper Case Formatting (e.g. 0XFFFF)
+- `std::ios_base::lower` - Lower Case Formatting (e.g. 0xffff)
