@@ -700,13 +700,13 @@ constexpr bool operator>(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator>(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return lhs.high > 0 ? true : lhs.low > static_cast<std::uint64_t>(rhs);
+    return !(lhs < rhs) && !(lhs == rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator>(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return rhs.high < -1 ? true : static_cast<std::uint64_t>(lhs) > rhs.low;
+    return !(lhs < rhs) && !(lhs == rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -825,13 +825,13 @@ constexpr bool operator<=(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return lhs.high < -1 ? true : lhs.low <= static_cast<std::uint64_t>(rhs);
+    return !(lhs > rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return rhs.high < -1 ? false : static_cast<std::uint64_t>(lhs) <= rhs.low;
+    return !(lhs > rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -950,13 +950,13 @@ constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator>=(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return lhs.high < -1 ? false : lhs.low >= static_cast<std::uint64_t>(rhs);
+    return !(lhs < rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr bool operator>=(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return rhs.high < -1 ? true : static_cast<std::uint64_t>(lhs) >= rhs.low;
+    return !(lhs < rhs);
 }
 
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
