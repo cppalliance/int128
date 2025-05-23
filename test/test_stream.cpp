@@ -26,7 +26,7 @@ void test_istream()
     T hex_val;
     std::stringstream in_hex;
     in_hex.flags(std::ios_base::hex);
-    in_hex.str("0xFFFF");
+    in_hex.str("0xffff");
     in_hex >> hex_val;
     BOOST_TEST_EQ(hex_val, static_cast<T>(0xFFFF));
 
