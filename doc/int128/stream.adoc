@@ -1,0 +1,38 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#stream]
+= <iostream>
+:idprefix: stream_
+
+The following stream operators are available, and work similar to built-in integer types:
+
+[source, c++]
+----
+
+#include <boost/int128/iostream.hpp>
+
+namespace boost {
+namespace int128 {
+
+template <typename charT, typename traits>
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const int128_t& v)
+
+template <typename charT, typename traits>
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, int128_t& v)
+
+template <typename charT, typename traits>
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const uint128_t& v)
+
+template <typename charT, typename traits>
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, uint128_t& v)
+
+} // namespace int128
+} // namespace boost
+
+----
+
+NOTE: ostream only supports output in decimal format. Istream supports decimal, hex, and octal formats
