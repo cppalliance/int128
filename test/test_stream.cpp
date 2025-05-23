@@ -61,6 +61,18 @@ void test_ostream()
     out << val;
     BOOST_TEST_CSTR_EQ(out.str().c_str(), "42");
 
+    T hex_val {0xF};
+    std::stringstream hex_out;
+    hex_out.flags(std::ios_base::hex);
+    hex_out << hex_val;
+    BOOST_TEST_CSTR_EQ(hex_out.str().c_str(), "0xf");
+
+    T octal_val {04};
+    std::stringstream octal_out;
+    octal_out.flags(std::ios_base::oct);
+    octal_out << octal_val;
+    BOOST_TEST_CSTR_EQ(octal_out.str().c_str(), "04");
+
     BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::uint128_t>::value)
     {
         boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
