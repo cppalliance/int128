@@ -133,6 +133,9 @@ void test_error_values()
     in7.str("100000000000000000000000000000000000000000000000000000000000000000000000000000000000");
     in7 >> val7;
     BOOST_TEST_EQ(val7, 0U);
+
+    boost::int128::detail::from_chars(nullptr, nullptr, val7);
+    BOOST_TEST_EQ(val7, 0U);
 }
 
 #if defined(_MSC_VER)
