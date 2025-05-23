@@ -551,18 +551,6 @@ constexpr bool operator<(const int128_t lhs, const int128_t rhs) noexcept
     #endif
 }
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-constexpr bool operator<(const int128_t lhs, const SignedInteger rhs) noexcept
-{
-    return lhs.high < -1 ? true : lhs.low < static_cast<std::uint64_t>(rhs);
-}
-
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-constexpr bool operator<(const SignedInteger lhs, const int128_t rhs) noexcept
-{
-    return rhs.high < -1 ? false : static_cast<std::uint64_t>(lhs) < rhs.low;
-}
-
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator<(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
@@ -595,6 +583,39 @@ constexpr bool operator<(const UnsignedInteger lhs, const int128_t rhs) noexcept
     return true;
 
     #endif
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator<(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    if (lhs.high < 0)
+    {
+        return rhs >= 0 ? true : lhs < static_cast<int128_t>(rhs);
+    }
+
+    if (lhs.high > 0 || rhs < 0)
+    {
+        return false;
+    }
+
+    return lhs.low < static_cast<std::uint64_t>(rhs);
+}
+
+template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator<(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    if (rhs.high < 0)
+    {
+        return lhs >= 0 ? false : static_cast<int128_t>(lhs) < rhs;
+    }
+
+    // rhs is positive
+    if (rhs.high > 0 || lhs < 0)
+    {
+        return true;
+    }
+
+    return static_cast<std::uint64_t>(lhs) < rhs.low;
 }
 
 #ifdef BOOST_INT128_HAS_INT128
