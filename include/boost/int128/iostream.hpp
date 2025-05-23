@@ -110,7 +110,7 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     }
     else if (base == 16)
     {
-        *--first = 'x';
+        *--first = uppercase ? 'X' : 'x';
         *--first = '0';
     }
 

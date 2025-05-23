@@ -38,7 +38,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, c
         return last;
     }
 
-    const auto digit_table {uppercase ? lower_case_digit_table : lower_case_digit_table};
+    const auto digit_table {uppercase ? upper_case_digit_table : lower_case_digit_table};
 
     switch (base)
     {
