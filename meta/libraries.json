@@ -1,0 +1,15 @@
+{
+  "key": "int128",
+  "name": "Int128",
+  "authors": [
+    "Matt Borland"
+  ],
+  "maintainers": [
+    "Matt Borland <matt -at- mattborland.com>"
+  ],
+  "description": "Portable and Performant 128-bit Numbers",
+  "category": [
+    "Math and numerics"
+  ],
+  "cxxstd": "14"
+}
