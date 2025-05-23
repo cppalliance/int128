@@ -56,7 +56,7 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     }
 
     const auto flags {is.flags()};
-    int base {};
+    int base {10};
     if (flags & std::ios_base::oct)
     {
         base = 8;
@@ -73,12 +73,6 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
             buffer_start += 2;
         }
     }
-    else if (flags & std::ios_base::dec)
-    {
-        base = 10;
-    }
-
-    BOOST_INT128_ASSERT_MSG(base != 0, "Incompatible base found");
 
     detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base);
 
