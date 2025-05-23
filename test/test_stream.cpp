@@ -79,6 +79,11 @@ void test_ostream()
         std::stringstream min_out;
         min_out << min_val;
         BOOST_TEST_CSTR_EQ(min_out.str().c_str(), "-170141183460469231731687303715884105728");
+
+        boost::int128::int128_t regular_val {-4500};
+        std::stringstream reg_out;
+        reg_out << regular_val;
+        BOOST_TEST_CSTR_EQ(reg_out.str().c_str(), "-4500");
     }
 }
 
