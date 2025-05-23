@@ -245,6 +245,17 @@ void test_clz()
     }
 }
 
+void test_bit_scan_reverse()
+{
+    std::uint64_t x {0x8000000000000000};
+
+    for (int i {63}; i > 0; --i)
+    {
+        BOOST_TEST_EQ(boost::int128::detail::impl::bit_scan_reverse(x), i);
+        x >>= 1;
+    }
+}
+
 int main()
 {
     test_has_single_bit();
@@ -261,6 +272,7 @@ int main()
     test_byteswap();
 
     test_clz();
+    test_bit_scan_reverse();
 
     return boost::report_errors();
 }
