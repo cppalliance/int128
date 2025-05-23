@@ -13,16 +13,21 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-static constexpr char digit_table[] = {
+static constexpr char lower_case_digit_table[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x', 'y', 'z'
+    'a', 'b', 'c', 'd', 'e', 'f'
 };
 
-static_assert(sizeof(digit_table) == sizeof(char) * 36, "10 numbers, and 26 letters");
+static_assert(sizeof(lower_case_digit_table) == sizeof(char) * 16, "10 numbers, and 6 letters");
 
-constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base = 10) noexcept
+static constexpr char upper_case_digit_table[] = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    'A', 'B', 'C', 'D', 'E', 'F'
+};
+
+static_assert(sizeof(upper_case_digit_table) == sizeof(char) * 16, "10 numbers, and 6 letters");
+
+constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, const bool uppercase) noexcept
 {
     char* last {buffer + 64U};
     *--last = '\0';
@@ -32,6 +37,8 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base = 
         *--last = '0';
         return last;
     }
+
+    const auto digit_table {uppercase ? lower_case_digit_table : lower_case_digit_table};
 
     switch (base)
     {
@@ -67,7 +74,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base = 
     return last;
 }
 
-constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base = 10) noexcept
+constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base, const bool uppercase) noexcept
 {
     char* p {nullptr};
 
@@ -76,19 +83,19 @@ constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int ba
         // We cant negate the min value inside the signed type, but we know what the result will be
         if (v == std::numeric_limits<int128_t>::min())
         {
-            p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0}, base);
+            p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0}, base, uppercase);
         }
         else
         {
             const auto neg_v {-v};
-            p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v), base);
+            p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v), base, uppercase);
         }
 
         *--p = '-';
     }
     else
     {
-        p = mini_to_chars(buffer, static_cast<uint128_t>(v), base);
+        p = mini_to_chars(buffer, static_cast<uint128_t>(v), base, uppercase);
     }
 
     return p;

@@ -87,6 +87,7 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
 
     const auto flags {os.flags()};
     int base {10};
+    bool uppercase {false};
     if (flags & std::ios_base::oct)
     {
         base = 8;
@@ -96,7 +97,12 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
         base = 16;
     }
 
-    auto first {detail::mini_to_chars(buffer, v, base)};
+    if (flags & std::ios_base::uppercase)
+    {
+        uppercase = true;
+    }
+
+    auto first {detail::mini_to_chars(buffer, v, base, uppercase)};
 
     if (base == 8)
     {
