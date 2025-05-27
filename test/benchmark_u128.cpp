@@ -35,7 +35,6 @@
 constexpr unsigned N = 20'000'000;
 constexpr unsigned K = 5;
 
-using namespace boost::int128;
 using namespace std::chrono_literals;
 
 #ifdef __clang__
@@ -83,13 +82,13 @@ using mp_u128 = boost::multiprecision::uint128_t;
 // 4 = Random width
 
 template <typename T>
-T from_uint128(const uint128_t value)
+T from_uint128(const boost::int128::uint128_t value)
 {
     return static_cast<T>(value);
 }
 
 template <>
-mp_u128 from_uint128(const uint128_t value)
+mp_u128 from_uint128(const boost::int128::uint128_t value)
 {
     return static_cast<mp_u128>(value.high) << 64 | value.low;
 }
@@ -97,9 +96,9 @@ mp_u128 from_uint128(const uint128_t value)
 #ifdef BOOST_INT128_HAS_MSVC_INTERNAL_I128
 
 template <>
-std::_Unsigned128 from_uint128(const uint128_t value)
+std::_Unsigned128 from_uint128(const boost::int128::uint128_t value)
 {
-    return static_cast<std::_Unsigned128>(value.high) << 64 | value.low;
+    return static_cast<std::_Unsigned128>(value.high) << static_cast<std::_Unsigned128>(64) | static_cast<std::_Unsigned128>(value.low);
 }
 
 #endif
@@ -107,6 +106,8 @@ std::_Unsigned128 from_uint128(const uint128_t value)
 template <int words, typename T>
 std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
 {
+    using boost::int128::uint128_t;
+
     if (seed == 0)
     {
         std::random_device rd;
@@ -320,7 +321,7 @@ int main()
         std::cerr << "Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<0, uint128_t>();
+        const auto library_vector = generate_random_vector<0, boost::int128::uint128_t>();
         const auto mp_vector = generate_random_vector<0, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -391,7 +392,7 @@ int main()
         std::cerr << "One Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<1, uint128_t>();
+        const auto library_vector = generate_random_vector<1, boost::int128::uint128_t>();
         const auto mp_vector = generate_random_vector<1, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -463,7 +464,7 @@ int main()
         std::cerr << "Two-One Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<2, uint128_t>();
+        const auto library_vector = generate_random_vector<2, boost::int128::uint128_t>();
         const auto mp_vector = generate_random_vector<2, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -535,7 +536,7 @@ int main()
         std::cerr << "One-Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<3, uint128_t>();
+        const auto library_vector = generate_random_vector<3, boost::int128::uint128_t>();
         const auto mp_vector = generate_random_vector<3, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -607,7 +608,7 @@ int main()
         std::cerr << "Random Width Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<4, uint128_t>();
+        const auto library_vector = generate_random_vector<4, boost::int128::uint128_t>();
         const auto mp_vector = generate_random_vector<4, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
