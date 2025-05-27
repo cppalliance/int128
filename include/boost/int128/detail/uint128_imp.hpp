@@ -174,7 +174,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t operator<<=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t operator<<=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -186,7 +187,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t operator>>=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t operator>>=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -1708,6 +1710,17 @@ constexpr uint128_t uint128_t::operator<<=(const uint128_t rhs) noexcept
     return *this;
 }
 
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline uint128_t uint128_t::operator<<=(Integer rhs) noexcept
+{
+    *this = *this << rhs;
+    return *this;
+}
+
+#endif
+
 //=====================================
 // Right Shift Operator
 //=====================================
@@ -1820,6 +1833,17 @@ constexpr uint128_t uint128_t::operator>>=(const uint128_t rhs) noexcept
     *this = *this >> rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline uint128_t uint128_t::operator>>=(Integer rhs) noexcept
+{
+    *this = *this >> rhs;
+    return *this;
+}
+
+#endif
 
 //=====================================
 // Increment Operator
