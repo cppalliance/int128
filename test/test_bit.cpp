@@ -265,6 +265,7 @@ int main()
     test_bit_floor();
     test_countl_one();
     test_countl_zero();
+    test_countr_zero();
     test_countr_one();
     test_rotl();
     test_rotr();
