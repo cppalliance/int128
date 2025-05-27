@@ -83,13 +83,13 @@ using mp_u128 = boost::multiprecision::uint128_t;
 // 4 = Random width
 
 template <typename T>
-constexpr T from_uint128(const uint128_t value)
+T from_uint128(const uint128_t value)
 {
     return static_cast<T>(value);
 }
 
 template <>
-constexpr mp_u128 from_uint128(const uint128_t value)
+mp_u128 from_uint128(const uint128_t value)
 {
     return static_cast<mp_u128>(value.high) << 64 | value.low;
 }
@@ -97,7 +97,7 @@ constexpr mp_u128 from_uint128(const uint128_t value)
 #ifdef BOOST_INT128_HAS_MSVC_INTERNAL_I128
 
 template <>
-constexpr std::_Unsigned128 from_uint128(const uint128_t value)
+std::_Unsigned128 from_uint128(const uint128_t value)
 {
     return static_cast<std::_Unsigned128>(value.high) << 64 | value.low;
 }
