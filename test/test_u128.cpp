@@ -46,6 +46,8 @@
 #  pragma warning(push)
 #  pragma warning(disable : 4389)
 #  pragma warning(disable : 4127)
+#  pragma warning(disable : 4305)
+#  pragma warning(disable : 4309)
 #endif
 
 template <typename IntType>
@@ -893,7 +895,7 @@ void test_operator_mul()
         BOOST_TEST((value2 * emulated_value) == (value2 * builtin_value));
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_div()
 {
@@ -906,6 +908,7 @@ void test_operator_div()
         IntType value2 {dist(rng)};
 
         // Avoid UB of div by 0
+        // LCOV_EXCL_START
         while (value == 0)
         {
             value = dist(rng);
@@ -914,6 +917,7 @@ void test_operator_div()
         {
             value2 = dist(rng);
         }
+        // LCOV_EXCL_STOP
 
         auto builtin_value = static_cast<builtin_u128>(value);
         boost::int128::uint128_t emulated_value {value};
@@ -940,6 +944,7 @@ void test_operator_div()
             IntType value2 {dist(rng)};
 
             // Avoid UB of div by 0
+            // LCOV_EXCL_START
             while (value == 0)
             {
                 value = dist(rng);
@@ -948,9 +953,12 @@ void test_operator_div()
             {
                 value2 = dist(rng);
             }
+            // LCOV_EXCL_STOP
 
             const auto builtin_value = (static_cast<builtin_u128>(static_cast<std::uint64_t>(value)) << 64) | static_cast<std::uint64_t>(value);
             const boost::int128::uint128_t emulated_value {static_cast<std::uint64_t>(value), static_cast<std::uint64_t>(value)};
+
+            assert(builtin_value == emulated_value);
 
             auto check_1_value {emulated_value};
             check_1_value /= value2;
@@ -983,6 +991,7 @@ void test_operator_mod()
         IntType value2 {dist(rng)};
 
         // Avoid UB of div by 0
+        // LCOV_EXCL_START
         while (value == 0)
         {
             value = dist(rng);
@@ -991,6 +1000,7 @@ void test_operator_mod()
         {
             value2 = dist(rng);
         }
+        // LCOV_EXCL_STOP
 
         auto builtin_value = static_cast<builtin_u128>(value);
         boost::int128::uint128_t emulated_value {value};
@@ -1017,6 +1027,7 @@ void test_operator_mod()
             IntType value2 {dist(rng)};
 
             // Avoid UB of div by 0
+            // LCOV_EXCL_START
             while (value == 0)
             {
                 value = dist(rng);
@@ -1025,6 +1036,7 @@ void test_operator_mod()
             {
                 value2 = dist(rng);
             }
+            // LCOV_EXCL_STOP
 
             const auto builtin_value = (static_cast<builtin_u128>(static_cast<std::uint64_t>(value)) << 64) | static_cast<std::uint64_t>(value);
             const boost::int128::uint128_t emulated_value {static_cast<std::uint64_t>(value), static_cast<std::uint64_t>(value)};
@@ -1038,7 +1050,15 @@ void test_operator_mod()
             static_assert(sizeof(decltype(value2 % emulated_value)) ==
                           sizeof(decltype(value2 % builtin_value)), "Mismatch Return Types");
 
-            BOOST_TEST(check_1_value == (builtin_value % value2));
+            if (!BOOST_TEST(check_1_value == (builtin_value % value2)))
+            {
+                std::cerr 
+                    << "Value  1: " << emulated_value << '\n'
+                    << "Value  2: " << static_cast<std::int64_t>(value2) << '\n'
+                    << "ValueE 2: " << static_cast<boost::int128::uint128_t>(value2) << '\n'
+                    << "Emulated: " << check_1_value << '\n'
+                    << "Built-in: " << static_cast<boost::int128::uint128_t>(builtin_value % value2) << std::endl;
+            }
             BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value));
 
             // Forces decision process
@@ -1076,7 +1096,6 @@ void test_spot_div(IntType value, IntType value2)
 
     BOOST_TEST(check_2_value == check_2_value_builtin);
 }
-*/
 
 struct test_caller
 {
@@ -1113,10 +1132,8 @@ struct test_caller
         test_operator_add<T>();
         test_operator_sub<T>();
         test_operator_mul<T>();
-        /*
         test_operator_div<T>();
         test_operator_mod<T>();
-        */
     }
 };
 
@@ -1153,7 +1170,6 @@ int main()
 
     #endif 
 
-    /*
     test_spot_div<char>(1, -32);
     test_spot_div<char>(15, -91);
     test_spot_div<char>(39, -100);
@@ -1161,7 +1177,6 @@ int main()
     test_spot_div<long>(-888610053741375541L, 3110266252672496347L);
 
     test_spot_div<long long>(-3237361348456748317LL, 8011834041509972187LL);
-    */
 
     return boost::report_errors();
 }
