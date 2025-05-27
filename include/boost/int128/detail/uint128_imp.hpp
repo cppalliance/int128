@@ -205,7 +205,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t& operator+=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t& operator+=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -217,7 +218,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t& operator-=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t& operator-=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -229,7 +231,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t& operator*=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t& operator*=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -241,7 +244,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t& operator/=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t& operator/=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -253,7 +257,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t& operator%=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t& operator%=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 };
@@ -2051,16 +2056,16 @@ constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept
     return impl::default_add(lhs, rhs);
 }
 
-#ifdef BOOST_INT128_HAS_INT128
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
-constexpr uint128_t operator+(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return impl::default_add(lhs, static_cast<uint128_t>(rhs));
 }
 
-constexpr uint128_t operator+(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
 {
     return impl::default_add(static_cast<uint128_t>(lhs), rhs);
 }
@@ -2068,14 +2073,14 @@ constexpr uint128_t operator+(const detail::builtin_i128 lhs, const uint128_t rh
 #else
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-constexpr uint128_t operator+(const uint128_t, const T) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t, const T) noexcept
 {
     static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-constexpr uint128_t operator+(const T, const uint128_t) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const T, const uint128_t) noexcept
 {
     static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
     return {0, 0};
@@ -2083,12 +2088,12 @@ constexpr uint128_t operator+(const T, const uint128_t) noexcept
 
 #endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
-constexpr uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
     return impl::default_add(lhs, static_cast<uint128_t>(rhs));
 }
 
-constexpr uint128_t operator+(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
 {
     return impl::default_add(static_cast<uint128_t>(lhs), rhs);
 }
@@ -2111,6 +2116,22 @@ constexpr uint128_t& uint128_t::operator+=(const uint128_t rhs) noexcept
     *this = *this + rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
+    #endif
+
+    *this = *this + rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
+
 
 //=====================================
 // Subtraction Operator
