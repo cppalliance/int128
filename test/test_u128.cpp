@@ -833,7 +833,7 @@ void test_operator_add()
         BOOST_TEST(++builtin_value == ++emulated_value);
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_sub()
 {
@@ -893,7 +893,7 @@ void test_operator_mul()
         BOOST_TEST((value2 * emulated_value) == (value2 * builtin_value));
     }
 }
-
+/*
 template <typename IntType>
 void test_operator_div()
 {
@@ -1111,9 +1111,9 @@ struct test_caller
         test_decrement_operator();
 
         test_operator_add<T>();
-        /*
         test_operator_sub<T>();
         test_operator_mul<T>();
+        /*
         test_operator_div<T>();
         test_operator_mod<T>();
         */
