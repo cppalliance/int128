@@ -10,6 +10,8 @@
 
 #define BOOST_INT128_HAS_INT128
 
+#define BOOST_INT128_BUILTIN_CONSTEXPR constexpr
+
 namespace boost {
 namespace int128 {
 namespace detail {
@@ -31,7 +33,26 @@ using builtin_u128 = unsigned __int128;
 } // namespace int128
 } // namespace boost
 
-#endif
+#elif __has_include(<__msvc_int128.hpp>) && _MSVC_LANG >= 202002L
+
+#include <__msvc_int128.hpp>
+
+#define BOOST_INT128_HAS_MSVC_INT128
+
+#define BOOST_INT128_BUILTIN_CONSTEXPR inline
+
+namespace boost {
+namespace int128 {
+namespace detail {
+
+using builtin_i128 = std::_Signed128;
+using builtin_u128 = std::_Unsigned128;
+
+} // namespace detail
+} // namespace int128
+} // namespace boost
+
+#endif // builtin 128-bit detection
 
 // Determine endianness
 #if defined(_WIN32)
