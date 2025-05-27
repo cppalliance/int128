@@ -351,7 +351,7 @@ void test_operator_equality()
         }
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_inequality()
 {
@@ -555,7 +555,7 @@ void test_operator_ge()
                    ((emulated_value >= value2) == (builtin_value >= value2)));
     }
 }
-
+/*
 template <typename IntType>
 void test_operator_not()
 {
@@ -1091,13 +1091,12 @@ struct test_caller
         test_unary_minus<T>();
         
         test_operator_equality<T>();
-        /*
         test_operator_inequality<T>();
         test_operator_less<T>();
         test_operator_le<T>();
         test_operator_greater<T>();
         test_operator_ge<T>();
-
+        /*
         test_operator_not<T>();
         test_operator_or<T>();
         test_operator_and<T>();
