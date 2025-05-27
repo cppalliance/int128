@@ -606,7 +606,7 @@ void test_operator_or()
         }
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_and()
 {
@@ -676,7 +676,7 @@ void test_operator_xor()
         }
     }
 }
-
+/*
 template <typename IntType>
 void test_operator_left_shift()
 {
@@ -1099,10 +1099,9 @@ struct test_caller
         
         test_operator_not<T>();
         test_operator_or<T>();
-        /*
         test_operator_and<T>();
         test_operator_xor<T>();
-
+        /*
         #if !defined(UBSAN) && !defined(ASAN) && !defined(__SANITIZE_ADDRESS__)
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
