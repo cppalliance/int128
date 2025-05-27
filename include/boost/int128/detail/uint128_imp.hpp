@@ -135,7 +135,8 @@ uint128_t
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
-    inline uint128_t operator|=(detail::builtin_u128 rhs) noexcept;
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline uint128_t operator|=(Integer rhs) noexcept;
 
     #endif
 
@@ -1311,6 +1312,21 @@ constexpr uint128_t uint128_t::operator|=(const uint128_t rhs) noexcept
     *this = *this | rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline uint128_t uint128_t::operator|=(const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
+    #endif
+
+    *this = *this | rhs;
+    return *this;
+}
+
+#endif
 
 //=====================================
 // AND Operator
