@@ -14,10 +14,6 @@
 #include <iostream>
 #include <boost/int128/int128.hpp>
 
-#if defined(BOOST_INT128_HAS_MSVC_INT128) && defined(BOOST_INT128_BENCHMARK_I128)
-#  undef BOOST_INT128_BENCHMARK_I128
-#endif
-
 #ifdef BOOST_INT128_BENCHMARK_I128
 
 // This only works when running on latest
