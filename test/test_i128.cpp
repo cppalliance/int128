@@ -1008,8 +1008,8 @@ struct test_caller
 
         test_increment_operator();
         test_operator_add<T>();
-        /*
         test_operator_sub<T>();
+        /*
         test_operator_mul<T>();
         test_operator_div<T>();
         test_operator_mod<T>();
