@@ -1928,7 +1928,7 @@ template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low - rhs};
-    const auto new_high {lhs.high - static_cast<std::int64_t>(lhs.low < rhs)};
+    const auto new_high {lhs.high - static_cast<std::int64_t>(new_low > lhs.low)};
     return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
