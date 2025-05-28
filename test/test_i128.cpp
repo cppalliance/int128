@@ -519,7 +519,7 @@ void test_operator_and()
         }
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_xor()
 {
@@ -660,7 +660,7 @@ void test_increment_operator()
         BOOST_TEST(emulated_value == builtin_value);
     }
 }
-
+/*
 template <typename IntType>
 void test_operator_add()
 {
@@ -1001,9 +1001,8 @@ struct test_caller
         test_operator_not<T>();
         test_operator_or<T>();
         test_operator_and<T>();
-        /*
         test_operator_xor<T>();
-
+        /*
         #if !defined(UBSAN) && !defined(ASAN) && !defined(__SANITIZE_ADDRESS__)
         test_operator_left_shift<T>();
         test_operator_right_shift<T>();
