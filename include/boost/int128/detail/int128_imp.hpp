@@ -2392,6 +2392,11 @@ constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noex
     #endif
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146) // Unary minus applied to unsigned
+#endif
+
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator*(const int128_t lhs, const SignedInteger rhs) noexcept
 {
@@ -2405,6 +2410,10 @@ constexpr int128_t operator*(const SignedInteger lhs, const int128_t rhs) noexce
     return lhs < 0 ? -detail::default_mul(rhs, -static_cast<std::uint64_t>(lhs)) :
                       detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 #ifdef BOOST_INT128_HAS_INT128
 
@@ -2466,6 +2475,17 @@ constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
     *this = *this * rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline int128_t& int128_t::operator*=(const Integer rhs) noexcept
+{
+    *this = *this * rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
 
 //=====================================
 // Division Operator
