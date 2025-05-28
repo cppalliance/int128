@@ -1350,6 +1350,21 @@ constexpr int128_t operator&(const T, const int128_t) noexcept
 
 #endif // BOOST_INT128_HAS_INT128
 
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline int128_t& int128_t::operator&=(const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    static_assert(std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
+    #endif
+
+    *this = *this & rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
+
 //=====================================
 // Compound And Operator
 //=====================================
