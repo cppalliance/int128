@@ -1034,7 +1034,9 @@ int main()
         unsigned long,
         long long,
         unsigned long long,
+        #ifndef BOOST_INT128_HAS_MSVC_INT128
         builtin_i128,
+        #endif
         builtin_u128
     >;
 
