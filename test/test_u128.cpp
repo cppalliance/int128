@@ -1163,8 +1163,6 @@ struct test_caller
 
 int main()
 {
-    #ifndef BOOST_INT128_HAS_MSVC_INT128
-
     using test_types = boost::mp11::mp_list<
         char,
         unsigned char,
@@ -1184,27 +1182,6 @@ int main()
         #endif
         builtin_u128
     >;
-
-    #else
-
-    using test_types = boost::mp11::mp_list<
-        //char,
-        unsigned char,
-        char16_t,
-        char32_t,
-        wchar_t,
-        //short,
-        unsigned short,
-        //int,
-        unsigned int,
-        //long,
-        unsigned long,
-        //long long,
-        unsigned long long,
-        builtin_u128
-    >;
-
-    #endif
 
     boost::mp11::mp_for_each<test_types>(test_caller());
 
