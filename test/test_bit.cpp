@@ -225,6 +225,24 @@ void test_byteswap()
             }
         }
     }
+
+    // Test 4: Check the backup impls
+    {
+        // Create a value with distinct byte pattern
+        constexpr boost::int128::uint128_t original{
+            0x0123456789ABCDEFULL,
+            0xFEDCBA9876543210ULL
+        };
+
+        // Expected result after byteswap
+        constexpr boost::int128::uint128_t expected{
+            0x1032547698BADCFEULL,
+            0xEFCDAB8967452301ULL
+        };
+
+        static_assert(boost::int128::byteswap(original) == expected, "wrong");
+        static_assert(boost::int128::byteswap(expected) == original, "wrong");
+    }
 }
 
 void test_clz()
