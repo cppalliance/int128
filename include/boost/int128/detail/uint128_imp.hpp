@@ -71,11 +71,11 @@ uint128_t
 
     BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_i128 v) noexcept :
         low {static_cast<std::uint64_t>(v)},
-        high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> 64U)} {}
+        high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> static_cast<detail::builtin_u128>(64U))} {}
 
     BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_u128 v) noexcept :
         low {static_cast<std::uint64_t>(v)},
-        high {static_cast<std::uint64_t>(v >> 64U)} {}
+        high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_i128>(64U))} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -114,9 +114,9 @@ uint128_t
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_i128>(low); }
 
-    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_u128>(low); }
 
     #endif // BOOST_INT128_HAS_INT128
 
