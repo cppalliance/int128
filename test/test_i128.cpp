@@ -660,7 +660,7 @@ void test_increment_operator()
         BOOST_TEST(emulated_value == builtin_value);
     }
 }
-/*
+
 template <typename IntType>
 void test_operator_add()
 {
@@ -977,8 +977,6 @@ void test_abs()
     }
 }
 
-*/
-
 struct test_caller
 {
     template<typename T>
@@ -1009,9 +1007,8 @@ struct test_caller
         #endif
 
         test_increment_operator();
-
-        /*
         test_operator_add<T>();
+        /*
         test_operator_sub<T>();
         test_operator_mul<T>();
         test_operator_div<T>();
@@ -1038,19 +1035,22 @@ int main()
         unsigned long,
         long long,
         unsigned long long,
-        #ifndef BOOST_INT128_HAS_MSVC_INT128
+        #ifndef BOOST_INT128_HAS_MSVC_INT128 // MSVC std::_Signed128 is not compatible with Boost.Random
         builtin_i128,
-        #endif
+        #endif // BOOST_INT128_HAS_MSVC_INT128
         builtin_u128
     >;
 
     boost::mp11::mp_for_each<test_types>(test_caller());
 
-    /*
+    // MSVC std::_Signed128 does not provide a float conversion operator
+    #ifndef BOOST_INT128_HAS_MSVC_INT128
+
     test_float_conversion_operators<float>();
     test_float_conversion_operators<double>();
     test_float_conversion_operators<long double>();
-    */
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
 
     return boost::report_errors();
 }
