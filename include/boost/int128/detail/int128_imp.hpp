@@ -19,7 +19,7 @@ namespace boost {
 namespace int128 {
 
 struct
-    #ifdef BOOST_INT128_HAS_INT128
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
     alignas(alignof(detail::builtin_i128))
     #else
     alignas(16)
@@ -66,10 +66,10 @@ int128_t
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
     constexpr int128_t(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
 
-    #ifdef BOOST_INT128_HAS_INT128
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    constexpr int128_t(const detail::builtin_i128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
-    constexpr int128_t(const detail::builtin_u128 v) noexcept : low {static_cast<std::uint64_t>(v & detail::low_word_mask)}, high {static_cast<std::int64_t>(v >> 64U)} {}
+    BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_i128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_i128>(detail::low_word_mask))}, high {static_cast<std::int64_t>(v >> static_cast<detail::builtin_i128>(64U))} {}
+    BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_u128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_u128>(detail::low_word_mask))}, high {static_cast<std::int64_t>(v >> static_cast<detail::builtin_u128>(64U))} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
