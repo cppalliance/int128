@@ -164,6 +164,9 @@ void test_popcount()
         BOOST_TEST_EQ(boost::int128::popcount(x - 1U), i);
         x <<= 1;
     }
+
+    constexpr boost::int128::uint128_t y {1};
+    static_assert(boost::int128::popcount(y) == 1, "Wrong popcount");
 }
 
 void test_byteswap()
