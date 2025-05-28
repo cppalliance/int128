@@ -1615,6 +1615,21 @@ constexpr int128_t& int128_t::operator<<=(const int128_t rhs) noexcept
     return *this;
 }
 
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline int128_t& int128_t::operator<<=(const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    static_assert(std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
+    #endif
+
+    *this = *this << rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif // _MSC_VER
@@ -1713,6 +1728,21 @@ constexpr int128_t& int128_t::operator>>=(const int128_t rhs) noexcept
     *this = *this >> rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline int128_t& int128_t::operator>>=(const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    static_assert(std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
+    #endif
+
+    *this = *this >> rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
 
 #ifdef _MSC_VER
 #pragma warning(pop)
