@@ -103,9 +103,9 @@ int128_t
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_i128>(low); }
 
-    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_u128>(low); }
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -394,15 +394,15 @@ constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcep
     #endif
 }
 
-#ifdef BOOST_INT128_HAS_INT128
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-constexpr bool operator==(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
            lhs.high == static_cast<std::int64_t>(rhs >> 64);
 }
 
-constexpr bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
            rhs.high == static_cast<std::int64_t>(lhs >> 64);
@@ -410,14 +410,14 @@ constexpr bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) no
 
 #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
-constexpr bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
     return lhs.high < 0 ? false :
            lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
            lhs.high == static_cast<std::int64_t>(rhs >> 64);
 }
 
-constexpr bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
     return rhs.high < 0 ? false :
            rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
@@ -427,14 +427,14 @@ constexpr bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) no
 #else
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator==(const int128_t, const T) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t, const T) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
-constexpr bool operator==(const T, const int128_t) noexcept
+BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const T, const int128_t) noexcept
 {
     static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
     return true;
