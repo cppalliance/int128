@@ -899,8 +899,20 @@ void test_operator_mul()
 template <typename IntType>
 void test_operator_div()
 {
+    // I am not entirely sure what the MSVC int128 is doing here for negative values.
+    // In hardware you cast to common type, and the alternative would be -u128/abs(int)
+    // Neither of these is what is happening...
+
+    #ifdef _WIN32
+
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    #else
+
     boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
-                                                          get_max<IntType>());
+        get_max<IntType>());
+
+    #endif
 
     for (std::size_t i {}; i < N; ++i)
     {
@@ -982,8 +994,20 @@ void test_operator_div()
 template <typename IntType>
 void test_operator_mod()
 {
+    // I am not entirely sure what the MSVC int128 is doing here for negative values.
+    // In hardware you cast to common type, and the alternative would be -u128/abs(int)
+    // Neither of these is what is happening...
+
+    #ifdef _WIN32
+
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    #else
+
     boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
                                                           get_max<IntType>());
+
+    #endif
 
     for (std::size_t i {}; i < N; ++i)
     {
