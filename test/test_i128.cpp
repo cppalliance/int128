@@ -174,7 +174,7 @@ void test_assignment_operators()
         BOOST_TEST(emulated_bits == builtin_value);
     }
 }
-/*
+
 template <typename IntType>
 void test_integer_conversion_operators()
 {
@@ -379,7 +379,7 @@ void test_operator_less()
                    ((emulated_value < value2) == (builtin_value < value2)));
     }
 }
-
+/*
 template <typename IntType>
 void test_operator_greater()
 {
@@ -986,13 +986,13 @@ struct test_caller
     {
         test_arithmetic_constructor<T>();
         test_assignment_operators<T>();
-        /*
         test_integer_conversion_operators<T>();
         test_unary_plus<T>();
         test_unary_minus<T>();
         test_operator_equality<T>();
         test_operator_inequality<T>();
         test_operator_less<T>();
+        /*
         test_operator_greater<T>();
         test_operator_le<T>();
         test_operator_ge<T>();
