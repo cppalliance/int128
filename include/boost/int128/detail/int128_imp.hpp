@@ -101,11 +101,11 @@ int128_t
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
     explicit constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
 
-    #ifdef BOOST_INT128_HAS_INT128
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    explicit constexpr operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << 64) | low; }
 
-    explicit constexpr operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
+    explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << 64) | low; }
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -122,11 +122,25 @@ int128_t
 
     constexpr int128_t& operator|=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator|=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound And
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator&=(Integer rhs) noexcept;
 
     constexpr int128_t& operator&=(int128_t rhs) noexcept;
+
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator&=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound XOR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
@@ -134,17 +148,38 @@ int128_t
 
     constexpr int128_t& operator^=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator^=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound Left Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator<<=(Integer rhs) noexcept;
 
     constexpr int128_t& operator<<=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator<<=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound Right Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator>>=(Integer rhs) noexcept;
 
     constexpr int128_t& operator>>=(int128_t rhs) noexcept;
+
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator>>=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Prefix and postfix increment
     constexpr int128_t& operator++() noexcept;
@@ -160,11 +195,25 @@ int128_t
 
     constexpr int128_t& operator+=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator+=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound Subtraction
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator-=(Integer rhs) noexcept;
 
     constexpr int128_t& operator-=(int128_t rhs) noexcept;
+
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator-=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Multiplication
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
@@ -172,17 +221,38 @@ int128_t
 
     constexpr int128_t& operator*=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator*=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound Division
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator/=(Integer rhs) noexcept;
 
     constexpr int128_t& operator/=(int128_t rhs) noexcept;
 
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator/=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
+
     // Compound Modulo
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
     constexpr int128_t& operator%=(Integer rhs) noexcept;
 
     constexpr int128_t& operator%=(int128_t rhs) noexcept;
+
+    #ifdef BOOST_INT128_HAS_MSVC_INT128
+
+    template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
+    inline int128_t& operator%=(Integer rhs) noexcept;
+
+    #endif // BOOST_INT128_HAS_MSVC_INT128
 };
 
 //=====================================
