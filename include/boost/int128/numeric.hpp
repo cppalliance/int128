@@ -23,6 +23,18 @@ constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
     return z;
 }
 
+constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto z {x - y};
+
+    if (z > x)
+    {
+        return std::numeric_limits<uint128_t>::min();
+    }
+
+    return z;
+}
+
 } // namespace int128
 } // namespace boost
 

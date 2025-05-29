@@ -26,9 +26,31 @@ void test_sat_add()
     }
 }
 
+template <typename T>
+void test_sat_sub()
+{
+    using boost::int128::sub_sat;
+
+    T near_min {std::numeric_limits<T>::min() + T{5}};
+
+    for (T i {0}; i < T{5}; ++i)
+    {
+        const auto res {sub_sat(near_min,  i)};
+        BOOST_TEST(res > std::numeric_limits<T>::min());
+    }
+
+    near_min -= T{5};
+    for (T i {0}; i < T{5}; ++i)
+    {
+        const auto res {sub_sat(near_min,  i)};
+        BOOST_TEST(res == std::numeric_limits<T>::min());
+    }
+}
+
 int main()
 {
     test_sat_add<boost::int128::uint128_t>();
+    test_sat_sub<boost::int128::uint128_t>();
 
     return boost::report_errors();
 }
