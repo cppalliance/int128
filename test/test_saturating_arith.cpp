@@ -127,6 +127,27 @@ void test_div_sat<boost::int128::uint128_t>()
     }
 }
 
+template <>
+void test_div_sat<boost::int128::int128_t>()
+{
+    using boost::int128::div_sat;
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const boost::int128::int128_t value1{signed_dist(rng), dist(rng)};
+        const boost::int128::int128_t value2{signed_dist(rng), dist(rng)};
+
+        const auto sat_res {div_sat(value1, value2)};
+        const auto res {value1 / value2};
+
+        BOOST_TEST(sat_res == res);
+    }
+
+    constexpr auto min_val {std::numeric_limits<boost::int128::int128_t>::min()};
+    constexpr auto max_val{std::numeric_limits<boost::int128::int128_t>::max()};
+    BOOST_TEST(div_sat(min_val, -1) == max_val);
+}
+
 template <typename T>
 void test_saturate_cast();
 
@@ -192,6 +213,7 @@ int main()
     test_div_sat<boost::int128::uint128_t>();
     test_saturate_cast<boost::int128::uint128_t>();
 
+    test_div_sat<boost::int128::int128_t>();
     test_saturate_cast<boost::int128::int128_t>();
 
     return boost::report_errors();
