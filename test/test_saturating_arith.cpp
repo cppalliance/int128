@@ -47,10 +47,53 @@ void test_sat_sub()
     }
 }
 
+template <typename T>
+void test_sat_mul();
+
+template <>
+void test_sat_mul<boost::int128::uint128_t>()
+{
+    using boost::int128::mul_sat;
+
+    boost::int128::uint128_t x {2U};
+    boost::int128::uint128_t y {2U};
+    int bit_count {4};
+
+    for (int i {0}; bit_count <= 128; ++i)
+    {
+        const auto sat_res {mul_sat(x, y)};
+        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128_t>::max());
+
+        const auto res {x * y};
+        BOOST_TEST(res == sat_res);
+
+        x <<= 1U;
+        y <<= 1U;
+
+        bit_count += 2;
+    }
+
+    for (int i {0}; bit_count < 256; ++i)
+    {
+        const auto sat_res {mul_sat(x, y)};
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::max());
+
+        const auto res {x * y};
+        BOOST_TEST(res != sat_res);
+
+        x <<= 1U;
+        y <<= 1U;
+
+        bit_count += 2;
+    }
+
+}
+
 int main()
 {
     test_sat_add<boost::int128::uint128_t>();
     test_sat_sub<boost::int128::uint128_t>();
+    test_sat_mul<boost::int128::uint128_t>();
 
     return boost::report_errors();
 }
