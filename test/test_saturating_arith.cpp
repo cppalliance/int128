@@ -6,8 +6,12 @@
 #include <boost/core/lightweight_test.hpp>
 #include <random>
 
+constexpr std::size_t N {1024};
+static std::mt19937_64 rng{42};
+static std::uniform_int_distribution<std::uint64_t> dist{0, UINT64_MAX};
+
 template <typename T>
-void test_sat_add()
+void test_add_sat()
 {
     using boost::int128::add_sat;
 
@@ -34,7 +38,7 @@ void test_sat_add()
 }
 
 template <typename T>
-void test_sat_sub()
+void test_sub_sat()
 {
     using boost::int128::sub_sat;
 
@@ -61,10 +65,10 @@ void test_sat_sub()
 }
 
 template <typename T>
-void test_sat_mul();
+void test_mul_sat();
 
 template <>
-void test_sat_mul<boost::int128::uint128_t>()
+void test_mul_sat<boost::int128::uint128_t>()
 {
     using boost::int128::mul_sat;
 
@@ -103,17 +107,14 @@ void test_sat_mul<boost::int128::uint128_t>()
 }
 
 template <typename T>
-void test_sat_div();
+void test_div_sat();
 
 template <>
-void test_sat_div<boost::int128::uint128_t>()
+void test_div_sat<boost::int128::uint128_t>()
 {
     using boost::int128::div_sat;
 
-    std::mt19937_64 rng{42};
-    std::uniform_int_distribution<std::uint64_t> dist{0, UINT64_MAX};
-
-    for (int i {}; i < 1024; ++i)
+    for (std::size_t i {}; i < N; ++i)
     {
         const boost::int128::uint128_t value1{dist(rng), dist(rng)};
         const boost::int128::uint128_t value2{dist(rng), dist(rng)};
@@ -125,12 +126,39 @@ void test_sat_div<boost::int128::uint128_t>()
     }
 }
 
+template <typename T>
+void test_saturate_cast();
+
+template <>
+void test_saturate_cast<boost::int128::uint128_t>()
+{
+    using boost::int128::saturate_cast;
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const auto value {dist(rng)};
+        const boost::int128::uint128_t big_value{value};
+
+        BOOST_TEST(saturate_cast<std::uint64_t>(big_value) == value);
+        BOOST_TEST(saturate_cast<std::uint64_t>(big_value) == static_cast<std::uint64_t>(big_value));
+    }
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const auto value {dist(rng)};
+        const boost::int128::uint128_t big_value{value, value};
+        BOOST_TEST(saturate_cast<std::uint64_t>(big_value) == std::numeric_limits<std::uint64_t>::max());
+        BOOST_TEST(saturate_cast<std::uint64_t>(big_value) != static_cast<std::uint64_t>(big_value));
+    }
+}
+
 int main()
 {
-    test_sat_add<boost::int128::uint128_t>();
-    test_sat_sub<boost::int128::uint128_t>();
-    test_sat_mul<boost::int128::uint128_t>();
-    test_sat_div<boost::int128::uint128_t>();
+    test_add_sat<boost::int128::uint128_t>();
+    test_sub_sat<boost::int128::uint128_t>();
+    test_mul_sat<boost::int128::uint128_t>();
+    test_div_sat<boost::int128::uint128_t>();
+    test_saturate_cast<boost::int128::uint128_t>();
 
     return boost::report_errors();
 }
