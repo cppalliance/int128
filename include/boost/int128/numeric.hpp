@@ -90,6 +90,23 @@ constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
     return x / y;
 }
 
+template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
+constexpr uint128_t saturate_cast(const uint128_t value) noexcept
+{
+    BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
+    {
+        return value;
+    }
+    else
+    {
+        if (value > static_cast<uint128_t>(std::numeric_limits<TargetType>::max()))
+        {
+            return std::numeric_limits<TargetType>::max();
+        }
+
+        return static_cast<TargetType>(value);
+    }
+}
 
 } // namespace int128
 } // namespace boost
