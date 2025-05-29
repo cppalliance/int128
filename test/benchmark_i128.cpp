@@ -302,6 +302,8 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
 
 int main()
 {
+    using boost::int128::detail::builtin_i128;
+
     // Two word operations
     {
         std::cerr << "\n---------------------------\n";
