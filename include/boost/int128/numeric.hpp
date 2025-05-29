@@ -71,6 +71,62 @@ constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
     return z;
 }
 
+constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
+constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
+
+constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (x > 0 && y > 0)
+    {
+        constexpr auto max_value {static_cast<uint128_t>(std::numeric_limits<int128_t>::max()};
+        const auto big_x {static_cast<uint128_t>(x)};
+        const auto big_y {static_cast<uint128_t>(y)};
+        const auto big_res {big_x + big_y};
+
+        return big_res > max_value ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(big_res);
+    }
+    else if (x < 0 && y > 0)
+    {
+        return sub_sat(y, abs(x));
+    }
+    else if (x > 0 && y < 0)
+    {
+        return sub_sat(x, abs(y));
+    }
+    else
+    {
+        // x < 0 and y < 0
+        const auto z {x + y};
+        return z > 0 ? std::numeric_limits<int128_t>::min() : z;
+    }
+}
+
+constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (x > 0 && y > 0)
+    {
+        const auto big_x {static_cast<uint128_t>(x)};
+        const auto big_y {static_cast<uint128_t>(y)};
+        const auto big_res {big_x - big_y};
+
+        return big_res > big_x ? std::numeric_limits<int128_t>::min() : static_cast<int128_t>(big_res);
+    }
+    if (x > 0 && y < 0)
+    {
+        return add_sat(x, abs(y));
+    }
+    else if (x < 0 && y > 0)
+    {
+        return add_sat(x, -y);
+    }
+    else
+    {
+        // x < 0 and y < 0
+        const auto z {x - y};
+        return z > 0 ? std::numeric_limits<int128_t>::min() : z;
+    }
+}
+
 constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
