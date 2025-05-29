@@ -89,6 +89,17 @@ constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
     return x / y;
 }
 
+constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(x == std::numeric_limits<int128_t>::min() && y == -1))
+    {
+        // This is the only possible case of overflow
+        return std::numeric_limits<int128_t>::max();
+    }
+
+    return x / y;
+}
+
 template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
 constexpr uint128_t saturate_cast(const uint128_t value) noexcept
 {
