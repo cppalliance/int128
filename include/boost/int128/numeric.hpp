@@ -6,6 +6,7 @@
 #define BOOST_INT128_NUMERIC_HPP
 
 #include <boost/int128/bit.hpp>
+#include <boost/int128/detail/traits.hpp>
 #include <limits>
 
 namespace boost {
@@ -100,6 +101,37 @@ constexpr uint128_t saturate_cast(const uint128_t value) noexcept
         if (value > static_cast<uint128_t>(std::numeric_limits<TargetType>::max()))
         {
             return std::numeric_limits<TargetType>::max();
+        }
+
+        return static_cast<TargetType>(value);
+    }
+}
+
+template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
+constexpr int128_t saturate_cast(const int128_t value) noexcept
+{
+    BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
+    {
+        return value;
+    }
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value || std::is_same<detail::builtin_u128, TargetType>::value)
+    #else
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
+    #endif
+    {
+        // We can't possibly have overflow in this case
+        return value < 0 ? static_cast<TargetType>(0) : static_cast<TargetType>(value);
+    }
+    else
+    {
+        if (value > static_cast<int128_t>(std::numeric_limits<TargetType>::max()))
+        {
+            return std::numeric_limits<TargetType>::max();
+        }
+        else if (value < static_cast<int128_t>(std::numeric_limits<TargetType>::min()))
+        {
+            return std::numeric_limits<TargetType>::min();
         }
 
         return static_cast<TargetType>(value);

@@ -9,6 +9,7 @@
 constexpr std::size_t N {1024};
 static std::mt19937_64 rng{42};
 static std::uniform_int_distribution<std::uint64_t> dist{0, UINT64_MAX};
+static std::uniform_int_distribution<std::int64_t> signed_dist{INT64_MIN, INT64_MAX};
 
 template <typename T>
 void test_add_sat()
@@ -152,6 +153,37 @@ void test_saturate_cast<boost::int128::uint128_t>()
     }
 }
 
+template <>
+void test_saturate_cast<boost::int128::int128_t>()
+{
+    using boost::int128::saturate_cast;
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const auto value {signed_dist(rng)};
+        const boost::int128::int128_t big_value{value};
+
+        BOOST_TEST(saturate_cast<std::int64_t>(big_value) == value);
+        BOOST_TEST(saturate_cast<std::int64_t>(big_value) == static_cast<std::int64_t>(big_value));
+    }
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const auto hi_word {signed_dist(rng)};
+        const auto lo_word {dist(rng)};
+        const boost::int128::int128_t big_value{hi_word, lo_word};
+
+        if (hi_word > 0)
+        {
+            BOOST_TEST(saturate_cast<std::int64_t>(big_value) == std::numeric_limits<std::int64_t>::max());
+        }
+        else
+        {
+            BOOST_TEST(saturate_cast<std::int64_t>(big_value) == std::numeric_limits<std::int64_t>::min());
+        }
+    }
+}
+
 int main()
 {
     test_add_sat<boost::int128::uint128_t>();
@@ -159,6 +191,8 @@ int main()
     test_mul_sat<boost::int128::uint128_t>();
     test_div_sat<boost::int128::uint128_t>();
     test_saturate_cast<boost::int128::uint128_t>();
+
+    test_saturate_cast<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
