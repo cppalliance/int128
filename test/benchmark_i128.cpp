@@ -302,8 +302,6 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
 
 int main()
 {
-    using boost::int128::detail::builtin_i128;
-
     // Two word operations
     {
         std::cerr << "\n---------------------------\n";
@@ -315,7 +313,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<0, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<0, boost::int128::detail::builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -386,7 +384,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<1, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<1, boost::int128::detail::builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -458,7 +456,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<2, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<2, boost::int128::detail::builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -530,7 +528,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<3, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<3, boost::int128::detail::builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -602,7 +600,7 @@ int main()
 
         #if defined(BOOST_INT128_HAS_INT128)
 
-        const auto builtin_vector = generate_random_vector<4, builtin_i128>();
+        const auto builtin_vector = generate_random_vector<4, boost::int128::detail::builtin_i128>();
         test_comparisons(builtin_vector, "builtin");
 
         #elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
