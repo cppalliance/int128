@@ -56,3 +56,6 @@ ignore:
   - test/**
   - test/**/*
   - test/*
+  - test\*
+  - test\**\*
+  - test\**
