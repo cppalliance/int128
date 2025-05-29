@@ -7,15 +7,20 @@
 
 #include <boost/int128/detail/fwd.hpp>
 #include <limits>
-#include <type_traits>
 
 namespace boost {
 namespace int128 {
 
-namespace detail {
+constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto z {x + y};
 
+    if (z < x)
+    {
+        return std::numeric_limits<uint128_t>::max();
+    }
 
-
+    return z;
 }
 
 } // namespace int128
