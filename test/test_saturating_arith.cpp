@@ -76,7 +76,7 @@ void test_mul_sat<boost::int128::uint128_t>()
     boost::int128::uint128_t y {2U};
     int bit_count {4};
 
-    for (int i {0}; bit_count <= 128; ++i)
+    while (bit_count <= 128)
     {
         const auto sat_res {mul_sat(x, y)};
         BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128_t>::max());
@@ -90,7 +90,7 @@ void test_mul_sat<boost::int128::uint128_t>()
         bit_count += 2;
     }
 
-    for (int i {0}; bit_count < 256; ++i)
+    while (bit_count < 256)
     {
         const auto sat_res {mul_sat(x, y)};
         BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::max());
