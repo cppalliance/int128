@@ -4,6 +4,7 @@
 
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
+#include <random>
 
 template <typename T>
 void test_sat_add()
@@ -101,11 +102,35 @@ void test_sat_mul<boost::int128::uint128_t>()
 
 }
 
+template <typename T>
+void test_sat_div();
+
+template <>
+void test_sat_div<boost::int128::uint128_t>()
+{
+    using boost::int128::div_sat;
+
+    std::mt19937_64 rng{42};
+    std::uniform_int_distribution<std::uint64_t> dist{0, UINT64_MAX};
+
+    for (int i {}; i < 1024; ++i)
+    {
+        const boost::int128::uint128_t value1{dist(rng), dist(rng)};
+        const boost::int128::uint128_t value2{dist(rng), dist(rng)};
+
+        const auto sat_res {div_sat(value1, value2)};
+        const auto res {value1 / value2};
+
+        BOOST_TEST(sat_res == res);
+    }
+}
+
 int main()
 {
     test_sat_add<boost::int128::uint128_t>();
     test_sat_sub<boost::int128::uint128_t>();
     test_sat_mul<boost::int128::uint128_t>();
+    test_sat_div<boost::int128::uint128_t>();
 
     return boost::report_errors();
 }
