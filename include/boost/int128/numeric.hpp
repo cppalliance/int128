@@ -35,14 +35,12 @@ struct reduced_integers
 template <typename IntegerType>
 static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
                                               std::is_same<IntegerType, detail::builtin_i128>::value ||
-                                              std::is_same<IntegerType, detail::builtin_i128>::value};
+                                              std::is_same<IntegerType, detail::builtin_u128>::value};
 
 #else
 
 template <typename IntegerType>
-static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
-                                              std::is_same<IntegerType, detail::builtin_i128>::value ||
-                                              std::is_same<IntegerType, detail::builtin_i128>::value};
+static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value};
 
 #endif // 128-bit
 
