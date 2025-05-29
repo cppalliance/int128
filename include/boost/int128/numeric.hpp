@@ -84,6 +84,26 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
+constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
+{
+    const auto x_bits {bit_width(abs(x))};
+    const auto y_bits {bit_width(abs(y))};
+
+    if (x_bits + y_bits > std::numeric_limits<int128_t>::digits)
+    {
+        if (x < 0 != y < 0)
+        {
+            return std::numeric_limits<int128_t>::min();
+        }
+        else
+        {
+            return std::numeric_limits<int128_t>::max();
+        }
+    }
+
+    return x * y;
+}
+
 constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;

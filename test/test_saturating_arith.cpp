@@ -107,6 +107,80 @@ void test_mul_sat<boost::int128::uint128_t>()
 
 }
 
+template <>
+void test_mul_sat<boost::int128::int128_t>()
+{
+    using boost::int128::mul_sat;
+
+    {
+        boost::int128::int128_t x {2};
+        boost::int128::int128_t y {2};
+        int bit_count {4};
+
+        while (bit_count < 128)
+        {
+            const auto sat_res {mul_sat(x, y)};
+            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128_t>::max());
+
+            const auto res {x * y};
+            BOOST_TEST(res == sat_res);
+
+            x <<= 1U;
+            y <<= 1U;
+
+            bit_count += 2;
+        }
+
+        while (bit_count < 256)
+        {
+            const auto sat_res {mul_sat(x, y)};
+            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::max());
+
+            const auto res {x * y};
+            BOOST_TEST(res != sat_res);
+
+            x <<= 1U;
+            y <<= 1U;
+
+            bit_count += 2;
+        }
+    }
+    {
+        boost::int128::int128_t x {2};
+        boost::int128::int128_t y {-2};
+        int bit_count {4};
+
+        while (bit_count < 128)
+        {
+            const auto sat_res {mul_sat(x, y)};
+            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128_t>::max());
+            BOOST_TEST(sat_res > std::numeric_limits<boost::int128::int128_t>::min());
+
+            const auto res {x * y};
+            BOOST_TEST(res == sat_res);
+
+            x <<= 1U;
+            y <<= 1U;
+
+            bit_count += 2;
+        }
+
+        while (bit_count < 256)
+        {
+            const auto sat_res {mul_sat(x, y)};
+            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::min());
+
+            const auto res {x * y};
+            BOOST_TEST(res != sat_res);
+
+            x <<= 1U;
+            y <<= 1U;
+
+            bit_count += 2;
+        }
+    }
+}
+
 template <typename T>
 void test_div_sat();
 
@@ -213,6 +287,7 @@ int main()
     test_div_sat<boost::int128::uint128_t>();
     test_saturate_cast<boost::int128::uint128_t>();
 
+    test_mul_sat<boost::int128::int128_t>();
     test_div_sat<boost::int128::int128_t>();
     test_saturate_cast<boost::int128::int128_t>();
 
