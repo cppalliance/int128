@@ -14,15 +14,21 @@ void test_sat_add()
 
     for (T i {0}; i < T{5}; ++i)
     {
-        const auto res {add_sat(near_max,  i)};
-        BOOST_TEST(res < std::numeric_limits<T>::max());
+        const auto sat_res {add_sat(near_max,  i)};
+        BOOST_TEST(sat_res < std::numeric_limits<T>::max());
+
+        const auto res {near_max + i};
+        BOOST_TEST(sat_res == res);
     }
 
     near_max += T{5};
-    for (T i {0}; i < T{5}; ++i)
+    for (T i {1}; i < T{5}; ++i)
     {
-        const auto res {add_sat(near_max,  i)};
-        BOOST_TEST(res == std::numeric_limits<T>::max());
+        const auto sat_res {add_sat(near_max,  i)};
+        BOOST_TEST(sat_res == std::numeric_limits<T>::max());
+
+        const auto res {near_max + i};
+        BOOST_TEST(sat_res != res);
     }
 }
 
@@ -35,15 +41,21 @@ void test_sat_sub()
 
     for (T i {0}; i < T{5}; ++i)
     {
-        const auto res {sub_sat(near_min,  i)};
-        BOOST_TEST(res > std::numeric_limits<T>::min());
+        const auto sat_res {sub_sat(near_min,  i)};
+        BOOST_TEST(sat_res > std::numeric_limits<T>::min());
+
+        const auto res {near_min - i};
+        BOOST_TEST(sat_res == res);
     }
 
     near_min -= T{5};
-    for (T i {0}; i < T{5}; ++i)
+    for (T i {1}; i < T{5}; ++i)
     {
-        const auto res {sub_sat(near_min,  i)};
-        BOOST_TEST(res == std::numeric_limits<T>::min());
+        const auto sat_res {sub_sat(near_min,  i)};
+        BOOST_TEST(sat_res == std::numeric_limits<T>::min());
+
+        const auto res {near_min + i};
+        BOOST_TEST(sat_res != res);
     }
 }
 
