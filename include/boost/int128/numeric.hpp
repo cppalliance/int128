@@ -11,6 +11,43 @@
 namespace boost {
 namespace int128 {
 
+namespace detail {
+
+template <typename IntegerType>
+struct reduced_integers
+{
+    static constexpr bool value {std::is_same<IntegerType, signed char>::value ||
+                                 std::is_same<IntegerType, unsigned char>::value ||
+                                 std::is_same<IntegerType, signed short>::value ||
+                                 std::is_same<IntegerType, unsigned short>::value ||
+                                 std::is_same<IntegerType, signed int>::value ||
+                                 std::is_same<IntegerType, unsigned int>::value ||
+                                 std::is_same<IntegerType, signed long>::value ||
+                                 std::is_same<IntegerType, unsigned long>::value ||
+                                 std::is_same<IntegerType, signed long long>::value ||
+                                 std::is_same<IntegerType, unsigned long long>::value ||
+                                 std::is_same<IntegerType, int128_t>::value ||
+                                 std::is_same<IntegerType, uint128_t>::value};
+};
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+template <typename IntegerType>
+static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
+                                              std::is_same<IntegerType, detail::builtin_i128>::value ||
+                                              std::is_same<IntegerType, detail::builtin_i128>::value};
+
+#else
+
+template <typename IntegerType>
+static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
+                                              std::is_same<IntegerType, detail::builtin_i128>::value ||
+                                              std::is_same<IntegerType, detail::builtin_i128>::value};
+
+#endif // 128-bit
+
+} // namespace detail
+
 constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x + y};
@@ -52,6 +89,7 @@ constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;
 }
+
 
 } // namespace int128
 } // namespace boost
