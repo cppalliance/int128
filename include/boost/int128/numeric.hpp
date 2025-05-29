@@ -5,7 +5,7 @@
 #ifndef BOOST_INT128_NUMERIC_HPP
 #define BOOST_INT128_NUMERIC_HPP
 
-#include <boost/int128/detail/fwd.hpp>
+#include <boost/int128/bit.hpp>
 #include <limits>
 
 namespace boost {
@@ -33,6 +33,19 @@ constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
     }
 
     return z;
+}
+
+constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto x_bits {bit_width(x)};
+    const auto y_bits {bit_width(y)};
+
+    if (x_bits + y_bits > std::numeric_limits<uint128_t>::digits)
+    {
+        return std::numeric_limits<uint128_t>::max();
+    }
+
+    return x * y;
 }
 
 } // namespace int128
