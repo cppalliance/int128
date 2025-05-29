@@ -2934,7 +2934,7 @@ inline int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) no
     return lhs % static_cast<int128_t>(rhs);
 }
 
-constexpr int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+inline int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) % rhs;
 }
@@ -2946,7 +2946,7 @@ inline int128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) no
     return lhs % static_cast<int128_t>(rhs);
 }
 
-constexpr int128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+inline int128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) % rhs;
 }
