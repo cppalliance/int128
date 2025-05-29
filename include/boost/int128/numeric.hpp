@@ -48,6 +48,11 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
+constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
+{
+    return x / y;
+}
+
 } // namespace int128
 } // namespace boost
 
