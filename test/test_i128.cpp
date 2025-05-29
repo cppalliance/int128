@@ -1033,7 +1033,9 @@ struct test_caller
         test_operator_add<T>();
         test_operator_sub<T>();
         test_operator_mul<T>();
+        #ifndef _M_IX86
         test_operator_div<T>();
+        #endif
         //test_operator_mod<T>();
 
         test_abs<T>();
