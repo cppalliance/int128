@@ -2927,6 +2927,48 @@ constexpr int128_t operator%(const T, const int128_t) noexcept
 
 #endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
+#elif defined(BOOST_INT128_HAS_MSVC_INT128)
+
+inline int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+{
+    return lhs % static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) % rhs;
+}
+
+#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
+inline int128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return lhs % static_cast<int128_t>(rhs);
+}
+
+constexpr int128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return static_cast<int128_t>(lhs) % rhs;
+}
+
+#else // BOOST_INT128_ALLOW_SIGN_CONVERSION
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
+inline int128_t operator%(const int128_t, const T) noexcept
+{
+    static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
+    return {0, 0};
+}
+
+template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_u128>::value, bool> = true>
+inline int128_t operator%(const T, const int128_t) noexcept
+{
+    static_assert(detail::is_signed_integer_v<T>, "Sign Compare Error");
+    return {0, 0};
+}
+
+#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
+
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
@@ -2945,6 +2987,17 @@ constexpr int128_t& int128_t::operator%=(const int128_t rhs) noexcept
     *this = *this % rhs;
     return *this;
 }
+
+#ifdef BOOST_INT128_HAS_MSVC_INT128
+
+template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
+inline int128_t& int128_t::operator%=(const Integer rhs) noexcept
+{
+    *this = *this % rhs;
+    return *this;
+}
+
+#endif // BOOST_INT128_HAS_MSVC_INT128
 
 } // namespace int128
 } // namespace boost
