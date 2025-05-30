@@ -99,23 +99,21 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 
 constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
-    if (x >= 0 && y >= 0)
+    if (x <= 0 && y >= 0)
     {
-        const auto big_x {static_cast<uint128_t>(x)};
-        const auto big_y {static_cast<uint128_t>(y)};
-        const auto big_res {big_x - big_y};
-
-        return big_res > big_x ? std::numeric_limits<int128_t>::min() : static_cast<int128_t>(big_res);
+        // Underflow case
+        const auto res {x - y};
+        return res > x ? std::numeric_limits<int128_t>::min() : res;
     }
-    if ((x > 0 && y < 0) || (x < 0 && y > 0))
+    else if (x > 0 && y < 0)
     {
-        return x - y;
+        // Overflow Case
+        const auto res {x - y};
+        return res < x ? std::numeric_limits<int128_t>::max() : res;
     }
     else
     {
-        // x < 0 and y < 0
-        const auto z {x - y};
-        return z >= 0 ? std::numeric_limits<int128_t>::min() : z;
+        return x - y;
     }
 }
 
