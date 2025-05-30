@@ -12,26 +12,29 @@ static std::uniform_int_distribution<std::uint64_t> dist{0, UINT64_MAX};
 static std::uniform_int_distribution<std::int64_t> signed_dist{INT64_MIN, INT64_MAX};
 
 template <typename T>
-void test_add_sat()
+void test_add_sat();
+
+template <>
+void test_add_sat<boost::int128::uint128_t>()
 {
     using boost::int128::add_sat;
 
-    T near_max {std::numeric_limits<T>::max() - T{5}};
+    auto near_max {std::numeric_limits<boost::int128::uint128_t>::max() - boost::int128::uint128_t{5}};
 
-    for (T i {0}; i < T{5}; ++i)
+    for (boost::int128::uint128_t i {0}; i < boost::int128::uint128_t{5}; ++i)
     {
         const auto sat_res {add_sat(near_max,  i)};
-        BOOST_TEST(sat_res < std::numeric_limits<T>::max());
+        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128_t>::max());
 
         const auto res {near_max + i};
         BOOST_TEST(sat_res == res);
     }
 
-    near_max += T{5};
-    for (T i {1}; i < T{5}; ++i)
+    near_max += boost::int128::uint128_t{5};
+    for (boost::int128::uint128_t i {1}; i < boost::int128::uint128_t{5}; ++i)
     {
         const auto sat_res {add_sat(near_max,  i)};
-        BOOST_TEST(sat_res == std::numeric_limits<T>::max());
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::max());
 
         const auto res {near_max + i};
         BOOST_TEST(sat_res != res);
@@ -39,26 +42,29 @@ void test_add_sat()
 }
 
 template <typename T>
-void test_sub_sat()
+void test_sub_sat();
+
+template <>
+void test_sub_sat<boost::int128::uint128_t>()
 {
     using boost::int128::sub_sat;
 
-    T near_min {std::numeric_limits<T>::min() + T{5}};
+    auto near_min {std::numeric_limits<boost::int128::uint128_t>::min() + boost::int128::uint128_t{5}};
 
-    for (T i {0}; i < T{5}; ++i)
+    for (boost::int128::uint128_t i {0}; i < boost::int128::uint128_t{5}; ++i)
     {
         const auto sat_res {sub_sat(near_min,  i)};
-        BOOST_TEST(sat_res > std::numeric_limits<T>::min());
+        BOOST_TEST(sat_res > std::numeric_limits<boost::int128::uint128_t>::min());
 
         const auto res {near_min - i};
         BOOST_TEST(sat_res == res);
     }
 
-    near_min -= T{5};
-    for (T i {1}; i < T{5}; ++i)
+    near_min -= boost::int128::uint128_t{5};
+    for (boost::int128::uint128_t i {1}; i < boost::int128::uint128_t{5}; ++i)
     {
         const auto sat_res {sub_sat(near_min,  i)};
-        BOOST_TEST(sat_res == std::numeric_limits<T>::min());
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::min());
 
         const auto res {near_min + i};
         BOOST_TEST(sat_res != res);
