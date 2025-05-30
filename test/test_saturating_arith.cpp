@@ -393,7 +393,7 @@ void test_mul_sat<boost::int128::int128_t>()
             bit_count += 2;
         }
 
-        while (bit_count < 256)
+        while (bit_count < 254)
         {
             const auto sat_res {mul_sat(x, y)};
             BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::min());

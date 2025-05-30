@@ -143,7 +143,7 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 #endif
 
 template <typename LibInt, std::enable_if_t<(std::is_same<LibInt, int128_t>::value || std::is_same<LibInt, uint128_t>::value), bool> = true>
-constexpr LibInt  mul_sat(const LibInt x, const LibInt y) noexcept
+constexpr LibInt mul_sat(const LibInt x, const LibInt y) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<LibInt>::is_signed)
     {
