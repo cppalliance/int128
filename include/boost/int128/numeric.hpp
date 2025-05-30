@@ -8,6 +8,7 @@
 #include <boost/int128/bit.hpp>
 #include <boost/int128/detail/traits.hpp>
 #include <limits>
+#include <iostream>
 
 namespace boost {
 namespace int128 {
@@ -135,12 +136,13 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 #  pragma warning(pop)
 #endif
 
-constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+template <bool = false>
+inline uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
 
-    if (x_bits + y_bits > std::numeric_limits<uint128_t>::digits)
+    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
     {
         return std::numeric_limits<uint128_t>::max();
     }
@@ -148,12 +150,52 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
-constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
+template <>
+inline uint128_t mul_sat<true>(const uint128_t x, const uint128_t y) noexcept
+{
+    std::cerr << "Unsigned mul_sat" << std::endl;
+
+    const auto x_bits {bit_width(x)};
+    const auto y_bits {bit_width(y)};
+
+    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
+    {
+        return std::numeric_limits<uint128_t>::max();
+    }
+
+    return x * y;
+}
+
+template <bool = false>
+inline int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
 
-    if (x_bits + y_bits > std::numeric_limits<int128_t>::digits)
+    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
+    {
+        if ((x < 0) != (y < 0))
+        {
+            return std::numeric_limits<int128_t>::min();
+        }
+        else
+        {
+            return std::numeric_limits<int128_t>::max();
+        }
+    }
+
+    return x * y;
+}
+
+template <>
+inline int128_t mul_sat<true>(const int128_t x, const int128_t y) noexcept
+{
+    std::cerr << "Signed mul_sat" << std::endl;
+
+    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
+    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
+
+    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
     {
         if ((x < 0) != (y < 0))
         {
