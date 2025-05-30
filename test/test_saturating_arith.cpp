@@ -390,7 +390,7 @@ void test_mul_sat<boost::int128::int128_t>()
                 std::cerr
                 << "  X: " << x << '\n'
                 << "  Y: " << y << '\n'
-                << "SAT: " << sat_res << '\n'
+                << "SAT: " << mul_sat<true>(x, y) << '\n'
                 << "MUL: " << res << std::endl;
             }
 
@@ -411,7 +411,7 @@ void test_mul_sat<boost::int128::int128_t>()
                     << "XBIT: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(boost::int128::abs(x))) << '\n'
                     << "YBIT: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(boost::int128::abs(y))) << '\n'
                     << "BMAX: " << std::numeric_limits<boost::int128::int128_t>::digits << '\n'
-                    << " RES: " << sat_res << '\n'
+                    << " RES: " << mul_sat<true>(x, y) << '\n'
                     << " MIN: " << std::numeric_limits<boost::int128::int128_t>::min() << std::endl;
             }
 
