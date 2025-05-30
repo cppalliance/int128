@@ -392,7 +392,16 @@ void test_mul_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res > std::numeric_limits<boost::int128::int128_t>::min());
 
             const auto res {x * y};
-            BOOST_TEST(res == sat_res);
+            if (!BOOST_TEST(res == sat_res))
+            {
+                std::cerr
+                << "x: " << x << '\n'
+                << "y: " << y << '\n'
+                << "x width: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(abs(x))) << '\n'
+                << "y width: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(abs(y))) << '\n'
+                << "Sat res: " << sat_res << '\n'
+                << "    res: " << res << std::endl;
+            }
 
             x <<= 1U;
             y <<= 1U;
