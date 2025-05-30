@@ -132,7 +132,7 @@ void test_add_sat<boost::int128::int128_t>()
     {
         auto near_min {min + boost::int128::int128_t{5}};
 
-        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{5}; --i)
+        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{-5}; --i)
         {
             const auto sat_res {add_sat(near_min,  i)};
             BOOST_TEST(sat_res > min);
@@ -142,10 +142,10 @@ void test_add_sat<boost::int128::int128_t>()
         }
 
         near_min -= boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {1}; i > boost::int128::int128_t{5}; --i)
+        for (boost::int128::int128_t i {-1}; i > boost::int128::int128_t{-5}; --i)
         {
             const auto sat_res {add_sat(near_min,  i)};
-            BOOST_TEST(sat_res == max);
+            BOOST_TEST(sat_res == min);
         }
     }
 }
@@ -255,14 +255,7 @@ void test_sub_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res < max);
 
             const auto res {near_max - i};
-            if (!BOOST_TEST(sat_res == res))
-            {
-                std::cerr
-                << "near max: " << near_max << '\n'
-                << "i: " << i << '\n'
-                << " Sat res: " << sat_res << '\n'
-                << "     res: " << res << std::endl;
-            }
+            BOOST_TEST(sat_res == res);
         }
 
         near_max += boost::int128::int128_t{5};
@@ -392,16 +385,7 @@ void test_mul_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res > std::numeric_limits<boost::int128::int128_t>::min());
 
             const boost::int128::int128_t res {x * y};
-            if (!BOOST_TEST(res == sat_res))
-            {
-                std::cerr
-                << "x: " << x << '\n'
-                << "y: " << y << '\n'
-                << "x width: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(abs(x))) << '\n'
-                << "y width: " << boost::int128::bit_width(static_cast<boost::int128::uint128_t>(abs(y))) << '\n'
-                << "Sat res: " << sat_res << '\n'
-                << "    res: " << res << std::endl;
-            }
+            BOOST_TEST(res == sat_res);
 
             x <<= 1U;
             y <<= 1U;
