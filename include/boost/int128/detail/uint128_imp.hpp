@@ -129,66 +129,66 @@ uint128_t
 
     // Compound OR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator|=(Integer rhs) noexcept;
+    constexpr uint128_t& operator|=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator|=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator|=(uint128_t rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    inline uint128_t operator|=(Integer rhs) noexcept;
+    inline uint128_t& operator|=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound AND
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator&=(Integer rhs) noexcept;
+    constexpr uint128_t& operator&=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator&=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator&=(uint128_t rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    inline uint128_t operator&=(Integer rhs) noexcept;
+    inline uint128_t& operator&=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound XOR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator^=(Integer rhs) noexcept;
+    constexpr uint128_t& operator^=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator^=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator^=(uint128_t rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    inline uint128_t operator^=(Integer rhs) noexcept;
+    inline uint128_t& operator^=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Left Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator<<=(Integer rhs) noexcept;
+    constexpr uint128_t& operator<<=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator<<=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator<<=(uint128_t rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    inline uint128_t operator<<=(Integer rhs) noexcept;
+    inline uint128_t& operator<<=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Right Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator>>=(Integer rhs) noexcept;
+    constexpr uint128_t& operator>>=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator>>=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator>>=(uint128_t rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    inline uint128_t operator>>=(Integer rhs) noexcept;
+    inline uint128_t& operator>>=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
@@ -1306,7 +1306,7 @@ constexpr uint128_t operator|(const detail::builtin_u128 lhs, const uint128_t rh
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-constexpr uint128_t uint128_t::operator|=(const Integer rhs) noexcept
+constexpr uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
@@ -1316,7 +1316,7 @@ constexpr uint128_t uint128_t::operator|=(const Integer rhs) noexcept
     return *this;
 }
 
-constexpr uint128_t uint128_t::operator|=(const uint128_t rhs) noexcept
+constexpr uint128_t& uint128_t::operator|=(const uint128_t rhs) noexcept
 {
     *this = *this | rhs;
     return *this;
@@ -1325,7 +1325,7 @@ constexpr uint128_t uint128_t::operator|=(const uint128_t rhs) noexcept
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-inline uint128_t uint128_t::operator|=(const Integer rhs) noexcept
+inline uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
@@ -1437,7 +1437,7 @@ constexpr uint128_t operator&(const detail::builtin_u128 lhs, const uint128_t rh
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-constexpr uint128_t uint128_t::operator&=(const Integer rhs) noexcept
+constexpr uint128_t& uint128_t::operator&=(const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
@@ -1447,7 +1447,7 @@ constexpr uint128_t uint128_t::operator&=(const Integer rhs) noexcept
     return *this;
 }
 
-constexpr uint128_t uint128_t::operator&=(const uint128_t rhs) noexcept
+constexpr uint128_t& uint128_t::operator&=(const uint128_t rhs) noexcept
 {
     *this = *this & rhs;
     return *this;
@@ -1456,7 +1456,7 @@ constexpr uint128_t uint128_t::operator&=(const uint128_t rhs) noexcept
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-inline uint128_t uint128_t::operator&=(Integer rhs) noexcept
+inline uint128_t& uint128_t::operator&=(Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
@@ -1569,7 +1569,7 @@ constexpr uint128_t operator^(const detail::builtin_u128 lhs, const uint128_t rh
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-constexpr uint128_t uint128_t::operator^=(const Integer rhs) noexcept
+constexpr uint128_t& uint128_t::operator^=(const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
@@ -1579,7 +1579,7 @@ constexpr uint128_t uint128_t::operator^=(const Integer rhs) noexcept
     return *this;
 }
 
-constexpr uint128_t uint128_t::operator^=(const uint128_t rhs) noexcept
+constexpr uint128_t& uint128_t::operator^=(const uint128_t rhs) noexcept
 {
     *this = *this ^ rhs;
     return *this;
@@ -1588,7 +1588,7 @@ constexpr uint128_t uint128_t::operator^=(const uint128_t rhs) noexcept
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-inline uint128_t uint128_t::operator^=(Integer rhs) noexcept
+inline uint128_t& uint128_t::operator^=(Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
     static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
@@ -1703,13 +1703,13 @@ constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcep
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-constexpr uint128_t uint128_t::operator<<=(const Integer rhs) noexcept
+constexpr uint128_t& uint128_t::operator<<=(const Integer rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
 }
 
-constexpr uint128_t uint128_t::operator<<=(const uint128_t rhs) noexcept
+constexpr uint128_t& uint128_t::operator<<=(const uint128_t rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
@@ -1718,7 +1718,7 @@ constexpr uint128_t uint128_t::operator<<=(const uint128_t rhs) noexcept
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-inline uint128_t uint128_t::operator<<=(Integer rhs) noexcept
+inline uint128_t& uint128_t::operator<<=(Integer rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
@@ -1827,13 +1827,13 @@ constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcep
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-constexpr uint128_t uint128_t::operator>>=(const Integer rhs) noexcept
+constexpr uint128_t& uint128_t::operator>>=(const Integer rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
 }
 
-constexpr uint128_t uint128_t::operator>>=(const uint128_t rhs) noexcept
+constexpr uint128_t& uint128_t::operator>>=(const uint128_t rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
@@ -1842,7 +1842,7 @@ constexpr uint128_t uint128_t::operator>>=(const uint128_t rhs) noexcept
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-inline uint128_t uint128_t::operator>>=(Integer rhs) noexcept
+inline uint128_t& uint128_t::operator>>=(Integer rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
