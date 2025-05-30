@@ -66,10 +66,10 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&wo
 
     #endif
 
-    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x.low >> 32);
-    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
-    words[3] = static_cast<std::uint32_t>(x.high >> 32);
+    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);      // LCOV_EXCL_LINE
+    words[1] = static_cast<std::uint32_t>(x.low >> 32);             // LCOV_EXCL_LINE
+    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);     // LCOV_EXCL_LINE
+    words[3] = static_cast<std::uint32_t>(x.high >> 32);            // LCOV_EXCL_LINE
 }
 
 
@@ -85,8 +85,8 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::ui
 
     #endif
 
-    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x >> 32);
+    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);  // LCOV_EXCL_LINE
+    words[1] = static_cast<std::uint32_t>(x >> 32);         // LCOV_EXCL_LINE
 }
 
 BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[1]) noexcept
