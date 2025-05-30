@@ -189,44 +189,26 @@ void test_sub_sat<boost::int128::uint128_t>()
 template <>
 void test_sub_sat<boost::int128::int128_t>()
 {
-    // The same as add_sat but backwards
+    // The same as add_sat but the logic backwards
+    // There are four branches that need to be tested
+    // 1) x > 0 && y > 0
+    // 2) x < 0 && y > 0
+    // 3) x > 0 && y < 0
+    // 4) x <= 0 && y <= 0
+
     using boost::int128::sub_sat;
 
     constexpr auto min {std::numeric_limits<boost::int128::int128_t>::min()};
     constexpr auto max {std::numeric_limits<boost::int128::int128_t>::max()};
 
-    // 1 - We can only overflow, but there are many such cases
-    {
-        auto near_max {max - boost::int128::int128_t{5}};
-
-        for (boost::int128::int128_t i {0}; i < boost::int128::int128_t{5}; ++i)
-        {
-            const auto sat_res {sub_sat(near_max,  i)};
-            BOOST_TEST(sat_res < max);
-
-            const auto res {near_max - i};
-            BOOST_TEST(sat_res == res);
-        }
-
-        near_max += boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {1}; i < boost::int128::int128_t{5}; ++i)
-        {
-            const auto sat_res {sub_sat(near_max,  i)};
-            BOOST_TEST(sat_res == max);
-
-            const auto res {near_max - i};
-            BOOST_TEST(sat_res != res);
-        }
-    }
-
-    // 2 - Impossible to overflow or underflow since the negative range is larger than positive range
+    // 1 - Nothing bad can happen here
     {
         for (std::size_t i {0}; i < N; ++i)
         {
             boost::int128::int128_t x {signed_dist(rng), dist(rng)};
             boost::int128::int128_t y {signed_dist(rng), dist(rng)};
 
-            if (x > 0)
+            if (x < 0)
             {
                 x = -x;
             }
@@ -240,38 +222,12 @@ void test_sub_sat<boost::int128::int128_t>()
             BOOST_TEST(naive_res == sat_res);
         }
 
-        const auto min_max_naive_res {min - max};
-        const auto min_max_sat_res {sub_sat(min, max)};
+        const auto min_max_naive_res {max - max};
+        const auto min_max_sat_res {sub_sat(max, max)};
         BOOST_TEST(min_max_naive_res == min_max_sat_res);
     }
 
-    // 3 - Again impossible to overflow or underflow
-    {
-        for (std::size_t i {0}; i < N; ++i)
-        {
-            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
-            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
-
-            if (x < 0)
-            {
-                x = -x;
-            }
-            if (y > 0)
-            {
-                y = -y;
-            }
-
-            const auto naive_res {x - y};
-            const auto sat_res {sub_sat(x, y)};
-            BOOST_TEST(naive_res == sat_res);
-        }
-
-        const auto min_max_naive_res {max - min};
-        const auto min_max_sat_res {sub_sat(max, min)};
-        BOOST_TEST(min_max_naive_res == min_max_sat_res);
-    }
-
-    // 4 - We can only underflow, and there exist many ways to do so
+    // 2 - Underflow is possible in this case
     {
         auto near_min {min + boost::int128::int128_t{5}};
 
@@ -293,6 +249,56 @@ void test_sub_sat<boost::int128::int128_t>()
             const auto res {near_min - i};
             BOOST_TEST(sat_res != res);
         }
+    }
+
+    // 3 - Overflow is possible in this case
+    {
+        auto near_max {max - boost::int128::int128_t{5}};
+
+        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{-5}; --i)
+        {
+            const auto sat_res {sub_sat(near_max,  i)};
+            BOOST_TEST(sat_res < max);
+
+            const auto res {near_max - i};
+            BOOST_TEST(sat_res == res);
+        }
+
+        near_max += boost::int128::int128_t{5};
+        for (boost::int128::int128_t i {-1}; i > boost::int128::int128_t{-5}; --i)
+        {
+            const auto sat_res {sub_sat(near_max,  i)};
+            BOOST_TEST(sat_res == max);
+
+            const auto res {near_max - i};
+            BOOST_TEST(sat_res != res);
+        }
+    }
+
+    // 4 - Nothing bad here
+    {
+        for (std::size_t i {0}; i < N; ++i)
+        {
+            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
+            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
+
+            if (x > 0)
+            {
+                x = -x;
+            }
+            if (y > 0)
+            {
+                y = -y;
+            }
+
+            const auto naive_res {x - y};
+            const auto sat_res {sub_sat(x, y)};
+            BOOST_TEST(naive_res == sat_res);
+        }
+
+        const auto min_max_naive_res {min - min};
+        const auto min_max_sat_res {sub_sat(min, min)};
+        BOOST_TEST(min_max_naive_res == min_max_sat_res);
     }
 }
 
