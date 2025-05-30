@@ -97,6 +97,11 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
     }
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146) // Unary minus applied to unsigned type
+#endif
+
 constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x <= 0 && y >= 0)
@@ -108,14 +113,22 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
     else if (x > 0 && y < 0)
     {
         // Overflow Case
-        const auto res {x - y};
-        return res < x ? std::numeric_limits<int128_t>::max() : res;
+        constexpr auto max_val {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
+        const auto big_x {static_cast<uint128_t>(x)};
+        const auto big_y {-static_cast<uint128_t>(y)};
+        const auto res {big_x + big_y};
+
+        return (res > max_val || res < big_x) ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(res);
     }
     else
     {
         return x - y;
     }
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
