@@ -51,7 +51,7 @@ constexpr int countr_impl(std::uint32_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return countr_mod37[(-x & x) % 37];
+        return countr_mod37[(-x & x) % 37]; // LCOV_EXCL_LINE
     }
     else
     {
@@ -94,8 +94,7 @@ constexpr int countr_impl(std::uint64_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return static_cast<std::uint32_t>(x) != 0 ? countr_impl(static_cast<std::uint32_t>(x)) :
-                                                    countr_impl(static_cast<std::uint32_t>(x >> 32)) + 32;
+        return static_cast<std::uint32_t>(x) != 0 ? countr_impl(static_cast<std::uint32_t>(x)) : countr_impl(static_cast<std::uint32_t>(x >> 32)) + 32; // LCOV_EXCL_LINE
     }
     else
     {
