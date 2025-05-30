@@ -1880,16 +1880,17 @@ template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low + rhs};
-    const auto new_high {lhs.high + static_cast<std::int64_t>(new_low < lhs.low)};
-    return int128_t{new_high, new_low};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) + static_cast<std::uint64_t>(new_low < lhs.low)};
+
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t library_sub(const int128_t lhs, const int128_t rhs) noexcept
 {
     const auto new_low {lhs.low - rhs.low};
-    const auto new_high {lhs.high - rhs.high - static_cast<std::int64_t>(lhs.low < rhs.low)};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(rhs.high) - static_cast<std::uint64_t>(lhs.low < rhs.low)};
 
-    return int128_t{new_high, new_low};
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
@@ -1898,7 +1899,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
     // __builtin_sub_overflow is marked constexpr so we don't need if consteval handling
     std::uint64_t result_low {};
-    const auto result_high {static_cast<std::uint64_t>(lhs.high - rhs.high - __builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
+    const auto result_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(rhs.high) - static_cast<std::uint64_t>(__builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
 
@@ -1928,7 +1929,7 @@ template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low - rhs};
-    const auto new_high {lhs.high - static_cast<std::int64_t>(new_low > lhs.low)};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(new_low > lhs.low)};
     return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
