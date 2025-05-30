@@ -67,8 +67,8 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, c
             }
             break;
 
-        default:
-            BOOST_INT128_UNREACHABLE; // LCOV_EXCL_LINE
+        default:                        // LCOV_EXCL_LINE
+            BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
     }
 
     return last;
