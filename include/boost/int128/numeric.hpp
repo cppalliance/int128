@@ -107,13 +107,9 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 
         return big_res > big_x ? std::numeric_limits<int128_t>::min() : static_cast<int128_t>(big_res);
     }
-    if (x > 0 && y < 0)
+    if ((x > 0 && y < 0) || (x < 0 && y > 0))
     {
-        return add_sat(x, abs(y));
-    }
-    else if (x < 0 && y > 0)
-    {
-        return add_sat(x, -y);
+        return x - y;
     }
     else
     {
