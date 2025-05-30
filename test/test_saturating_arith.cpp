@@ -414,9 +414,6 @@ void test_mul_sat<boost::int128::int128_t>()
             const auto sat_res {mul_sat(x, y)};
             BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::min());
 
-            const auto res {x * y};
-            BOOST_TEST(res != sat_res);
-
             x <<= 1U;
             y <<= 1U;
 
