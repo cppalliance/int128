@@ -157,7 +157,7 @@ constexpr uint128_t byteswap(const uint128_t x) noexcept
     return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
 }
 
-#else
+#endif
 
 namespace impl {
 
@@ -174,8 +174,6 @@ constexpr uint128_t byteswap_impl(const uint128_t x) noexcept
 }
 
 } // namespace impl
-
-#endif
 
 #if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
 

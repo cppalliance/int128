@@ -245,6 +245,9 @@ void test_byteswap()
 
         static_assert(boost::int128::byteswap(original) == expected, "wrong");
         static_assert(boost::int128::byteswap(expected) == original, "wrong");
+
+        BOOST_TEST(boost::int128::impl::byteswap_impl(original) == expected);
+        BOOST_TEST(boost::int128::impl::byteswap_impl(expected) == original);
     }
 }
 
