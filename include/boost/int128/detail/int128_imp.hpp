@@ -263,8 +263,8 @@ constexpr int128_t abs(int128_t value) noexcept
 {
     if (value.high < 0)
     {
-        value.low = ~value.low + 1;
-        value.high = ~value.high + (value.low == 0 ? 1 : 0);
+        value.low = ~value.low + 1U;
+        value.high = static_cast<std::int64_t>(~static_cast<std::uint64_t>(value.high) + static_cast<std::uint64_t>(value.low == 0 ? 1 : 0));
     }
     
     return value;
