@@ -72,7 +72,7 @@ constexpr int popcount(const uint128_t x) noexcept
     return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
 }
 
-#else
+#endif
 
 namespace impl {
 
@@ -86,8 +86,6 @@ constexpr int popcount_impl(std::uint64_t x) noexcept
 }
 
 } // namespace impl
-
-#endif
 
 #if defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
 

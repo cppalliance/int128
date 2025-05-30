@@ -162,6 +162,10 @@ void test_popcount()
     for (int i {1}; i < 128; ++i)
     {
         BOOST_TEST_EQ(boost::int128::popcount(x - 1U), i);
+
+        const auto temp {x - 1U};
+        BOOST_TEST_EQ(boost::int128::impl::popcount_impl(temp.high) + boost::int128::impl::popcount_impl(temp.low), i);
+
         x <<= 1;
     }
 
