@@ -49,6 +49,8 @@ project : requirements
 
 run quick.cpp ;
 
+run test_saturating_arith.cpp ;
+
 run-fail benchmark_u128.cpp ;
 run test_u128.cpp ;
 run test_u128_no_sign_conv.cpp ;
@@ -67,4 +69,4 @@ compile-fail test_mixed_type_ops.cpp ;
 compile-fail test_mixed_arithmetic.cpp ;
 
 run test_consteval_funcs.cpp ;
-run test_saturating_arith.cpp ;
+
