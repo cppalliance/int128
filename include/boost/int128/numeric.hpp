@@ -78,7 +78,7 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x > 0 && y > 0)
     {
-        constexpr auto max_value {static_cast<uint128_t>(std::numeric_limits<int128_t>::max()};
+        constexpr auto max_value {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
         const auto big_x {static_cast<uint128_t>(x)};
         const auto big_y {static_cast<uint128_t>(y)};
         const auto big_res {big_x + big_y};
