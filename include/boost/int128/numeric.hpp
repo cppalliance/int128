@@ -137,7 +137,7 @@ constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 
     if (x_bits + y_bits > std::numeric_limits<int128_t>::digits)
     {
-        if (x < 0 != y < 0)
+        if ((x < 0) ^ (y < 0))
         {
             return std::numeric_limits<int128_t>::min();
         }
