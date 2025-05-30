@@ -263,8 +263,8 @@ constexpr int128_t abs(int128_t value) noexcept
 {
     if (value.high < 0)
     {
-        value.low = ~value.low + 1;
-        value.high = ~value.high + (value.low == 0 ? 1 : 0);
+        value.low = ~value.low + 1U;
+        value.high = static_cast<std::int64_t>(~static_cast<std::uint64_t>(value.high) + static_cast<std::uint64_t>(value.low == 0 ? 1 : 0));
     }
     
     return value;
@@ -1819,7 +1819,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     std::uint64_t result_low {};
     std::uint64_t result_high {};
 
-    result_high = lhs.high + rhs.high + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
+    result_high = static_cast<std::uint64_t>(lhs.high) + static_cast<std::uint64_t>(rhs.high) + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
 
@@ -1880,16 +1880,17 @@ template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low + rhs};
-    const auto new_high {lhs.high + static_cast<std::int64_t>(new_low < lhs.low)};
-    return int128_t{new_high, new_low};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) + static_cast<std::uint64_t>(new_low < lhs.low)};
+
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t library_sub(const int128_t lhs, const int128_t rhs) noexcept
 {
     const auto new_low {lhs.low - rhs.low};
-    const auto new_high {lhs.high - rhs.high - static_cast<std::int64_t>(lhs.low < rhs.low)};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(rhs.high) - static_cast<std::uint64_t>(lhs.low < rhs.low)};
 
-    return int128_t{new_high, new_low};
+    return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
@@ -1898,7 +1899,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, con
 
     // __builtin_sub_overflow is marked constexpr so we don't need if consteval handling
     std::uint64_t result_low {};
-    const auto result_high {static_cast<std::uint64_t>(lhs.high - rhs.high - __builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
+    const auto result_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(rhs.high) - static_cast<std::uint64_t>(__builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
 
@@ -1928,7 +1929,7 @@ template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low - rhs};
-    const auto new_high {lhs.high - static_cast<std::int64_t>(new_low > lhs.low)};
+    const auto new_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(new_low > lhs.low)};
     return int128_t{static_cast<std::int64_t>(new_high), new_low};
 }
 
@@ -2215,7 +2216,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, con
     const auto c {rhs.low >> 32U};
     const auto d {rhs.low & UINT32_MAX};
 
-    int128_t result { static_cast<std::int64_t>(lhs.high * rhs.low + lhs.low * rhs.high + a * c), b * d };
+    int128_t result { static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs.low + static_cast<std::uint64_t>(lhs.low) * rhs.high + a * c), b * d };
     result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
 
     return result;
@@ -2250,16 +2251,16 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
         #pragma GCC diagnostic push
         #pragma GCC diagnostic ignored "-Wclass-memaccess"
 
-        detail::builtin_i128 new_lhs {};
-        detail::builtin_i128 new_rhs {};
+        detail::builtin_u128 new_lhs {};
+        detail::builtin_u128 new_rhs {};
 
-        std::memcpy(&new_lhs, &lhs, sizeof(int128_t));
-        std::memcpy(&new_rhs, &rhs, sizeof(int128_t));
+        std::memcpy(&new_lhs, &lhs, sizeof(detail::builtin_u128));
+        std::memcpy(&new_rhs, &rhs, sizeof(detail::builtin_u128));
 
         const auto res {new_lhs * new_rhs};
         int128_t library_res {};
 
-        std::memcpy(&library_res, &res, sizeof(detail::builtin_i128));
+        std::memcpy(&library_res, &res, sizeof(detail::builtin_u128));
 
         return library_res;
 

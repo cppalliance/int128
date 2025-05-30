@@ -6,7 +6,9 @@
 #define BOOST_INT128_NUMERIC_HPP
 
 #include <boost/int128/bit.hpp>
+#include <boost/int128/detail/traits.hpp>
 #include <limits>
+#include <iostream>
 
 namespace boost {
 namespace int128 {
@@ -70,12 +72,77 @@ constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
     return z;
 }
 
-constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
+constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
+
+constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (x >= 0 && y >= 0)
+    {
+        constexpr auto max_value {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
+        const auto big_x {static_cast<uint128_t>(x)};
+        const auto big_y {static_cast<uint128_t>(y)};
+        const auto big_res {big_x + big_y};
+
+        return big_res > max_value ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(big_res);
+    }
+    else if ((x < 0 && y > 0) || (x > 0 && y < 0))
+    {
+        return x + y;
+    }
+    else
+    {
+        // x < 0 and y < 0
+        // Nearly the same technique as the positive values case
+        constexpr auto max_value {static_cast<uint128_t>(abs(std::numeric_limits<int128_t>::min()))};
+        const auto big_x {static_cast<uint128_t>(abs(x))};
+        const auto big_y {static_cast<uint128_t>(abs(y))};
+        const auto big_res {big_x + big_y};
+
+        return big_res > max_value ? std::numeric_limits<int128_t>::min() : -static_cast<int128_t>(big_res);
+    }
+}
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146) // Unary minus applied to unsigned type
+#endif
+
+constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (x <= 0 && y >= 0)
+    {
+        // Underflow case
+        const auto res {x - y};
+        return res > x ? std::numeric_limits<int128_t>::min() : res;
+    }
+    else if (x > 0 && y < 0)
+    {
+        // Overflow Case
+        constexpr auto max_val {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
+        const auto big_x {static_cast<uint128_t>(x)};
+        const auto big_y {-static_cast<uint128_t>(y)};
+        const auto res {big_x + big_y};
+
+        return (res > max_val || res < big_x) ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(res);
+    }
+    else
+    {
+        return x - y;
+    }
+}
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
+
+template <bool = false>
+inline uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
 
-    if (x_bits + y_bits > std::numeric_limits<uint128_t>::digits)
+    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
     {
         return std::numeric_limits<uint128_t>::max();
     }
@@ -83,8 +150,79 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
+template <>
+inline uint128_t mul_sat<true>(const uint128_t x, const uint128_t y) noexcept
+{
+    std::cerr << "Unsigned mul_sat" << std::endl;
+
+    const auto x_bits {bit_width(x)};
+    const auto y_bits {bit_width(y)};
+
+    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
+    {
+        return std::numeric_limits<uint128_t>::max();
+    }
+
+    return x * y;
+}
+
+template <bool = false>
+inline int128_t mul_sat(const int128_t x, const int128_t y) noexcept
+{
+    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
+    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
+
+    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
+    {
+        if ((x < 0) != (y < 0))
+        {
+            return std::numeric_limits<int128_t>::min();
+        }
+        else
+        {
+            return std::numeric_limits<int128_t>::max();
+        }
+    }
+
+    return x * y;
+}
+
+template <>
+inline int128_t mul_sat<true>(const int128_t x, const int128_t y) noexcept
+{
+    std::cerr << "Signed mul_sat" << std::endl;
+
+    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
+    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
+
+    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
+    {
+        if ((x < 0) != (y < 0))
+        {
+            return std::numeric_limits<int128_t>::min();
+        }
+        else
+        {
+            return std::numeric_limits<int128_t>::max();
+        }
+    }
+
+    return x * y;
+}
+
 constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
+    return x / y;
+}
+
+constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(x == std::numeric_limits<int128_t>::min() && y == -1))
+    {
+        // This is the only possible case of overflow
+        return std::numeric_limits<int128_t>::max();
+    }
+
     return x / y;
 }
 
@@ -100,6 +238,37 @@ constexpr uint128_t saturate_cast(const uint128_t value) noexcept
         if (value > static_cast<uint128_t>(std::numeric_limits<TargetType>::max()))
         {
             return std::numeric_limits<TargetType>::max();
+        }
+
+        return static_cast<TargetType>(value);
+    }
+}
+
+template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
+constexpr int128_t saturate_cast(const int128_t value) noexcept
+{
+    BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
+    {
+        return value;
+    }
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value || std::is_same<detail::builtin_u128, TargetType>::value)
+    #else
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
+    #endif
+    {
+        // We can't possibly have overflow in this case
+        return value < 0 ? static_cast<TargetType>(0) : static_cast<TargetType>(value);
+    }
+    else
+    {
+        if (value > static_cast<int128_t>(std::numeric_limits<TargetType>::max()))
+        {
+            return std::numeric_limits<TargetType>::max();
+        }
+        else if (value < static_cast<int128_t>(std::numeric_limits<TargetType>::min()))
+        {
+            return std::numeric_limits<TargetType>::min();
         }
 
         return static_cast<TargetType>(value);
