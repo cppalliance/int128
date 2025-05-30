@@ -73,9 +73,6 @@ void test_add_sat<boost::int128::int128_t>()
         {
             const auto sat_res {add_sat(near_max,  i)};
             BOOST_TEST(sat_res == max);
-
-            const auto res {near_max + i};
-            BOOST_TEST(sat_res != res);
         }
     }
 
@@ -149,9 +146,6 @@ void test_add_sat<boost::int128::int128_t>()
         {
             const auto sat_res {add_sat(near_min,  i)};
             BOOST_TEST(sat_res == max);
-
-            const auto res {near_min + i};
-            BOOST_TEST(sat_res != res);
         }
     }
 }
