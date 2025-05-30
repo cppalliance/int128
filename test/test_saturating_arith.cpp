@@ -258,10 +258,23 @@ void test_sub_sat<boost::int128::int128_t>()
         for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{-5}; --i)
         {
             const auto sat_res {sub_sat(near_max,  i)};
-            BOOST_TEST(sat_res < max);
+            if (!BOOST_TEST(sat_res < max))
+            {
+                std::cerr << "Near max: " << near_max << '\n'
+                << "i: " << i << '\n'
+                << "max: " << max << '\n'
+                << "sat res: " << sat_res << std::endl;
+            }
 
             const auto res {near_max - i};
-            BOOST_TEST(sat_res == res);
+            if (!BOOST_TEST(sat_res == res))
+            {
+                std::cerr << "Near max: " << near_max << '\n'
+                << "i: " << i << '\n'
+                << "max: " << max << '\n'
+                << "sat res: " << sat_res << '\n'
+                << "    res: " << res << std::endl;
+            }
         }
 
         near_max += boost::int128::int128_t{5};
