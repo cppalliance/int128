@@ -99,7 +99,7 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 
 constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
-    if (x > 0 && y > 0)
+    if (x >= 0 && y >= 0)
     {
         const auto big_x {static_cast<uint128_t>(x)};
         const auto big_y {static_cast<uint128_t>(y)};
@@ -113,7 +113,7 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
     }
     else
     {
-        // x <= 0 and y <= 0
+        // x < 0 and y < 0
         const auto z {x - y};
         return z >= 0 ? std::numeric_limits<int128_t>::min() : z;
     }
