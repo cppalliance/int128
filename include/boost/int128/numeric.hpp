@@ -135,54 +135,6 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 #  pragma warning(pop)
 #endif
 
-#ifdef _M_IX86
-
-#ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable : 4127)
-#endif
-
-template <typename LibInt, std::enable_if_t<(std::is_same<LibInt, int128_t>::value || std::is_same<LibInt, uint128_t>::value), bool> = true>
-constexpr LibInt mul_sat(const LibInt x, const LibInt y) noexcept
-{
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<LibInt>::is_signed)
-    {
-        constexpr LibInt zero {0}; // Avoids sign compare warning in C++14
-        const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
-        const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
-
-        if (x_bits + y_bits > std::numeric_limits<int128_t>::digits)
-        {
-            if ((x < zero) != (y < zero))
-            {
-                return std::numeric_limits<int128_t>::min();
-            }
-            else
-            {
-                return std::numeric_limits<int128_t>::max();
-            }
-        }
-    }
-    else
-    {
-        const auto x_bits {bit_width(x)};
-        const auto y_bits {bit_width(y)};
-
-        if (x_bits + y_bits > std::numeric_limits<uint128_t>::digits)
-        {
-            return std::numeric_limits<uint128_t>::max();
-        }
-    }
-
-    return x * y;
-}
-
-#ifdef _MSC_VER
-#  pragma warning(pop)
-#endif
-
-#else
-
 constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
@@ -215,8 +167,6 @@ constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 
     return x * y;
 }
-
-#endif // 32 bit MSVC workaround
 
 constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
