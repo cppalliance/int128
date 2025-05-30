@@ -61,6 +61,11 @@ void test_ostream()
     out << val;
     BOOST_TEST_CSTR_EQ(out.str().c_str(), "42");
 
+    T zero_val {0};
+    std::stringstream zero_out;
+    zero_out << zero_val;
+    BOOST_TEST_CSTR_EQ(zero_out.str().c_str(), "0");
+
     T hex_val {0xFF};
     std::stringstream hex_out;
     hex_out.flags(std::ios_base::hex);
