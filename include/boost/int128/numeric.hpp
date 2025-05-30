@@ -132,8 +132,10 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 
 #ifdef _M_IX86
 
+#ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable : 4127)
+#endif
 
 template <typename LibInt, std::enable_if_t<(std::is_same<LibInt, int128_t>::value || std::is_same<LibInt, uint128_t>::value), bool> = true>
 constexpr LibInt  mul_sat(const LibInt x, const LibInt y) noexcept
@@ -170,7 +172,9 @@ constexpr LibInt  mul_sat(const LibInt x, const LibInt y) noexcept
     return x * y;
 }
 
+#ifdef _MSC_VER
 #  pragma warning(pop)
+#endif
 
 #else
 
