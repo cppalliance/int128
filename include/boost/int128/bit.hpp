@@ -95,7 +95,7 @@ constexpr int popcount(const uint128_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
+        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
     }
     else
     {
@@ -117,7 +117,7 @@ constexpr int popcount(const uint128_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
+        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
     }
     else
     {
@@ -183,7 +183,7 @@ constexpr uint128_t byteswap(const uint128_t x) noexcept
 {
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::byteswap_impl(x);
+        return impl::byteswap_impl(x); // LCOV_EXCL_LINE
     }
     else
     {
