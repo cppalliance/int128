@@ -87,7 +87,7 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
     }
     else if (x < 0 && y > 0)
     {
-        return sub_sat(y, abs(x));
+        return x + y;
     }
     else if (x > 0 && y < 0)
     {
