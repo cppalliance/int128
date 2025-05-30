@@ -88,33 +88,33 @@ struct uint128_t {
 
     // Compound OR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator|=(Integer rhs) noexcept;
+    constexpr uint128_t& operator|=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator|=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator|=(uint128_t rhs) noexcept;
 
     // Compound AND
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator&=(Integer rhs) noexcept;
+    constexpr uint128_t& operator&=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator&=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator&=(uint128_t rhs) noexcept;
 
     // Compound XOR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator^=(Integer rhs) noexcept;
+    constexpr uint128_t& operator^=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator^=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator^=(uint128_t rhs) noexcept;
 
     // Compound Left Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator<<=(Integer rhs) noexcept;
+    constexpr uint128_t& operator<<=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator<<=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator<<=(uint128_t rhs) noexcept;
 
     // Compound Right Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    constexpr uint128_t operator>>=(Integer rhs) noexcept;
+    constexpr uint128_t& operator>>=(Integer rhs) noexcept;
 
-    constexpr uint128_t operator>>=(uint128_t rhs) noexcept;
+    constexpr uint128_t& operator>>=(uint128_t rhs) noexcept;
 
     constexpr uint128_t& operator++() noexcept;
     constexpr uint128_t& operator++(int) noexcept;
