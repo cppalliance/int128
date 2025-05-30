@@ -145,12 +145,12 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 
 constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 {
-    const auto x_bits {bit_width(abs(x))};
-    const auto y_bits {bit_width(abs(y))};
+    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
+    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
 
     if (x_bits + y_bits > std::numeric_limits<int128_t>::digits)
     {
-        if ((x < 0) ^ (y < 0))
+        if ((x < 0) != (y < 0))
         {
             return std::numeric_limits<int128_t>::min();
         }
