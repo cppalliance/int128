@@ -219,7 +219,7 @@ void test_float_conversion_operators()
             boost::random::uniform_int_distribution<std::uint32_t> dist(std::numeric_limits<std::uint32_t>::min(),
                                                                         std::numeric_limits<std::uint32_t>::max());
 
-            const auto value {dist(rng)};
+            const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_i128 builtin_value;
             builtin_value = static_cast<builtin_i128>(value) << 64 | static_cast<builtin_i128>(value);
             boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), value};
@@ -229,16 +229,16 @@ void test_float_conversion_operators()
             const auto emulated_value_return = static_cast<FloatType>(emulated_value) / static_cast<FloatType>(1e27L);
             FloatType distance = builtin_value_return - emulated_value_return;
 
-            distance = distance < 0 ? -distance : distance;
+            distance = distance < 0 ? -distance : distance; // LCOV_EXCL_LINE
 
-            BOOST_TEST(distance < error_tol);
+            BOOST_TEST(distance < error_tol); // LCOV_EXCL_LINE
         }
         else
         {
             boost::random::uniform_int_distribution<std::uint64_t> dist(std::numeric_limits<std::uint64_t>::min(),
                                                                         std::numeric_limits<std::uint64_t>::max());
 
-            const auto value {dist(rng)};
+            const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_u128 builtin_value;
             builtin_value = value;
             boost::int128::int128_t emulated_value {};
@@ -248,9 +248,9 @@ void test_float_conversion_operators()
             const auto emulated_value_return = static_cast<FloatType>(emulated_value);
             FloatType distance = builtin_value_return - emulated_value_return;
 
-            distance = distance < 0 ? -distance : distance;
+            distance = distance < 0 ? -distance : distance; // LCOV_EXCL_LINE
 
-            BOOST_TEST(distance < error_tol);
+            BOOST_TEST(distance < error_tol); // LCOV_EXCL_LINE
         }
     }
 }
@@ -791,11 +791,11 @@ void test_operator_div()
         // Avoid UB of div by 0
         while (value == 0)
         {
-            value = dist(rng);
+            value = dist(rng); // LCOV_EXCL_LINE
         }
         while (value2 == 0)
         {
-            value2 = dist(rng);
+            value2 = dist(rng); // LCOV_EXCL_LINE
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
