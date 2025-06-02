@@ -1096,9 +1096,11 @@ void test_operator_div()
 
             // Shouldn't crash
             BOOST_TEST(check_2_value / IntType(0) == 0);
+            BOOST_TEST(value / static_cast<boost::int128::uint128_t>(0) == 0);
 
             // Always 0
             BOOST_TEST(small_emulated_value / emulated_value == 0);
+            BOOST_TEST(small_emulated_value / small_emulated_value == 1);
         }
     }
 }
@@ -1196,9 +1198,11 @@ void test_operator_mod()
 
             // Shouldn't crash
             BOOST_TEST(check_2_value % IntType(0) == 0);
+            BOOST_TEST(value % static_cast<boost::int128::uint128_t>(0) == 0);
+            BOOST_TEST(small_emulated_value % static_cast<boost::int128::uint128_t>(0) == 0);
 
-            // Always 0
             BOOST_TEST(small_emulated_value % emulated_value == small_emulated_value);
+            BOOST_TEST(small_emulated_value % small_emulated_value == 0);
         }
     }
 }
