@@ -184,7 +184,8 @@ inline int128_t mul_sat(const int128_t x, const int128_t y) noexcept
         }
     }
 
-    return x * y;
+    const int128_t res {x * y};
+    return res;
 }
 
 template <>
@@ -206,8 +207,9 @@ inline int128_t mul_sat<true>(const int128_t x, const int128_t y) noexcept
             return std::numeric_limits<int128_t>::max();
         }
     }
-
-    return x * y;
+    const int128_t res {x * y};
+    std::cout << "x * y: " << res << std::endl;
+    return res;
 }
 
 constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
