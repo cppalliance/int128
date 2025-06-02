@@ -397,7 +397,7 @@ void test_mul_sat<boost::int128::int128_t>()
         {
             if (y > 0)
             {
-                return;
+                return; // LCOV_EXCL_LINE
             }
 
             const boost::int128::int128_t sat_res {mul_sat(x, y)};
