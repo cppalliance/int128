@@ -2619,7 +2619,12 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (rhs.high != 0U || rhs == 0U)
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
+    if (rhs.high != 0U)
     {
         return {0, 0};
     }
@@ -2629,7 +2634,12 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
 
 constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs == 0U || lhs < rhs)
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
+    {
+        return {0, 0};
+    }
+
+    if (lhs < rhs)
     {
         return {0, 0};
     }
@@ -2836,7 +2846,7 @@ constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) no
 
 constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs == 0U)
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
         return {0, 0};
     }
