@@ -219,7 +219,7 @@ void test_float_conversion_operators()
             boost::random::uniform_int_distribution<std::uint32_t> dist(std::numeric_limits<std::uint32_t>::min(),
                                                                         std::numeric_limits<std::uint32_t>::max());
 
-            const auto value {dist(rng)};
+            const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_u128 builtin_value;
             builtin_value = static_cast<builtin_u128>(value) << 64 | static_cast<builtin_u128>(value);
             boost::int128::uint128_t emulated_value {value, value};
@@ -229,16 +229,16 @@ void test_float_conversion_operators()
             const auto emulated_value_return = static_cast<FloatType>(emulated_value) / static_cast<FloatType>(1e27L);
             FloatType distance = builtin_value_return - emulated_value_return;
 
-            distance = distance < 0 ? -distance : distance;
+            distance = distance < 0 ? -distance : distance; // LCOV_EXCL_LINE
 
-            BOOST_TEST(distance < error_tol);
+            BOOST_TEST(distance < error_tol); // LCOV_EXCL_LINE
         }
         else
         {
             boost::random::uniform_int_distribution<std::uint64_t> dist(std::numeric_limits<std::uint64_t>::min(),
                                                                         std::numeric_limits<std::uint64_t>::max());
 
-            const auto value {dist(rng)};
+            const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_u128 builtin_value;
             builtin_value = value;
             boost::int128::uint128_t emulated_value {};
@@ -248,9 +248,9 @@ void test_float_conversion_operators()
             const auto emulated_value_return = static_cast<FloatType>(emulated_value);
             FloatType distance = builtin_value_return - emulated_value_return;
 
-            distance = distance < 0 ? -distance : distance;
+            distance = distance < 0 ? -distance : distance; // LCOV_EXCL_LINE
 
-            BOOST_TEST(distance < error_tol);
+            BOOST_TEST(distance < error_tol); // LCOV_EXCL_LINE
         }
     }
 }
@@ -984,8 +984,7 @@ void test_operator_sub()
 template <typename IntType>
 void test_operator_mul()
 {
-    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(),
-                                                          get_root_max<IntType>());
+    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(), get_root_max<IntType>());
 
     for (std::size_t i {}; i < N; ++i)
     {
@@ -1188,15 +1187,7 @@ void test_operator_mod()
             static_assert(sizeof(decltype(value2 % emulated_value)) ==
                           sizeof(decltype(value2 % builtin_value)), "Mismatch Return Types");
 
-            if (!BOOST_TEST(check_1_value == (builtin_value % value2)))
-            {
-                std::cerr 
-                    << "Value  1: " << emulated_value << '\n'
-                    << "Value  2: " << static_cast<std::int64_t>(value2) << '\n'
-                    << "ValueE 2: " << static_cast<boost::int128::uint128_t>(value2) << '\n'
-                    << "Emulated: " << check_1_value << '\n'
-                    << "Built-in: " << static_cast<boost::int128::uint128_t>(builtin_value % value2) << std::endl;
-            }
+            BOOST_TEST(check_1_value == (builtin_value % value2));
             BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value));
 
             // Forces decision process
@@ -1330,43 +1321,41 @@ int main()
 template <typename IntType>
 void test_operator_add()
 {
-    boost::random::uniform_int_distribution<IntType> dist(0,
-                                                          get_max<IntType>() / 2);
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>() / 2);
 
     for (std::size_t i {}; i < N; ++i)
     {
-        const IntType value {dist(rng)};
-        const IntType value2 {dist(rng)};
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         const IntType res = value + value2;
 
         boost::int128::uint128_t test_value {value};
         const boost::int128::uint128_t test_value2 {value2};
-        BOOST_TEST(test_value + test_value2 == res);
+        BOOST_TEST(test_value + test_value2 == res); // LCOV_EXCL_LINE
 
         test_value += value2;
-        BOOST_TEST(test_value == res);
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
     }
 }
 
 template <typename IntType>
 void test_operator_mul()
 {
-    boost::random::uniform_int_distribution<IntType> dist(0,
-                                                          get_root_max<IntType>());
+    boost::random::uniform_int_distribution<IntType> dist(0, get_root_max<IntType>()); // LCOV_EXCL_LINE
 
     for (std::size_t i {}; i < N; ++i)
     {
-        const IntType value {dist(rng)};
-        const IntType value2 {dist(rng)};
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         const IntType res = value * value2;
 
         boost::int128::uint128_t test_value {value};
         const boost::int128::uint128_t test_value2 {value2};
 
-        BOOST_TEST(test_value * test_value2 == res);
+        BOOST_TEST(test_value * test_value2 == res); // LCOV_EXCL_LINE
 
         test_value *= value2;
-        BOOST_TEST(test_value == res);
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
     }
 
     boost::int128::uint128_t shift_val {1};
@@ -1374,7 +1363,7 @@ void test_operator_mul()
 
     for (std::size_t i {1}; i < 128; ++i)
     {
-        BOOST_TEST(shift_val == mul_val);
+        BOOST_TEST(shift_val == mul_val); // LCOV_EXCL_LINE
 
         shift_val <<= 1;
         mul_val *= 2;
@@ -1409,7 +1398,7 @@ int main()
         unsigned long long
     >;
 
-    boost::mp11::mp_for_each<test_types>(test_caller());
+    boost::mp11::mp_for_each<test_types>(test_caller()); // LCOV_EXCL_LINE
 
     return boost::report_errors();
 }
