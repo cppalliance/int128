@@ -2546,8 +2546,12 @@ constexpr int128_t operator/(const int128_t lhs, const UnsignedInteger rhs) noex
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
-    BOOST_INT128_ASSUME(rhs != 0);
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
 
     const auto abs_lhs {abs(lhs)};
 
@@ -2569,6 +2573,11 @@ template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
 
     if (rhs.high != 0 && rhs.high != -1)
     {
@@ -2594,8 +2603,12 @@ constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noex
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    BOOST_INT128_ASSUME(rhs != 0);
     using eval_type = detail::evaluation_type_t<SignedInteger>;
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
 
     int128_t quotient {};
 
@@ -2610,6 +2623,11 @@ constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexce
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexcept
 {
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return {0, 0};
+    }
+
     if (rhs.high != 0 && rhs.high != -1)
     {
         return {0,0};
