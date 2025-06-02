@@ -199,6 +199,8 @@ void test_integer_conversion_operators()
         if (builtin_value)
         {
             BOOST_TEST(emulated_value);
+            const boost::int128::int128_t high_only {static_cast<std::int64_t>(builtin_value), 0};
+            BOOST_TEST(high_only);
         }
     }
 }
