@@ -924,7 +924,7 @@ void test_abs()
 
     for (std::size_t i {}; i < N; ++i)
     {
-        const auto value {dist(rng)};
+        const auto value {dist(rng)}; // LCOV_EXCL_LINE
         boost::int128::int128_t emulated_value {value};
         auto builtin_value = static_cast<builtin_i128>(value);
 
