@@ -225,7 +225,7 @@ void test_sub_sat<boost::int128::int128_t>()
     {
         auto near_min {min + boost::int128::int128_t{5}};
 
-        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{5}; --i)
+        for (boost::int128::int128_t i {0}; i < boost::int128::int128_t{5}; ++i)
         {
             const auto sat_res {sub_sat(near_min,  i)};
             BOOST_TEST(sat_res > min);
@@ -234,11 +234,11 @@ void test_sub_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res == res);
         }
 
-        near_min -= boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {1}; i > boost::int128::int128_t{5}; --i)
+        near_min = min;
+        for (boost::int128::int128_t i {1}; i < boost::int128::int128_t{5}; ++i)
         {
             const auto sat_res {sub_sat(near_min,  i)};
-            BOOST_TEST(sat_res == max);
+            BOOST_TEST(sat_res == min);
 
             const auto res {near_min - i};
             BOOST_TEST(sat_res != res);
