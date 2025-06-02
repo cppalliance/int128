@@ -1177,6 +1177,7 @@ void test_operator_mod()
 
             const auto builtin_value = (static_cast<builtin_u128>(static_cast<std::uint64_t>(value)) << 64) | static_cast<std::uint64_t>(value);
             const boost::int128::uint128_t emulated_value {static_cast<std::uint64_t>(value), static_cast<std::uint64_t>(value)};
+            const boost::int128::uint128_t small_emulated_value {UINT64_C(0), static_cast<std::uint64_t>(value)};
 
             auto check_1_value {emulated_value};
             check_1_value %= value2;
@@ -1201,6 +1202,12 @@ void test_operator_mod()
             // Forces decision process
             const boost::int128::uint128_t check_2_value {value2};
             BOOST_TEST(check_1_value == (emulated_value % check_2_value));
+
+            // Shouldn't crash
+            BOOST_TEST(check_2_value % IntType(0) == 0);
+
+            // Always 0
+            BOOST_TEST(small_emulated_value % emulated_value == small_emulated_value);
         }
     }
 }
