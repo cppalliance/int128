@@ -377,8 +377,24 @@ void test_operator_inequality()
                    ((value2 != builtin_value) == (builtin_value != value2)));
     }
 
+    // Never equal
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::int128_t))
+    {
+        for (std::size_t i {}; i < N; ++i)
+        {
+            const IntType value {dist(rng)};
+            boost::int128::int128_t emulated_value {1, static_cast<std::uint64_t>(value)};
+            BOOST_TEST((value != emulated_value) == (emulated_value != value));
+        }
+    }
+
     const boost::int128::int128_t bool_val {dist(rng)};
     BOOST_TEST((true != bool_val) == (bool_val != true));
+    const boost::int128::int128_t bool_val2 {static_cast<std::int64_t>(dist(rng)), 0};
+    BOOST_TEST((true != bool_val2) == (bool_val2 != true));
+    BOOST_TEST(bool_val != bool_val2);
+    BOOST_TEST(!(bool_val != bool_val));
+    BOOST_TEST(!(bool_val2 != bool_val2));
 }
 
 template <typename IntType>
