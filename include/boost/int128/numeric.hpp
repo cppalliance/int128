@@ -136,8 +136,7 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 #  pragma warning(pop)
 #endif
 
-template <bool = false>
-inline uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
@@ -150,24 +149,7 @@ inline uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
-template <>
-inline uint128_t mul_sat<true>(const uint128_t x, const uint128_t y) noexcept
-{
-    std::cerr << "Unsigned mul_sat" << std::endl;
-
-    const auto x_bits {bit_width(x)};
-    const auto y_bits {bit_width(y)};
-
-    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
-    {
-        return std::numeric_limits<uint128_t>::max();
-    }
-
-    return x * y;
-}
-
-template <bool = false>
-inline int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
+constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
@@ -185,35 +167,6 @@ inline int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
     }
 
     const int128_t res {x * y};
-    return res;
-}
-
-template <>
-inline int128_t mul_sat<true>(const int128_t& x, const int128_t& y) noexcept
-{
-    std::cerr << "Signed mul_sat" << std::endl;
-
-    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
-    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
-
-    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
-    {
-        std::cout << "X: " << x << '\n'
-        << "Y: " << y << std::endl;
-        if ((x < 0) != (y < 0))
-        {
-            std::cout << "Min Value Return: " << std::numeric_limits<int128_t>::min() << std::endl;
-            return std::numeric_limits<int128_t>::min();
-        }
-        else
-        {
-            std::cout << "Max Value Return: " << std::numeric_limits<int128_t>::max() << std::endl;
-            return std::numeric_limits<int128_t>::max();
-        }
-    }
-    const int128_t res {x * y};
-    std::cout << "Func x: " << x << ", Func y: " << y << std::endl;
-    std::cout << "x * y: " << res << std::endl;
     return res;
 }
 
