@@ -504,6 +504,32 @@ void test_operator_le()
         BOOST_TEST(((value2 <= emulated_value) == (value2 <= builtin_value)) ==
                    ((emulated_value <= value2) == (builtin_value <= value2)));
     }
+
+    // On 32-bits we check the words all the way down
+    // low low
+    boost::int128::uint128_t lhs {0, 1};
+    boost::int128::uint128_t rhs {0, 2};
+    BOOST_TEST(lhs <= rhs);
+    BOOST_TEST(!(rhs <= lhs));
+    BOOST_TEST(lhs <= lhs);
+    // low high
+    lhs = {0, UINT32_MAX};
+    rhs = {0, static_cast<std::uint64_t>(UINT32_MAX) + 1ULL};
+    BOOST_TEST(lhs <= rhs);
+    BOOST_TEST(!(rhs <= lhs));
+    BOOST_TEST(lhs <= lhs);
+    // high low
+    lhs = {1, UINT64_MAX};
+    rhs = {2, UINT64_MAX};
+    BOOST_TEST(lhs <= rhs);
+    BOOST_TEST(!(rhs <= lhs));
+    BOOST_TEST(lhs <= lhs);
+    // high high
+    lhs = {UINT32_MAX, UINT64_MAX};
+    rhs = {static_cast<std::uint64_t>(UINT32_MAX) + 1ULL, UINT64_MAX};
+    BOOST_TEST(lhs <= rhs);
+    BOOST_TEST(!(rhs <= lhs));
+    BOOST_TEST(lhs <= lhs);
 }
 
 template <typename IntType>
@@ -541,6 +567,28 @@ void test_operator_greater()
         BOOST_TEST(((value2 > emulated_value) == (value2 > builtin_value)) ==
                    ((emulated_value > value2) == (builtin_value > value2)));
     }
+
+    // On 32-bits we check the words all the way down
+    // low low
+    boost::int128::uint128_t lhs {0, 1};
+    boost::int128::uint128_t rhs {0, 2};
+    BOOST_TEST(rhs > lhs);
+    BOOST_TEST(!(lhs > rhs));
+    // low high
+    lhs = {0, UINT32_MAX};
+    rhs = {0, static_cast<std::uint64_t>(UINT32_MAX) + 1ULL};
+    BOOST_TEST(rhs > lhs);
+    BOOST_TEST(!(lhs > rhs));
+    // high low
+    lhs = {1, UINT64_MAX};
+    rhs = {2, UINT64_MAX};
+    BOOST_TEST(rhs > lhs);
+    BOOST_TEST(!(lhs > rhs));
+    // high high
+    lhs = {UINT32_MAX, UINT64_MAX};
+    rhs = {static_cast<std::uint64_t>(UINT32_MAX) + 1ULL, UINT64_MAX};
+    BOOST_TEST(rhs > lhs);
+    BOOST_TEST(!(lhs > rhs));
 }
 
 template <typename IntType>
@@ -583,27 +631,27 @@ void test_operator_ge()
     // low low
     boost::int128::uint128_t lhs {0, 1};
     boost::int128::uint128_t rhs {0, 2};
-    BOOST_TEST(lhs <= rhs);
-    BOOST_TEST(!(rhs <= lhs));
-    BOOST_TEST(lhs <= lhs);
+    BOOST_TEST(rhs >= lhs);
+    BOOST_TEST(!(lhs >= rhs));
+    BOOST_TEST(lhs >= lhs);
     // low high
     lhs = {0, UINT32_MAX};
     rhs = {0, static_cast<std::uint64_t>(UINT32_MAX) + 1ULL};
-    BOOST_TEST(lhs <= rhs);
-    BOOST_TEST(!(rhs <= lhs));
-    BOOST_TEST(lhs <= lhs);
+    BOOST_TEST(rhs >= lhs);
+    BOOST_TEST(!(lhs >= rhs));
+    BOOST_TEST(lhs >= lhs);
     // high low
     lhs = {1, UINT64_MAX};
     rhs = {2, UINT64_MAX};
-    BOOST_TEST(lhs <= rhs);
-    BOOST_TEST(!(rhs <= lhs));
-    BOOST_TEST(lhs <= lhs);
+    BOOST_TEST(rhs >= lhs);
+    BOOST_TEST(!(lhs >= rhs));
+    BOOST_TEST(lhs >= lhs);
     // high high
     lhs = {UINT32_MAX, UINT64_MAX};
     rhs = {static_cast<std::uint64_t>(UINT32_MAX) + 1ULL, UINT64_MAX};
-    BOOST_TEST(lhs <= rhs);
-    BOOST_TEST(!(rhs <= lhs));
-    BOOST_TEST(lhs <= lhs);
+    BOOST_TEST(rhs >= lhs);
+    BOOST_TEST(!(lhs >= rhs));
+    BOOST_TEST(lhs >= lhs);
 }
 
 template <typename IntType>
