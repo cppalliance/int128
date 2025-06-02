@@ -13,32 +13,12 @@ using namespace boost::int128::literals;
 void test_u128_literals()
 {
     BOOST_TEST(boost::int128::uint128_t{0} == 0_u128);
-
-    if (!BOOST_TEST(boost::int128::uint128_t{10} == "10"_U128))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "LHS: " << boost::int128::uint128_t{10} << '\n'
-                  << "RHS: " << "10"_U128 << std::endl;
-        // LCOV_EXCL_STOP
-    }
-
-    if (!BOOST_TEST(boost::int128::uint128_t{0} == BOOST_INT128_UINT128_C(0)))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "LHS: " << boost::int128::uint128_t{0} << '\n'
-                  << "RHS: " << BOOST_INT128_UINT128_C(0) << std::endl;
-        // LCOV_EXCL_STOP
-    }
+    BOOST_TEST(boost::int128::uint128_t{10} == "10"_U128);
+    BOOST_TEST(boost::int128::uint128_t{0} == BOOST_INT128_UINT128_C(0));
 
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     const auto macro_val {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
-    if (!BOOST_TEST(max_val == macro_val))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "LHS: " << max_val << '\n'
-                  << "RHS: " << macro_val << std::endl;
-        // LCOV_EXCL_STOP
-    }
+    BOOST_TEST(max_val == macro_val);
 }
 
 void test_i128_literals()
@@ -49,23 +29,11 @@ void test_i128_literals()
 
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
     const auto macro_val {BOOST_INT128_INT128_C(170141183460469231731687303715884105727)};
-    if (!BOOST_TEST(max_val == macro_val))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "LHS: " << max_val << '\n'
-                  << "RHS: " << macro_val << std::endl;
-        // LCOV_EXCL_STOP
-    }
+    BOOST_TEST(max_val == macro_val);
 
     const boost::int128::int128_t min_val {std::numeric_limits<boost::int128::int128_t>::min()};
     const auto min_macro_val {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
-    if (!BOOST_TEST(min_val == min_macro_val))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "LHS: " << min_val << '\n'
-                  << "RHS: " << min_macro_val << std::endl;
-        // LCOV_EXCL_STOP
-    }
+    BOOST_TEST(min_val == min_macro_val);
 }
 
 int main()
