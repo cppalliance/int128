@@ -94,7 +94,7 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
     {
         // x < 0 and y < 0
         // Nearly the same technique as the positive values case
-        constexpr auto max_value {static_cast<uint128_t>(abs(std::numeric_limits<int128_t>::min()))};
+        constexpr auto max_value {-static_cast<uint128_t>(std::numeric_limits<int128_t>::min())};
         const auto big_x {static_cast<uint128_t>(abs(x))};
         const auto big_y {static_cast<uint128_t>(abs(y))};
         const auto big_res {big_x + big_y};
