@@ -792,13 +792,13 @@ constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<detail::builtin_u128>(lhs) < static_cast<detail::builtin_u128>(rhs);
+    return static_cast<detail::builtin_u128>(lhs) <= static_cast<detail::builtin_u128>(rhs);
 
     #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high;
+        return lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high; // LCOV_EXCL_LINE
     }
     else
     {
@@ -808,14 +808,14 @@ constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
         std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_lhs));
         std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_rhs));
 
-        return builtin_lhs < builtin_rhs;
+        return builtin_lhs <= builtin_rhs;
     }
 
     #elif (defined(__i386__) || defined(_M_IX86) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high;
+        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high; // LCOV_EXCL_LINE
     }
     else
     {
