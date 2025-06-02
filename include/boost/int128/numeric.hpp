@@ -167,7 +167,7 @@ inline uint128_t mul_sat<true>(const uint128_t x, const uint128_t y) noexcept
 }
 
 template <bool = false>
-inline int128_t mul_sat(const int128_t x, const int128_t y) noexcept
+inline int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
@@ -189,7 +189,7 @@ inline int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 }
 
 template <>
-inline int128_t mul_sat<true>(const int128_t x, const int128_t y) noexcept
+inline int128_t mul_sat<true>(const int128_t& x, const int128_t& y) noexcept
 {
     std::cerr << "Signed mul_sat" << std::endl;
 
