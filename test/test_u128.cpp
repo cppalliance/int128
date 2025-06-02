@@ -798,6 +798,7 @@ void test_operator_left_shift()
         emulated_copy <<= shift_value;
 
         BOOST_TEST(emulated_copy == builtin_copy);
+        BOOST_TEST(emulated_copy == (emulated_value << static_cast<boost::int128::uint128_t>(shift_value)));
 
         // Test 2: Test the binary << operator
         auto shifted_builtin = builtin_value << shift_value;
@@ -818,7 +819,11 @@ void test_operator_left_shift()
     // Edge cases
     const boost::int128::uint128_t val {UINT64_MAX};
     BOOST_TEST((val << 130) == 0);
+    auto res {val << static_cast<boost::int128::uint128_t>(128)};
+    BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
     BOOST_TEST((val << -5) == 0);
+    res = (val << static_cast<boost::int128::uint128_t>(0));
+    BOOST_TEST(res == val);
 }
 
 template <typename IntType>
@@ -844,6 +849,7 @@ void test_operator_right_shift()
         emulated_copy >>= shift_value;
 
         BOOST_TEST(emulated_copy == builtin_copy);
+        BOOST_TEST(emulated_copy == (emulated_value >> static_cast<boost::int128::uint128_t>(shift_value)));
 
         // Test 2: Test the binary >> operator
         auto shifted_builtin = builtin_value << shift_value;
@@ -865,6 +871,10 @@ void test_operator_right_shift()
     const boost::int128::uint128_t val {UINT64_MAX};
     BOOST_TEST((val >> 130) == 0);
     BOOST_TEST((val >> -5) == 0);
+    auto res {val >> static_cast<boost::int128::uint128_t>(128)};
+    BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
+    res = (val >> static_cast<boost::int128::uint128_t>(0));
+    BOOST_TEST(res == val);
 }
 
 void test_increment_operator()
