@@ -606,7 +606,7 @@ void test_operator_left_shift()
     for (std::size_t i {}; i < N; ++i)
     {
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
-        const unsigned shift_value {shift_dist(rng)};
+        const unsigned shift_value {shift_dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_u128>(value);
         boost::int128::uint128_t emulated_value {value};
 
@@ -794,7 +794,7 @@ void test_operator_sub()
 template <typename IntType>
 void test_operator_mul()
 {
-    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(), get_root_max<IntType>());
+    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(), get_root_max<IntType>()); // LCOV_EXCL_LINE
 
     for (std::size_t i {}; i < N; ++i)
     {
@@ -822,11 +822,11 @@ void test_operator_div()
         IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
 
         // Avoid UB of div by 0
-        while (value == 0)
+        while (value == 0) // LCOV_EXCL_LINE
         {
             value = dist(rng); // LCOV_EXCL_LINE
         }
-        while (value2 == 0)
+        while (value2 == 0) // LCOV_EXCL_LINE
         {
             value2 = dist(rng); // LCOV_EXCL_LINE
         }
