@@ -2619,7 +2619,7 @@ constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) no
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
         return {0, 0};
     }
