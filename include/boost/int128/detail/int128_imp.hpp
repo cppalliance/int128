@@ -398,30 +398,24 @@ constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcep
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
-           lhs.high == static_cast<std::int64_t>(rhs >> 64);
+    return lhs == static_cast<int128_t>(rhs);
 }
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
-    return rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
-           rhs.high == static_cast<std::int64_t>(lhs >> 64);
+    return static_cast<int128_t>(lhs) == rhs;
 }
 
 #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs.high < 0 ? false :
-           lhs.low == static_cast<std::uint64_t>(rhs & detail::low_word_mask) &&
-           lhs.high == static_cast<std::int64_t>(rhs >> 64);
+    return lhs.high < 0 ? false : lhs == static_cast<int128_t>(rhs);
 }
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
-    return rhs.high < 0 ? false :
-           rhs.low == static_cast<std::uint64_t>(lhs & detail::low_word_mask) &&
-           rhs.high == static_cast<std::int64_t>(lhs >> 64);
+    return rhs.high < 0 ? false : static_cast<int128_t>(lhs) == rhs;
 }
 
 #else
@@ -540,30 +534,24 @@ constexpr bool operator!=(const UnsignedInteger lhs, const int128_t rhs) noexcep
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs.low != static_cast<std::uint64_t>(rhs & detail::low_word_mask) ||
-           lhs.high != static_cast<std::int64_t>(rhs >> 64);
+    return lhs != static_cast<int128_t>(rhs);
 }
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
-    return rhs.low != static_cast<std::uint64_t>(lhs & detail::low_word_mask) ||
-           rhs.high != static_cast<std::int64_t>(lhs >> 64);
+    return static_cast<int128_t>(lhs) != rhs;
 }
 
 #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs.high < 0 ? true :
-           lhs.low != static_cast<std::uint64_t>(rhs & detail::low_word_mask) ||
-           lhs.high != static_cast<std::int64_t>(rhs >> 64);
+    return lhs.high < 0 ? true : lhs != static_cast<int128_t>(rhs);
 }
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
-    return rhs.high < 0 ? true :
-           rhs.low != static_cast<std::uint64_t>(lhs & detail::low_word_mask) ||
-           rhs.high != static_cast<std::int64_t>(lhs >> 64);
+    return rhs.high < 0 ? true : static_cast<int128_t>(lhs) != rhs;
 }
 
 #else

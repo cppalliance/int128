@@ -394,6 +394,8 @@ void test_operator_inequality()
     BOOST_TEST((true != bool_val2) == (bool_val2 != true));
     BOOST_TEST(bool_val != bool_val2);
     BOOST_TEST(!(bool_val != bool_val));
+    BOOST_TEST((bool_val != (bool_val+1)));
+    BOOST_TEST(((bool_val+1) != bool_val));
     BOOST_TEST(!(bool_val2 != bool_val2));
 }
 
