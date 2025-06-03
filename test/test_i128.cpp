@@ -1174,6 +1174,15 @@ int main()
     // rhs % lhs == -1184271995001643447
     test_spot_mod(INT64_C(-7986186155808038790), INT64_C(-1184271995001643447));
 
+    // lhs % rhs == 15
+    test_spot_mod(static_cast<short>(81), static_cast<short>(-22));
+
+    // lhs % rhs == 1194843042943565928
+    test_spot_mod(INT64_C(6627510689879126116), INT64_C(-1358166911733890047));
+
+    // lhs % rhs == 45765284099668012
+    test_spot_mod(INT64_C(3120322666916965645), INT64_C(-1024852460939099211));
+
     return boost::report_errors();
 }
 
