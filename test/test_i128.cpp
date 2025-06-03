@@ -1074,6 +1074,25 @@ void test_abs()
     }
 }
 
+template <typename IntType>
+void test_spot_mod(const IntType value, const IntType value2)
+{
+    auto builtin_value = static_cast<builtin_i128>(value);
+    boost::int128::int128_t emulated_value{value};
+
+    auto check_1_value{emulated_value};
+    check_1_value %= value2;
+
+    static_assert(sizeof(decltype(emulated_value % value2)) ==
+        sizeof(decltype(builtin_value % value2)), "Mismatch Return Types");
+
+    static_assert(sizeof(decltype(value2 % emulated_value)) ==
+        sizeof(decltype(value2 % builtin_value)), "Mismatch Return Types");
+
+    BOOST_TEST(check_1_value == (builtin_value % value2));
+    BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value));
+}
+
 struct test_caller
 {
     template<typename T>
@@ -1150,6 +1169,10 @@ int main()
     test_float_conversion_operators<long double>();
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
+
+    // lhs % rhs == -880554185798178108
+    // rhs % lhs == -1184271995001643447
+    test_spot_mod(INT64_C(-7986186155808038790), INT64_C(-1184271995001643447));
 
     return boost::report_errors();
 }
