@@ -2269,7 +2269,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
-        return library_mul(lhs, rhs);
+        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
@@ -2280,7 +2280,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
-        return library_mul(lhs, rhs);
+        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
