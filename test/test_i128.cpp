@@ -1013,12 +1013,12 @@ void test_operator_mod()
             BOOST_TEST(check_1_value == (emulated_value % check_2_value));
 
             // Shouldn't crash
-            BOOST_TEST(check_2_value % IntType(0) == 0);
-            BOOST_TEST(value % static_cast<boost::int128::int128_t>(0) == 0);
-            BOOST_TEST(small_emulated_value % static_cast<boost::int128::int128_t>(0) == 0);
-
-            BOOST_TEST(small_emulated_value % emulated_value == small_emulated_value);
-            BOOST_TEST(small_emulated_value % small_emulated_value == 0);
+            // Codecov has these marked as partials which is as long as they pass is irrelevant 
+            BOOST_TEST(check_2_value % IntType(0) == 0);                                        // LCOV_EXCL_LINE
+            BOOST_TEST(value % static_cast<boost::int128::int128_t>(0) == 0);                   // LCOV_EXCL_LINE
+            BOOST_TEST(small_emulated_value % static_cast<boost::int128::int128_t>(0) == 0);    // LCOV_EXCL_LINE
+            BOOST_TEST(small_emulated_value % emulated_value == small_emulated_value);          // LCOV_EXCL_LINE
+            BOOST_TEST(small_emulated_value % small_emulated_value == 0);                       // LCOV_EXCL_LINE
         }
     }
 }
