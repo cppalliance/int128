@@ -1128,9 +1128,7 @@ struct test_caller
         test_operator_mul<T>();
        
         test_operator_div<T>();
-        #ifndef _M_IX86
         test_operator_mod<T>();
-        #endif
 
         test_abs<T>();
     }
@@ -1169,7 +1167,6 @@ int main()
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
-    #ifndef _M_IX86
     // lhs % rhs == -880554185798178108
     // rhs % lhs == -1184271995001643447
     test_spot_mod(INT64_C(-7986186155808038790), INT64_C(-1184271995001643447));
@@ -1182,7 +1179,6 @@ int main()
 
     // lhs % rhs == 45765284099668012
     test_spot_mod(INT64_C(3120322666916965645), INT64_C(-1024852460939099211));
-    #endif
 
     return boost::report_errors();
 }
