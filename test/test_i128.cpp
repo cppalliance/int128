@@ -1126,7 +1126,8 @@ struct test_caller
         test_operator_add<T>();
         test_operator_sub<T>();
         test_operator_mul<T>();
-        #ifndef _M_IX86
+        // See: https://github.com/cppalliance/int128/issues/147#issuecomment-2936929238
+        #if !defined(_M_IX86) || (defined(_M_IX86) && defined(_DEBUG))
         test_operator_div<T>();
         test_operator_mod<T>();
         #endif
@@ -1168,7 +1169,8 @@ int main()
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
-    #ifndef _M_IX86
+    // See: https://github.com/cppalliance/int128/issues/147#issuecomment-2936929238
+    #if !defined(_M_IX86) || (defined(_M_IX86) && defined(_DEBUG))
     // lhs % rhs == -880554185798178108
     // rhs % lhs == -1184271995001643447
     test_spot_mod(INT64_C(-7986186155808038790), INT64_C(-1184271995001643447));
