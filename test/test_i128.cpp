@@ -985,11 +985,11 @@ void test_operator_mod()
             // Avoid UB of div by 0
             while (value == 0)
             {
-                value = dist(rng);
+                value = dist(rng); // LCOV_EXCL_LINE
             }
             while (value2 == 0)
             {
-                value2 = dist(rng);
+                value2 = dist(rng); // LCOV_EXCL_LINE
             }
 
             const boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
