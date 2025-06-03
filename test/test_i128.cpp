@@ -1129,9 +1129,7 @@ struct test_caller
         #ifndef _M_IX86
         test_operator_div<T>();
         #endif
-        #ifndef _WIN32
         test_operator_mod<T>();
-        #endif
 
         test_abs<T>();
     }
