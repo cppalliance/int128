@@ -8,7 +8,19 @@ https://www.boost.org/LICENSE_1_0.txt
 = Benchmarks
 :idprefix: benchmarks_
 
-== MSVC 14.3
+== Linux
+
+=== x86_64
+
+=== x86_32
+
+=== ARM64
+
+=== ARM32
+
+=== S390x
+
+== Windows
 
 === ARM64
 
@@ -63,3 +75,9 @@ image::../x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 image::../x64_benchmarks.png[x64 Benchmark Results, width=100%]
 
 image::../x64_relative_performance.png[x64 Relative Performance, width=100%]
+
+== macOS
+
+=== ARM64 (Apple Silicon)
+
+=== x86_64
