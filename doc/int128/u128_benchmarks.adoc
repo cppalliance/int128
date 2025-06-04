@@ -4,9 +4,9 @@ Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
 
-[#benchmarks]
-= Benchmarks
-:idprefix: benchmarks_
+[#u128_benchmarks]
+= `uint128_t` Benchmarks
+:idprefix: u128_benchmarks_
 
 == Linux
 
@@ -36,9 +36,9 @@ https://www.boost.org/LICENSE_1_0.txt
 | Modulo | 1104772 | 1143344 | 2089105
 |===
 
-image::../arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+image::../u128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 
-image::../arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
+image::../u128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_32
 
@@ -54,9 +54,9 @@ image::../arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
 | Modulo | 4551146 | 4330152 | 6294325
 |===
 
-image::../x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
+image::../u128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
 
-image::../x86_relative_performance.png[x86_32 Relative Performance, width=100%]
+image::../u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 
 === x86_64
 
@@ -72,9 +72,9 @@ image::../x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 | Modulo | 1465138 | 1471169 | 3926336
 |===
 
-image::../x64_benchmarks.png[x64 Benchmark Results, width=100%]
+image::../u128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
 
-image::../x64_relative_performance.png[x64 Relative Performance, width=100%]
+image::../u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 == macOS
 
