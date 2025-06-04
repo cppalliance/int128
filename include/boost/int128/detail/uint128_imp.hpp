@@ -2316,7 +2316,28 @@ BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uin
     return result;
 }
 
-#endif
+#elif defined(_M_ARM64)
+
+BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept
+{
+    const auto low_low{lhs.low * rhs.low};
+    const auto high_low{__umulh(lhs.low, rhs.low)};
+
+    const auto low_high{lhs.low * rhs.high};
+    const auto high_low{lhs.high * rhs.low};
+
+    const auto high{high_low + low_hi + hi_low};
+
+    return {high, low_low};
+}
+
+BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint64_t rhs) noexcept
+{
+    const auto low{lhs.low * rhs};
+
+}
+
+#endif // MSVC implementations
 
 template <typename UnsignedInteger>
 BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
@@ -2354,7 +2375,7 @@ BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, c
 
         return static_cast<uint128_t>(static_cast<builtin_u128>(lhs) * static_cast<builtin_u128>(rhs));
 
-    #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif ((defined(_M_AMD64) && !defined(__GNUC__)) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
