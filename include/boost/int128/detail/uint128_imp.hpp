@@ -2321,12 +2321,12 @@ BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uin
 BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept
 {
     const auto low_low{lhs.low * rhs.low};
-    const auto high_low{__umulh(lhs.low, rhs.low)};
+    const auto high_low_low{__umulh(lhs.low, rhs.low)};
 
     const auto low_high{lhs.low * rhs.high};
     const auto high_low{lhs.high * rhs.low};
 
-    const auto high{high_low + low_hi + hi_low};
+    const auto high{high_low + low_high + high_low_low};
 
     return {high, low_low};
 }
