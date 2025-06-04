@@ -80,4 +80,22 @@ image::../u128_graphs/windows/x64_relative_performance.png[x64 Relative Performa
 
 === ARM64 (Apple Silicon)
 
+Clang-20
+
+[cols="1,1,1,1"]
+|===
+| Operation | `unsigned __in128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 131902 | 133564 | 134182
+| Addition | 20613 | 17912 | 40176
+| Subtraction | 20484 | 18237 | 40311
+| Multiplication | 20160 | 20580 | 43285
+| Division | 686521 | 699201 | 945928
+| Modulo | 777084 | 724648 | 953117
+|===
+
+image::../u128_graphs/macos/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+
+image::../u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
+
 === x86_64
