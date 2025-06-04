@@ -22,12 +22,21 @@ data = {
 }
 """
 
+"""
 # x64 MSVC
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     'std::_Unsigned128': [2060556, 261475, 178724, 146063, 1332838, 1465138],
     'uint128_t': [1921174, 106545, 124181, 136115, 1360295, 1471169],
     'boost::mp::uint128_t': [3009890, 2710279, 3059187, 3495634, 4852899, 3926336]
+}
+"""
+
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    'unsigned __int128': [131902, 20613, 20484, 20160, 686521, 777084],
+    'uint128_t': [133564, 17912, 18237, 20580, 699201, 724648],
+    'boost::mp::uint128_t': [134182, 40176, 40311, 43285, 945928, 953117]
 }
 
 df = pd.DataFrame(data)
@@ -67,7 +76,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('MSVC 14.3 - x64 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('Clang 20 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -96,7 +105,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('MSVC 14.3 - x64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('Clang 20 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -104,20 +113,20 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('x64_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
 fig3, ax3 = plt.subplots(figsize=(10, 6))
 
-# Normalize data relative to std::_Unsigned128
+# Normalize data relative to unsigned __int128
 normalized_df = df.copy()
 for col in implementations:
-    normalized_df[col] = df[col] / df['std::_Unsigned128']
+    normalized_df[col] = df[col] / df['unsigned __int128']
 
 # Plot normalized bars
 for i, impl in enumerate(implementations):
-    if impl == 'std::_Unsigned128':
+    if impl == 'unsigned __int128':
         continue  # Skip since it's always 1.0
     bars = ax3.bar(x + (i-1.5)*width, normalized_df[impl], width,
                    label=impl, edgecolor='black', linewidth=0.5)
@@ -129,11 +138,11 @@ for i, impl in enumerate(implementations):
                  f'{height:.2f}x', ha='center', va='bottom', fontsize=9)
 
 # Add reference line at 1.0
-ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='std::_Unsigned128 baseline')
+ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='unsigned __int128 baseline')
 
 ax3.set_xlabel('Operations', fontsize=12)
-ax3.set_ylabel('Relative Performance (vs std::_Unsigned128)', fontsize=12)
-ax3.set_title('Relative Performance Comparison - x64', fontsize=14, fontweight='bold')
+ax3.set_ylabel('Relative Performance (vs unsigned __int128)', fontsize=12)
+ax3.set_title('Relative Performance Comparison - ARM64', fontsize=14, fontweight='bold')
 ax3.set_xticks(x)
 ax3.set_xticklabels(operations, rotation=45, ha='right')
 ax3.legend()
@@ -144,17 +153,17 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('x64_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
-print("\nPerformance Summary (x64):")
+print("\nPerformance Summary (ARM64):")
 print("-" * 50)
 for impl in implementations:
-    if impl == 'std::_Unsigned128':
+    if impl == 'unsigned __int128':
         continue
     avg_ratio = normalized_df[impl].mean()
-    print(f"{impl}: {avg_ratio:.2f}x average vs std::_Unsigned128")
+    print(f"{impl}: {avg_ratio:.2f}x average vs unsigned __int128")
 
 print("\nBest performer by operation:")
 print("-" * 50)
