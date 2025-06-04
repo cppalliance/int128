@@ -1,0 +1,65 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#benchmarks]
+= Benchmarks
+:idprefix: benchmarks_
+
+== MSVC 14.3
+
+=== ARM64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 878929 | 259725 | 1246502
+| Addition | 32788 | 33723 | 1437452
+| Subtraction | 33627 | 36799 | 1648131
+| Multiplication | 68120 | 35334 | 1459418
+| Division | 925583 | 1020148 | 2216648
+| Modulo | 1104772 | 1143344 | 2089105
+|===
+
+image::../arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+
+image::../arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
+
+=== x86_32
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 4215438 | 3883846 | 2852442
+| Addition | 199945 | 208436 | 3242910
+| Subtraction | 1206168 | 210874 | 3851129
+| Multiplication | 2282869 | 2680359 | 5378001
+| Division | 5516964 | 4328917 | 6948267
+| Modulo | 4551146 | 4330152 | 6294325
+|===
+
+image::../x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
+
+image::../x86_relative_performance.png[x86_32 Relative Performance, width=100%]
+
+=== x86_64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 2060556 | 1921174 | 3009890
+| Addition | 261475 | 106545 | 2710279
+| Subtraction | 178724 | 124181 | 3059187
+| Multiplication | 146063 | 136115 | 3495634
+| Division | 1332838 | 1360295 | 4852899
+| Modulo | 1465138 | 1471169 | 3926336
+|===
+
+image::../x64_benchmarks.png[x64 Benchmark Results, width=100%]
+
+image::../x64_relative_performance.png[x64 Relative Performance, width=100%]
