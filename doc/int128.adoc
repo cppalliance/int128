@@ -37,6 +37,8 @@ include::int128/stream.adoc[]
 
 include::int128/saturating.adoc[]
 
+include::int128/benchmarks.adoc[]
+
 include::int128/reference.adoc[]
 
 include::int128/copyright.adoc[]
