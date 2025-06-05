@@ -34,6 +34,8 @@ void test_i128_literals()
     const boost::int128::int128_t min_val {std::numeric_limits<boost::int128::int128_t>::min()};
     const auto min_macro_val {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
     BOOST_TEST(min_val == min_macro_val);
+    
+    BOOST_TEST("-42"_i128 == -42);
 }
 
 int main()
