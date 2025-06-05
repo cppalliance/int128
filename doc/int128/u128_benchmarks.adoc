@@ -77,6 +77,27 @@ image::../u128_graphs/linux/s390x_benchmarks.png[s390x Benchmark Results, width=
 
 image::../u128_graphs/linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
 
+=== PPC64LE
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 5242604 | 4450958 | 5704848
+| Addition | 221776 | 193063 | 847504
+| Subtraction | 222894 | 175259 | 786659
+| Multiplication | 194494 | 192929 | 795187
+| Division | 4821119 | 4896360 | 5344637
+| Modulo | 4955570 | 4273487 | 5407877
+|===
+
+////
+image::../u128_graphs/linux/ppc64le_benchmarks.png[ppc64le Benchmark Results, width=100%]
+////
+
+image::../u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
+
+
 === x86_32
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`

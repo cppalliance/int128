@@ -70,12 +70,22 @@ data = {
 }
 """
 
+"""
 # Linux S390x
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     'unsigned __int128': [14415854, 1232397, 1239808, 1928533, 8102813, 9072599],
     'uint128_t': [12658246, 1423451, 775766, 2600663, 5759377, 6648180],
     'boost::mp::uint128_t': [16561079, 2909066, 2744664, 2384775, 7828137, 9172574]
+}
+"""
+
+# Linux ppc64le
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    'unsigned __int128': [5242604, 221776, 222894, 194494, 4821119, 4955570],
+    'uint128_t': [4450958, 193063, 175259, 192929, 4896360, 4273487],
+    'boost::mp::uint128_t': [5704848, 847504, 786659, 795187, 5344637, 5407877]
 }
 
 df = pd.DataFrame(data)
@@ -115,7 +125,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('GCC 13 - s390x Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 14 - ppc64le Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -144,7 +154,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('GCC 13 - s390x Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 14 - ppc64le Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -152,7 +162,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('s390x_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ppc64le_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -192,7 +202,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('s390x_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ppc64le_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
