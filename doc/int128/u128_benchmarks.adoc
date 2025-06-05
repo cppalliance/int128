@@ -72,11 +72,29 @@ image::../u128_graphs/linux/s390x_relative_performance.png[s390x Relative Perfor
 
 === x86_32
 
-NOTE: This platform has no hardware type so we compare relative to boost::mp::uint128_t
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
+
+[cols="1,1,1"]
+|===
+| Operation | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 9000979 | 8722814
+| Addition | 898718 | 9912175
+| Subtraction  | 778881 | 9773677
+| Multiplication  | 1778273 | 8678420
+| Division  | 8496503 | 18133965
+| Modulo | 9081442 | 11257837
+|===
+
+////
+image::../u128_graphs/linux/x86_benchmarks.png[x86 Benchmark Results, width=100%]
+////
+
+image::../u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
 
 === ARM32
 
-NOTE: This platform has no hardware type so we compare relative to boost::mp::uint128_t
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
 == Windows
 
