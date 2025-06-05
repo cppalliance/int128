@@ -70,3 +70,5 @@ compile-fail test_mixed_arithmetic.cpp ;
 
 run test_consteval_funcs.cpp ;
 
+# Make sure we run the examples as well
+run ../examples/construction.cpp ;
