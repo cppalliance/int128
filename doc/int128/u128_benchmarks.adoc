@@ -21,7 +21,7 @@ On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__ms
 
 [cols="1,1,1,1"]
 |===
-| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 2068491 | 2416378 | 3191439
 | Addition | 383258 | 180522 | 545521
@@ -41,7 +41,7 @@ image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, 
 
 [cols="1,1,1,1"]
 |===
-| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 2068491 | 2416378 | 3191439
 | Addition | 383258 | 180522 | 545521
@@ -61,7 +61,7 @@ image::u128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance
 
 [cols="1,1,1,1"]
 |===
-| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 14415854 | 12658246 | 16561079
 | Addition | 1232397 | 1423451 | 2909066
@@ -81,7 +81,7 @@ image::u128_graphs/linux/s390x_relative_performance.png[s390x Relative Performan
 
 [cols="1,1,1,1"]
 |===
-| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 5242604 | 4450958 | 5704848
 | Addition | 221776 | 193063 | 847504
