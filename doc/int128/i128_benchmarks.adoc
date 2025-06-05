@@ -128,12 +128,12 @@ NOTE: This platform has no hardware type so we compare relative to `boost::mp::i
 |===
 | Operation | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 5286033 | 4538707
-| Addition | 454715 | 5543856
-| Subtraction  | 487190 | 6465126
-| Multiplication  | 1471479 | 8246098
-| Division  | 19868087 | 32820805
-| Modulo | 20332627 | 27238658
+| Comparisons | 6149439 | 6432579
+| Addition | 457850 | 5669571
+| Subtraction  | 488321 | 7464427
+| Multiplication  | 1793874 | 11410321
+| Division  | 17738614 | 38956122
+| Modulo | 18064819 | 30144743
 |===
 
 ////
