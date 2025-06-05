@@ -210,12 +210,12 @@ image::windows/x64_relative_performance.png[x64 Relative Performance, width=100%
 |===
 | Operation | `__int128` | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 131902 | 133564 | 134182
-| Addition | 20613 | 17912 | 40176
-| Subtraction | 20484 | 18237 | 40311
-| Multiplication | 20160 | 20580 | 43285
-| Division | 686521 | 699201 | 945928
-| Modulo | 777084 | 724648 | 953117
+| Comparisons | 134803 | 144313 | 338665
+| Addition | 20133 | 17820 | 168326
+| Subtraction | 20156 | 17864 | 169666
+| Multiplication | 19974 | 18572 | 77514
+| Division | 649380 | 666749 | 962183
+| Modulo | 708247 | 681991 | 1014055
 |===
 
 ////
