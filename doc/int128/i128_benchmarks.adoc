@@ -170,12 +170,12 @@ image::windows/arm64_relative_performance.png[ARM64 Relative Performance, width=
 |===
 | Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 4215438 | 3883846 | 2852442
-| Addition | 199945 | 208436 | 3242910
-| Subtraction | 1206168 | 210874 | 3851129
-| Multiplication | 2282869 | 2680359 | 5378001
-| Division | 5516964 | 4328917 | 6948267
-| Modulo | 4551146 | 4330152 | 6294325
+| Comparisons | 3187340 | 3046252 | 4269507
+| Addition | 185960 | 189165 | 2488618
+| Subtraction | 979025 | 192609 | 2783600
+| Multiplication | 1896082 | 3569921 | 4908622
+| Division | 5566403 | 4348306 | 6835035
+| Modulo | 4697289 | 4793845 | 6476032
 |===
 ////
 image::windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
