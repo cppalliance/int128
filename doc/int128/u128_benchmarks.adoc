@@ -144,6 +144,25 @@ image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performan
 
 == Windows
 
+=== x86_64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 2060556 | 1921174 | 3009890
+| Addition | 261475 | 106545 | 2710279
+| Subtraction | 178724 | 124181 | 3059187
+| Multiplication | 146063 | 136115 | 3495634
+| Division | 1332838 | 1360295 | 4852899
+| Modulo | 1465138 | 1471169 | 3926336
+|===
+////
+image::u128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
+
 === ARM64
 
 [cols="1,1,1,1"]
@@ -181,25 +200,6 @@ image::u128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=10
 ////
 
 image::u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
-
-=== x86_64
-
-[cols="1,1,1,1"]
-|===
-| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
-
-| Comparisons | 2060556 | 1921174 | 3009890
-| Addition | 261475 | 106545 | 2710279
-| Subtraction | 178724 | 124181 | 3059187
-| Multiplication | 146063 | 136115 | 3495634
-| Division | 1332838 | 1360295 | 4852899
-| Modulo | 1465138 | 1471169 | 3926336
-|===
-////
-image::u128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
-////
-
-image::u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 == macOS
 
