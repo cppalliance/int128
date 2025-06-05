@@ -3,7 +3,7 @@ Portable implementations of signed and unsigned 128-bit integers
 
 # Notice
 
-Decimal is under active development and is not an official boost library.
+int128 is under active development and is not an official boost library.
 
 # How To Use The Library
 
@@ -12,7 +12,7 @@ Simply `#include` it and use it.
 
 # Supported Platforms
 
-Boost.Decimal is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
+Boost.Int128 is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
 as well as emulated PPC64LE and STM32 using QEMU with the following compilers:
 
 * GCC 5 and later
@@ -37,7 +37,7 @@ struct int128_t;
 
 These types operate like built-in integer types.
 They have their own implementations of the Standard-Library functions
-(e.g. like those found in `<limits>`, `<iostream>`, etc.).
+(e.g. like those found in `<limits>`, `<iostream>`, `<bit>` etc.).
 
 The entire library can be conveniently included with `#include <boost/int128.hpp>`
 
