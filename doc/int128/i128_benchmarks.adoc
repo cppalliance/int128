@@ -151,12 +151,12 @@ image::linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=10
 |===
 | Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 3424403 | 2062167 | 5026689
-| Addition | 123659 | 133084 | 587373
-| Subtraction | 171721 | 99453 | 330052
-| Multiplication | 329287 | 283443 | 972009
-| Division | 2044821 | 1825020 | 2190856
-| Modulo | 2176318 | 1897933 | 2227961
+| Comparisons | 911829 | 368104 | 2376802
+| Addition | 33233 | 34001 | 121700
+| Subtraction | 33411 | 34130 | 1488822
+| Multiplication | 117586 | 56324 | 1564799
+| Division | 1127267 | 1500725 | 2808293
+| Modulo | 1287100 | 1548073 | 2997474
 |===
 ////
 image::windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
