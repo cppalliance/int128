@@ -8,6 +8,13 @@ https://www.boost.org/LICENSE_1_0.txt
 = `uint128_t` Benchmarks
 :idprefix: u128_benchmarks_
 
+== Methodology
+
+The benchmarks below represent the time in microseconds it takes to perform 20'000'000 operations between two values of random width (e.g. 2x1 words, 1x2 words, etc.).
+On most platforms we use the builtin `unsigned \__int128` as the reference benchmark.
+When this is unavailable (such as on 32-bit architectures) we us `boost::multiprecision::uint128_t` (abbreviated as `boost::mp::uint128_t`) as it is widely used, and known to be portable.
+On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
+
 == Linux
 
 === x86_64
