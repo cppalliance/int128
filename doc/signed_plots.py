@@ -2,12 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+"""
 # Linux x64
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     '__int128': [2086545, 229772, 245300, 403481, 4315016, 4303454],
     'int128_t': [1807917, 249644, 172252, 246659, 4369512, 4686920],
     'boost::mp::int128_t': [6119951, 620566, 1522422, 898345, 4767180, 4855786]
+}
+"""
+
+# Linux ARM64
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    '__int128': [3524205, 109691, 195129, 286623, 2350225, 2345191],
+    'int128_t': [2191692, 126544, 196092, 192214, 2163053, 2167260],
+    'boost::mp::int128_t': [5559916, 553814, 1024231, 924637, 2718340, 2380277]
 }
 
 df = pd.DataFrame(data)
@@ -47,7 +57,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('GCC 14 - x64 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 13 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -76,7 +86,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('GCC 14 - x64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 13 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -84,7 +94,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('x64_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -124,7 +134,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('x64_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
