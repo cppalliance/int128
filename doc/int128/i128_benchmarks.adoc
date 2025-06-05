@@ -208,7 +208,7 @@ image::windows/x64_relative_performance.png[x64 Relative Performance, width=100%
 
 [cols="1,1,1,1"]
 |===
-| Operation | `unsigned __in128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `__int128` | `int128_t` | `boost::mp::int128_t`
 
 | Comparisons | 131902 | 133564 | 134182
 | Addition | 20613 | 17912 | 40176
@@ -228,14 +228,14 @@ image::macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=10
 
 [cols="1,1,1,1"]
 |===
-| Operation | `unsigned __in128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `__int128` | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 131902 | 133564 | 134182
-| Addition | 20613 | 17912 | 40176
-| Subtraction | 20484 | 18237 | 40311
-| Multiplication | 20160 | 20580 | 43285
-| Division | 686521 | 699201 | 945928
-| Modulo | 777084 | 724648 | 953117
+| Comparisons | 1628142 | 1748005 | 4318109
+| Addition | 224648 | 180393 | 925013
+| Subtraction | 212849 | 131062 | 1876834
+| Multiplication | 432205 | 407829 | 651209
+| Division | 3924951 | 2409106 | 3719183
+| Modulo | 3042060 | 2423738 | 4443402
 |===
 
 ////

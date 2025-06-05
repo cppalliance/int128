@@ -208,7 +208,7 @@ image::windows/x64_relative_performance.png[x64 Relative Performance, width=100%
 
 [cols="1,1,1,1"]
 |===
-| Operation | `unsigned __in128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 131902 | 133564 | 134182
 | Addition | 20613 | 17912 | 40176
@@ -228,7 +228,7 @@ image::macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=10
 
 [cols="1,1,1,1"]
 |===
-| Operation | `unsigned __in128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
 | Comparisons | 131902 | 133564 | 134182
 | Addition | 20613 | 17912 | 40176
