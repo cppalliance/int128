@@ -83,12 +83,12 @@ image::i128_graphs/linux/s390x_relative_performance.png[s390x Relative Performan
 |===
 | Operation | `__int128` | `int128_t` | `boost::mp::int128_t`
 
-| Comparisons | 5242604 | 4450958 | 5704848
-| Addition | 221776 | 193063 | 847504
-| Subtraction | 222894 | 175259 | 786659
-| Multiplication | 194494 | 192929 | 795187
-| Division | 4821119 | 4896360 | 5344637
-| Modulo | 4955570 | 4273487 | 5407877
+| Comparisons | 4538094 | 5796198 | 13907323
+| Addition | 221708 | 191841 | 1177034
+| Subtraction | 222629 | 174273 | 1861166
+| Multiplication | 193315 | 191785 | 878393
+| Division | 5607581 | 4669820 | 5616217
+| Modulo | 5623562 | 4750314 | 5641480
 |===
 
 ////
