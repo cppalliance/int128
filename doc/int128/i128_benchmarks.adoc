@@ -7,7 +7,6 @@ https://www.boost.org/LICENSE_1_0.txt
 [#i128_benchmarks]
 = `int128_t` Benchmarks
 :idprefix: i128_benchmarks_
-:imagesdir: i128_graphs
 
 == Methodology
 
@@ -33,10 +32,10 @@ On MSVC platforms we use as reference `std::_Signed128` from the header `<__msvc
 |===
 
 ////
-image::linux/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+image::i128_graphs/linux/x64_benchmarks.png[x64 Benchmark Results, width=100%]
 ////
 
-image::linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
+image::i128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === ARM64
 
@@ -53,10 +52,10 @@ image::linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
 |===
 
 ////
-image::linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+image::i128_graphs/linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
+image::i128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === S390x
 
@@ -73,10 +72,10 @@ image::linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%
 |===
 
 ////
-image::linux/s390x_benchmarks.png[s390x Benchmark Results, width=100%]
+image::i128_graphs/linux/s390x_benchmarks.png[s390x Benchmark Results, width=100%]
 ////
 
-image::linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
+image::i128_graphs/linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
 
 === PPC64LE
 
@@ -93,10 +92,10 @@ image::linux/s390x_relative_performance.png[s390x Relative Performance, width=10
 |===
 
 ////
-image::linux/ppc64le_benchmarks.png[ppc64le Benchmark Results, width=100%]
+image::i128_graphs/linux/ppc64le_benchmarks.png[ppc64le Benchmark Results, width=100%]
 ////
 
-image::linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
+image::i128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
 
 
 === x86_32
@@ -116,10 +115,10 @@ NOTE: This platform has no hardware type so we compare relative to `boost::mp::i
 |===
 
 ////
-image::linux/x86_benchmarks.png[x86 Benchmark Results, width=100%]
+image::i128_graphs/linux/x86_benchmarks.png[x86 Benchmark Results, width=100%]
 ////
 
-image::linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
+image::i128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
 
 === ARM32
 
@@ -138,10 +137,10 @@ NOTE: This platform has no hardware type so we compare relative to `boost::mp::i
 |===
 
 ////
-image::linux/ARM32_benchmarks.png[ARM32 Benchmark Results, width=100%]
+image::i128_graphs/linux/ARM32_benchmarks.png[ARM32 Benchmark Results, width=100%]
 ////
 
-image::linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
+image::i128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
 
 == Windows
 
@@ -159,10 +158,10 @@ image::linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=10
 | Modulo | 1287100 | 1548073 | 2997474
 |===
 ////
-image::windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+image::i128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
+image::i128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_32
 
@@ -178,10 +177,10 @@ image::windows/arm64_relative_performance.png[ARM64 Relative Performance, width=
 | Modulo | 4697289 | 4793845 | 6476032
 |===
 ////
-image::windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
+image::i128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
 ////
 
-image::windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
+image::i128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 
 === x86_64
 
@@ -197,10 +196,10 @@ image::windows/x86_relative_performance.png[x86_32 Relative Performance, width=1
 | Modulo | 1637135 | 2218627 | 6236026
 |===
 ////
-image::windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+image::i128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
 ////
 
-image::windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
+image::i128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 == macOS
 
@@ -219,10 +218,10 @@ image::windows/x64_relative_performance.png[x64 Relative Performance, width=100%
 |===
 
 ////
-image::macos/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+image::i128_graphs/macos/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
+image::i128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_64
 
@@ -239,7 +238,7 @@ image::macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=10
 |===
 
 ////
-image::macos/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+image::i128_graphs/macos/x64_benchmarks.png[x64 Benchmark Results, width=100%]
 ////
 
-image::macos/x64_relative_performance.png[x64 Relative Performance, width=100%]
+image::i128_graphs/macos/x64_relative_performance.png[x64 Relative Performance, width=100%]
