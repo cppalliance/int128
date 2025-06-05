@@ -35,8 +35,9 @@ https://www.boost.org/LICENSE_1_0.txt
 | Division | 925583 | 1020148 | 2216648
 | Modulo | 1104772 | 1143344 | 2089105
 |===
-
+////
 image::../u128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
 
 image::../u128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
@@ -53,8 +54,9 @@ image::../u128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Perf
 | Division | 5516964 | 4328917 | 6948267
 | Modulo | 4551146 | 4330152 | 6294325
 |===
-
+////
 image::../u128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
+////
 
 image::../u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 
@@ -71,8 +73,9 @@ image::../u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Perfo
 | Division | 1332838 | 1360295 | 4852899
 | Modulo | 1465138 | 1471169 | 3926336
 |===
-
+////
 image::../u128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
 
 image::../u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
@@ -92,7 +95,9 @@ image::../u128_graphs/windows/x64_relative_performance.png[x64 Relative Performa
 | Modulo | 777084 | 724648 | 953117
 |===
 
+////
 image::../u128_graphs/macos/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
 
 image::../u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
@@ -110,6 +115,8 @@ image::../u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Perfor
 | Modulo | 777084 | 724648 | 953117
 |===
 
+////
 image::../u128_graphs/macos/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
 
 image::../u128_graphs/macos/x64_relative_performance.png[x64 Relative Performance, width=100%]
