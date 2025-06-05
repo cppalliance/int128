@@ -2,13 +2,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+"""
 # Linux x86_32
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     'int128_t': [9530060, 785799, 778881, 1148024, 10337258, 10438037],
     'boost::mp::int128_t': [12168353, 7777469, 8214089, 9477355, 22857709, 14848256]
 }
+"""
 
+# Linux ARM32
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    'int128_t': [6149439, 457850, 488321, 1793874, 17738614, 18064819],
+    'boost::mp::int128_t': [6432579, 5669571, 7464427, 11410321, 38956122, 30144743]
+}
 
 df = pd.DataFrame(data)
 
@@ -47,7 +55,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('GCC 14 - x86_32 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 14 - ARM32 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -76,7 +84,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('GCC 14 - x86_32 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 14 - ARM32 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -84,7 +92,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('x86_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM32_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -113,7 +121,7 @@ ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='boost::mp::int
 
 ax3.set_xlabel('Operations', fontsize=12)
 ax3.set_ylabel('Relative Performance (vs boost::mp::int128_t)', fontsize=12)
-ax3.set_title('Relative Performance Comparison - x86_32', fontsize=14, fontweight='bold')
+ax3.set_title('Relative Performance Comparison - ARM32', fontsize=14, fontweight='bold')
 ax3.set_xticks(x)
 ax3.set_xticklabels(operations, rotation=45, ha='right')
 ax3.legend()
@@ -124,7 +132,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('x86_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM32_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
