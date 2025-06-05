@@ -48,13 +48,22 @@ data = {
     'boost::mp::int128_t': [4318109, 925013, 1876834, 651209, 3719183, 4443402]
 }
 """
-
+"""
 # macos ARM
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     '`__int128`': [134803, 20133, 20156, 19974, 649380, 708247],
     'int128_t': [144313, 17820, 17864, 18572, 666749, 681991],
     'boost::mp::int128_t': [338665, 168326, 169666, 77514, 962183, 1014055]
+}
+"""
+
+# MSVC 14.3 - ARM64
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    'std::_Signed128': [911829, 33233, 33411, 117586, 1127267, 1287100],
+    'int128_t': [368104, 34001, 34130, 56324, 1500725, 1548073],
+    'boost::mp::int128_t': [2376802, 121700, 1488822, 1564799, 2808293, 2997474]
 }
 
 df = pd.DataFrame(data)
@@ -94,7 +103,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('Clang 20 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('MSVC 14.3 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -123,7 +132,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('Clang 20 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('MSVC 14.3 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -140,11 +149,11 @@ fig3, ax3 = plt.subplots(figsize=(10, 6))
 # Normalize data relative to __int128
 normalized_df = df.copy()
 for col in implementations:
-    normalized_df[col] = df[col] / df['`__int128`']
+    normalized_df[col] = df[col] / df['std::_Signed128']
 
 # Plot normalized bars
 for i, impl in enumerate(implementations):
-    if impl == '`__int128`':
+    if impl == 'std::_Signed128':
         continue  # Skip since it's always 1.0
     bars = ax3.bar(x + (i-1.5)*width, normalized_df[impl], width,
                    label=impl, edgecolor='black', linewidth=0.5)
@@ -156,7 +165,7 @@ for i, impl in enumerate(implementations):
                  f'{height:.2f}x', ha='center', va='bottom', fontsize=9)
 
 # Add reference line at 1.0
-ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='`__int128` baseline')
+ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='std::_Signed128 baseline')
 
 ax3.set_xlabel('Operations', fontsize=12)
 ax3.set_ylabel('Relative Performance (vs __int128)', fontsize=12)
