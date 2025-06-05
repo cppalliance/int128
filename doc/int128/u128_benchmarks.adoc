@@ -12,6 +12,24 @@ https://www.boost.org/LICENSE_1_0.txt
 
 === x86_64
 
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 2068491 | 2416378 | 3191439
+| Addition | 383258 | 180522 | 545521
+| Subtraction | 208155 | 192633 | 420573
+| Multiplication | 291075 | 241174 | 675361
+| Division | 3953939 | 4246753 | 4976285
+| Modulo | 4042166 | 3953441 | 4478923
+|===
+
+////
+image::../u128_graphs/linux/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
+
+image::../u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
+
 === x86_32
 
 === ARM64

@@ -42,6 +42,7 @@ data = {
 }
 """
 
+"""
 # x64 macOS
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
@@ -49,6 +50,16 @@ data = {
     'uint128_t': [712352, 124992, 102302, 119652, 1981469, 2219481],
     'boost::mp::uint128_t': [689146, 137819, 153484, 164100, 2784139, 2736682]
 }
+"""
+
+# Linux x64
+data = {
+    'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
+    'unsigned __int128': [2068491, 383258, 208155, 291075, 3953939, 4042166],
+    'uint128_t': [2416378, 180522, 192633, 241174, 4246753, 3953441],
+    'boost::mp::uint128_t': [3191439, 545521, 420573, 675361, 4976285, 4478923]
+}
+
 
 df = pd.DataFrame(data)
 
@@ -87,7 +98,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('Clang 15 - x64 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 14 - x64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -116,7 +127,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('Clang 15 - x64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 14 - x64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
