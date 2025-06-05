@@ -158,10 +158,10 @@ image::i128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performan
 | Modulo | 1287100 | 1548073 | 2997474
 |===
 ////
-image::i128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+image::i128_graphs/windows/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::i128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
+image::i128_graphs/windows/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_32
 
