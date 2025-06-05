@@ -1,0 +1,244 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#i128_benchmarks]
+= `int128_t` Benchmarks
+:idprefix: i128_benchmarks_
+
+== Methodology
+
+The benchmarks below represent the time in microseconds it takes to perform 20'000'000 operations between two values of random width (e.g. 2x1 words, 1x2 words, etc.).
+On most platforms we use the builtin `\__int128` as the reference benchmark.
+When this is unavailable (such as on 32-bit architectures) we us `boost::multiprecision::int128_t` (abbreviated as `boost::mp::int128_t`) as it is widely used, and known to be portable.
+On MSVC platforms we use as reference `std::_Signed128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
+
+== Linux
+
+=== x86_64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 2068491 | 2416378 | 3191439
+| Addition | 383258 | 180522 | 545521
+| Subtraction | 208155 | 192633 | 420573
+| Multiplication | 291075 | 241174 | 675361
+| Division | 3953939 | 4246753 | 4976285
+| Modulo | 4042166 | 3953441 | 4478923
+|===
+
+////
+image::u128_graphs/linux/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
+
+=== ARM64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 2068491 | 2416378 | 3191439
+| Addition | 383258 | 180522 | 545521
+| Subtraction | 208155 | 192633 | 420573
+| Multiplication | 291075 | 241174 | 675361
+| Division | 3953939 | 4246753 | 4976285
+| Modulo | 4042166 | 3953441 | 4478923
+|===
+
+////
+image::u128_graphs/linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
+
+=== S390x
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 14415854 | 12658246 | 16561079
+| Addition | 1232397 | 1423451 | 2909066
+| Subtraction | 1239808 | 775766 | 2744664
+| Multiplication | 1928533 | 2600663 | 2384775
+| Division | 8102813 | 5759377 | 7828137
+| Modulo | 9072599 | 6648180 | 9172574
+|===
+
+////
+image::u128_graphs/linux/s390x_benchmarks.png[s390x Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
+
+=== PPC64LE
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 5242604 | 4450958 | 5704848
+| Addition | 221776 | 193063 | 847504
+| Subtraction | 222894 | 175259 | 786659
+| Multiplication | 194494 | 192929 | 795187
+| Division | 4821119 | 4896360 | 5344637
+| Modulo | 4955570 | 4273487 | 5407877
+|===
+
+////
+image::u128_graphs/linux/ppc64le_benchmarks.png[ppc64le Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
+
+
+=== x86_32
+
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128_t`
+
+[cols="1,1,1"]
+|===
+| Operation | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 9000979 | 8722814
+| Addition | 898718 | 9912175
+| Subtraction  | 778881 | 9773677
+| Multiplication  | 1778273 | 8678420
+| Division  | 8496503 | 18133965
+| Modulo | 9081442 | 11257837
+|===
+
+////
+image::u128_graphs/linux/x86_benchmarks.png[x86 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
+
+=== ARM32
+
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128_t`
+
+[cols="1,1,1"]
+|===
+| Operation | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 5286033 | 4538707
+| Addition | 454715 | 5543856
+| Subtraction  | 487190 | 6465126
+| Multiplication  | 1471479 | 8246098
+| Division  | 19868087 | 32820805
+| Modulo | 20332627 | 27238658
+|===
+
+////
+image::u128_graphs/linux/ARM32_benchmarks.png[ARM32 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
+
+== Windows
+
+=== ARM64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 3424403 | 2062167 | 5026689
+| Addition | 123659 | 133084 | 587373
+| Subtraction | 171721 | 99453 | 330052
+| Multiplication | 329287 | 283443 | 972009
+| Division | 2044821 | 1825020 | 2190856
+| Modulo | 2176318 | 1897933 | 2227961
+|===
+////
+image::u128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/windows/arm64_relative_performance.png[ARM64 Relative Performance, width=100%]
+
+=== x86_32
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 4215438 | 3883846 | 2852442
+| Addition | 199945 | 208436 | 3242910
+| Subtraction | 1206168 | 210874 | 3851129
+| Multiplication | 2282869 | 2680359 | 5378001
+| Division | 5516964 | 4328917 | 6948267
+| Modulo | 4551146 | 4330152 | 6294325
+|===
+////
+image::u128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
+
+=== x86_64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 2060556 | 1921174 | 3009890
+| Addition | 261475 | 106545 | 2710279
+| Subtraction | 178724 | 124181 | 3059187
+| Multiplication | 146063 | 136115 | 3495634
+| Division | 1332838 | 1360295 | 4852899
+| Modulo | 1465138 | 1471169 | 3926336
+|===
+////
+image::u128_graphs/windows/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
+
+== macOS
+
+=== ARM64 (Apple Silicon)
+
+[cols="1,1,1,1"]
+|===
+| Operation | `unsigned __in128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 131902 | 133564 | 134182
+| Addition | 20613 | 17912 | 40176
+| Subtraction | 20484 | 18237 | 40311
+| Multiplication | 20160 | 20580 | 43285
+| Division | 686521 | 699201 | 945928
+| Modulo | 777084 | 724648 | 953117
+|===
+
+////
+image::u128_graphs/macos/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
+
+=== x86_64
+
+[cols="1,1,1,1"]
+|===
+| Operation | `unsigned __in128` | `int128_t` | `boost::mp::int128_t`
+
+| Comparisons | 131902 | 133564 | 134182
+| Addition | 20613 | 17912 | 40176
+| Subtraction | 20484 | 18237 | 40311
+| Multiplication | 20160 | 20580 | 43285
+| Division | 686521 | 699201 | 945928
+| Modulo | 777084 | 724648 | 953117
+|===
+
+////
+image::u128_graphs/macos/x64_benchmarks.png[x64 Benchmark Results, width=100%]
+////
+
+image::u128_graphs/macos/x64_relative_performance.png[x64 Relative Performance, width=100%]
