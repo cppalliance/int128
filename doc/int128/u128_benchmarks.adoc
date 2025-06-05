@@ -34,6 +34,24 @@ image::../u128_graphs/linux/x64_relative_performance.png[x64 Relative Performanc
 
 === ARM64
 
+[cols="1,1,1,1"]
+|===
+| Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 2068491 | 2416378 | 3191439
+| Addition | 383258 | 180522 | 545521
+| Subtraction | 208155 | 192633 | 420573
+| Multiplication | 291075 | 241174 | 675361
+| Division | 3953939 | 4246753 | 4976285
+| Modulo | 4042166 | 3953441 | 4478923
+|===
+
+////
+image::../u128_graphs/linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
+////
+
+image::../u128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
+
 === ARM32
 
 === S390x
@@ -46,12 +64,12 @@ image::../u128_graphs/linux/x64_relative_performance.png[x64 Relative Performanc
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 878929 | 259725 | 1246502
-| Addition | 32788 | 33723 | 1437452
-| Subtraction | 33627 | 36799 | 1648131
-| Multiplication | 68120 | 35334 | 1459418
-| Division | 925583 | 1020148 | 2216648
-| Modulo | 1104772 | 1143344 | 2089105
+| Comparisons | 3424403 | 2062167 | 5026689
+| Addition | 123659 | 133084 | 587373
+| Subtraction | 171721 | 99453 | 330052
+| Multiplication | 329287 | 283443 | 972009
+| Division | 2044821 | 1825020 | 2190856
+| Modulo | 2176318 | 1897933 | 2227961
 |===
 ////
 image::../u128_graphs/windows/arm64_benchmarks.png[ARM64 Benchmark Results, width=100%]
