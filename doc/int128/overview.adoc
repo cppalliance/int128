@@ -11,6 +11,7 @@ https://www.boost.org/LICENSE_1_0.txt
 == Description
 
 Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (e.g. bit counting).
+Importantly, on all platforms, the `sizeof` the types provided in this library are 128-bits.
 
 The library is header-only, has no dependencies, and requires only C++14.
 
@@ -26,7 +27,7 @@ Anywhere 128-bits are needed.
 == Supported Compilers
 
 Boost.Int128 is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
-as well as emulated PPC64LE and STM32 using QEMU with the following compilers:
+as well as emulated PPC64LE using QEMU with the following compilers:
 
 * GCC 5 and later
 * Clang 5 and later
