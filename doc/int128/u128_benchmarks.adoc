@@ -96,6 +96,24 @@ image::../u128_graphs/linux/x86_relative_performance.png[x86 Relative Performanc
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
+[cols="1,1,1"]
+|===
+| Operation | `uint128_t` | `boost::mp::uint128_t`
+
+| Comparisons | 5286033 | 4538707
+| Addition | 454715 | 5543856
+| Subtraction  | 487190 | 6465126
+| Multiplication  | 1471479 | 8246098
+| Division  | 19868087 | 32820805
+| Modulo | 20332627 | 27238658
+|===
+
+////
+image::../u128_graphs/linux/ARM32_benchmarks.png[ARM32 Benchmark Results, width=100%]
+////
+
+image::../u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
+
 == Windows
 
 === ARM64
