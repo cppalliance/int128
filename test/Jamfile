@@ -75,3 +75,4 @@ run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
 compile-fail ../examples/mixed_type_arithmetic.cpp ;
+run ../examples/stream.cpp ;
