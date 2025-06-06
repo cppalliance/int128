@@ -6,8 +6,6 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/int128/bit.hpp>
-#include <iostream>
-#include <iomanip>
 
 // Or you can do a single header
 
@@ -18,6 +16,16 @@
 #  pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 
+#if defined(__GNUC__) && __GNUC__ <= 7 && !defined(__clang__)
+
+int main()
+{
+    // The following does not work in a constexpr way for old GCCs
+    // Clang is fine
+    return 0;
+}
+
+#else
 
 int main()
 {
@@ -67,3 +75,5 @@ int main()
 
     return 0;
 }
+
+#endif
