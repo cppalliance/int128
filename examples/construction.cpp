@@ -8,6 +8,11 @@
 #include <type_traits>
 #include <sstream>
 
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
 int main()
 {
     // There are a number of ways to construct integer types
@@ -23,7 +28,7 @@ int main()
     // 3) From literal which allows values >2^64 to be easily constructed
     // To match expectations the literals are in a separate literals namespace
     using namespace boost::int128::literals;
-    constexpr auto from_literal = "36893488147419103232"_U128;
+    const auto from_literal = "36893488147419103232"_U128; // Can be constexpr, but older compilers GCC <= 7 have a hard time
     static_assert(std::is_same<decltype(from_literal), const boost::int128::uint128_t>::value, "uint128_t works fine with auto construction");
 
     // 4) From macro appending the correct literal like UINT32_C, UINT64_C etc.
@@ -46,7 +51,7 @@ int main()
     assert(from_hex_signed == std::numeric_limits<boost::int128::int128_t>::min());
 
     // Both capital and lowercase letters work
-    constexpr auto negative_literal {"-42"_i128};
+    const auto negative_literal {"-42"_i128};
     assert(negative_literal == from_int);
 
     constexpr auto negative_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
