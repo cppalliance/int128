@@ -16,6 +16,11 @@
 #  pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable:4146) // MSVC 14.1 only unary minus applied to unsigned type
+#endif
+
 #if defined(__GNUC__) && __GNUC__ <= 7 && !defined(__clang__)
 
 int main()
