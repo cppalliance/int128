@@ -188,7 +188,7 @@ constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
 }
 
 template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr uint128_t saturate_cast(const uint128_t value) noexcept
+constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
     {
@@ -206,7 +206,7 @@ constexpr uint128_t saturate_cast(const uint128_t value) noexcept
 }
 
 template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr int128_t saturate_cast(const int128_t value) noexcept
+constexpr TargetType saturate_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
     {
