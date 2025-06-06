@@ -72,3 +72,4 @@ run test_consteval_funcs.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
+run ../examples/bit.cpp ;
