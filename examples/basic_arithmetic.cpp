@@ -3,7 +3,6 @@
 // https://www.boost.org/LICENSE_1_0.txt
 
 #include <boost/int128/int128.hpp>
-#include <cstdint>
 
 #ifdef __clang__
 #  pragma clang diagnostic push
