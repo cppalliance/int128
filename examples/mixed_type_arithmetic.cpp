@@ -17,11 +17,14 @@ int main()
 
     constexpr boost::int128::uint128_t unsigned_value {3};
 
+    constexpr auto greater_unsigned_value {unsigned_value + 5};
+
     assert(unsigned_value + 1 == 4);
     assert(unsigned_value - 1 == 2);
     assert(unsigned_value * 2 == 6);
     assert(unsigned_value / 3 == 1);
     assert(unsigned_value % 3 == 0);
+    assert(unsigned_value + 5 == greater_unsigned_value);
 
     constexpr boost::int128::int128_t signed_value {-3};
 
