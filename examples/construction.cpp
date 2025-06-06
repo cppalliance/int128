@@ -28,12 +28,12 @@ int main()
     // 3) From literal which allows values >2^64 to be easily constructed
     // To match expectations the literals are in a separate literals namespace
     using namespace boost::int128::literals;
-    const auto from_literal = "36893488147419103232"_U128; // Can be constexpr, but older compilers GCC <= 7 have a hard time
+    const auto from_literal = "36893488147419103232"_U128; // Can be constexpr, but older compilers (GCC <= 7) fail
     static_assert(std::is_same<decltype(from_literal), const boost::int128::uint128_t>::value, "uint128_t works fine with auto construction");
 
     // 4) From macro appending the correct literal like UINT32_C, UINT64_C etc.
     // This also allows values >2^64 to be constructed without needing to separate into high and low hex values
-    constexpr auto from_macro {BOOST_INT128_UINT128_C(36893488147419103232)};
+    const auto from_macro {BOOST_INT128_UINT128_C(36893488147419103232)}; // Can be constexpr, but older compilers (GCC <= 7 and Clang <= 8) fail
     assert(from_macro == from_literal);
 
     // 5) Istream is supported by the types
@@ -54,7 +54,7 @@ int main()
     const auto negative_literal {"-42"_i128};
     assert(negative_literal == from_int);
 
-    constexpr auto negative_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
+    const auto negative_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
     assert(negative_macro == from_hex_signed);
 
     return 0;
