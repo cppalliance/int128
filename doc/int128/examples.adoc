@@ -1,0 +1,237 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#examples]
+= Examples
+:idprefix: examples_
+
+All the following examples can be found in the examples/ folder of the library.
+
+== Basic Construction
+[source, c++]
+----
+#include <boost/int128.hpp>
+#include <limits>
+#include <cassert>
+#include <type_traits>
+#include <sstream>
+
+int main()
+{
+    // There are a number of ways to construct integer types
+
+    // 1) From a builtin-integer type
+    constexpr boost::int128::uint128_t from_builtin {6U};
+    assert(from_builtin == 6U);
+
+    // 2) By directly adding 128-bit hex/integer values
+    constexpr boost::int128::uint128_t from_hex {UINT64_C(0xFFFFFFFFFFFFFFFF), UINT64_C(0xFFFFFFFFFFFFFFFF)};
+    assert(from_hex == std::numeric_limits<boost::int128::uint128_t>::max());
+
+    // 3) From literal which allows values >2^64 to be easily constructed
+    // To match expectations the literals are in a separate literals namespace
+    using namespace boost::int128::literals;
+    const auto from_literal = "36893488147419103232"_U128; // Can be constexpr, but older compilers (GCC <= 7) fail
+    static_assert(std::is_same<decltype(from_literal), const boost::int128::uint128_t>::value, "uint128_t works fine with auto construction");
+
+    // 4) From macro appending the correct literal like UINT32_C, UINT64_C etc.
+    // This also allows values >2^64 to be constructed without needing to separate into high and low hex values
+    const auto from_macro {BOOST_INT128_UINT128_C(36893488147419103232)}; // Can be constexpr, but older compilers (GCC <= 7 and Clang <= 8) fail
+    assert(from_macro == from_literal);
+
+    // 5) Istream is supported by the types
+    std::stringstream in;
+    in.str("340282366920938463463374607431768211455");
+    boost::int128::uint128_t from_stream;
+    in >> from_stream;
+    assert(from_stream == from_hex);
+
+    // These same methods also apply to int128_t
+    constexpr boost::int128::int128_t from_int {-42};
+    assert(from_int == -42);
+
+    constexpr boost::int128::int128_t from_hex_signed {INT64_MIN, 0};
+    assert(from_hex_signed == std::numeric_limits<boost::int128::int128_t>::min());
+
+    // Both capital and lowercase letters work
+    const auto negative_literal {"-42"_i128};
+    assert(negative_literal == from_int);
+
+    const auto negative_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
+    assert(negative_macro == from_hex_signed);
+
+    return 0;
+}
+
+----
+
+== IO Streaming
+[source, c++]
+----
+#include <boost/int128/int128.hpp>
+#include <boost/int128/iostream.hpp>
+#include <iostream>
+#include <iomanip>
+
+int main()
+{
+    // Both types allow streaming as one would expect from a regular builtin-type
+    constexpr boost::int128::int128_t signed_value {-42};
+    std::cout << "Signed value: " << signed_value << std::endl;
+
+    // We can also use <iomanip> to change the output format
+    constexpr boost::int128::uint128_t unsigned_value {0x1, UINT64_MAX};
+    std::cout << "Unsigned value (dec): " << unsigned_value << '\n'
+              << "Unsigned value (hex): " << std::hex << unsigned_value << '\n'
+              << "Unsigned value (oct): " << std::oct << unsigned_value << std::endl;
+
+    // Hex also can be manipulated to be uppercase
+    std::cout << "Upper unsigned value: " << std::hex << std::uppercase << unsigned_value << std::endl;
+
+    return 0;
+}
+----
+
+== Bitwise Functions (<bit>)
+[source,c++]
+----
+#include <boost/int128/int128.hpp>
+#include <boost/int128/bit.hpp>
+
+int main()
+{
+    // The functions from bit are only available for uint128_t
+
+    constexpr boost::int128::uint128_t x {1U};
+
+    // All the functions are constexpr
+
+    // Does the value have only a single bit set?
+    static_assert(boost::int128::has_single_bit(x), "Should have one bit");
+
+    // How many zeros from the left
+    static_assert(boost::int128::countl_zero(x) == 127U, "Should be 127");
+
+    // The bit width of the value
+    // 1 + 1 is 10 in binary which is 2 bits wide
+    static_assert(boost::int128::bit_width(x + x) == 2U, "2 bits wide");
+
+    // The smallest power of two not greater than the input value
+    static_assert(boost::int128::bit_floor(3U * x) == 2U, "2 < 3");
+
+    // The smallest power of two not Smaller than the input value
+    static_assert(boost::int128::bit_ceil(5U * x) == 8U, "8 > 5");
+
+    // How many zeros from the right?
+    static_assert(boost::int128::countr_zero(2U * x) == 1, "1 zero to the right of 10");
+
+    // How many 1-bits in the value
+    static_assert(boost::int128::popcount(7U * x) == 3, "111");
+
+    // Swap the bytes
+    // Create a value with distinct byte pattern
+    constexpr boost::int128::uint128_t original{
+        0x0123456789ABCDEFULL,
+        0xFEDCBA9876543210ULL
+    };
+
+    // Expected result after byteswap
+    constexpr boost::int128::uint128_t expected{
+        0x1032547698BADCFEULL,
+        0xEFCDAB8967452301ULL
+    };
+
+    static_assert(boost::int128::byteswap(original) == expected, "Mismatched byteswap");
+    static_assert(boost::int128::byteswap(expected) == original, "Mismatched byteswap");
+
+    return 0;
+}
+
+----
+
+== Saturating Arithmetic (<numeric>)
+[source, c++]
+----
+#include <boost/int128/int128.hpp>
+#include <boost/int128/numeric.hpp>
+
+// Or you can do a single header
+
+// #include <boost/int128.hpp>
+
+#include <limits>
+#include <type_traits>
+
+
+int main()
+{
+    // std::numeric_limits is overloaded for both types
+    constexpr auto uint_max {std::numeric_limits<boost::int128::uint128_t>::max()};
+    static_assert(std::is_same<decltype(uint_max), const boost::int128::uint128_t>::value, "Types should match");
+
+    constexpr boost::int128::int128_t int_max {std::numeric_limits<boost::int128::int128_t>::max()};
+
+    // Saturating arithmetic returns max on overflow, or min on underflow rather than rolling over
+    assert(boost::int128::add_sat(uint_max, uint_max) == uint_max);
+    assert(boost::int128::sub_sat(boost::int128::uint128_t{0}, uint_max) == 0U);
+
+    // This is especially useful for signed types since rollover is undefined
+    assert(boost::int128::mul_sat(int_max, 2) == int_max);
+    assert(boost::int128::mul_sat(-(int_max - 2), 5) == std::numeric_limits<boost::int128::int128_t>::min());
+
+    // The only case in the library where div sat overflows is x = std::numeric_limits<int128_t>::min() and y = -1
+    assert(boost::int128::div_sat(std::numeric_limits<boost::int128::int128_t>::min(), -1) == int_max);
+
+    // Saturating case allows types to be safely converted without rollover behavior
+    assert(boost::int128::saturate_cast<boost::int128::int128_t>(uint_max) == int_max);
+
+    // You can also cast to builtin types
+    assert(boost::int128::saturate_cast<std::int64_t>(int_max) == INT64_MAX);
+
+    // Even of different signedness as this is treated like a static cast
+    assert(boost::int128::saturate_cast<std::int32_t>(uint_max) == INT32_MAX);
+
+    return 0;
+}
+----
+
+== Mixed Signedness Arithmetic
+[source, c++]
+----
+// #define BOOST_INT128_ALLOW_SIGN_CONVERSION
+#include <boost/int128.hpp>
+
+int main()
+{
+    // By default, mixed type arithmetic is NOT ALLOWED
+    // In order for this file to compile #define BOOST_INT128_ALLOW_SIGN_CONVERSION
+    // BEFORE the inclusion of any file of this library (uncomment the top line)
+    //
+    // Unlike builtin types we cannot enforce sign correctness via compiler flag,
+    // so we made it the default.
+
+
+    constexpr boost::int128::uint128_t unsigned_value {3};
+
+    constexpr auto greater_unsigned_value {unsigned_value + 5};
+
+    assert(unsigned_value + 1 == 4);
+    assert(unsigned_value - 1 == 2);
+    assert(unsigned_value * 2 == 6);
+    assert(unsigned_value / 3 == 1);
+    assert(unsigned_value % 3 == 0);
+    assert(unsigned_value + 5 == greater_unsigned_value);
+
+    constexpr boost::int128::int128_t signed_value {-3};
+
+    assert(signed_value + 1U == -2);
+    assert(signed_value - 4U == -7);
+    assert(signed_value * 2 == -6);
+    assert(signed_value / 4U == 0);
+
+    return 0;
+}
+----
