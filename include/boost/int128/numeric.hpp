@@ -54,7 +54,7 @@ constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
 
     if (z < x)
     {
-        return std::numeric_limits<uint128_t>::max();
+        return (std::numeric_limits<uint128_t>::max)();
     }
 
     return z;
@@ -66,7 +66,7 @@ constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
 
     if (z > x)
     {
-        return std::numeric_limits<uint128_t>::min();
+        return (std::numeric_limits<uint128_t>::min)();
     }
 
     return z;
@@ -85,12 +85,12 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x >= 0 && y >= 0)
     {
-        constexpr auto max_value {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
+        constexpr auto max_value {static_cast<uint128_t>((std::numeric_limits<int128_t>::max)())};
         const auto big_x {static_cast<uint128_t>(x)};
         const auto big_y {static_cast<uint128_t>(y)};
         const auto big_res {big_x + big_y};
 
-        return big_res > max_value ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(big_res);
+        return big_res > max_value ? (std::numeric_limits<int128_t>::max)() : static_cast<int128_t>(big_res);
     }
     else if ((x < 0 && y > 0) || (x > 0 && y < 0))
     {
@@ -100,12 +100,12 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
     {
         // x < 0 and y < 0
         // Nearly the same technique as the positive values case
-        constexpr auto max_value {-static_cast<uint128_t>(std::numeric_limits<int128_t>::min())};
+        constexpr auto max_value {-static_cast<uint128_t>((std::numeric_limits<int128_t>::min)())};
         const auto big_x {static_cast<uint128_t>(abs(x))};
         const auto big_y {static_cast<uint128_t>(abs(y))};
         const auto big_res {big_x + big_y};
 
-        return big_res > max_value ? std::numeric_limits<int128_t>::min() : -static_cast<int128_t>(big_res);
+        return big_res > max_value ? (std::numeric_limits<int128_t>::min)() : -static_cast<int128_t>(big_res);
     }
 }
 
@@ -115,17 +115,17 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
     {
         // Underflow case
         const auto res {x - y};
-        return res > x ? std::numeric_limits<int128_t>::min() : res;
+        return res > x ? (std::numeric_limits<int128_t>::min)() : res;
     }
     else if (x > 0 && y < 0)
     {
         // Overflow Case
-        constexpr auto max_val {static_cast<uint128_t>(std::numeric_limits<int128_t>::max())};
+        constexpr auto max_val {static_cast<uint128_t>((std::numeric_limits<int128_t>::max)())};
         const auto big_x {static_cast<uint128_t>(x)};
         const auto big_y {-static_cast<uint128_t>(y)};
         const auto res {big_x + big_y};
 
-        return (res > max_val || res < big_x) ? std::numeric_limits<int128_t>::max() : static_cast<int128_t>(res);
+        return (res > max_val || res < big_x) ? (std::numeric_limits<int128_t>::max)() : static_cast<int128_t>(res);
     }
     else
     {
@@ -144,7 +144,7 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 
     if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
     {
-        return std::numeric_limits<uint128_t>::max();
+        return (std::numeric_limits<uint128_t>::max)();
     }
 
     return x * y;
@@ -159,11 +159,11 @@ constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
     {
         if ((x < 0) != (y < 0))
         {
-            return std::numeric_limits<int128_t>::min();
+            return (std::numeric_limits<int128_t>::min)();
         }
         else
         {
-            return std::numeric_limits<int128_t>::max();
+            return (std::numeric_limits<int128_t>::max)();
         }
     }
 
@@ -178,10 +178,10 @@ constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 
 constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == std::numeric_limits<int128_t>::min() && y == -1))
+    if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
     {
         // This is the only possible case of overflow
-        return std::numeric_limits<int128_t>::max();
+        return (std::numeric_limits<int128_t>::max)();
     }
 
     return x / y;
@@ -196,9 +196,9 @@ constexpr TargetType saturate_cast(const uint128_t value) noexcept
     }
     else
     {
-        if (value > static_cast<uint128_t>(std::numeric_limits<TargetType>::max()))
+        if (value > static_cast<uint128_t>((std::numeric_limits<TargetType>::max)()))
         {
-            return std::numeric_limits<TargetType>::max();
+            return (std::numeric_limits<TargetType>::max)();
         }
 
         return static_cast<TargetType>(value);
@@ -223,13 +223,13 @@ constexpr TargetType saturate_cast(const int128_t value) noexcept
     }
     else
     {
-        if (value > static_cast<int128_t>(std::numeric_limits<TargetType>::max()))
+        if (value > static_cast<int128_t>((std::numeric_limits<TargetType>::max)()))
         {
-            return std::numeric_limits<TargetType>::max();
+            return (std::numeric_limits<TargetType>::max)();
         }
-        else if (value < static_cast<int128_t>(std::numeric_limits<TargetType>::min()))
+        else if (value < static_cast<int128_t>((std::numeric_limits<TargetType>::min)()))
         {
-            return std::numeric_limits<TargetType>::min();
+            return (std::numeric_limits<TargetType>::min)();
         }
 
         return static_cast<TargetType>(value);

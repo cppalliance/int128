@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_INT128_DETAIL_KNUTH_DIV_HPP
-#define BOOST_INT128_DETAIL_KNUTH_DIV_HPP
+#ifndef BOOST_INT128_DETAIL_COMMON_DIV_HPP
+#define BOOST_INT128_DETAIL_COMMON_DIV_HPP
 
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/clz.hpp>
@@ -554,4 +554,4 @@ BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divi
 } // namespace int128
 } // namespace boost
 
-#endif // BOOST_INT128_DETAIL_KNUTH_DIV_HPP
+#endif // BOOST_INT128_DETAIL_COMMON_DIV_HPP

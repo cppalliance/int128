@@ -19,8 +19,9 @@ struct signed_integer
     static constexpr bool value = (std::is_signed<T>::value && std::is_integral<T>::value)
     #ifdef BOOST_INT128_HAS_INT128
     || std::is_same<T, builtin_i128>::value;
-    #endif
+    #else
     ;
+    #endif
 };
 
 template <typename T>
@@ -32,8 +33,9 @@ struct unsigned_integer
     static constexpr bool value = (std::is_unsigned<T>::value && std::is_integral<T>::value)
     #ifdef BOOST_INT128_HAS_INT128
     || std::is_same<T, builtin_u128>::value;
-    #endif
+    #else
     ;
+    #endif
 };
 
 template <typename T>
