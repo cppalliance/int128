@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_INT128_DETAIL_KNUTH_MUL_HPP
-#define BOOST_INT128_DETAIL_KNUTH_MUL_HPP
+#ifndef BOOST_INT128_DETAIL_COMMON_MUL_HPP
+#define BOOST_INT128_DETAIL_COMMON_MUL_HPP
 
 #include <boost/int128/detail/config.hpp>
 #include <cstdint>
@@ -98,4 +98,4 @@ BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::ui
 } // namespace int128
 } // namespace boost
 
-#endif // BOOST_INT128_DETAIL_KNUTH_MUL_HPP
+#endif // BOOST_INT128_DETAIL_COMMON_MUL_HPP

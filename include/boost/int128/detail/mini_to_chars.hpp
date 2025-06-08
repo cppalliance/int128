@@ -81,7 +81,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int ba
     if (v < 0)
     {
         // We cant negate the min value inside the signed type, but we know what the result will be
-        if (v == std::numeric_limits<int128_t>::min())
+        if (v == (std::numeric_limits<int128_t>::min)())
         {
             p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0}, base, uppercase);
         }
