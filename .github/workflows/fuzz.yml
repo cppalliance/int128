@@ -42,3 +42,30 @@ jobs:
           ${{ matrix.compiler }} -std=c++20 -g -O2 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -fsanitize=fuzzer -I./include -I${{runner.workspace}}/wide-integer test/fuzzing/test_fuzzing_div_versus_wide_int.cpp -o test_fuzzing_div_versus_wide_int
           echo "run test_fuzzing_div_versus_wide_int"
           ./test_fuzzing_div_versus_wide_int -max_total_time=900 -max_len=32 -verbosity=0 -close_fd_mask=3
+
+  clang-fuzzing-versus-wide-integer-no-builtin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ clang++ ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: update-tools
+        run: sudo apt install llvm lld
+      - name: clone-wide-integer
+        working-directory: ${{runner.workspace}}
+        run: |
+          git clone -b master --depth 1 https://github.com/ckormanyos/wide-integer.git ${{runner.workspace}}/wide-integer
+      - name: clang-fuzzing-versus-wide-integer
+        run: |
+          ${{ matrix.compiler }} -v
+          echo 'compiling test/fuzzing/test_fuzzing_div_versus_wide_int.cpp'
+          ${{ matrix.compiler }} -std=c++20 -g -O2 -Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -fsanitize=fuzzer -I./include -I${{runner.workspace}}/wide-integer -DBOOST_INT128_NO_BUILTIN_INT128=1 test/fuzzing/test_fuzzing_div_versus_wide_int.cpp -o test_fuzzing_div_versus_wide_int
+          echo "run test_fuzzing_div_versus_wide_int"
+          ./test_fuzzing_div_versus_wide_int -max_total_time=900 -max_len=32 -verbosity=0 -close_fd_mask=3
