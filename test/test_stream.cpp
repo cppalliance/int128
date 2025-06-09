@@ -8,11 +8,21 @@
 
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <random>
+
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wold-style-cast"
+#endif
+
+#include <boost/random/uniform_int_distribution.hpp>
+
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif
 
 static constexpr std::size_t N {1024};
 static std::mt19937_64 rng{42};
@@ -240,7 +250,7 @@ void test_round_trip<boost::int128::int128_t>()
 {
     std::uniform_int_distribution<std::uint64_t> low(0, (std::numeric_limits<std::uint64_t>::max)());
     std::uniform_int_distribution<std::int64_t> high((std::numeric_limits<std::int64_t>::min)(), (std::numeric_limits<std::int64_t>::max)());
-    
+
     for (std::size_t i = 0; i < N; ++i)
     {
         const boost::int128::int128_t val {high(rng), low(rng)};
