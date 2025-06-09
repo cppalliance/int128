@@ -14,6 +14,8 @@
 
 #include <boost/int128.hpp>
 
+#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -88,10 +90,18 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 
   if(((size >= min_size) && (size <= max_size)) && (data != nullptr))
   {
-    const std::uint64_t a_lo64 { *reinterpret_cast<const std::uint64_t*>(data + std::size_t { UINT8_C(0) }) };
-    const std::uint64_t a_hi64 { *reinterpret_cast<const std::uint64_t*>(data + std::size_t { UINT8_C(8) }) };
-    const std::uint64_t b_lo64 { *reinterpret_cast<const std::uint64_t*>(data + std::size_t { UINT8_C(16) }) };
-    const std::uint64_t b_hi64 { *reinterpret_cast<const std::uint64_t*>(data + std::size_t { UINT8_C(24) }) };
+    using local_data_array_type = std::array<std::uint8_t, max_size>;
+
+    local_data_array_type tmp_data { };
+
+    tmp_data.fill(UINT8_C(0));
+
+    static_cast<void>(std::copy(data, data + size, tmp_data.begin()));
+
+    const std::uint64_t a_lo64 { *reinterpret_cast<const std::uint64_t*>(tmp_data.data() + std::size_t { UINT8_C(0) }) };
+    const std::uint64_t a_hi64 { *reinterpret_cast<const std::uint64_t*>(tmp_data.data() + std::size_t { UINT8_C(8) }) };
+    const std::uint64_t b_lo64 { *reinterpret_cast<const std::uint64_t*>(tmp_data.data() + std::size_t { UINT8_C(16) }) };
+    const std::uint64_t b_hi64 { *reinterpret_cast<const std::uint64_t*>(tmp_data.data() + std::size_t { UINT8_C(24) }) };
 
     // Import data into the uint values.
     using local_uint_type = ::boost::int128::uint128_t;
