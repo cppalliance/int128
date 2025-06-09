@@ -149,18 +149,19 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
 
         // D.5
         q[j] = static_cast<std::uint32_t>(q_hat & UINT32_MAX);
-        if (borrow < 0)
+        if (BOOST_INT128_UNLIKELY(borrow < 0))
         {
             // D.6
-            --q[j];
-            std::uint64_t carry {};
-            for (std::size_t i = 0; i < n; ++i)
-            {
-                carry += static_cast<std::uint64_t>(un[j+i]) + vn[i];
-                un[j+i] = static_cast<std::uint32_t>(carry & UINT32_MAX);
-                carry >>= 32U;
-            }
-            un[j+n] += static_cast<std::uint32_t>(carry & UINT32_MAX);
+            // The probability of hitting this path is about 4.7e-10
+            --q[j];                                                             // LCOV_EXCL_LINE
+            std::uint64_t carry {};                                             // LCOV_EXCL_LINE
+            for (std::size_t i = 0; i < n; ++i)                                 // LCOV_EXCL_LINE
+            {                                                                   // LCOV_EXCL_LINE
+                carry += static_cast<std::uint64_t>(un[j+i]) + vn[i];           // LCOV_EXCL_LINE
+                un[j+i] = static_cast<std::uint32_t>(carry & UINT32_MAX);       // LCOV_EXCL_LINE
+                carry >>= 32U;                                                  // LCOV_EXCL_LINE
+            }                                                                   // LCOV_EXCL_LINE
+            un[j+n] += static_cast<std::uint32_t>(carry & UINT32_MAX);          // LCOV_EXCL_LINE
         }
     }
 
