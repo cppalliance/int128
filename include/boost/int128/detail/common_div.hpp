@@ -30,30 +30,22 @@ BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::
     const std::uint64_t divisor {rhs};
 
     const auto q_high {static_cast<std::uint64_t>(lhs.high) / divisor};
-    const auto r_high {static_cast<std::uint64_t>(lhs.high) % divisor};
+    auto r {static_cast<std::uint64_t>(lhs.high) % divisor};
 
-    const auto mid_dividend {(r_high << 32) | (lhs.low >> 32)};
-    const auto q_mid {mid_dividend / divisor};
-    const auto r_mid {mid_dividend % divisor};
+    const auto low_high {static_cast<std::uint32_t>(lhs.low >> 32U)};
+    const auto low_low {static_cast<std::uint32_t>(lhs.low)};
 
-    const auto low_dividend {(r_mid << 32) | (lhs.low & UINT32_MAX)};
-    const auto q_low {low_dividend / divisor};
-    const auto r_low {low_dividend % divisor};
+    r = (r << 32U) | low_high;
+    const auto q_mid {r / divisor};
+    r %= divisor;
 
-    quotient.high = static_cast<high_word_type>((q_high << 32) | q_mid);
-    quotient.low = (q_low << 32) | (q_low >> 32);
-    remainder.low = r_low;
+    r = (r << 32U) | low_low;
+    const auto q_low {r / divisor};
+    r %= divisor;
 
-    // For very small divisors we might need to normalize the remainder
-    if (r_low >= divisor)
-    {
-        remainder.low -= divisor;
-        ++quotient.low;
-        if (quotient.low == 0)
-        {
-            ++quotient.high;
-        }
-    }
+    quotient.high = static_cast<high_word_type>(q_high);
+    quotient.low = (q_mid << 32U) | q_low;
+    remainder.low = r;
 }
 
 template <typename T>
