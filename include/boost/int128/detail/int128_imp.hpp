@@ -363,7 +363,7 @@ constexpr bool operator==(const SignedInteger lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator==(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high == 0 && lhs.low == static_cast<std::uint64_t>(rhs);
 
@@ -380,7 +380,7 @@ constexpr bool operator==(const int128_t lhs, const UnsignedInteger rhs) noexcep
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high == 0 && rhs.low == static_cast<std::uint64_t>(lhs);
 
@@ -406,7 +406,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, c
     return static_cast<int128_t>(lhs) == rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -499,7 +499,7 @@ constexpr bool operator!=(const SignedInteger lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator!=(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high != 0 || lhs.low != static_cast<std::uint64_t>(rhs);
 
@@ -516,7 +516,7 @@ constexpr bool operator!=(const int128_t lhs, const UnsignedInteger rhs) noexcep
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator!=(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high != 0 || rhs.low != static_cast<std::uint64_t>(lhs);
 
@@ -542,7 +542,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, c
     return static_cast<int128_t>(lhs) != rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -612,7 +612,7 @@ constexpr bool operator<(const int128_t lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator<(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high < 0 ? true : lhs.low < static_cast<std::uint64_t>(rhs);
 
@@ -629,7 +629,7 @@ constexpr bool operator<(const int128_t lhs, const UnsignedInteger rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator<(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high < 0 ? false : static_cast<std::uint64_t>(lhs) < rhs.low;
 
@@ -688,7 +688,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_i128 lhs, co
     return static_cast<int128_t>(lhs) < rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -770,7 +770,7 @@ constexpr bool operator>(const SignedInteger lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator>(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high > 0 ? true : lhs.low > static_cast<std::uint64_t>(rhs);
 
@@ -787,7 +787,7 @@ constexpr bool operator>(const int128_t lhs, const UnsignedInteger rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator>(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high < 0 ? true : static_cast<std::uint64_t>(lhs) > rhs.low;
 
@@ -813,7 +813,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, co
     return static_cast<int128_t>(lhs) > rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -895,7 +895,7 @@ constexpr bool operator<=(const SignedInteger lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high < 0 ? true : lhs.low <= static_cast<std::uint64_t>(rhs);
 
@@ -912,7 +912,7 @@ constexpr bool operator<=(const int128_t lhs, const UnsignedInteger rhs) noexcep
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator<=(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high < 0 ? false : static_cast<std::uint64_t>(lhs) <= rhs.low;
 
@@ -938,7 +938,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_i128 lhs, c
     return static_cast<int128_t>(lhs) <= rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1020,7 +1020,7 @@ constexpr bool operator>=(const SignedInteger lhs, const int128_t rhs) noexcept
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator>=(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return lhs.high < 0 ? false : lhs.low >= static_cast<std::uint64_t>(rhs);
 
@@ -1037,7 +1037,7 @@ constexpr bool operator>=(const int128_t lhs, const UnsignedInteger rhs) noexcep
 template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr bool operator>=(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
     return rhs.high < 0 ? true : static_cast<std::uint64_t>(lhs) >= rhs.low;
 
@@ -1063,7 +1063,7 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, c
     return static_cast<int128_t>(lhs) >= rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
