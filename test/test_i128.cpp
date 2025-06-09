@@ -836,6 +836,13 @@ void test_operator_div()
 
     BOOST_INT128_IF_CONSTEXPR(std::is_same<IntType, boost::int128::detail::builtin_u128>::value)
     {
+        IntType value {24};
+        boost::int128::int128_t emulated_value {48};
+        BOOST_TEST(emulated_value / value == 2);
+        BOOST_TEST(value / emulated_value == 0);
+        emulated_value /= value;
+        BOOST_TEST(emulated_value == 2);
+
         return;
     }
 
@@ -912,6 +919,7 @@ void test_operator_div()
 
             // Shouldn't crash
             BOOST_TEST(check_2_value / IntType(0) == 0);
+            BOOST_TEST(check_2_value / static_cast<boost::int128::int128_t>(0) == 0);
             BOOST_TEST(value / static_cast<boost::int128::int128_t>(0) == 0);
 
             // Always 0
