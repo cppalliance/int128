@@ -211,10 +211,7 @@ BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const T& x, std::uint32
         word_count--;
     }
 
-    if (word_count == 0)
-    {
-        ++word_count;
-    }
+    BOOST_INT128_ASSERT_MSG(word_count > 0U, "Division by 0");
 
     return word_count;
 }
