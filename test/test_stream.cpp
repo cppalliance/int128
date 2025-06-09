@@ -2,11 +2,20 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
+#ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
+#  define BOOST_INT128_ALLOW_SIGN_CONVERSION
+#endif
+
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <random>
+
+static constexpr std::size_t N {1024};
+static std::mt19937_64 rng{42};
 
 #if defined(_MSC_VER)
 #  pragma warning(push)
@@ -165,6 +174,67 @@ void test_error_values()
     BOOST_TEST_EQ(val7, 0U);
 }
 
+template <typename T>
+void test_round_trip();
+
+template <>
+void test_round_trip<boost::int128::uint128_t>()
+{
+    boost::random::uniform_int_distribution<boost::int128::uint128_t> dist(0, (std::numeric_limits<boost::int128::uint128_t>::max)());
+
+    // Decimal
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto val {dist(rng)};
+        std::stringstream out;
+        out << val;
+        boost::int128::uint128_t return_val;
+        out >> return_val;
+
+        BOOST_TEST_EQ(val, return_val);
+    }
+
+    // Hex lower
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto val {dist(rng)};
+        std::stringstream out;
+        out.flags(std::ios_base::hex);
+        out << val;
+        boost::int128::uint128_t return_val;
+        out >> return_val;
+
+        BOOST_TEST_EQ(val, return_val);
+    }
+
+    // Hex upper
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto val {dist(rng)};
+        std::stringstream out;
+        out.flags(std::ios_base::hex);
+        out.flags(std::ios_base::uppercase);
+        out << val;
+        boost::int128::uint128_t return_val;
+        out >> return_val;
+
+        BOOST_TEST_EQ(val, return_val);
+    }
+
+    // Octal
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const auto val {dist(rng)};
+        std::stringstream out;
+        out.flags(std::ios_base::oct);
+        out << val;
+        boost::int128::uint128_t return_val;
+        out >> return_val;
+
+        BOOST_TEST_EQ(val, return_val);
+    }
+}
+
 #if defined(_MSC_VER)
 #  pragma warning(pop)
 #endif
@@ -176,6 +246,8 @@ int main()
 
     test_ostream<boost::int128::uint128_t>();
     test_ostream<boost::int128::int128_t>();
+
+    test_round_trip<boost::int128::uint128_t>();
 
     test_error_values();
 
