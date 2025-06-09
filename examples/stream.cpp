@@ -16,8 +16,8 @@ int main()
     // We can also use <iomanip> to change the output format
     constexpr boost::int128::uint128_t unsigned_value {0x1, UINT64_MAX};
     std::cout << "Unsigned value (dec): " << unsigned_value << '\n'
-              << "Unsigned value (hex): " << std::hex << unsigned_value << '\n'
-              << "Unsigned value (oct): " << std::oct << unsigned_value << std::endl;
+              << "Unsigned value (hex): " << std::hex << unsigned_value << '\n'             // LCOV_EXCL_LINE
+              << "Unsigned value (oct): " << std::oct << unsigned_value << std::endl;       // LCOV_EXCL_LINE
 
     // Hex also can be manipulated to be uppercase
     std::cout << "Upper unsigned value: " << std::hex << std::uppercase << unsigned_value << std::endl;
