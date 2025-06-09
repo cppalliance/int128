@@ -69,6 +69,7 @@ compile-fail test_mixed_type_ops.cpp ;
 compile-fail test_mixed_arithmetic.cpp ;
 
 run test_consteval_funcs.cpp ;
+run test_sign_compare.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
