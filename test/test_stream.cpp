@@ -235,6 +235,24 @@ void test_round_trip<boost::int128::uint128_t>()
     }
 }
 
+template <>
+void test_round_trip<boost::int128::int128_t>()
+{
+    std::uniform_int_distribution<std::uint64_t> low(0, (std::numeric_limits<std::uint64_t>::max)());
+    std::uniform_int_distribution<std::int64_t> high((std::numeric_limits<std::int64_t>::min)(), (std::numeric_limits<std::int64_t>::max)());
+    
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        const boost::int128::int128_t val {high(rng), low(rng)};
+        std::stringstream out;
+        out << val;
+        boost::int128::int128_t return_val;
+        out >> return_val;
+
+        BOOST_TEST_EQ(val, return_val);
+    }
+}
+
 #if defined(_MSC_VER)
 #  pragma warning(pop)
 #endif
@@ -248,6 +266,7 @@ int main()
     test_ostream<boost::int128::int128_t>();
 
     test_round_trip<boost::int128::uint128_t>();
+    test_round_trip<boost::int128::int128_t>();
 
     test_error_values();
 
