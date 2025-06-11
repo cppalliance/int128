@@ -6,6 +6,16 @@
 #define BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #include <boost/int128.hpp>
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma clang diagnostic ignored "-Wold-style-cast"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+
 #include <boost/math/statistics/univariate_statistics.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/xoshiro.hpp>
