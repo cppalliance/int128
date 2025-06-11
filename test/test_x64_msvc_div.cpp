@@ -11,7 +11,7 @@
 static std::mt19937_64 rng{42};
 static constexpr std::size_t N{1024U};
 static std::uniform_int_distribution<std::uint64_t> dist{UINT64_C(0), UINT64_MAX};
-
+static std::uniform_int_distribution<std::uint32_t> dist32{UINT32_C(0), UINT32_MAX};
 
 void test_two_words()
 {
@@ -38,9 +38,28 @@ void test_two_words()
     }
 }
 
+void test_four_by_three()
+{
+    for (std::size_t i{}; i < N; ++i)
+    {
+        boost::int128::uint128_t lhs{dist(rng), dist(rng)};
+        boost::int128::uint128_t rhs{dist32(rng), dist(rng)};
+
+        boost::int128::uint128_t remainder{};
+        const auto quotient{boost::int128::detail::impl::div_mod_msvc<true>(lhs, rhs, remainder)};
+
+        boost::int128::uint128_t knuth_remainder{};
+        const auto knuth_quotient{boost::int128::detail::knuth_div(lhs, rhs, knuth_remainder)};
+
+        BOOST_TEST_EQ(remainder, knuth_remainder);
+        BOOST_TEST_EQ(quotient, knuth_quotient);
+    }
+}
+
 int main()
 {
     test_two_words();
+    test_four_by_three();
 
     return boost::report_errors();
 }
