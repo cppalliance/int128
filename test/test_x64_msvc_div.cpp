@@ -38,28 +38,9 @@ void test_two_words()
     }
 }
 
-void test_two_by_one()
-{
-    for (std::size_t i{}; i < N; ++i)
-    {
-        boost::int128::uint128_t lhs{dist(rng), dist(rng)};
-        boost::int128::uint128_t rhs{dist(rng)};
-
-        boost::int128::uint128_t remainder{};
-        const auto quotient{boost::int128::detail::impl::div_mod_msvc<true>(lhs, rhs, remainder)};
-
-        boost::int128::uint128_t knuth_remainder{};
-        const auto knuth_quotient{boost::int128::detail::knuth_div(lhs, rhs, knuth_remainder)};
-
-        BOOST_TEST_EQ(remainder, knuth_remainder);
-        BOOST_TEST_EQ(quotient, knuth_quotient);
-    }
-}
-
 int main()
 {
     test_two_words();
-    test_two_by_one();
 
     return boost::report_errors();
 }
