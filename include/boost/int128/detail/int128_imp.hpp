@@ -2224,6 +2224,41 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int1
 
 #endif
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
+{
+    const auto low_res{lhs.low * rhs};
+
+    const auto a_lo{lhs.low & UINT32_MAX};
+    const auto a_high{lhs.low >> 32U};
+    const auto b_lo{rhs & UINT32_MAX};
+    const auto b_high{rhs >> 32U};
+
+    const auto lo_lo{a_lo * b_lo};
+    const auto lo_hi{a_lo * b_high};
+    const auto hi_lo{a_high * b_lo};
+    const auto hi_hi{a_high * b_high};
+
+    const auto mid{(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
+
+    const auto carry{hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
+
+    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+
+    return {high_res, low_res};
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
+{
+    const auto low_res{lhs.low * rhs};
+
+    const auto a_hi{lhs.low >> 32U};
+    const auto hi_lo{a_hi * rhs};
+
+    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(hi_lo)};
+
+    return {high_res, low_res};
+}
+
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
     #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -2285,13 +2320,36 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     else
     {
         const auto negative {static_cast<bool>((lhs < 0) ^ (rhs < 0))};
+        const auto abs_lhs{abs(lhs)};
+        const auto abs_rhs{abs(rhs)};
+        int128_t result;
 
-        std::uint32_t lhs_words[4] {};
-        std::uint32_t rhs_words[4] {};
-        to_words(abs(lhs), lhs_words);
-        to_words(abs(rhs), rhs_words);
+        if (abs_lhs.high == 0 && abs_rhs.high != 0)
+        {
+            result = default_mul(abs_rhs, abs_lhs.low);
+        }
+        else if (abs_lhs.high != 0 && abs_rhs.high == 0)
+        {
+            result = default_mul(abs_lhs, abs_rhs.low);
+        }
+        else if (abs_rhs.high == 0 && abs_lhs.high == 0)
+        {
+            std::uint32_t lhs_words[2]{};
+            std::uint32_t rhs_words[2]{};
+            to_words(abs_lhs.low, lhs_words);
+            to_words(abs_rhs.low, rhs_words);
 
-        const auto result {knuth_multiply<int128_t>(lhs_words, rhs_words)};
+            result = knuth_multiply<int128_t>(lhs_words, rhs_words);
+        }
+        else
+        {
+            std::uint32_t lhs_words[4]{};
+            std::uint32_t rhs_words[4]{};
+            to_words(abs_lhs, lhs_words);
+            to_words(abs_rhs, rhs_words);
+
+            result = knuth_multiply<int128_t>(lhs_words, rhs_words);
+        }
 
         return negative ? -result : result;
     }
@@ -2301,41 +2359,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     return library_mul(lhs, rhs);
 
     #endif
-}
-
-BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
-{
-    const auto low_res {lhs.low * rhs};
-
-    const auto a_lo {lhs.low & UINT32_MAX};
-    const auto a_high {lhs.low >> 32U};
-    const auto b_lo {rhs & UINT32_MAX};
-    const auto b_high {rhs >> 32U};
-
-    const auto lo_lo {a_lo * b_lo};
-    const auto lo_hi {a_lo * b_high};
-    const auto hi_lo {a_high * b_lo};
-    const auto hi_hi {a_high * b_high};
-
-    const auto mid {(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
-
-    const auto carry {hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
-
-    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
-
-    return {high_res, low_res};
-}
-
-BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
-{
-    const auto low_res {lhs.low * rhs};
-
-    const auto a_hi {lhs.low >> 32U};
-    const auto hi_lo {a_hi * rhs};
-
-    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(hi_lo)};
-
-    return {high_res, low_res};
 }
 
 } // namespace detail
