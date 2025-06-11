@@ -16,8 +16,8 @@ namespace detail {
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm M: Multiplication of Non-negative integers
 template <typename ReturnType, std::size_t u_size, std::size_t v_size>
-BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
-                                                              const std::uint32_t (&v)[v_size]) noexcept
+constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
+                                    const std::uint32_t (&v)[v_size]) noexcept
 {
     using high_word_type = decltype(ReturnType{}.high);
 
