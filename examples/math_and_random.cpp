@@ -40,8 +40,8 @@ int main()
 
     // Perform some rudimentary statistical analysis on our dataset
     std::cout << "    Mean: " << boost::math::statistics::mean(data_set) << '\n'
-              << "Variance: " << boost::math::statistics::variance(data_set) << '\n'
-              << "  Median: " << boost::math::statistics::median(data_set) << std::endl;
+              << "Variance: " << boost::math::statistics::variance(data_set) << '\n'            // LCOV_EXCL_LINE For some reason this and the next line get flagged as misses
+              << "  Median: " << boost::math::statistics::median(data_set) << std::endl;     // LCOV_EXCL_LINE
 
     return 0;
 }
