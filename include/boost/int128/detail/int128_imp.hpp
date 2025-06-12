@@ -2319,16 +2319,14 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     }
     else
     {
-        const auto negative {static_cast<bool>((lhs < 0) ^ (rhs < 0))};
-
         std::uint32_t lhs_words[4] {};
         std::uint32_t rhs_words[4] {};
-        to_words(abs(lhs), lhs_words);
-        to_words(abs(rhs), rhs_words);
 
-        const auto result {knuth_multiply<int128_t>(lhs_words, rhs_words)};
+        // Since in all likelihood this equates to memcpy we don't need to convert to non-negative integers and back
+        to_words(lhs, lhs_words);
+        to_words(rhs, rhs_words);
 
-        return negative ? -result : result;
+        return knuth_multiply<int128_t>(lhs_words, rhs_words);
     }
 
     #else
