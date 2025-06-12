@@ -1214,10 +1214,131 @@ int main()
 
 #else
 
+template <typename IntType>
+void test_operator_equality()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    // Always equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value == emulated_value) == (emulated_value == value)));
+    }
+
+    // Potentially equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value2 == emulated_value) == (emulated_value == value2)));
+    }
+
+    // Never equal
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::int128_t))
+    {
+        for (std::size_t i {}; i < N; ++i)
+        {
+            const IntType value {dist(rng)};
+            boost::int128::int128_t emulated_value {1, static_cast<std::uint64_t>(value)};
+            BOOST_TEST((value == emulated_value) == (emulated_value == value));
+        }
+    }
+
+    const boost::int128::int128_t bool_val {dist(rng)};
+    BOOST_TEST((true == bool_val) == (bool_val == true));
+    const boost::int128::int128_t bool_val2 {static_cast<std::int64_t>(dist(rng)), 0};
+    BOOST_TEST((true == bool_val2) == (bool_val2 == true));
+    BOOST_TEST(!(bool_val == bool_val2));
+    BOOST_TEST(bool_val == bool_val);
+    BOOST_TEST(!(bool_val == (bool_val+1)));
+    BOOST_TEST(!((bool_val+1) == bool_val));
+    BOOST_TEST(bool_val2 == bool_val2);
+}
+
+template <typename IntType>
+void test_operator_inequality()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    // Always equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value != emulated_value) == (emulated_value != value)));
+    }
+
+    // Potentially equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value2 != emulated_value) == (emulated_value != value2)));
+    }
+
+    // Never equal
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::int128_t))
+    {
+        for (std::size_t i {}; i < N; ++i)
+        {
+            const IntType value {dist(rng)};
+            boost::int128::int128_t emulated_value {1, static_cast<std::uint64_t>(value)};
+            BOOST_TEST((value != emulated_value) == (emulated_value != value));
+        }
+    }
+
+    const boost::int128::int128_t bool_val {dist(rng)};
+    BOOST_TEST((true != bool_val) == (bool_val != true));
+    const boost::int128::int128_t bool_val2 {static_cast<std::int64_t>(dist(rng)), 0};
+    BOOST_TEST((true != bool_val2) == (bool_val2 != true));
+    BOOST_TEST(bool_val != bool_val2);
+    BOOST_TEST(!(bool_val != bool_val));
+    BOOST_TEST((bool_val != (bool_val+1)));
+    BOOST_TEST(((bool_val+1) != bool_val));
+    BOOST_TEST(!(bool_val2 != bool_val2));
+}
+
+struct test_caller
+{
+    template<typename T>
+    void operator()(T) const
+    {
+        test_operator_equality<T>();
+        test_operator_inequality<T>();
+    }
+};
+
 int main()
 {
-    static_cast<void>(N);
-    return 0;
+    using test_types = boost::mp11::mp_list<
+        char,
+        unsigned char,
+        char16_t,
+        char32_t,
+        wchar_t,
+        short,
+        unsigned short,
+        int,
+        unsigned int,
+        long,
+        unsigned long,
+        long long,
+        unsigned long long
+    >;
+
+    boost::mp11::mp_for_each<test_types>(test_caller()); // LCOV_EXCL_LINE
+
+    return boost::report_errors();
 }
 
 #endif
