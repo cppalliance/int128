@@ -2210,6 +2210,41 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, con
     return result;
 }
 
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
+{
+    const auto low_res{lhs.low * rhs};
+
+    const auto a_lo{lhs.low & UINT32_MAX};
+    const auto a_high{lhs.low >> 32U};
+    const auto b_lo{rhs & UINT32_MAX};
+    const auto b_high{rhs >> 32U};
+
+    const auto lo_lo{a_lo * b_lo};
+    const auto lo_hi{a_lo * b_high};
+    const auto hi_lo{a_high * b_lo};
+    const auto hi_hi{a_high * b_high};
+
+    const auto mid{(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
+
+    const auto carry{hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
+
+    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+
+    return {high_res, low_res};
+}
+
+BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
+{
+    const auto low_res{lhs.low * rhs};
+
+    const auto a_hi{lhs.low >> 32U};
+    const auto hi_lo{a_hi * rhs};
+
+    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(hi_lo)};
+
+    return {high_res, low_res};
+}
+
 #if defined(_M_AMD64) && !defined(__GNUC__)
 
 BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int128_t rhs) noexcept
@@ -2301,41 +2336,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     return library_mul(lhs, rhs);
 
     #endif
-}
-
-BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
-{
-    const auto low_res {lhs.low * rhs};
-
-    const auto a_lo {lhs.low & UINT32_MAX};
-    const auto a_high {lhs.low >> 32U};
-    const auto b_lo {rhs & UINT32_MAX};
-    const auto b_high {rhs >> 32U};
-
-    const auto lo_lo {a_lo * b_lo};
-    const auto lo_hi {a_lo * b_high};
-    const auto hi_lo {a_high * b_lo};
-    const auto hi_hi {a_high * b_high};
-
-    const auto mid {(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
-
-    const auto carry {hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
-
-    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
-
-    return {high_res, low_res};
-}
-
-BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
-{
-    const auto low_res {lhs.low * rhs};
-
-    const auto a_hi {lhs.low >> 32U};
-    const auto hi_lo {a_hi * rhs};
-
-    const auto high_res {lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(hi_lo)};
-
-    return {high_res, low_res};
 }
 
 } // namespace detail
