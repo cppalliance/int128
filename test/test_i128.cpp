@@ -927,6 +927,13 @@ void test_operator_div()
             BOOST_TEST(small_emulated_value / small_emulated_value == 1);
         }
     }
+
+    // Check large value
+    constexpr auto lhs {(std::numeric_limits<boost::int128::int128_t>::max)()};
+    constexpr boost::int128::int128_t rhs {0x1, UINT64_MAX};
+    constexpr boost::int128::int128_t res {UINT64_C(0x4000000000000000)};
+
+    BOOST_TEST(lhs / rhs == res);
 }
 
 template <typename IntType>
