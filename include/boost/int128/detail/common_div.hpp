@@ -269,44 +269,48 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 
     // Skip normalization if divisor is already large enough
     // use direct division and intrinsic
-    constexpr auto divisor_lower_bound {UINT64_MAX >> 1};
-    if (divisor.high >= divisor_lower_bound)
+    // This is only possible in the unsigned case
+    BOOST_INT128_IF_CONSTEXPR (!std::numeric_limits<T>::is_signed)
     {
-        T quotient {};
-
-        quotient.low = static_cast<std::uint64_t>(dividend.high / divisor.high);
-
-        std::uint64_t product0_high {};
-        auto product0_low {_umul128(quotient.low, divisor.low, &product0_high)};
-
-        std::uint64_t product1_high {};
-        auto product1_low {_umul128(quotient.low, static_cast<std::uint64_t>(divisor.high), &product1_high)};
-
-        T product {};
-        product.low = product0_low;
-        auto carry {BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high))};
-        product1_high += static_cast<std::uint64_t>(carry);
-
-        if (product1_high > 0 || product > dividend)
+        constexpr auto divisor_lower_bound{UINT64_MAX >> 1};
+        if (divisor.high >= divisor_lower_bound)
         {
-            --quotient.low;
+            T quotient{};
 
-            // Recalculate with adjusted quotient
-            product0_low = _umul128(quotient.low, divisor.low, &product0_high);
-            product1_low = _umul128(quotient.low, divisor.high, &product1_high);
+            quotient.low = static_cast<std::uint64_t>(dividend.high / divisor.high);
 
+            std::uint64_t product0_high{};
+            auto product0_low{_umul128(quotient.low, divisor.low, &product0_high)};
+
+            std::uint64_t product1_high{};
+            auto product1_low{_umul128(quotient.low, static_cast<std::uint64_t>(divisor.high), &product1_high)};
+
+            T product{};
             product.low = product0_low;
-            carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high));
+            auto carry{BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high))};
             product1_high += static_cast<std::uint64_t>(carry);
-        }
 
-        BOOST_INT128_IF_CONSTEXPR (needs_mod)
-        {
-            auto borrow {BOOST_INT128_SUB_BORROW(0, dividend.low, product.low, &remainder.low)};
-            BOOST_INT128_SUB_BORROW(borrow, dividend.high, product.high, reinterpret_cast<std::uint64_t*>(&remainder.high));
-        }
+            if (product1_high > 0 || product > dividend)
+            {
+                --quotient.low;
 
-        return quotient;
+                // Recalculate with adjusted quotient
+                product0_low = _umul128(quotient.low, divisor.low, &product0_high);
+                product1_low = _umul128(quotient.low, divisor.high, &product1_high);
+
+                product.low = product0_low;
+                carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high));
+                product1_high += static_cast<std::uint64_t>(carry);
+            }
+
+            BOOST_INT128_IF_CONSTEXPR(needs_mod)
+            {
+                auto borrow{BOOST_INT128_SUB_BORROW(0, dividend.low, product.low, &remainder.low)};
+                BOOST_INT128_SUB_BORROW(borrow, dividend.high, product.high, reinterpret_cast<std::uint64_t*>(&remainder.high));
+            }
+
+            return quotient;
+        }
     }
 
     const auto shift_amount {countl_zero(static_cast<std::uint64_t>(divisor.high))};
