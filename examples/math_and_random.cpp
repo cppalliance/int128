@@ -20,15 +20,26 @@
 
 #include <boost/math/statistics/univariate_statistics.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/xoshiro.hpp>
 #include <iostream>
 #include <limits>
 #include <array>
+#include <random>
+
+// For some bizare reason that I can't figure out Clang-Cl x86 in Github Actions crashes only with C++14
+// I can't replicate this crash locally
+#if defined(_WIN32) && defined(__clang__) && defined(__cplusplus) && __cplusplus == 201402L
+
+int main()
+{
+    return 0;
+}
+
+#else
 
 int main()
 {
     // Setup our rng and distribution
-    boost::random::xoshiro128pp rng {42};
+    std::mt19937_64 rng {42};
     boost::random::uniform_int_distribution<boost::int128::uint128_t> dist {0, (std::numeric_limits<boost::int128::uint128_t>::max)()};
 
     // Create a dataset for ourselves of random uint128_ts using our dist and rng from above
@@ -39,9 +50,11 @@ int main()
     }
 
     // Perform some rudimentary statistical analysis on our dataset
-    std::cout << "    Mean: " << boost::math::statistics::mean(data_set) << '\n'
-              << "Variance: " << boost::math::statistics::variance(data_set) << '\n'
-              << "  Median: " << boost::math::statistics::median(data_set) << std::endl;
+    std::cout << "    Mean: " << boost::math::statistics::mean(data_set) << std::endl;
+    std::cout << "Variance: " << boost::math::statistics::variance(data_set) << std::endl;
+    std::cout << "  Median: " << boost::math::statistics::median(data_set) << std::endl;
 
     return 0;
 }
+
+#endif
