@@ -336,34 +336,20 @@ constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
 
     while (correction_steps < max_corrections)
     {
-        if (quotient.high > 0)
+        T product{};
+        product.low = _umul128(quotient.low, divisor.low, reinterpret_cast<std::uint64_t*>(&product.high));
+        if (product <= T{static_cast<high_word_type>(dividend.low), remainder_estimate})
         {
-            --quotient;
-            const auto sum {remainder_estimate + divisor.high};
-            if (remainder_estimate > sum)
-            {
-                break;
-            }
-
-            remainder_estimate = sum;
+            break;
         }
-        else
+
+        --quotient.low;
+        const auto sum {remainder_estimate + divisor.high};
+        if (remainder_estimate > sum)
         {
-            T product{};
-            product.low = _umul128(quotient.low, divisor.low, reinterpret_cast<std::uint64_t*>(&product.high));
-            if (product <= T{static_cast<high_word_type>(dividend.low), remainder_estimate})
-            {
-                break;
-            }
-
-            --quotient.low;
-            const auto sum {remainder_estimate + divisor.high};
-            if (remainder_estimate > sum)
-            {
-                break;
-            }
-            remainder_estimate = sum;
+            break;
         }
+        remainder_estimate = sum;
 
         correction_steps++;
     }
