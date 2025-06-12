@@ -1308,6 +1308,17 @@ void test_operator_inequality()
     BOOST_TEST(!(bool_val2 != bool_val2));
 }
 
+template <typename T>
+void test_operator_div()
+{
+    // Check large value
+    constexpr auto lhs {(std::numeric_limits<boost::int128::int128_t>::max)()};
+    constexpr boost::int128::int128_t rhs {0x1, UINT64_MAX};
+    constexpr boost::int128::int128_t res {UINT64_C(0x4000000000000000)};
+
+    BOOST_TEST(lhs / rhs == res);
+}
+
 struct test_caller
 {
     template<typename T>
@@ -1315,6 +1326,8 @@ struct test_caller
     {
         test_operator_equality<T>();
         test_operator_inequality<T>();
+
+        test_operator_div<T>();
     }
 };
 
