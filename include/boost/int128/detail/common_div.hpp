@@ -200,26 +200,44 @@ constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const T& x, std::uint32_t (&words)[4]) noexcept
 {
-    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x.low >> 32);
-    words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
-    words[3] = static_cast<std::uint32_t>(x.high >> 32);
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        std::memcpy(&words, &x, sizeof(T));
+    }
+    else
+    #endif
+    {
+        words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);
+        words[1] = static_cast<std::uint32_t>(x.low >> 32);
+        words[2] = static_cast<std::uint32_t>(x.high & UINT32_MAX);
+        words[3] = static_cast<std::uint32_t>(x.high >> 32);
+    }
+
+    BOOST_INT128_ASSERT_MSG(x != static_cast<T>(0), "Division by 0");
 
     std::size_t word_count {4};
-    while (word_count > 0 && words[word_count-1] == 0)
+    while (words[word_count - 1U] == 0U)
     {
         word_count--;
     }
-
-    BOOST_INT128_ASSERT_MSG(word_count > 0U, "Division by 0");
 
     return word_count;
 }
 
 BOOST_INT128_FORCE_INLINE constexpr std::size_t to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
 {
-    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
-    words[1] = static_cast<std::uint32_t>(x >> 32);
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        std::memcpy(&words, &x, sizeof(std::uint64_t));
+    }
+    else
+    #endif
+    {
+        words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);
+        words[1] = static_cast<std::uint32_t>(x >> 32);
+    }
 
     return x > UINT32_MAX ? 2 : 1;
 }
