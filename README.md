@@ -1,6 +1,13 @@
 # Boost.int128 (candidate library)
 Portable implementations of signed and unsigned 128-bit integers
 
+|                  | Master                                                                                                                                                            |   Develop   |
+|------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| Drone            | [![Build Status](https://drone.cpp.al/api/badges/cppalliance/int128/status.svg?ref=refs/heads/master)](https://drone.cpp.al/cppalliance/int128)                 | [![Build Status](https://drone.cpp.al/api/badges/cppalliance/int128/status.svg?ref=refs/heads/develop)](https://drone.cpp.al/cppalliance/int128) |
+| Github Actions   | [![CI](https://github.com/cppalliance/int128/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/cppalliance/int128/actions/workflows/ci.yml) | [![CI](https://github.com/cppalliance/int128/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/cppalliance/int128/actions/workflows/ci.yml)
+| Codecov          | [![codecov](https://codecov.io/gh/cppalliance/int128/branch/master/graph/badge.svg?token=KWY7M64xhh)](https://codecov.io/gh/cppalliance/int128) | [![codecov](https://codecov.io/gh/cppalliance/int128/graph/badge.svg?token=drvY8nnV5S)](https://codecov.io/gh/cppalliance/int128) |
+---
+
 # Notice
 
 int128 is under active development and is not an official boost library.
