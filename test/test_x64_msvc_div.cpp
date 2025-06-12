@@ -55,18 +55,34 @@ void test_four_by_three()
         BOOST_TEST_EQ(quotient, knuth_quotient);
     }
 
-    // The biggest gap we can have between 2 word values
-    constexpr auto lhs{(std::numeric_limits<boost::int128::uint128_t>::max)()};
-    constexpr boost::int128::uint128_t rhs{1,0};
+    // The biggest gap we can have between 2 word unsigned values
+    {
+        constexpr auto lhs{(std::numeric_limits<boost::int128::uint128_t>::max)()};
+        constexpr boost::int128::uint128_t rhs{1,0};
 
-    boost::int128::uint128_t remainder{};
-    const auto quotient{boost::int128::detail::impl::div_mod_msvc<true>(lhs, rhs, remainder)};
+        boost::int128::uint128_t remainder{};
+        const auto quotient{boost::int128::detail::impl::div_mod_msvc<true>(lhs, rhs, remainder)};
 
-    boost::int128::uint128_t knuth_remainder{};
-    const auto knuth_quotient{boost::int128::detail::knuth_div(lhs, rhs, knuth_remainder)};
+        boost::int128::uint128_t knuth_remainder{};
+        const auto knuth_quotient{boost::int128::detail::knuth_div(lhs, rhs, knuth_remainder)};
 
-    BOOST_TEST_EQ(remainder, knuth_remainder);
-    BOOST_TEST_EQ(quotient, knuth_quotient);
+        BOOST_TEST_EQ(remainder, knuth_remainder);
+        BOOST_TEST_EQ(quotient, knuth_quotient);
+    }
+    // And again for signed
+    {
+        constexpr auto lhs{static_cast<boost::int128::uint128_t>((std::numeric_limits<boost::int128::int128_t>::max)())};
+        constexpr boost::int128::uint128_t rhs{1,0};
+
+        boost::int128::uint128_t remainder{};
+        const auto quotient{boost::int128::detail::impl::div_mod_msvc<true>(lhs, rhs, remainder)};
+
+        boost::int128::uint128_t knuth_remainder{};
+        const auto knuth_quotient{boost::int128::detail::knuth_div(lhs, rhs, knuth_remainder)};
+
+        BOOST_TEST_EQ(remainder, knuth_remainder);
+        BOOST_TEST_EQ(quotient, knuth_quotient);
+    }
 }
 
 int main()
