@@ -1421,58 +1421,6 @@ void test_operator_inequality()
 }
 
 template <typename IntType>
-void test_operator_add()
-{
-    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>() / 2);
-
-    for (std::size_t i {}; i < N; ++i)
-    {
-        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
-        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
-        const IntType res = value + value2;
-
-        boost::int128::uint128_t test_value {value};
-        const boost::int128::uint128_t test_value2 {value2};
-        BOOST_TEST(test_value + test_value2 == res); // LCOV_EXCL_LINE
-
-        test_value += value2;
-        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
-    }
-}
-
-template <typename IntType>
-void test_operator_mul()
-{
-    boost::random::uniform_int_distribution<IntType> dist(0, get_root_max<IntType>()); // LCOV_EXCL_LINE
-
-    for (std::size_t i {}; i < N; ++i)
-    {
-        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
-        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
-        const IntType res = value * value2;
-
-        boost::int128::uint128_t test_value {value};
-        const boost::int128::uint128_t test_value2 {value2};
-
-        BOOST_TEST(test_value * test_value2 == res); // LCOV_EXCL_LINE
-
-        test_value *= value2;
-        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
-    }
-
-    boost::int128::uint128_t shift_val {1};
-    boost::int128::uint128_t mul_val {1};
-
-    for (std::size_t i {1}; i < 128; ++i)
-    {
-        BOOST_TEST(shift_val == mul_val); // LCOV_EXCL_LINE
-
-        shift_val <<= 1;
-        mul_val *= 2;
-    }
-}
-
-template <typename IntType>
 void test_operator_less()
 {
     boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
@@ -1609,6 +1557,58 @@ void test_operator_ge()
     const auto rhs {(emulated_value >= value)};
 
     BOOST_TEST(lhs == rhs);
+}
+
+template <typename IntType>
+void test_operator_add()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>() / 2);
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType res = value + value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+        BOOST_TEST(test_value + test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value += value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+}
+
+template <typename IntType>
+void test_operator_mul()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_root_max<IntType>()); // LCOV_EXCL_LINE
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType res = value * value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+
+        BOOST_TEST(test_value * test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value *= value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+
+    boost::int128::uint128_t shift_val {1};
+    boost::int128::uint128_t mul_val {1};
+
+    for (std::size_t i {1}; i < 128; ++i)
+    {
+        BOOST_TEST(shift_val == mul_val); // LCOV_EXCL_LINE
+
+        shift_val <<= 1;
+        mul_val *= 2;
+    }
 }
 
 // LCOV_EXCL_STOP
