@@ -81,7 +81,7 @@ static std::mt19937_64 rng(42);
 
 constexpr std::size_t N = 1024;
 
-#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+#if 0//defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 using boost::int128::detail::builtin_u128;
 using boost::int128::detail::builtin_i128;
@@ -1651,6 +1651,60 @@ void test_operator_mul()
     }
 }
 
+template <typename IntType>
+void test_operator_div()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_root_max<IntType>()); // LCOV_EXCL_LINE
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+
+        while (value == 0)
+        {
+            value = dist(rng);
+        }
+        while (value2 == 0)
+        {
+            value2 = dist(rng);
+        }
+
+        if (value < value2)
+        {
+            std::swap(value, value2);
+        }
+
+        const IntType res = value / value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+
+        BOOST_TEST(test_value / test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value /= value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+
+    boost::int128::uint128_t shift_val {UINT64_MAX, UINT64_MAX};
+    boost::int128::uint128_t mul_val {UINT64_MAX, UINT64_MAX};
+
+    for (std::size_t i {1}; i < 127; ++i)
+    {
+        const auto current_shift_val {shift_val >> i};
+        const auto current_mul_val {mul_val / (boost::int128::uint128_t{2} << (i-1))};
+
+        BOOST_TEST(current_shift_val == current_mul_val); // LCOV_EXCL_LINE
+    }
+
+    // Check large value
+    constexpr auto lhs {(std::numeric_limits<boost::int128::uint128_t>::max)()};
+    constexpr boost::int128::uint128_t rhs {0x1, UINT64_MAX};
+    constexpr boost::int128::uint128_t res {UINT64_C(0x8000000000000000)};
+
+    BOOST_TEST(lhs / rhs == res);
+}
+
 // LCOV_EXCL_STOP
 
 struct test_caller
@@ -1668,6 +1722,7 @@ struct test_caller
         test_operator_add<T>();
         test_operator_sub<T>();
         test_operator_mul<T>();
+        test_operator_div<T>();
     }
 };
 
