@@ -260,6 +260,14 @@ void test_round_trip<boost::int128::int128_t>()
 
         BOOST_TEST_EQ(val, return_val);
     }
+
+    boost::int128::int128_t val {-1};
+    std::stringstream out;
+    out << val;
+    BOOST_TEST_CSTR_EQ(out.str().c_str(), "-1");
+    boost::int128::int128_t return_val;
+    out >> return_val;
+    BOOST_TEST_EQ(val, return_val);
 }
 
 #if defined(_MSC_VER)
