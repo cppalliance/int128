@@ -806,8 +806,7 @@ void test_operator_sub()
 template <typename IntType>
 void test_operator_mul()
 {
-    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(),
-                                                          get_root_max<IntType>());
+    boost::random::uniform_int_distribution<IntType> dist(get_root_min<IntType>(), get_root_max<IntType>());
 
     for (std::size_t i {}; i < N; ++i)
     {
@@ -827,8 +826,7 @@ void test_operator_mul()
 template <typename IntType>
 void test_operator_div()
 {
-    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
-        get_max<IntType>());
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(), get_max<IntType>());
     
     // I am not entirely sure what the MSVC int128 is doing here for rollover situations
 
