@@ -1577,6 +1577,46 @@ void test_operator_add()
         test_value += value2;
         BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
     }
+
+    // Bigger value spots
+    boost::int128::uint128_t lhs{UINT64_MAX};
+    boost::int128::uint128_t rhs{1, 0};
+
+    BOOST_TEST_EQ(lhs + 1, rhs);
+    BOOST_TEST_EQ(++lhs, rhs);
+}
+
+template <typename IntType>
+void test_operator_sub()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>() / 2);
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+
+        if (value < value2)
+        {
+            std::swap(value, value2);
+        }
+
+        const IntType res = value - value2;
+
+        boost::int128::uint128_t test_value {value};
+        const boost::int128::uint128_t test_value2 {value2};
+        BOOST_TEST(test_value - test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value -= value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+
+    // Bigger value spots
+    boost::int128::uint128_t rhs{UINT64_MAX};
+    boost::int128::uint128_t lhs{1, 0};
+
+    BOOST_TEST_EQ(lhs - 1, rhs);
+    BOOST_TEST_EQ(--lhs, rhs);
 }
 
 template <typename IntType>
@@ -1626,6 +1666,7 @@ struct test_caller
         test_operator_ge<T>();
 
         test_operator_add<T>();
+        test_operator_sub<T>();
         test_operator_mul<T>();
     }
 };
