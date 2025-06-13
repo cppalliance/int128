@@ -19,8 +19,8 @@ Simply `#include` it and use it.
 
 # Supported Platforms
 
-Boost.Int128 is tested natively on Ubuntu (x86_64, s390x, and aarch64), macOS (x86_64, and Apple Silicon), and Windows (x32 and x64);
-as well as emulated PPC64LE and STM32 using QEMU with the following compilers:
+Boost.Int128 is tested natively on Ubuntu (x86_64, x86_32, s390x, aarch64, ARM32v7), macOS (x86_64, and Apple Silicon), and Windows (x86_64, x86_32, and ARM64);
+as well as emulated PPC64LE using QEMU with the following compilers:
 
 * GCC 5 and later
 * Clang 5 and later
