@@ -40,8 +40,8 @@ std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>&
 [#ios]
 The following flags from `<ios>` are supported for both streaming directions:
 
-- `std::ios_base::oct` - Octal Numbers
-- `std::ios_base::dec` - Decimal Numbers
-- `std::ios_base::hex` - Hexadecimal Numbers
-- `std::ios_base::uppercase` - Upper Case Formatting (e.g. 0XFFFF)
-- `std::ios_base::nouppercase` - Lower Case Formatting (e.g. 0xffff)
+- `std::oct` - Octal Numbers
+- `std::dec` - Decimal Numbers
+- `std::hex` - Hexadecimal Numbers
+- `std::uppercase` - Upper Case Formatting (e.g. 0XFFFF)
+- `std::nouppercase` - Lower Case Formatting (e.g. 0xffff)
