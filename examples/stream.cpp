@@ -22,5 +22,8 @@ int main()
     // Hex also can be manipulated to be uppercase
     std::cout << "Upper unsigned value: " << std::hex << std::uppercase << unsigned_value << std::endl;
 
+    // And returned to default formating
+    std::cout << "Lower unsigned value: " << std::dec << std::nouppercase << unsigned_value << std::endl;
+
     return 0;
 }
