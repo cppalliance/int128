@@ -1472,6 +1472,145 @@ void test_operator_mul()
     }
 }
 
+template <typename IntType>
+void test_operator_less()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        IntType value2 {dist(rng)};
+
+        while (value == value2)
+        {
+            value2 = dist(rng);
+        }
+
+        const boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value2 < emulated_value) != (emulated_value < value2)));
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value < emulated_value) == (emulated_value < value)));
+    }
+}
+
+template <typename IntType>
+void test_operator_greater()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        IntType value2 {dist(rng)};
+
+        while (value == value2)
+        {
+            value2 = dist(rng);
+        }
+
+        const boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value2 > emulated_value) != (emulated_value > value2)));
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value > emulated_value) == (emulated_value > value)));
+    }
+}
+
+template <typename IntType>
+void test_operator_le()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    // Possibly equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        if (value == value2)
+        {
+            BOOST_TEST(((value2 <= emulated_value) == (emulated_value <= value2)));
+        }
+        else
+        {
+            BOOST_TEST(((value2 <= emulated_value) != (emulated_value <= value2)));
+        }
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value <= emulated_value) == (emulated_value <= value)));
+    }
+}
+
+template <typename IntType>
+void test_operator_ge()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        if (value == value2)
+        {
+            BOOST_TEST(((value2 >= emulated_value) == (emulated_value >= value2)));
+        }
+        else
+        {
+            BOOST_TEST(((value2 >= emulated_value) != (emulated_value >= value2)));
+        }
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::uint128_t emulated_value {value};
+
+        const auto lhs {(value >= emulated_value)};
+        const auto rhs {(emulated_value >= value)};
+
+        if (!BOOST_TEST(lhs == rhs))
+        {
+            std::cerr << "Value: " << static_cast<std::int64_t>(value) << '\n'
+            << "EmulV: " << emulated_value << std::endl;
+        }
+    }
+
+    // Spot test
+    const IntType value {0};
+    const boost::int128::uint128_t emulated_value {0};
+
+    const auto lhs {(value >= emulated_value)};
+    const auto rhs {(emulated_value >= value)};
+
+    BOOST_TEST(lhs == rhs);
+}
+
 // LCOV_EXCL_STOP
 
 struct test_caller
@@ -1481,6 +1620,10 @@ struct test_caller
     {
         test_operator_equality<T>();
         test_operator_inequality<T>();
+        test_operator_less<T>();
+        test_operator_greater<T>();
+        test_operator_le<T>();
+        test_operator_ge<T>();
 
         test_operator_add<T>();
         test_operator_mul<T>();
