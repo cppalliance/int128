@@ -7,7 +7,7 @@
   "maintainers": [
     "Matt Borland <matt -at- mattborland.com>"
   ],
-  "description": "Portable and Performant 128-bit Numbers",
+  "description": "Portable and Performant 128-bit Integers",
   "category": [
     "Math and numerics"
   ],
