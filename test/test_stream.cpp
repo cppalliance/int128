@@ -182,6 +182,13 @@ void test_error_values()
 
     boost::int128::detail::from_chars(nullptr, nullptr, val7);
     BOOST_TEST_EQ(val7, 0U);
+
+    uint128_t overflow_val;
+    std::stringstream huge_str;
+    // 100 digits
+    huge_str.str("123451234512345123451234512345123451234512345123451234512345123451234512345123451234512345");
+    huge_str << overflow_val;
+    BOOST_TEST_EQ(overflow_val, 0U);
 }
 
 template <typename T>
