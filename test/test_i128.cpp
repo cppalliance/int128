@@ -1439,17 +1439,6 @@ void test_operator_ge()
     }
 }
 
-template <typename T>
-void test_operator_div()
-{
-    // Check large value
-    constexpr auto lhs {(std::numeric_limits<boost::int128::int128_t>::max)()};
-    constexpr boost::int128::int128_t rhs {0x1, UINT64_MAX};
-    constexpr boost::int128::int128_t res {UINT64_C(0x4000000000000000)};
-
-    BOOST_TEST(lhs / rhs == res);
-}
-
 template <typename IntType>
 void test_operator_add()
 {
@@ -1516,6 +1505,49 @@ void test_operator_sub()
     BOOST_TEST_EQ(test_value, correct_value);
 }
 
+template <typename IntType>
+void test_operator_mul()
+{
+    boost::random::uniform_int_distribution<IntType> dist(0, get_root_max<IntType>()); // LCOV_EXCL_LINE
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType res = value * value2;
+
+        boost::int128::int128_t test_value {value};
+        const boost::int128::int128_t test_value2 {value2};
+
+        BOOST_TEST(test_value * test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value *= value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+
+    boost::int128::int128_t shift_val {1};
+    boost::int128::int128_t mul_val {1};
+
+    for (std::size_t i {1}; i < 127; ++i)
+    {
+        BOOST_TEST(shift_val == mul_val); // LCOV_EXCL_LINE
+
+        shift_val <<= 1;
+        mul_val *= 2;
+    }
+}
+
+template <typename T>
+void test_operator_div()
+{
+    // Check large value
+    constexpr auto lhs {(std::numeric_limits<boost::int128::int128_t>::max)()};
+    constexpr boost::int128::int128_t rhs {0x1, UINT64_MAX};
+    constexpr boost::int128::int128_t res {UINT64_C(0x4000000000000000)};
+
+    BOOST_TEST(lhs / rhs == res);
+}
+
 // LCOV_EXCL_STOP
 
 struct test_caller
@@ -1532,6 +1564,7 @@ struct test_caller
 
         test_operator_add<T>();
         test_operator_sub<T>();
+        test_operator_mul<T>();
         test_operator_div<T>();
     }
 };
