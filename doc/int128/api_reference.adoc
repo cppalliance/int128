@@ -77,9 +77,13 @@ Listed by analogous STL header.
 
 == Macros
 
+=== Literals
+
 - <<literals, `BOOST_INT128_UINT128_C`>>
 - <<literals, `BOOST_INT128_INT128_C`>>
 
 === Configuration
-- `BOOST_INT128_ALLOW_SIGN_COMPARE` - Allows only comparisons between this library's types, and built-in types of the opposite sign. *DISABLED BY DEFAULT FOR CORRECTNESS*
-- `BOOST_INT128_ALLOW_SIGN_CONVERSION` - Allows operations between this library's types, and built-in types of opposite signedness, to include sign comparisons. *DISABLED BY DEFAULT FOR CORRECTNESS*
+
+- <<no_int128, `BOOST_INT128_NO_BUILTIN_INT128`>>
+- <<sign_compare, `BOOST_INT128_ALLOW_SIGN_COMPARE`>>
+- <<sign_conversion, `BOOST_INT128_ALLOW_SIGN_CONVERSION`>>
