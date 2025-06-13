@@ -1327,6 +1327,53 @@ int main()
 // LCOV_EXCL_START
 
 template <typename IntType>
+void test_operator_equality()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    // Always equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value == emulated_value) == (emulated_value == value)));
+    }
+
+    // Potentially equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        boost::int128::uint128_t emulated_value {value};
+
+        BOOST_TEST(((value2 == emulated_value) == (emulated_value == value2)));
+    }
+
+    // Never equal
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128_t))
+    {
+        for (std::size_t i {}; i < N; ++i)
+        {
+            const IntType value {dist(rng)};
+            boost::int128::uint128_t emulated_value {1, static_cast<std::uint64_t>(value)};
+            BOOST_TEST((value == emulated_value) == (emulated_value == value));
+        }
+    }
+
+    const boost::int128::uint128_t bool_val {dist(rng)};
+    BOOST_TEST((true == bool_val) == (bool_val == true));
+    const boost::int128::uint128_t bool_val2 {static_cast<std::uint64_t>(dist(rng)), 0};
+    BOOST_TEST((true == bool_val2) == (bool_val2 == true));
+    BOOST_TEST(!(bool_val == bool_val2));
+    BOOST_TEST(bool_val == bool_val);
+    BOOST_TEST(!(bool_val == (bool_val+1)));
+    BOOST_TEST(!((bool_val+1) == bool_val));
+    BOOST_TEST(bool_val2 == bool_val2);
+}
+
+template <typename IntType>
 void test_operator_add()
 {
     boost::random::uniform_int_distribution<IntType> dist(0, get_max<IntType>() / 2);
@@ -1385,6 +1432,8 @@ struct test_caller
     template<typename T>
     void operator()(T) const
     {
+        test_operator_equality<T>();
+
         test_operator_add<T>();
         test_operator_mul<T>();
     }
