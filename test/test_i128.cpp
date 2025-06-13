@@ -1333,14 +1333,13 @@ void test_operator_less()
         BOOST_TEST(((value2 < emulated_value) != (emulated_value < value2)));
     }
 
-    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::int128_t) && std::is_unsigned<IntType>::value)
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
     {
-        for (std::size_t i {}; i < N; ++i)
-        {
-            const IntType value {dist(rng)};
-            const boost::int128::int128_t emulated_value {-1, static_cast<std::uint64_t>(value)};
-            BOOST_TEST((value < emulated_value) != (emulated_value < value));
-        }
+        const IntType value {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value < emulated_value) == (emulated_value < value)));
     }
 }
 
@@ -1364,6 +1363,80 @@ void test_operator_greater()
 
         BOOST_TEST(((value2 > emulated_value) != (emulated_value > value2)));
     }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value > emulated_value) == (emulated_value > value)));
+    }
+}
+
+template <typename IntType>
+void test_operator_le()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    // Possibly equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        if (value == value2)
+        {
+            BOOST_TEST(((value2 <= emulated_value) == (emulated_value <= value2)));
+        }
+        else
+        {
+            BOOST_TEST(((value2 <= emulated_value) != (emulated_value <= value2)));
+        }
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value <= emulated_value) == (emulated_value <= value)));
+    }
+}
+
+template <typename IntType>
+void test_operator_ge()
+{
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>(),
+                                                          get_max<IntType>());
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const IntType value2 {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        if (value == value2)
+        {
+            BOOST_TEST(((value2 >= emulated_value) == (emulated_value >= value2)));
+        }
+        else
+        {
+            BOOST_TEST(((value2 >= emulated_value) != (emulated_value >= value2)));
+        }
+    }
+
+    // For sure equal
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)};
+        const boost::int128::int128_t emulated_value {value};
+
+        BOOST_TEST(((value >= emulated_value) == (emulated_value >= value)));
+    }
 }
 
 template <typename T>
@@ -1386,6 +1459,10 @@ struct test_caller
     {
         test_operator_equality<T>();
         test_operator_inequality<T>();
+        test_operator_less<T>();
+        test_operator_greater<T>();
+        test_operator_le<T>();
+        test_operator_ge<T>();
 
         test_operator_div<T>();
     }
