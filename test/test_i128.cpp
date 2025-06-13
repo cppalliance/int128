@@ -62,6 +62,18 @@ IntType get_min()
     return std::numeric_limits<IntType>::min();
 }
 
+template <typename IntType>
+IntType get_root_max()
+{
+    return static_cast<IntType>(std::sqrt(std::numeric_limits<IntType>::max()));
+}
+
+template <typename IntType>
+IntType get_root_min()
+{
+    return static_cast<IntType>(std::sqrt(std::numeric_limits<IntType>::min()));
+}
+
 #include <boost/random/uniform_int_distribution.hpp>
 
 // Used defined seed for repeatability
@@ -98,18 +110,6 @@ template <>
 builtin_i128 get_min<builtin_i128>()
 {
     return -get_max<builtin_i128>() - 1;
-}
-
-template <typename T>
-T get_root_max()
-{
-    return std::numeric_limits<T>::max() / 10;
-}
-
-template <typename T>
-T get_root_min()
-{
-    return std::numeric_limits<T>::min() / 10;
 }
 
 template <>
