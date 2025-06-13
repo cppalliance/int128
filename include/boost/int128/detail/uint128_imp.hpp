@@ -1070,7 +1070,7 @@ constexpr bool operator>=(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
-    return lhs > 0 && rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
+    return lhs >= 0 && rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
 
     #else
 
