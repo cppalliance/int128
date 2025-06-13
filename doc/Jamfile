@@ -6,8 +6,8 @@
 import asciidoctor ;
 
 html int128.html : int128.adoc
-    :   <use>/boost/boostlook//boostlook
-        <dependency>int128-docinfo-footer.html
+    #:   <use>/boost/boostlook//boostlook
+    #    <dependency>int128-docinfo-footer.html
     ;
 
 install html_ : int128.html : <location>html ;
