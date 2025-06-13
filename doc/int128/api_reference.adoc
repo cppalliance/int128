@@ -54,6 +54,13 @@ Listed by analogous STL header.
 - <<stream, `operator<<`>>
 - <<stream, `operator>>`>>
 
+=== `<ios>`
+- <<ios, `std::ios_base::oct`>>
+- <<ios, `std::ios_base::dec`>>
+- <<ios, `std::ios_base::hex`>>
+- <<ios, `std::ios_base::uppercase`>>
+- <<ios, `std::ios_base::nouppercase`>>
+
 === `<numeric>`
 - <<sat_arith, `add_sat`>>
 - <<sat_arith, `sub_sat`>>
