@@ -11,6 +11,7 @@
 #include <boost/int128/detail/utilities.hpp>
 #include <type_traits>
 #include <iostream>
+#include <iomanip>
 #include <cstring>
 
 namespace boost {
@@ -33,10 +34,10 @@ template <typename charT, typename traits, typename LibIntegerType>
 auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_istream<charT, traits>&>
 {
-    charT t_buffer[1024] {};
-    is >> t_buffer;
+    charT t_buffer[64] {};
+    is >> std::ws >> std::setw(63) >> t_buffer;
 
-    char buffer[1024] {};
+    char buffer[64] {};
     auto buffer_start {buffer};
 
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
