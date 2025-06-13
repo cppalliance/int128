@@ -1547,6 +1547,15 @@ void test_operator_div()
         IntType value {dist(rng)}; // LCOV_EXCL_LINE
         IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
 
+        while (value == 0)
+        {
+            value = dist(rng);
+        }
+        while (value2 == 0)
+        {
+            value2 = dist(rng);
+        }
+
         if (value < value2)
         {
             std::swap(value, value2);
