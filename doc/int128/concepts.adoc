@@ -9,6 +9,7 @@ https://www.boost.org/LICENSE_1_0.txt
 :idprefix: concepts_
 
 The following are the definitions of the concepts used throughout the library to ensure consistency.
+While these are from the detail folder of the library, they are included for clarity since they will be used in the function definitions of following sections.
 
 [#signed_integer]
 == Signed Integer
