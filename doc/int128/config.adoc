@@ -10,7 +10,18 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == User Configurable Macros
 
+[#no_int128]
 - `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `\__int128` or `unsigned __int128` types.
+
+[#sign_compare]
+- `BOOST_INT128_ALLOW_SIGN_COMPARE` - Allows only comparisons between this library's types, and built-in types of the opposite sign.
+
+IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
+
+[#sign_conversion]
+- `BOOST_INT128_ALLOW_SIGN_CONVERSION` - Allows operations between this library's types, and built-in types of opposite signedness, to include sign comparisons.
+
+IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
 
 == Automatic Configuration Macros
 
