@@ -1322,6 +1322,10 @@ int main()
 
 #else
 
+// The 32-bit coverage flags every call to distribution and BOOST_TEST as partials
+// which is technically correct but also pure noise
+// LCOV_EXCL_START
+
 template <typename IntType>
 void test_operator_add()
 {
@@ -1373,6 +1377,8 @@ void test_operator_mul()
         mul_val *= 2;
     }
 }
+
+// LCOV_EXCL_STOP
 
 struct test_caller
 {
