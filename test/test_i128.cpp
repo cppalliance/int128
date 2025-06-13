@@ -1461,8 +1461,8 @@ void test_operator_add()
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         const IntType res = value + value2;
 
-        boost::int128::uint128_t test_value {value};
-        const boost::int128::uint128_t test_value2 {value2};
+        boost::int128::int128_t test_value {value};
+        const boost::int128::int128_t test_value2 {value2};
         BOOST_TEST(test_value + test_value2 == res); // LCOV_EXCL_LINE
 
         test_value += value2;
@@ -1477,6 +1477,43 @@ void test_operator_add()
 
     test_value += test_value;
     BOOST_TEST_EQ(++test_value, correct_value + UINT64_MAX);
+}
+
+template <typename IntType>
+void test_operator_sub()
+{
+    BOOST_INT128_IF_CONSTEXPR (std::is_unsigned<IntType>::value)
+    {
+        return;
+    }
+
+    boost::random::uniform_int_distribution<IntType> dist(get_min<IntType>() / 2, get_max<IntType>() / 2);
+
+    for (std::size_t i {}; i < N; ++i)
+    {
+        const IntType value {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
+        const IntType res = value - value2;
+
+        boost::int128::int128_t test_value {value};
+        const boost::int128::int128_t test_value2 {value2};
+        BOOST_TEST(test_value - test_value2 == res); // LCOV_EXCL_LINE
+
+        test_value -= value2;
+        BOOST_TEST(test_value == res); // LCOV_EXCL_LINE
+    }
+
+    // Known Values
+    boost::int128::int128_t correct_value {UINT64_MAX};
+    boost::int128::int128_t test_value {1, 0};
+    BOOST_TEST_EQ(test_value - 1, correct_value);
+    BOOST_TEST_EQ(test_value - INT64_MAX, correct_value - (INT64_MAX - 1U));
+
+    test_value -= test_value;
+    --test_value;
+    correct_value -= UINT64_MAX;
+    correct_value -= 1;
+    BOOST_TEST_EQ(test_value, correct_value);
 }
 
 // LCOV_EXCL_STOP
@@ -1494,6 +1531,7 @@ struct test_caller
         test_operator_ge<T>();
 
         test_operator_add<T>();
+        test_operator_sub<T>();
         test_operator_div<T>();
     }
 };
