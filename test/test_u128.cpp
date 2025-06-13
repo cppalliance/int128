@@ -81,7 +81,7 @@ static std::mt19937_64 rng(42);
 
 constexpr std::size_t N = 1024;
 
-#if 0//defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 using boost::int128::detail::builtin_u128;
 using boost::int128::detail::builtin_i128;
