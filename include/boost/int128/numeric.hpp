@@ -40,14 +40,14 @@ struct reduced_integers
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 template <typename IntegerType>
-static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
+BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<IntegerType>::value ||
                                               std::is_same<IntegerType, detail::builtin_i128>::value ||
                                               std::is_same<IntegerType, detail::builtin_u128>::value};
 
 #else
 
 template <typename IntegerType>
-static constexpr bool is_reduced_integer_v {reduced_integers<IntegerType>::value};
+BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<IntegerType>::value};
 
 #endif // 128-bit
 
