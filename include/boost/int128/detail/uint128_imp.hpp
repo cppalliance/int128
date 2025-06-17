@@ -12,9 +12,14 @@
 #include <boost/int128/detail/clz.hpp>
 #include <boost/int128/detail/common_mul.hpp>
 #include <boost/int128/detail/common_div.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <cstdint>
 #include <cstring>
 #include <climits>
+
+#endif
 
 namespace boost {
 namespace int128 {

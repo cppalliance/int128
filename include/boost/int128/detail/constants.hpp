@@ -5,8 +5,12 @@
 #ifndef BOOST_INT128_DETAIL_CONSTANTS_HPP
 #define BOOST_INT128_DETAIL_CONSTANTS_HPP
 
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <cstdint>
 #include <limits>
+
+#endif
 
 namespace boost {
 namespace int128 {

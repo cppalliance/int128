@@ -7,8 +7,13 @@
 
 #include <boost/int128/bit.hpp>
 #include <boost/int128/detail/traits.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <limits>
 #include <iostream>
+
+#endif
 
 namespace boost {
 namespace int128 {

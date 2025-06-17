@@ -7,8 +7,13 @@
 
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/clz.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <cstdint>
 #include <cstring>
+
+#endif
 
 namespace boost {
 namespace int128 {

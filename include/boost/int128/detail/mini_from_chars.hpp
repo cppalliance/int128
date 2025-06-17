@@ -8,9 +8,14 @@
 
 #include <boost/int128/detail/uint128_imp.hpp>
 #include <boost/int128/detail/int128_imp.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <cerrno>
 #include <limits>
 #include <cstddef>
+
+#endif
 
 namespace boost {
 namespace int128 {
