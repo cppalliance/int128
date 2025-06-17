@@ -242,4 +242,10 @@ using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_UNREACHABLE std::abort()
 #endif
 
+#ifdef BOOST_INT128_BUILD_MODULE
+#  define BOOST_INT128_INLINE_CONSTEXPR inline constexpr
+#else
+#  define BOOST_INT128_INLINE_CONSTEXPR static constexpr
+#endif
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
