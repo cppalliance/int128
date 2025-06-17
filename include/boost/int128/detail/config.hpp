@@ -39,7 +39,9 @@ using builtin_u128 = unsigned __int128;
 
 #elif __has_include(<__msvc_int128.hpp>) && _MSVC_LANG >= 202002L
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #include <__msvc_int128.hpp>
+#endif
 
 #define BOOST_INT128_HAS_MSVC_INT128
 
@@ -126,8 +128,10 @@ using builtin_u128 = std::_Unsigned128;
 
 #ifdef __x86_64__
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #  include <x86intrin.h>
 #  include <emmintrin.h>
+#endif
 
 #  ifdef __ADX__
 #    define BOOST_INT128_ADD_CARRY _addcarryx_u64
@@ -139,7 +143,9 @@ using builtin_u128 = std::_Unsigned128;
 
 #elif defined(_M_AMD64)
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #  include <intrin.h>
+#endif
 
 #  ifdef __ADX__
 #    define BOOST_INT128_ADD_CARRY _addcarryx_u64
@@ -151,11 +157,15 @@ using builtin_u128 = std::_Unsigned128;
 
 #elif defined(__i386__)
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #  include <emmintrin.h>
+#endif
 
 #elif defined(_M_IX86)
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #  include <intrin.h>
+#endif
 
 #endif // Platform macros
 
@@ -173,7 +183,9 @@ using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_HAS_IF_CONSTEXPR
 #endif // if constexpr detection
 
+#ifndef BOOST_INT128_BUILD_MODULE
 #include <cassert>
+#endif
 
 #define BOOST_INT128_ASSERT(x) assert(x)
 #define BOOST_INT128_ASSERT_MSG(expr, msg) assert((expr)&&(msg))

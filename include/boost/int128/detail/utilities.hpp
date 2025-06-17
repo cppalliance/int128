@@ -5,7 +5,11 @@
 #ifndef BOOST_INT128_DETAIL_UTILITIES_HPP
 #define BOOST_INT128_DETAIL_UTILITIES_HPP
 
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <cstddef>
+
+#endif
 
 namespace boost {
 namespace int128 {

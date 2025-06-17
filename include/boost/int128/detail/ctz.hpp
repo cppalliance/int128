@@ -6,8 +6,13 @@
 #define BOOST_INT128_DETAIL_CTZ_HPP
 
 #include <boost/int128/detail/config.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <limits>
 #include <cstdint>
+
+#endif
 
 namespace boost {
 namespace int128 {
