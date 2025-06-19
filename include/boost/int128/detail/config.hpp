@@ -244,8 +244,10 @@ using builtin_u128 = std::_Unsigned128;
 
 #ifdef BOOST_INT128_BUILD_MODULE
 #  define BOOST_INT128_INLINE_CONSTEXPR inline constexpr
+#  define BOOST_INT128_EXPORT export
 #else
 #  define BOOST_INT128_INLINE_CONSTEXPR static constexpr
+#  define BOOST_INT128_EXPORT
 #endif
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
