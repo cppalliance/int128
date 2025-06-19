@@ -18,6 +18,59 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
+#if defined(__GNUC__) && __GNUC__ == 7 && defined(__i386__)
+
+template <typename ReturnType, std::size_t u_size, std::size_t v_size>
+BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
+                                                              const std::uint32_t (&v)[v_size]) noexcept
+{
+    using high_word_type = decltype(ReturnType{}.high);
+
+    std::uint32_t w[u_size + v_size] {};
+
+    // M.1
+    constexpr std::size_t max_j {v_size == 1U ? 1U : v_size == 2U ? 2U : v_size == 4U ? 4U : v_size == 8U ? 8U : 0U};
+    static_assert(max_j != 0, "Unsupported v_size");
+
+    std::size_t j {};
+    do
+    {
+        // M.2
+        if (v[j] == 0)
+        {
+            w[j + u_size] = 0;
+            continue;
+        }
+
+        // M.3
+        constexpr std::size_t max_i {u_size == 1U ? 1U : u_size == 2U ? 2U : u_size == 4U ? 4U : u_size == 8U ? 8U : 0U};
+        static_assert(max_i != 0, "Unsupported u_size");
+
+        std::size_t i {};
+        std::uint64_t t {};
+
+        do
+        {
+            // M.4
+            t += static_cast<std::uint64_t>(u[i]) * v[j] + w[i + j];
+            w[i + j] = static_cast<std::uint32_t>(t);
+            t >>= 32u;
+            ++i;
+        } while (i < max_i);
+
+        // M.5
+        w[j + u_size] = static_cast<std::uint32_t>(t);
+        ++j;
+    } while (j < max_j);
+
+    const auto low {static_cast<std::uint64_t>(w[0]) | (static_cast<std::uint64_t>(w[1]) << 32)};
+    const auto high {static_cast<std::uint64_t>(w[2]) | (static_cast<std::uint64_t>(w[3]) << 32)};
+
+    return {static_cast<high_word_type>(high), low};
+}
+
+#else
+
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm M: Multiplication of Non-negative integers
 template <typename ReturnType, std::size_t u_size, std::size_t v_size>
@@ -57,6 +110,8 @@ BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_
 
     return {static_cast<high_word_type>(high), low};
 }
+
+#endif
 
 template <typename T>
 BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&words)[4]) noexcept
