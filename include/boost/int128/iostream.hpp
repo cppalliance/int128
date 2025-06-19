@@ -9,6 +9,7 @@
 #include <boost/int128/detail/mini_from_chars.hpp>
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/utilities.hpp>
+#include <boost/int128/detail/config.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -35,7 +36,7 @@ static constexpr bool is_streamable_overload_v = streamable_overload<T>::value;
 
 } // namespace detail
 
-template <typename charT, typename traits, typename LibIntegerType>
+BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_istream<charT, traits>&>
 {
@@ -85,7 +86,7 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     return is;
 }
 
-template <typename charT, typename traits, typename LibIntegerType>
+BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_ostream<charT, traits>&>
 {

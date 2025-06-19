@@ -53,7 +53,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<Intege
 
 } // namespace detail
 
-constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x + y};
 
@@ -65,7 +65,7 @@ constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
     return z;
 }
 
-constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x - y};
 
@@ -86,7 +86,7 @@ constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x >= 0 && y >= 0)
     {
@@ -114,7 +114,7 @@ constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
     }
 }
 
-constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x <= 0 && y >= 0)
     {
@@ -142,7 +142,7 @@ constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 #  pragma warning(pop)
 #endif
 
-constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
@@ -155,7 +155,7 @@ constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
     return x * y;
 }
 
-constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
@@ -176,12 +176,12 @@ constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
     return res;
 }
 
-constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;
 }
 
-constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
     {
@@ -192,7 +192,7 @@ constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
     return x / y;
 }
 
-template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
+BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
 constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
@@ -210,7 +210,7 @@ constexpr TargetType saturate_cast(const uint128_t value) noexcept
     }
 }
 
-template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
+BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
 constexpr TargetType saturate_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
