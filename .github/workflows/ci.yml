@@ -48,6 +48,7 @@ jobs:
             container: ubuntu:18.04
             install:
               - g++-7-multilib
+            cxxflags: "-fconstexpr-loop-limit=1148207104"
           - toolset: gcc-8
             cxxstd: "14,17,2a"
             address_model: 64
