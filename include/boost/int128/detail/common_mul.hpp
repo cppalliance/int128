@@ -39,6 +39,7 @@ BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_
         if (v[j] == 0)
         {
             w[j + u_size] = 0;
+            ++j;
             continue;
         }
 
