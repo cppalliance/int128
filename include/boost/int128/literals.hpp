@@ -96,7 +96,7 @@ BOOST_INT128_EXPORT constexpr int128_t operator ""_I128(const char* str, std::si
 } // namespace boost
 
 #define BOOST_INT128_STRINGIFY(x) #x
-#define BOOST_INT128_UINT128_C(x) BOOST_INT128_STRINGIFY(x) ""_u128
-#define BOOST_INT128_INT128_C(x) BOOST_INT128_STRINGIFY(x) ""_i128
+#define BOOST_INT128_UINT128_C(x) boost::int128::literals::operator""_u128(BOOST_INT128_STRINGIFY(x))
+#define BOOST_INT128_INT128_C(x) boost::int128::literals::operator""_i128(BOOST_INT128_STRINGIFY(x))
 
 #endif // BOOST_INT128_LITERALS_HPP
