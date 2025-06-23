@@ -1236,6 +1236,16 @@ void test_spot_div(IntType value, IntType value2)
     BOOST_TEST(check_2_value == check_2_value_builtin);
 }
 
+template <typename IntType>
+void test_spot_div(IntType lhs, IntType rhs, IntType known_res)
+{
+    const auto check_1 {lhs / rhs};
+    BOOST_TEST_EQ(check_1, known_res);
+
+    lhs /= rhs;
+    BOOST_TEST_EQ(lhs, known_res);
+}
+
 struct test_caller
 {
     template<typename T>
@@ -1316,6 +1326,8 @@ int main()
     test_spot_div<long>(-888610053741375541L, 3110266252672496347L);
 
     test_spot_div<long long>(-3237361348456748317LL, 8011834041509972187LL);
+
+    test_spot_div<boost::int128::uint128_t>(boost::int128::uint128_t{50012077812411ULL, 6429278683030093824ULL}, boost::int128::uint128_t{542101086ULL, 4477988020393345024ULL}, 92256);
 
     return boost::report_errors();
 }
