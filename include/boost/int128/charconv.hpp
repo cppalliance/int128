@@ -48,6 +48,16 @@ BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int12
     return detail::to_chars_integer_impl<int128::uint128_t, int128::uint128_t>(first, last, value, base);
 }
 
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::int128_t value, int base = 10) noexcept
+{
+    if (base == 10)
+    {
+        return detail::to_chars_128integer_impl<int128::int128_t, int128::uint128_t>(first, last, value);
+    }
+
+    return detail::to_chars_integer_impl<int128::int128_t, int128::uint128_t>(first, last, value, base);
+}
+
 } // namespace charconv
 } // namespace boost
 
