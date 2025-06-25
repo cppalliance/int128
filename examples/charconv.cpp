@@ -10,6 +10,7 @@
 #include <iostream>
 #include <limits>
 #include <cstring>
+#include <string>
 
 int main()
 {
@@ -42,6 +43,18 @@ int main()
     r_from = boost::charconv::from_chars(buffer, buffer + sizeof(buffer), signed_return_value);
     assert(r_from);
     assert(min_signed_value == signed_return_value);
+
+    // Boost from_chars also supports from_chars for a std::string or std::string_view
+
+    std::string unsigned_string = "42";
+    r_from = boost::charconv::from_chars(unsigned_string, return_value);
+    assert(r_from);
+    assert(return_value == boost::int128::uint128_t{42});
+
+    std::string signed_string = "-12345";
+    r_from = boost::charconv::from_chars(signed_string, signed_return_value);
+    assert(r_from);
+    assert(signed_return_value == boost::int128::int128_t{-12345});
 
     return 0;
 }
