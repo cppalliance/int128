@@ -23,10 +23,10 @@ int main()
 
     std::cout << "Max unsigned value: " << buffer << std::endl;
 
-    //boost::int128::uint128_t return_value;
-    //boost::charconv::from_chars(buffer, buffer + sizeof(buffer), return_value);
-
-    //return max_value == return_value ? 0 : 1;
+    boost::int128::uint128_t return_value;
+    auto r_from = boost::charconv::from_chars(buffer, buffer + sizeof(buffer), return_value);
+    assert(r_from);
+    assert(max_value == return_value);
 
     // And same for signed types
     constexpr auto min_signed_value = std::numeric_limits<boost::int128::int128_t>::min();
@@ -37,6 +37,11 @@ int main()
     *r.ptr = '\0';
 
     std::cout << "Min signed value: " << buffer << std::endl;
+
+    boost::int128::int128_t signed_return_value;
+    r_from = boost::charconv::from_chars(buffer, buffer + sizeof(buffer), signed_return_value);
+    assert(r_from);
+    assert(min_signed_value == signed_return_value);
 
     return 0;
 }
