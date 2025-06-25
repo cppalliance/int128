@@ -9,6 +9,7 @@
 #include <boost/charconv.hpp>
 #include <iostream>
 #include <limits>
+#include <cstring>
 
 int main()
 {
@@ -16,13 +17,26 @@ int main()
 
     // Boost.Charconv can be used as it would be with any builtin type
     char buffer[64];
-    const auto r = boost::charconv::to_chars(buffer, buffer + sizeof(buffer), max_value);
+    auto r = boost::charconv::to_chars(buffer, buffer + sizeof(buffer), max_value);
+    assert(r);
     *r.ptr = '\0'; // Boost/std charconv do not add null terminators
 
-    std::cout << "Max value: " << buffer << std::endl;
+    std::cout << "Max unsigned value: " << buffer << std::endl;
 
     //boost::int128::uint128_t return_value;
     //boost::charconv::from_chars(buffer, buffer + sizeof(buffer), return_value);
 
     //return max_value == return_value ? 0 : 1;
+
+    // And same for signed types
+    constexpr auto min_signed_value = std::numeric_limits<boost::int128::int128_t>::min();
+
+    std::memset(buffer, 0, sizeof(buffer));
+    r = boost::charconv::to_chars(buffer, buffer + sizeof(buffer), min_signed_value);
+    assert(r);
+    *r.ptr = '\0';
+
+    std::cout << "Min signed value: " << buffer << std::endl;
+
+    return 0;
 }
