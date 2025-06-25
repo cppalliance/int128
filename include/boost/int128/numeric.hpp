@@ -192,6 +192,11 @@ BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t x, const int128_t 
     return x / y;
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4267)
+#endif
+
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
 constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
@@ -209,6 +214,10 @@ constexpr TargetType saturate_cast(const uint128_t value) noexcept
         return static_cast<TargetType>(value);
     }
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
 constexpr TargetType saturate_cast(const int128_t value) noexcept
