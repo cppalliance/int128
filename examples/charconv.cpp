@@ -1,8 +1,8 @@
 // Copyright 2025 Matt Borland
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
-
-// Allowing sign conversion is a required pre-requisite for Boost.Random
+//
+// Allowing sign conversion is a required pre-requisite for Boost.Charconv
 #define BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #include <boost/int128.hpp>
@@ -11,6 +11,12 @@
 #include <limits>
 #include <cstring>
 #include <string>
+
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wunused-variable"
+#endif
+
 
 int main()
 {
