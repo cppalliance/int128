@@ -10,7 +10,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Namespaces
 
-- `boost::int128` contains all components of the library
+- `boost::int128` contains all components of the library except `<charconv>` functionality
 - <<literals, `boost::int128::literals`>>
 
 == Types
@@ -47,6 +47,10 @@ Listed by analogous STL header.
 - <<rotr, `rotr`>>
 - <<popcount, `popcount`>>
 - <<byteswap, `byteswap`>>
+
+=== `<charconv>`
+- <<to_chars, `to_chars`>>
+- <<from_chars, `from_chars`>>
 
 === `<cmath>`
 - `abs` - Absolute Value
