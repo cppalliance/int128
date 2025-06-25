@@ -1,0 +1,38 @@
+// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// This header injects additional functionality into the Boost.Charconv namespace
+// If this library is accepted into boost this functionality could be moved their
+
+#ifndef BOOST_INT128_CHARCONV_HPP
+#define BOOST_INT128_CHARCONV_HPP
+
+#if __has_include(<boost/charconv.hpp>)
+
+#include <boost/int128/int128.hpp>
+#include <boost/charconv.hpp>
+
+namespace boost {
+namespace charconv {
+
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::uint128_t value, int base = 10) noexcept
+{
+    if (base == 10)
+    {
+        return detail::to_chars_128integer_impl<int128::uint128_t, int128::uint128_t>(first, last, value);
+    }
+
+    return detail::to_chars_integer_impl<int128::uint128_t, int128::uint128_t>(first, last, value, base);
+}
+
+} // namespace charconv
+} // namespace boost
+
+#else
+
+#error "This header requires Boost.Charconv to be present"
+
+#endif // __has_include(<boost/charconv.hpp>)
+
+#endif // BOOST_INT128_CHARCONV_HPP
