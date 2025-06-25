@@ -74,7 +74,7 @@ BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(const char* first, co
     return detail::from_chars_integer_impl<int128::int128_t, int128::uint128_t>(first, last, value, base);
 }
 
-BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(core::string_view sv, const char* last, int128::int128_t& value, int base = 10) noexcept
+BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(core::string_view sv, int128::int128_t& value, int base = 10) noexcept
 {
     return detail::from_chars_integer_impl<int128::int128_t, int128::uint128_t>(sv.data(), sv.data() + sv.size(), value, base);
 }
