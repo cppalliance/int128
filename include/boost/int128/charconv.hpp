@@ -12,6 +12,7 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/charconv.hpp>
+#include <boost/core/detail/string_view.hpp>
 
 namespace boost {
 namespace charconv {
@@ -56,6 +57,26 @@ BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int12
     }
 
     return detail::to_chars_integer_impl<int128::int128_t, int128::uint128_t>(first, last, value, base);
+}
+
+BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(const char* first, const char* last, int128::uint128_t& value, int base = 10) noexcept
+{
+    return detail::from_chars_integer_impl<int128::uint128_t, int128::uint128_t>(first, last, value, base);
+}
+
+BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(core::string_view sv, int128::uint128_t& value, int base = 10) noexcept
+{
+    return detail::from_chars_integer_impl<int128::uint128_t, int128::uint128_t>(sv.data(), sv.data() + sv.size(), value, base);
+}
+
+BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(const char* first, const char* last, int128::int128_t& value, int base = 10) noexcept
+{
+    return detail::from_chars_integer_impl<int128::int128_t, int128::uint128_t>(first, last, value, base);
+}
+
+BOOST_CHARCONV_GCC5_CONSTEXPR from_chars_result from_chars(core::string_view sv, const char* last, int128::int128_t& value, int base = 10) noexcept
+{
+    return detail::from_chars_integer_impl<int128::int128_t, int128::uint128_t>(sv.data(), sv.data() + sv.size(), value, base);
 }
 
 } // namespace charconv
