@@ -16,6 +16,28 @@
 namespace boost {
 namespace charconv {
 
+namespace detail {
+
+template <>
+struct is_signed<int128::uint128_t> { static constexpr bool value = false; };
+
+template <>
+struct is_signed<int128::int128_t> { static constexpr bool value = true; };
+
+template <>
+struct make_unsigned<int128::uint128_t> { using type = int128::uint128_t; };
+
+template <>
+struct make_unsigned<int128::int128_t> { using type = int128::uint128_t; };
+
+template <>
+struct make_signed<int128::uint128_t> { using type = int128::int128_t; };
+
+template <>
+struct make_signed<int128::int128_t> { using type = int128::int128_t; };
+
+} // namespace detail
+
 BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::uint128_t value, int base = 10) noexcept
 {
     if (base == 10)
