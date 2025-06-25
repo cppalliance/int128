@@ -81,6 +81,7 @@ compile-fail ../examples/mixed_type_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
 run ../examples/math_and_random.cpp ;
+run ../examples/charconv.cpp ;
 
 # Github Issues
 run github_issue_207.cpp ;
