@@ -8,7 +8,7 @@ https://www.boost.org/LICENSE_1_0.txt
 = <bit>
 :idprefix: bit_
 
-The following are functions analagous to those found in C\++20's https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
+The following are functions analogous to those found in C\++20's https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
 None of these functions applied to signed integral types, and thus none have overloads for `boost::int128::int128_t`.
 All of these functions are available using C ++14 like the rest of the library.
 
