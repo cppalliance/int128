@@ -18,7 +18,6 @@
 #  pragma clang diagnostic ignored "-Wunused-variable"
 #endif
 
-
 int main()
 {
     constexpr boost::int128::uint128_t max_value = std::numeric_limits<boost::int128::uint128_t>::max();
@@ -62,6 +61,30 @@ int main()
     r_from = boost::charconv::from_chars(signed_string, signed_return_value);
     assert(r_from);
     assert(signed_return_value == boost::int128::int128_t{-12345});
+
+    // We can also do non-base 10 value conversions for both types
+    std::memset(buffer, 0, sizeof(buffer));
+    r = boost::charconv::to_chars(buffer, buffer + sizeof(buffer), max_value, 16);
+    assert(r);
+    *r.ptr = '\0';
+
+    std::cout << "Unsigned value in hex: 0x" << buffer << std::endl;
+
+    return_value = 0U;
+    r_from = boost::charconv::from_chars(buffer, buffer + sizeof(buffer), return_value, 16);
+    assert(r_from);
+
+    std::memset(buffer, 0, sizeof(buffer));
+    r = boost::charconv::to_chars(buffer, buffer + sizeof(buffer), boost::int128::int128_t{42}, 8);
+    assert(r);
+    *r.ptr = '\0';
+
+    std::cout << "Signed value octal: 0" << buffer << std::endl;
+
+    signed_return_value = 0;
+    r_from = boost::charconv::from_chars(buffer, buffer + sizeof(buffer), signed_return_value, 8);
+    assert(r_from);
+    assert(signed_return_value == 42);
 
     return 0;
 }
