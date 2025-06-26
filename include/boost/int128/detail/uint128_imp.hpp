@@ -820,7 +820,7 @@ BOOST_INT128_EXPORT constexpr bool operator<=(const uint128_t lhs, const uint128
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs.high == rhs.high ? lhs.low < rhs.low : lhs.high < rhs.high; // LCOV_EXCL_LINE
+        return lhs.high == rhs.high ? lhs.low <= rhs.low : lhs.high <= rhs.high; // LCOV_EXCL_LINE
     }
     else
     {
