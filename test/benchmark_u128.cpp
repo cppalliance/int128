@@ -34,7 +34,7 @@
 #include <functional>
 #include <numeric>
 
-#if defined(__cpp_lib_gcd_lcm) && __cpp_lib_gcd_lcm >= 201606L
+#if defined(__cpp_lib_gcd_lcm) && __cpp_lib_gcd_lcm >= 201606L && (!defined(__STRICT_ANSI__) || (defined(__GNUC__) && __GNUC__ >= 13)) && !defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
 #  define BOOST_INT128_BENCHMARK_BUILTIN_GCD
 #endif
 
