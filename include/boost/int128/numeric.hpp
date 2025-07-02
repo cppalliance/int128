@@ -283,8 +283,7 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 
 constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 {
-    const auto res {static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))))};
-    return (a < 0) != (b < 0) ? -res : res;
+    return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
 constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
@@ -303,8 +302,7 @@ constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 
 constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
 {
-    const auto res {static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))))};
-    return (a < 0) != (b < 0) ? -res : res;
+    return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
 } // namespace int128
