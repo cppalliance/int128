@@ -251,6 +251,40 @@ constexpr TargetType saturate_cast(const int128_t value) noexcept
     }
 }
 
+namespace detail {
+
+constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
+{
+    if (x == 0)
+    {
+        return y;
+    }
+    if (y == 0)
+    {
+        return x;
+    }
+
+    const auto s {impl::countr_impl(x | y)};
+    x >>= impl::countr_impl(x);
+
+    do
+    {
+        y >>= impl::countr_impl(y);
+        if (x > y)
+        {
+            const auto temp {x};
+            x = y;
+            y = temp;
+        }
+
+        y -= x;
+    } while (y);
+
+    return x << s;
+}
+
+} // namespace detail
+
 constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 {
     // Base case
