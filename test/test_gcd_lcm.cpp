@@ -130,6 +130,11 @@ void test_gcd_lcm_properties()
     BOOST_TEST_EQ(gcd(x, gcd(y, z)), gcd(gcd(x, y), z));
 }
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4146)
+#endif
+
 void test_negative_value()
 {
     // These should always return positive values
@@ -149,6 +154,10 @@ void test_negative_value()
     static_assert(gcd(int128_t{0}, int128_t{24}) == 24, "Wrong");
     static_assert(gcd(int128_t{0}, int128_t{-24}) == 24, "Wrong");
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 int main()
 {
