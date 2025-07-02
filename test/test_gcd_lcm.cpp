@@ -130,6 +130,26 @@ void test_gcd_lcm_properties()
     BOOST_TEST_EQ(gcd(x, gcd(y, z)), gcd(gcd(x, y), z));
 }
 
+void test_negative_value()
+{
+    // These should always return positive values
+    // Also exercises our constexpr-ness
+
+    constexpr int128_t p {2 * 2 * 3};
+    constexpr int128_t q {2 * 3 * 3};
+    static_assert(2 * 3 == gcd(p, q));
+
+    static_assert(gcd(int128_t{6},  int128_t{10}) == 2);
+    static_assert(gcd(int128_t{6}, int128_t{-10}) == 2);
+    static_assert(gcd(int128_t{-6}, int128_t{-10}) == 2);
+
+    static_assert(gcd(int128_t{24}, int128_t{0}) == 24);
+    static_assert(gcd(int128_t{-24}, int128_t{0}) == 24);
+
+    static_assert(gcd(int128_t{0}, int128_t{24}) == 24);
+    static_assert(gcd(int128_t{0}, int128_t{-24}) == 24);
+}
+
 int main()
 {
     test_gcd<uint128_t>();
@@ -139,6 +159,7 @@ int main()
     test_gcd<int128_t>();
     test_lcm<int128_t>();
     test_gcd_lcm_properties<int128_t>();
+    test_negative_value();
 
     return boost::report_errors();
 }
