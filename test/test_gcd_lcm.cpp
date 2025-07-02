@@ -139,15 +139,15 @@ void test_negative_value()
     constexpr int128_t q {2 * 3 * 3};
     static_assert(2 * 3 == gcd(p, q));
 
-    static_assert(gcd(int128_t{6},  int128_t{10}) == 2);
-    static_assert(gcd(int128_t{6}, int128_t{-10}) == 2);
-    static_assert(gcd(int128_t{-6}, int128_t{-10}) == 2);
+    static_assert(gcd(int128_t{6},  int128_t{10}) == 2, "Wrong");
+    static_assert(gcd(int128_t{6}, int128_t{-10}) == 2, "Wrong");
+    static_assert(gcd(int128_t{-6}, int128_t{-10}) == 2, "Wrong");
 
-    static_assert(gcd(int128_t{24}, int128_t{0}) == 24);
-    static_assert(gcd(int128_t{-24}, int128_t{0}) == 24);
+    static_assert(gcd(int128_t{24}, int128_t{0}) == 24, "Wrong");
+    static_assert(gcd(int128_t{-24}, int128_t{0}) == 24, "Wrong");
 
-    static_assert(gcd(int128_t{0}, int128_t{24}) == 24);
-    static_assert(gcd(int128_t{0}, int128_t{-24}) == 24);
+    static_assert(gcd(int128_t{0}, int128_t{24}) == 24, "Wrong");
+    static_assert(gcd(int128_t{0}, int128_t{-24}) == 24, "Wrong");
 }
 
 int main()
