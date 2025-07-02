@@ -12,6 +12,7 @@
 
 #include <limits>
 #include <iostream>
+#include <limits>
 
 #endif
 
@@ -288,6 +289,11 @@ constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
     return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
+// For unknown reasons this implementation fails for MSVC x86 only in release mode
+// Directly calculating leads to the same failures, so unfortunately we have a viable,
+// but very slow impl that we know works.
+#if !(defined(_M_IX86) && !defined(_NDEBUG))
+
 constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
@@ -301,6 +307,42 @@ constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
     // Compute LCM avoiding overflow: (a/gcd) * b
     return (a / g) * b;
 }
+
+#else
+
+constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
+{
+    if (a == 0U || b == 0U)
+    {
+        return 0;
+    }
+
+
+    unsigned shift{};
+    while ((a & 1U) == 0U && (b & 1U) == 0U) 
+    {
+        a >>= 1U;
+        b >>= 1U;
+        shift++;
+    }
+
+    // Ensure a >= b
+    if (a < b)
+    {
+        std::swap(a, b);
+    }
+
+    uint128_t lcm{a};
+
+    while (lcm % b != 0U) 
+    {
+        lcm += a;
+    }
+
+    return lcm << shift;
+}
+
+#endif
 
 constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
 {
