@@ -250,6 +250,43 @@ constexpr TargetType saturate_cast(const int128_t value) noexcept
     }
 }
 
+constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
+{
+    // Base case
+    if (a == 0U)
+    {
+        return b;
+    }
+    if (b == 0U)
+    {
+        return a;
+    }
+
+    const auto shift {std::min(countr_zero(a), countr_zero(b))};
+    a >>= shift;
+    b >>= shift;
+
+    do
+    {
+        b >>= countr_zero(b);
+
+        if (a > b)
+        {
+            std::swap(a, b);
+        }
+
+        b -= a;
+    } while (b != 0U);
+
+    return a << shift;
+}
+
+constexpr int128_t gcd(int128_t a, int128_t b) noexcept
+{
+    const auto res {static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))))};
+    return a < 0 != b < 0 ? -res : res;
+}
+
 } // namespace int128
 } // namespace boost
 
