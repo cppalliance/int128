@@ -281,9 +281,29 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
     return a << shift;
 }
 
-constexpr int128_t gcd(int128_t a, int128_t b) noexcept
+constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 {
     const auto res {static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))))};
+    return a < 0 != b < 0 ? -res : res;
+}
+
+constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
+{
+    if (a == 0U || b == 0U)
+    {
+        return static_cast<uint128_t>(0);
+    }
+
+    // Calculate GCD first
+    const auto g {gcd(a, b)};
+
+    // Compute LCM avoiding overflow: (a/gcd) * b
+    return (a / g) * b;
+}
+
+constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
+{
+    const auto res {static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))))};
     return a < 0 != b < 0 ? -res : res;
 }
 
