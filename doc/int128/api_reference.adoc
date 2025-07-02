@@ -72,6 +72,8 @@ Listed by analogous STL header.
 - <<sat_arith, `mul_sat`>>
 - <<sat_arith, `div_sat`>>
 - <<saturating_cast, `saturate_cast`>>
+- <<gcd, `gcd`>>
+- <<lcm, `lcm`>>
 
 == Enums
 
