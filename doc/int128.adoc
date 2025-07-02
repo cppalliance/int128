@@ -38,7 +38,7 @@ include::int128/charconv.adoc[]
 
 include::int128/stream.adoc[]
 
-include::int128/saturating.adoc[]
+include::int128/numeric.adoc[]
 
 include::int128/examples.adoc[]
 
