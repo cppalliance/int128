@@ -263,7 +263,9 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
         return a;
     }
 
-    const auto shift {std::min(countr_zero(a), countr_zero(b))};
+    const auto a_zero {countr_zero(a)};
+    const auto b_zero {countr_zero(b)};
+    const auto shift {b_zero < a_zero ? b_zero : a_zero};
     a >>= shift;
     b >>= shift;
 
