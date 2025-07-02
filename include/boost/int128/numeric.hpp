@@ -272,7 +272,9 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 
         if (a > b)
         {
-            std::swap(a, b);
+            const uint128_t temp {a};
+            a = b;
+            b = temp;
         }
 
         b -= a;
