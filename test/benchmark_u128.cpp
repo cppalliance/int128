@@ -22,6 +22,7 @@
 #endif
 
 #include <boost/int128/int128.hpp>
+#include <boost/int128/numeric.hpp>
 #include <chrono>
 #include <random>
 #include <vector>
@@ -31,6 +32,11 @@
 #include <cmath>
 #include <cstring>
 #include <functional>
+#include <numeric>
+
+#if defined(__cpp_lib_gcd_lcm) && __cpp_lib_gcd_lcm >= 201606L
+#  define BOOST_INT128_BENCHMARK_BUILTIN_GCD
+#endif
 
 constexpr unsigned N = 20'000'000;
 constexpr unsigned K = 5;
@@ -311,6 +317,34 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
     std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
+template <typename T>
+BOOST_INT128_NO_INLINE void test_gcd(const std::vector<T>& data_vec, const char* type)
+{
+    #ifdef BOOST_INT128_BENCHMARK_BUILTIN_GCD
+    using std::gcd;
+    #endif
+
+    using boost::multiprecision::gcd;
+    using boost::int128::gcd;
+
+    const auto t1 = std::chrono::steady_clock::now();
+    std::size_t s = 0; // discard variable
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            const auto val1 = data_vec[i];
+            const auto val2 = data_vec[i + 1];
+            s += static_cast<std::size_t>(gcd(val1, val2));
+        }
+    }
+
+    const auto t2 = std::chrono::steady_clock::now();
+
+    std::cerr << "gcd" << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+}
+
 int main()
 {
     using namespace boost::int128::detail;
@@ -383,6 +417,15 @@ int main()
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
         test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        std::cerr << std::endl;
+
+        #if (defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)) && defined(BOOST_INT128_BENCHMARK_BUILTIN_GCD)
+        test_gcd(builtin_vector, "Builtin");
+        #endif
+
+        test_gcd(library_vector,  "Library");
+        test_gcd(mp_vector,  "mp::u128");
 
         std::cerr << std::endl;
     }
