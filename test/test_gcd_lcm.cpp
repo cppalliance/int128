@@ -137,7 +137,7 @@ void test_negative_value()
 
     constexpr int128_t p {2 * 2 * 3};
     constexpr int128_t q {2 * 3 * 3};
-    static_assert(2 * 3 == gcd(p, q));
+    static_assert(2 * 3 == gcd(p, q), "Wrong");
 
     static_assert(gcd(int128_t{6},  int128_t{10}) == 2, "Wrong");
     static_assert(gcd(int128_t{6}, int128_t{-10}) == 2, "Wrong");
