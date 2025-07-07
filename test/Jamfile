@@ -88,3 +88,4 @@ run ../examples/charconv.cpp ;
 # Github Issues
 run github_issue_207.cpp ;
 run github_issue_210.cpp ;
+run github_issue_221.cpp ;
