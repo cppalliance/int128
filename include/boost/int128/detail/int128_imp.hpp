@@ -2606,6 +2606,12 @@ constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexce
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
     const auto abs_rhs {rhs < 0 ? -rhs : rhs};
     const auto abs_lhs {abs(lhs)};
+
+    if (abs_lhs < abs_rhs)
+    {
+        return {0, 0};
+    }
+
     detail::one_word_div(abs_lhs, static_cast<eval_type>(abs_rhs), quotient);
 
     return negative_res ? -quotient : quotient;
