@@ -69,6 +69,21 @@ void test_decimal()
 
     BOOST_TEST_CSTR_EQ(std::format("{:+3d}", T{42}).c_str(), "+042");
     BOOST_TEST_CSTR_EQ(std::format("{:+#3d}", T{42}).c_str(), "+042");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{42}).c_str(), "042");
+    BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{42}).c_str(), "042");
+
+    if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+    {
+        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{42}).c_str(), " 042");
+        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{42}).c_str(), " 042");
+
+        BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{-42}).c_str(), "-042");
+        BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{-42}).c_str(), "-042");
+
+        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{-42}).c_str(), "-042");
+        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{-42}).c_str(), "-042");
+    }
 }
 
 int main()
