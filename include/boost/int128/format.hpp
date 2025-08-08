@@ -10,6 +10,8 @@
 
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/int128.hpp>
+#include <string>
+#include <string_view>
 
 namespace boost::int128::detail {
 
@@ -166,6 +168,93 @@ struct formatter<T>
         character_debug_format = std::get<6>(res);
 
         return std::get<7>(res);
+    }
+
+    template <typename FormatContext>
+    auto format(T v, FormatContext& ctx) const
+    {
+        auto out {ctx.out()};
+        char buffer[64];
+        bool isneg {false};
+
+        if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+        {
+            isneg = v < 0;
+            v = -v;
+        }
+
+        const auto end = boost::int128::detail::mini_to_chars(buffer, v, base, is_upper);
+        std::string_view sv(buffer, end);
+        std::string s(sv);
+
+        if (prefix)
+        {
+            switch (base)
+            {
+                case 2:
+                    if (is_upper)
+                    {
+                        s.insert(s.begin(), 'B');
+                    }
+                    else
+                    {
+                        s.insert(s.begin(), 'b');
+                    }
+                    s.insert(s.begin(), '0');
+                    break;
+                case 8:
+                    s.insert(s.begin(), '0');
+                    break;
+                case 16:
+                    if (is_upper)
+                    {
+                        s.insert(s.begin(), 'X');
+                    }
+                    else
+                    {
+                        s.insert(s.begin(), 'x');
+                    }
+                    s.insert(s.begin(), '0');
+                    break;
+                default:
+                    // Nothing to do
+                    break;
+            }
+        }
+
+        // Insert a sign on a positive value if needed
+        if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+        {
+            if (v > 0)
+            {
+                switch (sign)
+                {
+                    case boost::int128::detail::sign_option::plus:
+                        s.insert(s.begin(), '+');
+                        break;
+                    case boost::int128::detail::sign_option::space:
+                        s.insert(s.begin(), ' ');
+                        break;
+                    case boost::int128::detail::sign_option::negative:
+                        if (isneg)
+                        {
+                            s.insert(s.begin(), '-');
+                        }
+                        break;
+                    // LCOV_EXCL_START
+                    default:
+                        BOOST_INT128_UNREACHABLE;
+                    // LCOV_EXCL_STOP
+                }
+            }
+        }
+
+        if (s.size() < static_cast<std::size_t>(padding_digits))
+        {
+            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size(), ' ');
+        }
+
+        return std::copy(s.begin(), s.end(), out);
     }
 };
 
