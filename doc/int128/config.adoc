@@ -23,6 +23,10 @@ IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
 
 IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
 
+[#disable_exceptions]
+- `BOOST_INT128_DISABLE_EXCEPTIONS` - Allows exceptions to be disabled.
+This macro will automatically be defined in the presence of `-fno-exceptions` or similar MSVC flags.
+
 [#automatic_config]
 == Automatic Configuration Macros
 
