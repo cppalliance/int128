@@ -45,6 +45,16 @@ void test_binary()
     BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), "0B000101");
 }
 
+template <typename T>
+void test_octal()
+{
+    BOOST_TEST_CSTR_EQ(std::format("{:o}", T{42}).c_str(), "52");
+    BOOST_TEST_CSTR_EQ(std::format("{:#o}", T{42}).c_str(), "52");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:4o}", T{42}).c_str(), "0052");
+    BOOST_TEST_CSTR_EQ(std::format("{:#4o}", T{42}).c_str(), "0052");
+}
+
 int main()
 {
     test_empty<boost::int128::uint128_t>();
@@ -52,6 +62,9 @@ int main()
 
     test_binary<boost::int128::uint128_t>();
     test_binary<boost::int128::int128_t>();
+
+    test_octal<boost::int128::uint128_t>();
+    test_octal<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
