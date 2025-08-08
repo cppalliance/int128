@@ -2,7 +2,10 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#if defined(NDEBUG) && !defined(UBSAN) && !defined(ASAN) && !defined(__SANITIZE_ADDRESS__)
+#include <iostream>
+#include <boost/int128/int128.hpp>
+
+#if defined(NDEBUG) && !defined(UBSAN) && !defined(ASAN) && !defined(__SANITIZE_ADDRESS__) && !defined(BOOST_INT128_DISABLE_EXCEPTIONS)
 #define BOOST_INT128_BENCHMARK_I128
 #endif // NDEBUG
 
@@ -10,9 +13,6 @@
 #if defined(BOOST_INT128_BENCHMARK_I128) && defined(__GNUC__) && __GNUC__ == 5
 #  undef BOOST_INT128_BENCHMARK_I128
 #endif
-
-#include <iostream>
-#include <boost/int128/int128.hpp>
 
 #ifdef BOOST_INT128_BENCHMARK_I128
 
