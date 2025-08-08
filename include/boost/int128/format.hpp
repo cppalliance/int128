@@ -226,30 +226,33 @@ struct formatter<T>
             }
         }
 
-        // Insert a sign on a positive value if needed
+        // Insert our sign
         if constexpr (std::is_same_v<T, boost::int128::int128_t>)
         {
-            if (v > 0)
+            switch (sign)
             {
-                switch (sign)
-                {
-                    case boost::int128::detail::sign_option::plus:
+                case boost::int128::detail::sign_option::plus:
+                    if (!isneg)
+                    {
                         s.insert(s.begin(), '+');
-                        break;
-                    case boost::int128::detail::sign_option::space:
+                    }
+                    break;
+                case boost::int128::detail::sign_option::space:
+                    if (!isneg)
+                    {
                         s.insert(s.begin(), ' ');
-                        break;
-                    case boost::int128::detail::sign_option::negative:
-                        if (isneg)
-                        {
-                            s.insert(s.begin(), '-');
-                        }
-                        break;
-                    // LCOV_EXCL_START
-                    default:
-                        BOOST_INT128_UNREACHABLE;
-                    // LCOV_EXCL_STOP
-                }
+                    }
+                    break;
+                case boost::int128::detail::sign_option::negative:
+                    if (isneg)
+                    {
+                        s.insert(s.begin(), '-');
+                    }
+                    break;
+                // LCOV_EXCL_START
+                default:
+                    BOOST_INT128_UNREACHABLE;
+                // LCOV_EXCL_STOP
             }
         }
 
