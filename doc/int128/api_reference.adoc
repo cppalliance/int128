@@ -103,6 +103,7 @@ Listed by analogous STL header.
 - <<no_int128, `BOOST_INT128_NO_BUILTIN_INT128`>>
 - <<sign_compare, `BOOST_INT128_ALLOW_SIGN_COMPARE`>>
 - <<sign_conversion, `BOOST_INT128_ALLOW_SIGN_CONVERSION`>>
+- <<disable_exceptions, `BOOST_INT128_DISABLE_EXCEPTIONS`>>
 
 ==== Automatic Configuration
 
