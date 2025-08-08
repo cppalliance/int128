@@ -1,4 +1,6 @@
 /pdf/
 /html/
+/build/
+/node_modules/
 *.DS_Store
 *.html
