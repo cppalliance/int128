@@ -43,7 +43,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, c
     switch (base)
     {
         case 2:
-            while (v != 0)
+            while (v != 0U)
             {
                 *last-- = v.low & 1U ? '1' : '0';
                 v >>= 1U;
