@@ -29,10 +29,29 @@ void test_empty()
     }
 }
 
+template <typename T>
+void test_binary()
+{
+    BOOST_TEST_CSTR_EQ(std::format("{:b}", T{2}).c_str(), "10");
+    BOOST_TEST_CSTR_EQ(std::format("{:#b}", T{2}).c_str(), "0b10");
+    BOOST_TEST_CSTR_EQ(std::format("{:#B}", T{2}).c_str(), "0B10");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:b}", T{5}).c_str(), "101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#b}", T{5}).c_str(), "0b101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#B}", T{5}).c_str(), "0B101");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:6b}", T{5}).c_str(), "   101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#6b}", T{5}).c_str(), " 0b101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), " 0B101");
+}
+
 int main()
 {
     test_empty<boost::int128::uint128_t>();
     test_empty<boost::int128::int128_t>();
+
+    test_binary<boost::int128::uint128_t>();
+    test_binary<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
