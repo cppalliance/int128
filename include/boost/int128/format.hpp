@@ -181,8 +181,11 @@ struct formatter<T>
 
         if constexpr (std::is_same_v<T, boost::int128::int128_t>)
         {
-            isneg = v < 0;
-            v = -v;
+            if (v < 0)
+            {
+                isneg = true;
+                v = -v;
+            }
         }
 
         const auto end = boost::int128::detail::mini_to_chars(buffer, v, base, is_upper);
