@@ -40,9 +40,9 @@ void test_binary()
     BOOST_TEST_CSTR_EQ(std::format("{:#b}", T{5}).c_str(), "0b101");
     BOOST_TEST_CSTR_EQ(std::format("{:#B}", T{5}).c_str(), "0B101");
 
-    BOOST_TEST_CSTR_EQ(std::format("{:6b}", T{5}).c_str(), "   101");
-    BOOST_TEST_CSTR_EQ(std::format("{:#6b}", T{5}).c_str(), " 0b101");
-    BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), " 0B101");
+    BOOST_TEST_CSTR_EQ(std::format("{:6b}", T{5}).c_str(), "000101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#6b}", T{5}).c_str(), "0b000101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), "0B000101");
 }
 
 int main()

@@ -191,6 +191,11 @@ struct formatter<T>
         const auto end = boost::int128::detail::mini_to_chars(buffer, v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
+        if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
+        {
+            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, '0');
+        }
+
         if (prefix)
         {
             switch (base)
@@ -254,11 +259,6 @@ struct formatter<T>
                     BOOST_INT128_UNREACHABLE;
                 // LCOV_EXCL_STOP
             }
-        }
-
-        if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
-        {
-            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, ' ');
         }
 
         return std::copy(s.begin(), s.end(), out);
