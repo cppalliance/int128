@@ -80,7 +80,7 @@ constexpr auto parse_impl(ParseContext& ctx)
     }
 
     // Integer presentation
-    if (it != ctx.end())
+    if (it != ctx.end() && *it != '}')
     {
         switch (*it++)
         {
