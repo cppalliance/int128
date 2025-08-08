@@ -249,11 +249,21 @@ struct formatter<T>
                 {
                     s.insert(s.begin(), ' ');
                 }
+                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+                {
+                    if (isneg)
+                    {
+                        s.insert(s.begin(), '-');
+                    }
+                }
                 break;
             case boost::int128::detail::sign_option::negative:
-                if (isneg)
+                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
                 {
-                    s.insert(s.begin(), '-');
+                    if (isneg)
+                    {
+                        s.insert(s.begin(), '-');
+                    }
                 }
                 break;
             // LCOV_EXCL_START
