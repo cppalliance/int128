@@ -118,20 +118,22 @@ constexpr auto parse_impl(ParseContext& ctx)
 }
 
 template <typename T>
-struct is_library_type
+struct is_library_type_impl
 {
     static constexpr bool value {std::is_same_v<T, boost::int128::uint128_t> || std::is_same_v<T, boost::int128::int128_t>};
 };
 
 template <typename T>
-static constexpr bool is_library_type_v = is_library_type<T>::value;
+static constexpr bool is_library_type_v = is_library_type_impl<T>::value;
+
+template <typename T>
+concept is_library_type = is_library_type_v<T>;
 
 } // namespace boost::int128::detail
 
 namespace std {
 
-template <typename T>
-    requires boost::int128::detail::is_library_type<T>::value
+template <boost::int128::detail::is_library_type T>
 struct formatter<T>
 {
     int base;
