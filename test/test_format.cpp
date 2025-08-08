@@ -49,10 +49,26 @@ template <typename T>
 void test_octal()
 {
     BOOST_TEST_CSTR_EQ(std::format("{:o}", T{42}).c_str(), "52");
-    BOOST_TEST_CSTR_EQ(std::format("{:#o}", T{42}).c_str(), "52");
+    BOOST_TEST_CSTR_EQ(std::format("{:#o}", T{42}).c_str(), "052");
 
     BOOST_TEST_CSTR_EQ(std::format("{:4o}", T{42}).c_str(), "0052");
-    BOOST_TEST_CSTR_EQ(std::format("{:#4o}", T{42}).c_str(), "0052");
+    BOOST_TEST_CSTR_EQ(std::format("{:#4o}", T{42}).c_str(), "00052");
+}
+
+template <typename T>
+void test_decimal()
+{
+    BOOST_TEST_CSTR_EQ(std::format("{:d}", T{42}).c_str(), "42");
+    BOOST_TEST_CSTR_EQ(std::format("{:#d}", T{42}).c_str(), "42");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:+d}", T{42}).c_str(), "+42");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#d}", T{42}).c_str(), "+42");
+
+    BOOST_TEST_CSTR_EQ(std::format("{: d}", T{42}).c_str(), " 42");
+    BOOST_TEST_CSTR_EQ(std::format("{: #d}", T{42}).c_str(), " 42");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:+3d}", T{42}).c_str(), "+042");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#3d}", T{42}).c_str(), "+042");
 }
 
 int main()
@@ -65,6 +81,9 @@ int main()
 
     test_octal<boost::int128::uint128_t>();
     test_octal<boost::int128::int128_t>();
+
+    test_decimal<boost::int128::uint128_t>();
+    test_decimal<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
