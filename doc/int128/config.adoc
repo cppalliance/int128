@@ -23,6 +23,11 @@ IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
 
 IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
 
+[#automatic_config]
 == Automatic Configuration Macros
 
 - `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `\___int128` or `unsigned __int128` types (e.g. `\__x86_64___`).
+
+- `BOOST_INT128_ENDIAN_LITTLE_BYTE`: This is defined to `1` when compiling on a little endian architecture, otherwise `0`.
+
+- `BOOST_INT128_ENDIAN_BIG_BYTE`: This is defined to `1` when compiling on a big endian architecture, otherwise `0`.
