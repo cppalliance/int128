@@ -36,7 +36,8 @@
 * xref:charconv.adoc[]
 * xref:stream.adoc[]
 * xref:numeric.adoc[]
-* xref:u128_benchmarks.adoc[]
-* xref:i128_benchmarks.adoc[]
+* Benchmarks
+** xref:u128_benchmarks.adoc[]
+** xref:i128_benchmarks.adoc[]
 * xref:reference.adoc[]
 * xref:copyright.adoc[]
