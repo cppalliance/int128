@@ -11,7 +11,6 @@
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/int128.hpp>
 #include <string>
-#include <string_view>
 #include <format>
 
 #define BOOST_INT128_HAS_FORMAT
@@ -187,8 +186,7 @@ struct formatter<T>
         }
 
         const auto end = boost::int128::detail::mini_to_chars(buffer, v, base, is_upper);
-        std::string_view sv(buffer, end);
-        std::string s(sv);
+        std::string s(end, buffer + sizeof(buffer));
 
         if (prefix)
         {
