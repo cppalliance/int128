@@ -215,6 +215,9 @@ struct formatter<T>
                     }
                     s.insert(s.begin(), '0');
                     break;
+                case 8:
+                    s.insert(s.begin(), '0');
+                    break;
                 case 16:
                     if (is_upper)
                     {
