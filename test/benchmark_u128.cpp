@@ -56,6 +56,7 @@ using namespace std::chrono_literals;
 #  pragma clang diagnostic ignored "-Wunused-variable"
 #  if __clang_major__ >= 20
 #    pragma clang diagnostic ignored "-Wdeprecated-missing-comma-variadic-parameter"
+#    pragma clang diagnostic ignored "-Wfortify-source"
 #  endif
 #  define BOOST_INT128_NO_INLINE __attribute__ ((__noinline__))
 #elif defined(_MSC_VER)
