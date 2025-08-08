@@ -95,6 +95,10 @@ constexpr auto parse_impl(ParseContext& ctx)
                 write_as_character = true;
                 break;
 
+            case 'o':
+                base = 8;
+                break;
+
             case 'd':
                 base = 10;
                 break;
@@ -209,9 +213,6 @@ struct formatter<T>
                     {
                         s.insert(s.begin(), 'b');
                     }
-                    s.insert(s.begin(), '0');
-                    break;
-                case 8:
                     s.insert(s.begin(), '0');
                     break;
                 case 16:
