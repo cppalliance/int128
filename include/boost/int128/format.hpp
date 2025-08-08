@@ -12,6 +12,9 @@
 #include <boost/int128/int128.hpp>
 #include <string>
 #include <string_view>
+#include <format>
+
+#define BOOST_INT128_HAS_FORMAT
 
 namespace boost::int128::detail {
 
