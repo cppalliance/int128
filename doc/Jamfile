@@ -1,25 +1,61 @@
-# Copyright 2017, 2018 Peter Dimov
-# Copyright 2024 Matt Borland
+# Copyright 2025 Matt Borland
 # Distributed under the Boost Software License, Version 1.0.
 # https://www.boost.org/LICENSE_1_0.txt
 
-import asciidoctor ;
+import generate ;
+import path ;
+import property-set ;
+import virtual-target ;
 
-html int128.html : int128.adoc
-    :   <use>/boost/boostlook//boostlook
-        <dependency>int128-docinfo-footer.html
-    ;
+path-constant HERE : . ;
 
-install html_ : int128.html : <location>html ;
+make html/index.html : build_antora.sh : @run-script ;
+generate files-to-install : html/index.html : <generating-rule>@delayed-glob ;
+install install
+  : files-to-install
+  : <location>html
+    <install-source-root>html/int128
+  ;
+explicit html/index.html files-to-install ;
 
-pdf int128.pdf : int128.adoc ;
-explicit int128.pdf ;
+# this runs the antora script
+actions run-script
+{
+    bash $(>)
+}
 
-install pdf_ : int128.pdf : <location>pdf ;
-explicit pdf_ ;
+# this globs after its sources are created
+rule delayed-glob ( project name : property-set : sources * )
+{
+  for local src in $(sources)
+  {
+    # the next line causes the source to be generated immediately
+    # and not later (which it normally would)
+    UPDATE_NOW [ $(src).actualize ] ;
+  }
+
+  # we need to construct the path to the globbed directory;
+  # this path would be <current-project>/antora
+  local root = [ path.root html [ $(project).location ] ] ;
+  local files ;
+
+  # actual globbing happens here
+  for local file in [ path.glob-tree $(root) : * ]
+  {
+    # we have to skip directories, because our match expression accepts anything
+    if [ CHECK_IF_FILE $(file) ]
+    {
+      # we construct a list of targets to copy
+      files += [ virtual-target.from-file $(file:D=) : $(file:D) : $(project) ] ;
+    }
+  }
+
+  # we prepend empty usage requirements to the result
+  return [ property-set.empty ] $(files) ;
+}
 
 ###############################################################################
 alias boostdoc ;
 explicit boostdoc ;
-alias boostrelease : html_ ;
+alias boostrelease : install ;
 explicit boostrelease ;
