@@ -10,5 +10,6 @@
 #include <boost/int128/iostream.hpp>
 #include <boost/int128/literals.hpp>
 #include <boost/int128/numeric.hpp>
+#include <boost/int128/format.hpp>
 
 #endif // BOOST_INT128_HPP
