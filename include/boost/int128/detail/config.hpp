@@ -250,4 +250,32 @@ using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_EXPORT
 #endif
 
+// Detect if we can throw or not
+// First check if the user said no explicitly
+// Then check if it's been disabled elsewhere
+
+#ifdef BOOST_INT128_DISABLE_EXCEPTIONS
+
+#  define BOOST_INT128_THROW_EXCEPTION(expr)
+
+#else
+
+#  ifdef _MSC_VER
+#    ifdef _CPPUNWIND
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#    else
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_INT128_DISABLE_EXCEPTIONS
+#    endif
+#  else
+#    ifdef __EXCEPTIONS
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#    else
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_INT128_DISABLE_EXCEPTIONS
+#    endif
+#endif
+
+#endif // Exceptions
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
