@@ -8,16 +8,19 @@ https://www.boost.org/LICENSE_1_0.txt
 = API Reference
 :idprefix: api_ref_
 
+[#api_namespaces]
 == Namespaces
 
 - `boost::int128` contains all components of the library except `<charconv>` functionality
 - <<literals, `boost::int128::literals`>>
 
+[#api_types]
 == Types
 
 - <<uint128_t, `uint128_t`>>
 - <<int128_t, `int128_t`>>
 
+[#api_literals]
 == Literals
 
 - <<literals, `_u128`>>
@@ -25,6 +28,7 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<literals, `_i128`>>
 - <<literals, `_I128`>>
 
+[#api_structs]
 == Structures
 
 - https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
@@ -32,10 +36,12 @@ https://www.boost.org/LICENSE_1_0.txt
 - <<div_structs, `u128div_t`>>
 - <<div_structs, `i128div_t`>>
 
+[#api_functions]
 == Functions
 
 Listed by analogous STL header.
 
+[#api_bit]
 === `<bit>`
 - <<has_single_bit, `has_single_bit`>>
 - <<countl_zero, `countl_zero`>>
@@ -50,13 +56,16 @@ Listed by analogous STL header.
 - <<popcount, `popcount`>>
 - <<byteswap, `byteswap`>>
 
+[#api_charconv]
 === `<charconv>`
 - <<to_chars, `to_chars`>>
 - <<from_chars, `from_chars`>>
 
+[#api_cmath]
 === `<cmath>`
 - `abs` - Absolute Value
 
+[#api_iostream]
 === `<cstdlib>`
 - <<cstdlib, `div`>>
 
@@ -68,6 +77,7 @@ Listed by analogous STL header.
 - <<stream, `operator<<`>>
 - <<stream, `operator>>`>>
 
+[#api_ios]
 === `<ios>`
 - <<ios, `std::oct`>>
 - <<ios, `std::dec`>>
@@ -75,6 +85,7 @@ Listed by analogous STL header.
 - <<ios, `std::uppercase`>>
 - <<ios, `std::nouppercase`>>
 
+[#api_numeric]
 === `<numeric>`
 - <<sat_arith, `add_sat`>>
 - <<sat_arith, `sub_sat`>>
@@ -85,14 +96,17 @@ Listed by analogous STL header.
 - <<lcm, `lcm`>>
 - <<midpoint, `midpoint`>>
 
+[#api_concepts]
 == Concepts
 
 - <<unsigned_integer, `unsigned_integer`>>
 - <<signed_integer, `signed_integer`>>
 - <<integer, `integer`>>
 
+[#api_macros]
 == Macros
 
+[#api_macro_literals]
 === Constants (`<boost/int128/climits.hpp>`)
 
 - `BOOST_INT128_UINT128_MAX`
@@ -104,6 +118,7 @@ Listed by analogous STL header.
 - <<literals, `BOOST_INT128_UINT128_C`>>
 - <<literals, `BOOST_INT128_INT128_C`>>
 
+[#api_macro_configuration]
 === Configuration
 
 ==== User Configuration
