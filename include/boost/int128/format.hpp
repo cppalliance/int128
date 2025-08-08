@@ -8,14 +8,16 @@
 #if (__cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)) && \
 ((defined(__GNUC__) && __GNUC__ >= 13) || (defined(__clang__) && __clang_major__ >= 18) || (defined(_MSC_VER) && _MSC_VER >= 1940))
 
+#include <boost/int128/detail/config.hpp>
+#include <boost/int128/int128.hpp>
+
 namespace boost::int128::detail {
 
 enum class sign_option
 {
     plus,
     negative,
-    space,
-    unset
+    space
 };
 
 template <typename ParseContext>
@@ -112,12 +114,58 @@ constexpr auto parse_impl(ParseContext& ctx)
         BOOST_INT128_THROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
-    return std::make_tuple(base, is_upper, padding_digits, sign, prefix, write_as_character, character_debug_format);
+    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, it);
 }
+
+template <typename T>
+struct is_library_type
+{
+    static constexpr bool value {std::is_same_v<T, boost::int128::uint128_t> || std::is_same_v<T, boost::int128::int128_t>};
+};
+
+template <typename T>
+static constexpr bool is_library_type_v = is_library_type<T>::value;
 
 } // namespace boost::int128::detail
 
 namespace std {
+
+template <typename T>
+    requires boost::int128::detail::is_library_type<T>::value
+struct formatter<T>
+{
+    int base;
+    int padding_digits;
+    boost::int128::detail::sign_option sign;
+    bool is_upper;
+    bool prefix;
+    bool write_as_character;
+    bool character_debug_format;
+
+    constexpr formatter() : base {10},
+                            padding_digits {0},
+                            sign {boost::int128::detail::sign_option::negative},
+                            is_upper {false},
+                            prefix {false},
+                            write_as_character {false},
+                            character_debug_format {false}
+    {}
+
+    constexpr auto parse(format_parse_context& ctx)
+    {
+        const auto res {boost::int128::detail::parse_impl(ctx)};
+
+        base = std::get<0>(res);
+        padding_digits = std::get<1>(res);
+        sign = std::get<2>(res);
+        is_upper = std::get<3>(res);
+        prefix = std::get<4>(res);
+        write_as_character = std::get<5>(res);
+        character_debug_format = std::get<6>(res);
+
+        return std::get<7>(res);
+    }
+};
 
 } // namespace std
 
