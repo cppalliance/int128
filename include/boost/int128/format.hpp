@@ -256,9 +256,9 @@ struct formatter<T>
             }
         }
 
-        if (s.size() < static_cast<std::size_t>(padding_digits))
+        if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
         {
-            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size(), ' ');
+            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, ' ');
         }
 
         return std::copy(s.begin(), s.end(), out);
