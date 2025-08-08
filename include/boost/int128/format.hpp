@@ -30,20 +30,25 @@ constexpr auto parse_impl(ParseContext& ctx)
     bool write_as_character = false;
     bool character_debug_format = false;
 
-    // Check for a sign or space
-    switch (it != ctx.end() ? '1' : *it++)
+    // Handle sign or space
+    if (it != ctx.end())
     {
-        case ' ':
-            sign = sign_option::space;
-            break;
-        case '+':
-            sign = sign_option::plus;
-            break;
-        case '-':
-            sign = sign_option::negative;
-            break;
-        default:
-            break;
+        switch (*it) {
+            case ' ':
+                sign = sign_option::space;
+                ++it;
+                break;
+            case '+':
+                sign = sign_option::plus;
+                ++it;
+                break;
+            case '-':
+                sign = sign_option::negative;
+                ++it;
+                break;
+            default:
+                break;
+        }
     }
 
     // Alternate form option
@@ -97,7 +102,7 @@ constexpr auto parse_impl(ParseContext& ctx)
                 break;
 
             default:
-                break;
+                BOOST_INT128_THROW_EXCEPTION(std::format_error("Unsupported format specifier"));
         }
     }
 
