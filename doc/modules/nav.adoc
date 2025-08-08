@@ -1,0 +1,11 @@
+* xref:overview.adoc[]
+* xref:examples.adoc[]
+** xref:examples.adoc#examples_construction[Basic Construction]
+** xref:examples.adoc#examples_arithmetic[Basic Arithmetic]
+** xref:examples.adoc#examples_io[IO Streaming]
+** xref:examples.adoc#examples_bit[`<bit>` support]
+** xref:examples.adoc#examples_numeric[`<numeric>` support]
+** xref:examples.adoc#examples_mixed_sign[Mixed Signedness Arithmetic]
+** xref:examples.adoc#examples_boost_math_random[Boost Math and Random Integration]
+** xref:examples.adoc#examples_boost_charconv[Boost.Charconv Integration]
+* xref:
