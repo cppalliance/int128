@@ -48,6 +48,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, c
                 *--last = v.low & 1U ? '1' : '0';
                 v >>= 1U;
             }
+            break;
 
         case 8:
             while (v != 0U)
