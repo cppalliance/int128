@@ -110,9 +110,10 @@ constexpr auto parse_impl(ParseContext& ctx)
                 base = 16;
                 is_upper = true;
                 break;
-
+            // LCOV_EXCL_START
             default:
                 BOOST_INT128_THROW_EXCEPTION(std::format_error("Unsupported format specifier"));
+            // LCOV_EXCL_STOP
         }
     }
 
