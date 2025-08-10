@@ -86,6 +86,34 @@ void test_decimal()
     }
 }
 
+template <typename T>
+void test_hex()
+{
+    BOOST_TEST_CSTR_EQ(std::format("{:x}", T{42}).c_str(), "2a");
+    BOOST_TEST_CSTR_EQ(std::format("{:#x}", T{42}).c_str(), "0x2a");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:X}", T{42}).c_str(), "2A");
+    BOOST_TEST_CSTR_EQ(std::format("{:#X}", T{42}).c_str(), "0X2A");
+
+    BOOST_TEST_CSTR_EQ(std::format("{: X}", T{42}).c_str(), " 2A");
+    BOOST_TEST_CSTR_EQ(std::format("{: #X}", T{42}).c_str(), " 0X2A");
+
+    BOOST_TEST_CSTR_EQ(std::format("{:+X}", T{42}).c_str(), "+2A");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#X}", T{42}).c_str(), "+0X2A");
+
+    if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+    {
+        BOOST_TEST_CSTR_EQ(std::format("{:-X}", T{-42}).c_str(), "-2A");
+        BOOST_TEST_CSTR_EQ(std::format("{:-#X}", T{-42}).c_str(), "-0X2A");
+    }
+
+    BOOST_TEST_CSTR_EQ(std::format("{:5X}", T{42}).c_str(), "0002A");
+    BOOST_TEST_CSTR_EQ(std::format("{:#5X}", T{42}).c_str(), "0X0002A");
+
+    BOOST_TEST_CSTR_EQ(std::format("{: 5X}", T{42}).c_str(), " 0002A");
+    BOOST_TEST_CSTR_EQ(std::format("{: #5X}", T{42}).c_str(), " 0X0002A");
+}
+
 int main()
 {
     test_empty<boost::int128::uint128_t>();
@@ -99,6 +127,9 @@ int main()
 
     test_decimal<boost::int128::uint128_t>();
     test_decimal<boost::int128::int128_t>();
+
+    test_hex<boost::int128::uint128_t>();
+    test_hex<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
