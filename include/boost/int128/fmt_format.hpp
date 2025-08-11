@@ -12,6 +12,7 @@
 #include <boost/int128/int128.hpp>
 #include <fmt/base.h>
 #include <fmt/format.h>
+#include <algorithm>
 
 #define BOOST_INT128_HAS_FMT_FORMAT
 
@@ -112,10 +113,10 @@ constexpr auto parse_impl(ParseContext& ctx)
                 base = 16;
                 is_upper = true;
                 break;
-            // LCOV_EXCL_START
+                // LCOV_EXCL_START
             default:
                 BOOST_INT128_THROW_EXCEPTION(std::logic_error("Unsupported format specifier"));
-            // LCOV_EXCL_STOP
+                // LCOV_EXCL_STOP
         }
     }
 
@@ -246,26 +247,26 @@ struct formatter
                     s.insert(s.begin(), ' ');
                 }
                 BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
+            {
+                if (isneg)
                 {
-                    if (isneg)
-                    {
-                        s.insert(s.begin(), '-');
-                    }
+                    s.insert(s.begin(), '-');
                 }
+            }
                 break;
             case sign_option::negative:
                 BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
+            {
+                if (isneg)
                 {
-                    if (isneg)
-                    {
-                        s.insert(s.begin(), '-');
-                    }
+                    s.insert(s.begin(), '-');
                 }
+            }
                 break;
-            // LCOV_EXCL_START
+                // LCOV_EXCL_START
             default:
                 BOOST_INT128_UNREACHABLE;
-            // LCOV_EXCL_STOP
+                // LCOV_EXCL_STOP
         }
 
         return std::copy(s.begin(), s.end(), out);
