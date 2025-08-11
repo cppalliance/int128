@@ -8,6 +8,7 @@
 #if (__cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)) && \
 ((defined(__GNUC__) && __GNUC__ >= 13) || (defined(__clang__) && __clang_major__ >= 18) || (defined(_MSC_VER) && _MSC_VER >= 1940))
 
+#include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/int128.hpp>
 #include <string>
