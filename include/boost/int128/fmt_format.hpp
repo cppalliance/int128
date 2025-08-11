@@ -15,7 +15,9 @@
 
 #define BOOST_INT128_HAS_FMT_FORMAT
 
-namespace boost::int128::fmt_detail {
+namespace boost {
+namespace int128 {
+namespace fmt_detail {
 
 enum class sign_option
 {
@@ -270,7 +272,9 @@ struct formatter
     }
 };
 
-} // namespace boost::int128::fmt_detail
+} // namespace fmt_detail
+} // namespace int128
+} // namespace boost
 
 namespace fmt {
 
