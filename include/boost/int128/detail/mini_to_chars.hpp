@@ -6,8 +6,7 @@
 #ifndef BOOST_INT128_DETAIL_MINI_TO_CHARS_HPP
 #define BOOST_INT128_DETAIL_MINI_TO_CHARS_HPP
 
-#include <boost/int128/detail/uint128_imp.hpp>
-#include <boost/int128/detail/int128_imp.hpp>
+#include <boost/int128/int128.hpp>
 
 namespace boost {
 namespace int128 {
