@@ -129,7 +129,7 @@ constexpr auto parse_impl(ParseContext& ctx)
 template <typename T>
 struct is_library_type_impl
 {
-    static constexpr bool value {std::is_same_v<T, boost::int128::uint128_t> || std::is_same_v<T, boost::int128::int128_t>};
+    static constexpr bool value {std::is_same<T, boost::int128::uint128_t>::value || std::is_same<T, boost::int128::int128_t>::value};
 };
 
 template <typename T>
@@ -243,7 +243,7 @@ struct formatter
                 {
                     s.insert(s.begin(), ' ');
                 }
-                BOOST_INT128_IF_CONSTEXPR (std::is_same_v<T, boost::int128::int128_t>)
+                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
                 {
                     if (isneg)
                     {
@@ -252,7 +252,7 @@ struct formatter
                 }
                 break;
             case sign_option::negative:
-                BOOST_INT128_IF_CONSTEXPR (std::is_same_v<T, boost::int128::int128_t>)
+                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
                 {
                     if (isneg)
                     {
