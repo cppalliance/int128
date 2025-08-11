@@ -95,3 +95,4 @@ run github_issue_221.cpp ;
 # Compilation of individual headers
 compile compile_tests/int128_master_header_compile.cpp ;
 compile compile_tests/bit_compile.cpp ;
+compile compile_tests/charconv_compile.cpp ;
