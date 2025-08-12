@@ -13,6 +13,7 @@
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <algorithm>
+#include <tuple>
 
 #define BOOST_INT128_HAS_FMT_FORMAT
 
