@@ -76,6 +76,7 @@ run test_x64_msvc_div.cpp ;
 run test_gcd_lcm.cpp ;
 
 run test_format.cpp ;
+run test_fmt_format.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
