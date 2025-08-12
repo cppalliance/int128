@@ -182,7 +182,7 @@ struct formatter
 
         BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
         {
-            if (v < 0)
+            if (v < T{0})
             {
                 isneg = true;
                 v = -v;
@@ -247,21 +247,21 @@ struct formatter
                     s.insert(s.begin(), ' ');
                 }
                 BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
-            {
-                if (isneg)
                 {
-                    s.insert(s.begin(), '-');
+                    if (isneg)
+                    {
+                        s.insert(s.begin(), '-');
+                    }
                 }
-            }
                 break;
             case sign_option::negative:
                 BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
-            {
-                if (isneg)
                 {
-                    s.insert(s.begin(), '-');
+                    if (isneg)
+                    {
+                        s.insert(s.begin(), '-');
+                    }
                 }
-            }
                 break;
                 // LCOV_EXCL_START
             default:
