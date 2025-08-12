@@ -2,6 +2,11 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+
 #define FMT_HEADER_ONLY
 #include <boost/int128.hpp>
 #include <boost/int128/fmt_format.hpp>
