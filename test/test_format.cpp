@@ -119,6 +119,9 @@ void test_string_insertion()
 {
     BOOST_TEST_CSTR_EQ(std::format("Height is: {:d}", T {0}).c_str(), "Height is: 0");
     BOOST_TEST_CSTR_EQ(std::format("Height is: {}", T {2}).c_str(), "Height is: 2");
+
+    BOOST_TEST_CSTR_EQ(std::format("Height is: {:d} meters", T {0}).c_str(), "Height is: 0 meters");
+    BOOST_TEST_CSTR_EQ(std::format("Height is: {} meters", T {2}).c_str(), "Height is: 2 meters");
 }
 
 int main()
