@@ -269,6 +269,9 @@ struct formatter
                 // LCOV_EXCL_STOP
         }
 
+        s.erase(0, s.find_first_not_of('\0'));
+        s.erase(s.find_last_not_of('\0') + 1);
+
         return fmt::format_to(ctx.out(), "{}", s);
     }
 };
