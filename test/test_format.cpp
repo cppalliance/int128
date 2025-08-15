@@ -114,6 +114,13 @@ void test_hex()
     BOOST_TEST_CSTR_EQ(std::format("{: #5X}", T{42}).c_str(), " 0X0002A");
 }
 
+template <typename T>
+void test_string_insertion()
+{
+    BOOST_TEST_CSTR_EQ(std::format("Height is: {:d}", T {0}).c_str(), "Height is: 0");
+    BOOST_TEST_CSTR_EQ(std::format("Height is: {}", T {2}).c_str(), "Height is: 2");
+}
+
 int main()
 {
     test_empty<boost::int128::uint128_t>();
@@ -130,6 +137,9 @@ int main()
 
     test_hex<boost::int128::uint128_t>();
     test_hex<boost::int128::int128_t>();
+
+    test_string_insertion<boost::int128::uint128_t>();
+    test_string_insertion<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
