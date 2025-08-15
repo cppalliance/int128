@@ -40,6 +40,8 @@ include::int128/stream.adoc[]
 
 include::int128/numeric.adoc[]
 
+include::int128/format.adoc[]
+
 include::int128/examples.adoc[]
 
 include::int128/u128_benchmarks.adoc[]
