@@ -1,0 +1,134 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#format]
+= Formatting Support
+:idprefix: format_
+
+Boost.int128 support formatting with both `<format>` (when pass:[C++20] and the header are both available), and `<fmt/format.h>`
+The following modifiers are listed in order of how they should be specified in the format string to be valid, and all information applies for both `<format>` and `<fmt/format.h>`
+
+== Sign
+
+There are three allowable sings first in the format string:
+
+|===
+| Sign      | Effect
+| `+`       | Adds a `+` to positive values, and a `-` to negative values
+| `-`       | Only adds a `-` to negative values
+| pass:[` `] (Space)       | Adds a ` ` to positive values, and a `-` to negative values. Preserves alignment
+|===
+
+== Padding
+
+You can then add any number of padding characters to make sure that a formatted value takes up a specified width (5 means minimum width of 5 characters and so on).
+Any integer value is accepted here.
+
+== Prepend Prefix
+
+If you want to prepend the prefix to your number (if applicable) add `#`
+
+|===
+| Output Base   | Effect
+| Binary        | `0b` or `0B`
+| Octal         | `O`
+| Decimal       | None
+| Hex           | `0x` or `0X`
+|===
+
+== Output Base Modifiers
+
+The following type modifiers are the same as those used by built-in integer values
+
+|===
+| Modifier  | Format
+| b, B      | Binary
+| o         | Octal
+| d         | Decimal
+| x, X      | Hex
+|===
+
+NOTE: When the uppercase modifier is used all characters will be capitalized (e.g. 0x2a vs 0X2A)
+
+== Default
+
+The default format string `{}` will output the same as `{:-d}`, that is a decimal value which only has a sign if negative.
+
+[#std_format]
+== `<format>`
+
+Examples using all of the above modifiers in some permutation:
+
+[source, c++]
+----
+#include <boost/int128.hpp>
+#include <format>
+#include <iostream>
+
+int main()
+{
+    constexpr boost::decimal::deciaml32_t value {42};
+    // Default format
+    std::cout << std::format("{}", value) << '\n'; // Outputs: 42
+
+    // Sign modifier
+    std::cout << std::format("{:+d}", value) << '\n'; // Outputs +42
+    std::cout << std::format("{:+d}", -value) << '\n'; // Outputs -42
+
+    // Output base modifier and Prefix
+    std::cout << std::format("{:x}", value) << '\n'; // Outputs 2a
+    std::cout << std::format("{:X}", value) << '\n'; // Outputs 2A
+    std::cout << std::format("{:#X}", value) << '\n'; // Outputs 0X2A
+
+    // Padding
+    // Notice there are a total of 5 charaters to the right of the prefix
+    std::cout << std::format("{:#5X}", value) << '\n'; // Outputs 0X0002A
+
+    // All together
+    // Notice theres a space before the first character - quoted for clarity
+    std::cout << std::format("{: #5X}", value) << '\n'; // Outputs " 0X0002A"
+
+    return 0;
+}
+----
+
+[#fmt_format]
+== `pass:[{fmt}]`
+
+This is nearly the same as above but with `fmt::format` in place of `std::format`:
+
+[source, c++]
+----
+#include <boost/int128.hpp>
+#include <fmt/format.h>
+#include <iostream>
+
+int main()
+{
+    constexpr boost::decimal::deciaml32_t value {42};
+    // Default format
+    std::cout << fmt::format("{}", value) << '\n'; // Outputs: 42
+
+    // Sign modifier
+    std::cout << fmt::format("{:+d}", value) << '\n'; // Outputs +42
+    std::cout << fmt::format("{:+d}", -value) << '\n'; // Outputs -42
+
+    // Output base modifier and Prefix
+    std::cout << fmt::format("{:x}", value) << '\n'; // Outputs 2a
+    std::cout << fmt::format("{:X}", value) << '\n'; // Outputs 2A
+    std::cout << fmt::format("{:#X}", value) << '\n'; // Outputs 0X2A
+
+    // Padding
+    // Notice there are a total of 5 charaters to the right of the prefix
+    std::cout << fmt::format("{:#5X}", value) << '\n'; // Outputs 0X0002A
+
+    // All together
+    // Notice theres a space before the first character - quoted for clarity
+    std::cout << fmt::format("{: #5X}", value) << '\n'; // Outputs " 0X0002A"
+
+    return 0;
+}
+----

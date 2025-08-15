@@ -55,6 +55,10 @@ Listed by analogous STL header.
 === `<cmath>`
 - `abs` - Absolute Value
 
+=== <<std_format, `<format>`>>
+
+=== <<fmt_format, `pass:[{fmt}]`>>
+
 === `<iostream>`
 - <<stream, `operator<<`>>
 - <<stream, `operator>>`>>
