@@ -181,7 +181,6 @@ struct formatter<T>
     template <typename FormatContext>
     auto format(T v, FormatContext& ctx) const
     {
-        auto out {ctx.out()};
         char buffer[64];
         bool isneg {false};
 
@@ -274,7 +273,7 @@ struct formatter<T>
             // LCOV_EXCL_STOP
         }
 
-        return std::copy(s.begin(), s.end(), out);
+        return std::format_to(ctx.out(), "{}", s);
     }
 };
 
