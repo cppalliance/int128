@@ -218,7 +218,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 == val2);
+            s += static_cast<std::uint64_t>(val1 == val2);
         }
     }
 
@@ -235,7 +235,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 != val2);
+            s += static_cast<std::uint64_t>(val1 != val2);
         }
     }
 
@@ -252,7 +252,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 < val2);
+            s += static_cast<std::uint64_t>(val1 < val2);
         }
     }
 
@@ -269,7 +269,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 <= val2);
+            s += static_cast<std::uint64_t>(val1 <= val2);
         }
     }
 
@@ -286,7 +286,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 > val2);
+            s += static_cast<std::uint64_t>(val1 > val2);
         }
     }
 
@@ -303,7 +303,7 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(val1 >= val2);
+            s += static_cast<std::uint64_t>(val1 >= val2);
         }
     }
 
@@ -318,7 +318,7 @@ template <typename T, typename Func>
 BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& data_vec, Func op, const char* operation, const char* type)
 {
     const auto t1 = std::chrono::steady_clock::now();
-    std::int64_t s = 0; // discard variable
+    std::uint64_t s = 0; // discard variable
 
     for (std::size_t k {}; k < K; ++k)
     {
@@ -326,7 +326,7 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::int64_t>((op(val1, val2)));
+            s += static_cast<std::uint64_t>((op(val1, val2)));
         }
     }
 
@@ -354,7 +354,7 @@ BOOST_INT128_NO_INLINE void test_gcd(const std::vector<T>& data_vec, const char*
         {
             const auto val1 = data_vec[i];
             const auto val2 = data_vec[i + 1];
-            s += static_cast<std::size_t>(gcd(val1, val2));
+            s += static_cast<std::uint64_t>(gcd(val1, val2));
         }
     }
 
