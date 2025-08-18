@@ -23,6 +23,12 @@
 #define BOOST_INT128_HAS_MSVC_INTERNAL_I128
 #endif
 
+// Abseil requires at least C++17 (at time of writing)
+#if __has_include(<absl/numeric/int128.h>) && defined(__cplusplus) && __cplusplus >= 201703L
+#  include <absl/numeric/int128.h>
+#  define BOOST_INT128_BENCHMARK_ABSL
+#endif
+
 #include <boost/int128/numeric.hpp>
 #include <chrono>
 #include <random>
@@ -107,6 +113,16 @@ template <>
 std::_Unsigned128 from_uint128(const boost::int128::uint128_t value)
 {
     return static_cast<std::_Unsigned128>(value.high) << static_cast<std::_Unsigned128>(64) | static_cast<std::_Unsigned128>(value.low);
+}
+
+#endif
+
+#ifdef BOOST_INT128_BENCHMARK_ABSL
+
+template <>
+absl::uint128 from_uint128(const boost::int128::uint128_t value)
+{
+    return static_cast<absl::uint128>(value.high) << 64U | static_cast<absl::uint128>(value);
 }
 
 #endif
@@ -375,6 +391,13 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+
+        const auto absl_vector = generate_random_vector<0, absl::uint128>();
+        test_comparisons(absl_vector, "absl::u128");
+
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -383,6 +406,10 @@ int main()
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::plus<>(), "add", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -393,6 +420,10 @@ int main()
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::minus<>(), "sub", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -401,6 +432,10 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::multiplies<>(), "mul", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -411,6 +446,10 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::divides<>(), "div", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -419,6 +458,10 @@ int main()
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
         test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::modulus<>(), "mod", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -455,6 +498,13 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+
+        const auto absl_vector = generate_random_vector<1, absl::uint128>();
+        test_comparisons(absl_vector, "absl::u128");
+
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -463,6 +513,10 @@ int main()
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::plus<>(), "add", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -473,6 +527,10 @@ int main()
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::minus<>(), "sub", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -481,6 +539,10 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::multiplies<>(), "mul", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -491,10 +553,18 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::divides<>(), "div", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
         test_two_element_operation(builtin_vector, std::modulus<>(), "mod", "Builtin");
+        #endif
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+
         #endif
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
@@ -527,6 +597,11 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        const auto absl_vector = generate_random_vector<2, absl::uint128>();
+        test_comparisons(absl_vector, "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -535,6 +610,10 @@ int main()
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::plus<>(), "add", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -545,6 +624,10 @@ int main()
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::minus<>(), "sub", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -553,6 +636,10 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::multiplies<>(), "mul", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -563,6 +650,10 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::divides<>(), "div", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -571,6 +662,10 @@ int main()
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
         test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::modulus<>(), "mod", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
     }
@@ -599,6 +694,10 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        const auto absl_vector = generate_random_vector<3, absl::uint128>();
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -607,6 +706,10 @@ int main()
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::plus<>(), "add", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -617,6 +720,10 @@ int main()
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::minus<>(), "sub", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -625,6 +732,10 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::multiplies<>(), "mul", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -635,6 +746,10 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::divides<>(), "div", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -643,6 +758,10 @@ int main()
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
         test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::modulus<>(), "mod", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
     }
@@ -671,6 +790,13 @@ int main()
         test_comparisons(library_vector, "library");
         test_comparisons(mp_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+
+        const auto absl_vector = generate_random_vector<4, absl::uint128>();
+        test_comparisons(absl_vector, "absl::u128");
+
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -679,6 +805,10 @@ int main()
 
         test_two_element_operation(library_vector, std::plus<>(), "add", "Library");
         test_two_element_operation(mp_vector, std::plus<>(), "add", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::plus<>(), "add", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -689,6 +819,10 @@ int main()
         test_two_element_operation(library_vector, std::minus<>(), "sub", "Library");
         test_two_element_operation(mp_vector, std::minus<>(), "sub", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::minus<>(), "sub", "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -697,6 +831,10 @@ int main()
 
         test_two_element_operation(library_vector, std::multiplies<>(), "mul", "Library");
         test_two_element_operation(mp_vector, std::multiplies<>(), "mul", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::multiplies<>(), "mul", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
@@ -707,6 +845,10 @@ int main()
         test_two_element_operation(library_vector, std::divides<>(), "div", "Library");
         test_two_element_operation(mp_vector, std::divides<>(), "div", "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::divides<>(), "div", "absl::u128");
+        #endif
+        
         std::cerr << std::endl;
 
         #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
@@ -715,6 +857,10 @@ int main()
 
         test_two_element_operation(library_vector, std::modulus<>(), "mod", "Library");
         test_two_element_operation(mp_vector, std::modulus<>(), "mod", "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_two_element_operation(absl_vector, std::modulus<>(), "mod", "absl::u128");
+        #endif
 
         std::cerr << std::endl;
 
