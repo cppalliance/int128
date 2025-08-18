@@ -160,7 +160,7 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
         "Linux 24.04 GCC 13 ARM64",
         "cppalliance/droneubuntu2404:multiarch",
         { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
-        arch="arm64",
+        "libabsl-dev", arch="arm64",
     ),
 
     linux_pipeline(
@@ -174,7 +174,7 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
         "Linux 22.04 GCC 11 S390x",
         "cppalliance/droneubuntu2204:multiarch",
         { TOOLSET: 'gcc', COMPILER: 'g++', CXXSTD: '03,11,14,17,2a' },
-        arch="s390x",
+        "libabsl-dev", arch="s390x",
     ),
 
     linux_pipeline(
