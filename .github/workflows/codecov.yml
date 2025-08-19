@@ -72,7 +72,7 @@ jobs:
               else
                 pkgs+=" python libpython-dev"
               fi
-              apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y $pkgs libfmt-dev
+              apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y $pkgs libfmt-dev libabsl-dev
           fi
           # For jobs not compatible with ccache, use "ccache: no" in the matrix
           if [[ "${{ matrix.ccache }}" == "no" ]]; then
