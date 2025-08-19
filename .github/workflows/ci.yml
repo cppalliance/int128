@@ -120,12 +120,14 @@ jobs:
             os: ubuntu-24.04
             install:
               - g++-13-multilib
+              - libabsl-dev
           - toolset: gcc-14
             cxxstd: "03,11,14,17,20,23,2c"
             address_model: 32,64
             os: ubuntu-24.04
             install:
               - g++-14-multilib
+              - libabsl-dev
           - toolset: gcc-14
             cxxstd: "03,11,14,17,20,23,2c"
             cxxflags: -fno-exceptions
@@ -279,6 +281,7 @@ jobs:
             os: ubuntu-24.04
             install:
               - clang-19
+              - libabsl-dev
             sources:
               - "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-19 main"
             source_keys:
@@ -289,6 +292,7 @@ jobs:
             os: ubuntu-24.04
             install:
               - clang-20
+              - libabsl-dev
             sources:
               - "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
             source_keys:
@@ -397,7 +401,7 @@ jobs:
                 done
             fi
             sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT update
-            sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y ${{join(matrix.install, ' ')}} locales libfmt-dev libabsl-dev
+            sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y ${{join(matrix.install, ' ')}} locales libfmt-dev
             sudo locale-gen de_DE.UTF-8
             sudo update-locale
       - name: Setup GCC Toolchain
