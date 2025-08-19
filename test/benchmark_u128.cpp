@@ -346,7 +346,7 @@ BOOST_INT128_NO_INLINE void test_gcd(const std::vector<T>& data_vec, const char*
     using boost::int128::gcd;
 
     const auto t1 = std::chrono::steady_clock::now();
-    std::size_t s = 0; // discard variable
+    std::uint64_t s = 0; // discard variable
 
     for (std::size_t k {}; k < K; ++k)
     {
