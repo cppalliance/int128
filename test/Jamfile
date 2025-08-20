@@ -61,6 +61,8 @@ run test_i128.cpp ;
 run test_i128_no_sign_conv.cpp ;
 run test_limits_i128.cpp ;
 
+run test_climits.cpp ;
+
 run test_bit.cpp ;
 run test_literals.cpp ;
 run test_stream.cpp ;
