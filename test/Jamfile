@@ -74,6 +74,7 @@ compile-fail test_fail_sign_compare.cpp ;
 run test_x64_msvc_div.cpp ;
 
 run test_gcd_lcm.cpp ;
+run test_midpoint.cpp ;
 
 run test_format.cpp ;
 run test_fmt_format.cpp ;
