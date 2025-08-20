@@ -393,17 +393,15 @@ constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
-constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
-{
-    return (a & b) + ((a ^ b) >> 1);
-}
+namespace detail {
 
-constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+template <typename T>
+constexpr T midpoint_impl(const T a, const T b) noexcept
 {
     const auto unsigned_a {static_cast<uint128_t>(a)};
     const auto unsigned_b {static_cast<uint128_t>(b)};
 
-    auto mid {midpoint(unsigned_a, unsigned_b)};
+    auto mid {(unsigned_a & unsigned_b) + ((unsigned_a ^ unsigned_b) >> 1)};
 
     // std::midpoint rounds towards the first parameter
     if ((unsigned_a ^ unsigned_b) & 1U && a > b)
@@ -411,7 +409,19 @@ constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
         ++mid;
     }
 
-    return static_cast<int128_t>(mid);
+    return static_cast<T>(mid);
+}
+
+} // namespace detail
+
+constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
+{
+    return detail::midpoint_impl(a, b);
+}
+
+constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+{
+    return detail::midpoint_impl(a, b);
 }
 
 } // namespace int128
