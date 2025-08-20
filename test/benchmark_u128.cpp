@@ -124,7 +124,7 @@ std::_Unsigned128 from_uint128(const boost::int128::uint128_t value)
 template <>
 absl::uint128 from_uint128(const boost::int128::uint128_t value)
 {
-    return static_cast<absl::uint128>(value.high) << 64U | static_cast<absl::uint128>(value);
+    return static_cast<absl::uint128>(value.high) << 64U | static_cast<absl::uint128>(value.low);
 }
 
 #endif
