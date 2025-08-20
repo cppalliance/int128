@@ -398,6 +398,22 @@ constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
     return (a & b) + ((a ^ b) >> 1);
 }
 
+constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+{
+    const auto unsigned_a {static_cast<uint128_t>(a)};
+    const auto unsigned_b {static_cast<uint128_t>(b)};
+
+    auto mid {midpoint(unsigned_a, unsigned_b)};
+
+    // std::midpoint rounds towards the first parameter
+    if ((unsigned_a ^ unsigned_b) & 1U && a > b)
+    {
+        ++mid;
+    }
+
+    return static_cast<int128_t>(mid);
+}
+
 } // namespace int128
 } // namespace boost
 
