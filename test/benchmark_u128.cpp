@@ -26,7 +26,9 @@
 // Abseil requires at least C++17 (at time of writing)
 #if __has_include(<absl/numeric/int128.h>) && defined(__cplusplus) && __cplusplus >= 201703L
 #  include <absl/numeric/int128.h>
-#  define BOOST_INT128_BENCHMARK_ABSL
+#  ifndef __i386__
+#    define BOOST_INT128_BENCHMARK_ABSL
+#  endif
 #endif
 
 #include <boost/int128/numeric.hpp>
