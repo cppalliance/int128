@@ -56,7 +56,7 @@ run test_u128.cpp ;
 run test_u128_no_sign_conv.cpp ;
 run test_limits_u128.cpp ;
 
-run-fail benchmark_i128.cpp ;
+run-fail benchmark_i128.cpp : : : [ check-target-builds ../config//has_absl_support : <linkflags>"-labsl_base -labsl_int128" ] ;
 run test_i128.cpp ;
 run test_i128_no_sign_conv.cpp ;
 run test_limits_i128.cpp ;
