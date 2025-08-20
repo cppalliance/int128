@@ -393,6 +393,11 @@ constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
+constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
+{
+    return (a & b) + ((a ^ b) >> 1);
+}
+
 } // namespace int128
 } // namespace boost
 
