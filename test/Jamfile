@@ -102,5 +102,6 @@ compile compile_tests/charconv_compile.cpp ;
 compile compile_tests/format_compile.cpp ;
 compile compile_tests/int128_compile.cpp ;
 compile compile_tests/iostream_compile.cpp ;
+compile compile_tests/limits_compile.cpp ;
 compile compile_tests/literals_compile.cpp ;
 compile compile_tests/numeric_compile.cpp ;
