@@ -115,7 +115,7 @@ std::_Signed128 from_int128(const boost::int128::int128_t value)
 #ifdef BOOST_INT128_BENCHMARK_ABSL
 
 template <>
-absl::uint128 from_uint128(const boost::int128::uint128_t value)
+absl::int128 from_int128(const boost::int128::int128_t value)
 {
     return static_cast<absl::int128>(value.high) << 64 | static_cast<absl::int128>(value.low);
 }
