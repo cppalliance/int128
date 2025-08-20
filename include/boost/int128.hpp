@@ -12,5 +12,6 @@
 #include <boost/int128/numeric.hpp>
 #include <boost/int128/format.hpp>
 #include <boost/int128/fmt_format.hpp>
+#include <boost/int128/limits.hpp>
 
 #endif // BOOST_INT128_HPP
