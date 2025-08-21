@@ -1,0 +1,29 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+
+[#structure]
+= Directory Structure
+:idprefix: structure_
+
+The entire library can be consumed via `<boost/int128.hpp>`, or by independently selecting any of the library headers.
+Below is the directory structure for reference:
+
+----
+boost/
+├── int128.hpp
+└── int128/
+    ├── bit.hpp
+    ├── charconv.hpp
+    ├── climits.hpp
+    ├── fmt_format.hpp
+    ├── format.hpp
+    ├── int128.hpp
+    ├── iostream.hpp
+    ├── limits.hpp
+    ├── literals.hpp
+    └── numeric.hpp
+----
