@@ -77,7 +77,8 @@ namespace boost {
 namespace int128 {
 
 constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
-constexpr uint128_t gcd(const int128_t a, const int128_t b) noexcept;
+
+constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -97,7 +98,29 @@ namespace boost {
 namespace int128 {
 
 constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
-constexpr uint128_t lcm(const int128_t a, const int128_t b) noexcept;
+
+constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
+
+} // namespace int128
+} // namespace boost
+
+----
+
+[#midpoint]
+== Midpoint
+
+Computes the midpoint of `a` and `b`, rounding towards `a`.
+
+[source, c++]
+----
+#include <boost/int128/numeric.hpp>
+
+namespace boost {
+namespace int128 {
+
+constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
+
+constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
