@@ -31,17 +31,16 @@ data = {
     'boost::mp::uint128_t': [3009890, 2710279, 3059187, 3495634, 4852899, 3926336]
 }
 """
-
 """
 # ARM64 macOS
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
     'unsigned __int128': [131902, 20613, 20484, 20160, 686521, 777084],
     'uint128_t': [133564, 17912, 18237, 20580, 699201, 724648],
-    'boost::mp::uint128_t': [134182, 40176, 40311, 43285, 945928, 953117]
+    'boost::mp::uint128_t': [134182, 40176, 40311, 43285, 945928, 953117],
+    'absl::uint128': [132366, 20178, 20207, 20049, 672398, 734229]
 }
 """
-
 """
 # x64 macOS
 data = {
@@ -60,15 +59,15 @@ data = {
     'boost::mp::uint128_t': [3191439, 545521, 420573, 675361, 4976285, 4478923]
 }
 """
-"""
+
 # Linux ARM64
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
-    'unsigned __int128': [3424403, 123659, 171721, 329287, 2044821, 2176318],
-    'uint128_t': [2062167, 133084, 99453, 283443, 1825020, 1897933],
-    'boost::mp::uint128_t': [5026689, 587373, 330052, 972009, 2190856, 2227961]
+    'unsigned __int128': [3427201, 194968, 193067, 263187, 2338258, 2260200],
+    'uint128_t': [2078586, 159662, 161903, 201333, 2247175, 2097760],
+    'boost::mp::uint128_t': [5026689, 587373, 330052, 972009, 2190856, 2227961],
+    'absl::uint128': [3753922, 194070, 140777, 244420, 2223032, 2186750]
 }
-"""
 
 """
 # Linux S390x
@@ -79,7 +78,7 @@ data = {
     'boost::mp::uint128_t': [16561079, 2909066, 2744664, 2384775, 7828137, 9172574]
 }
 """
-
+"""
 # Linux ppc64le
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
@@ -87,7 +86,7 @@ data = {
     'uint128_t': [4450958, 193063, 175259, 192929, 4896360, 4273487],
     'boost::mp::uint128_t': [5704848, 847504, 786659, 795187, 5344637, 5407877]
 }
-
+"""
 df = pd.DataFrame(data)
 
 # Function to determine color based on ranking
@@ -125,7 +124,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('GCC 14 - ppc64le Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 13 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -154,7 +153,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('GCC 14 - ppc64le Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 13 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -162,7 +161,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('ppc64le_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -191,7 +190,7 @@ ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='unsigned __int
 
 ax3.set_xlabel('Operations', fontsize=12)
 ax3.set_ylabel('Relative Performance (vs unsigned __int128)', fontsize=12)
-ax3.set_title('Relative Performance Comparison - x64', fontsize=14, fontweight='bold')
+ax3.set_title('Relative Performance Comparison - ARM64', fontsize=14, fontweight='bold')
 ax3.set_xticks(x)
 ax3.set_xticklabels(operations, rotation=45, ha='right')
 ax3.legend()
@@ -202,7 +201,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('ppc64le_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
