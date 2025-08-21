@@ -570,6 +570,20 @@ jobs:
           cmd /c bootstrap
           b2 -d0 headers
 
+      - name: Install Abseil
+        shell: cmd
+        run: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          call bootstrap-vcpkg.bat
+          if "${{matrix.addrmd}}" == "32" (
+            vcpkg install abseil:x86-windows
+          ) else (
+            vcpkg install abseil:x64-windows
+          )
+          echo VCPKG_ROOT=%CD%>>%GITHUB_ENV%
+          cd ..
+          
       - name: Run tests
         shell: cmd
         run: |
