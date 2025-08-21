@@ -78,6 +78,7 @@ Listed by analogous STL header.
 - <<saturating_cast, `saturate_cast`>>
 - <<gcd, `gcd`>>
 - <<lcm, `lcm`>>
+- <<midpoint, `midpoint`>>
 
 == Enums
 
