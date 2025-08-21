@@ -385,11 +385,13 @@ constexpr bool operator==(const UnsignedInteger lhs, const uint128_t rhs) noexce
 
 BOOST_INT128_EXPORT constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    // Intel and ARM like the values in opposite directions
-
     #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
+
+    #elif defined (__x86_64__)
+
+    return static_cast<detail::builtin_u128>(lhs) == static_cast<detail::builtin_u128>(rhs);
 
     #elif (defined(__i386__) || defined(_M_IX86) || defined(_M_AMD64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__SSE2__)
 
@@ -522,6 +524,10 @@ BOOST_INT128_EXPORT constexpr bool operator!=(const uint128_t lhs, const uint128
     #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
+
+    #elif defined (__x86_64__)
+
+    return static_cast<detail::builtin_u128>(lhs) != static_cast<detail::builtin_u128>(rhs);
 
     #elif (defined(__i386__) || defined(_M_IX86)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__SSE2__)
 
