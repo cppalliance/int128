@@ -80,14 +80,6 @@ Listed by analogous STL header.
 - <<lcm, `lcm`>>
 - <<midpoint, `midpoint`>>
 
-== Enums
-
-- None
-
-== Constants
-
-- None
-
 == Concepts
 
 - <<unsigned_integer, `unsigned_integer`>>
@@ -95,6 +87,12 @@ Listed by analogous STL header.
 - <<integer, `integer`>>
 
 == Macros
+
+=== Constants (`<boost/int128/climits.hpp>`)
+
+- `BOOST_INT128_UINT128_MAX`
+- `BOOST_INT128_INT128_MAX`
+- `BOOST_INT128_INT128_MIN`
 
 === Literals
 
