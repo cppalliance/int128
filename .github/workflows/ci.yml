@@ -583,7 +583,31 @@ jobs:
           )
           echo VCPKG_ROOT=%CD%>>%GITHUB_ENV%
           cd ..
-          
+
+      - name: Configure Boost.Build for Abseil
+        shell: cmd
+        run: |
+          cd ../boost-root
+          (
+          echo import os ;
+          echo.
+          echo local VCPKG_ROOT = [ os.environ VCPKG_ROOT ] ;
+          echo local VCPKG_TRIPLET = [ os.environ VCPKG_TRIPLET ] ;
+          echo.
+          echo # Abseil libraries configuration
+          echo lib absl_base : :
+          echo     ^<name^>absl_base
+          echo     ^<search^>$^(VCPKG_ROOT^)/installed/$^(VCPKG_TRIPLET^)/lib
+          echo     : :
+          echo     ^<include^>$^(VCPKG_ROOT^)/installed/$^(VCPKG_TRIPLET^)/include ;
+          echo.
+          echo lib absl_int128 : :
+          echo     ^<name^>absl_int128
+          echo     ^<search^>$^(VCPKG_ROOT^)/installed/$^(VCPKG_TRIPLET^)/lib
+          echo     : :
+          echo     ^<include^>$^(VCPKG_ROOT^)/installed/$^(VCPKG_TRIPLET^)/include ;
+          ) >> project-config.jam
+
       - name: Run tests
         shell: cmd
         run: |
