@@ -205,16 +205,16 @@ image::u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performa
 
 === ARM64 (Apple Silicon)
 
-[cols="1,1,1,1"]
+[cols="1,1,1,1,1"]
 |===
-| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 131902 | 133564 | 134182
-| Addition | 20613 | 17912 | 40176
-| Subtraction | 20484 | 18237 | 40311
-| Multiplication | 20160 | 20580 | 43285
-| Division | 686521 | 699201 | 945928
-| Modulo | 777084 | 724648 | 953117
+| Comparisons | 131902 | 133564 | 134182 | 132366
+| Addition | 20613 | 17912 | 40176 | 20178
+| Subtraction | 20484 | 18237 | 40311 | 20207
+| Multiplication | 20160 | 20580 | 43285 | 20049
+| Division | 686521 | 699201 | 945928 | 672398
+| Modulo | 777084 | 724648 | 953117 | 734229
 |===
 
 ////
