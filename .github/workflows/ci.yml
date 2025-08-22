@@ -578,8 +578,10 @@ jobs:
           call bootstrap-vcpkg.bat
           if "${{matrix.addrmd}}" == "32" (
             vcpkg install abseil:x86-windows
+            echo VCPKG_TRIPLET=x86-windows>>%GITHUB_ENV%
           ) else (
             vcpkg install abseil:x64-windows
+            echo VCPKG_TRIPLET=x64-windows>>%GITHUB_ENV%
           )
           echo VCPKG_ROOT=%CD%>>%GITHUB_ENV%
           cd ..
