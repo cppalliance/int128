@@ -50,15 +50,16 @@ data = {
     'boost::mp::uint128_t': [689146, 137819, 153484, 164100, 2784139, 2736682]
 }
 """
-"""
+
 # Linux x64
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
-    'unsigned __int128': [2068491, 383258, 208155, 291075, 3953939, 4042166],
-    'uint128_t': [2416378, 180522, 192633, 241174, 4246753, 3953441],
-    'boost::mp::uint128_t': [3191439, 545521, 420573, 675361, 4976285, 4478923]
+    'unsigned __int128': [785130, 90260, 91143, 111803, 1058435, 1003366],
+    'uint128_t': [765065, 85758, 91449, 90069, 901516, 830830],
+    'boost::mp::uint128_t': [1363581, 89958, 91224, 113559, 1040071, 1001701],
+    'absl::uint128': [766205, 89255, 89716, 89660, 1044710, 978533]
 }
-"""
+
 """
 # Linux ARM64
 data = {
@@ -69,7 +70,7 @@ data = {
     'absl::uint128': [3753922, 194070, 140777, 244420, 2223032, 2186750]
 }
 """
-
+"""
 # Linux S390x
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
@@ -78,7 +79,7 @@ data = {
     'boost::mp::uint128_t': [7965082, 621572, 691515, 944289, 3997037, 5144403],
     'absl::uint128': [10515929, 1744226, 1527622, 1839038, 4913142, 5422155]
 }
-
+"""
 """
 # Linux ppc64le
 data = {
@@ -125,7 +126,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('GCC 13 - S390x Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('GCC 14 - x64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -154,7 +155,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('GCC 13 - S390x Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('GCC 14 - x64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -162,7 +163,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('s390x_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('x64_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -191,7 +192,7 @@ ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='unsigned __int
 
 ax3.set_xlabel('Operations', fontsize=12)
 ax3.set_ylabel('Relative Performance (vs unsigned __int128)', fontsize=12)
-ax3.set_title('Relative Performance Comparison - s390x', fontsize=14, fontweight='bold')
+ax3.set_title('Relative Performance Comparison - x64', fontsize=14, fontweight='bold')
 ax3.set_xticks(x)
 ax3.set_xticklabels(operations, rotation=45, ha='right')
 ax3.legend()
@@ -202,7 +203,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('s390x_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('x64_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
