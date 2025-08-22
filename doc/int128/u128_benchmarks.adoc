@@ -59,16 +59,16 @@ image::u128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance
 
 === S390x
 
-[cols="1,1,1,1"]
+[cols="1,1,1,1,1"]
 |===
-| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 14415854 | 12658246 | 16561079
-| Addition | 1232397 | 1423451 | 2909066
-| Subtraction | 1239808 | 775766 | 2744664
-| Multiplication | 1928533 | 2600663 | 2384775
-| Division | 8102813 | 5759377 | 7828137
-| Modulo | 9072599 | 6648180 | 9172574
+| Comparisons | 6803419 | 6280326 | 7965082 | 10515929
+| Addition | 546801 | 618774 | 621572 | 1744226
+| Subtraction | 590011 | 359100 | 691515 | 1527622
+| Multiplication | 891753 | 1192196 | 944289 | 1839038
+| Division | 3827125 | 3201674 | 3997037 | 4913142
+| Modulo | 4925696 | 3360251 | 5144403 | 5422155
 |===
 
 ////
