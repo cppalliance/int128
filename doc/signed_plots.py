@@ -48,15 +48,16 @@ data = {
     'boost::mp::int128_t': [4318109, 925013, 1876834, 651209, 3719183, 4443402]
 }
 """
-"""
+
 # macos ARM
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
-    '`__int128`': [134803, 20133, 20156, 19974, 649380, 708247],
-    'int128_t': [144313, 17820, 17864, 18572, 666749, 681991],
-    'boost::mp::int128_t': [338665, 168326, 169666, 77514, 962183, 1014055]
+    '`__int128`': [133275, 20203, 20203, 21496, 662767, 719179],
+    'int128_t': [131953, 17797, 17832, 20202, 682891, 692509],
+    'boost::mp::int128_t': [340555, 169909, 172497, 78269, 969277, 1026090],
+    'absl::int128': [133509, 20208, 22199, 20364, 663602, 717897]
 }
-"""
+
 """
 # MSVC 14.3 - ARM64
 data = {
@@ -75,7 +76,7 @@ data = {
     'boost::mp::int128_t': [4854983, 2645943, 2925784, 3887479, 6437280, 6236026]
 }
 """
-
+"""
 # MSVC 14.3 - x86
 data = {
     'Operation': ['Comparisons', 'Addition', 'Subtraction', 'Multiplication', 'Division', 'Modulo'],
@@ -83,7 +84,7 @@ data = {
     'int128_t': [3520950, 212116, 210354, 2595285, 5516460, 5842785],
     'boost::mp::int128_t': [7877534, 3477656, 4108539, 7030276, 10229356, 9069360]
 }
-
+"""
 df = pd.DataFrame(data)
 
 # Function to determine color based on ranking
@@ -121,7 +122,7 @@ for i, (idx, row) in enumerate(df.iterrows()):
 
 ax1.set_xlabel('Operations', fontsize=12)
 ax1.set_ylabel('Time (nanoseconds)', fontsize=12)
-ax1.set_title('MSVC 14.3 - x86_32 Benchmark Results', fontsize=14, fontweight='bold')
+ax1.set_title('Clang 20.1 - ARM64 Benchmark Results', fontsize=14, fontweight='bold')
 ax1.set_xticks(x)
 ax1.set_xticklabels(operations, rotation=45, ha='right')
 ax1.legend(loc='upper left')
@@ -150,7 +151,7 @@ for i, impl in enumerate(implementations):
 
 ax2.set_xlabel('Operations', fontsize=12)
 ax2.set_ylabel('Time (nanoseconds) - Log Scale', fontsize=12)
-ax2.set_title('MSVC 14.3 - x86_32 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
+ax2.set_title('Clang 20.1 - ARM64 Benchmark Results (Log Scale)', fontsize=14, fontweight='bold')
 ax2.set_yscale('log')
 ax2.set_xticks(x)
 ax2.set_xticklabels(operations, rotation=45, ha='right')
@@ -158,7 +159,7 @@ ax2.legend(loc='upper left')
 ax2.grid(axis='y', alpha=0.3, which='both')
 
 plt.tight_layout()
-plt.savefig('x86_benchmarks.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_benchmarks.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Create a normalized performance chart
@@ -167,11 +168,11 @@ fig3, ax3 = plt.subplots(figsize=(10, 6))
 # Normalize data relative to __int128
 normalized_df = df.copy()
 for col in implementations:
-    normalized_df[col] = df[col] / df['std::_Signed128']
+    normalized_df[col] = df[col] / df['`__int128`']
 
 # Plot normalized bars
 for i, impl in enumerate(implementations):
-    if impl == 'std::_Signed128':
+    if impl == '`__int128`':
         continue  # Skip since it's always 1.0
     bars = ax3.bar(x + (i-1.5)*width, normalized_df[impl], width,
                    label=impl, edgecolor='black', linewidth=0.5)
@@ -183,11 +184,11 @@ for i, impl in enumerate(implementations):
                  f'{height:.2f}x', ha='center', va='bottom', fontsize=9)
 
 # Add reference line at 1.0
-ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='std::_Signed128 baseline')
+ax3.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='`__int128` baseline')
 
 ax3.set_xlabel('Operations', fontsize=12)
 ax3.set_ylabel('Relative Performance (vs __int128)', fontsize=12)
-ax3.set_title('Relative Performance Comparison - x86_32', fontsize=14, fontweight='bold')
+ax3.set_title('Relative Performance Comparison - ARM64', fontsize=14, fontweight='bold')
 ax3.set_xticks(x)
 ax3.set_xticklabels(operations, rotation=45, ha='right')
 ax3.legend()
@@ -198,7 +199,7 @@ ax3.text(0.02, 0.98, 'Lower is better', transform=ax3.transAxes,
          fontsize=10, verticalalignment='top', style='italic')
 
 plt.tight_layout()
-plt.savefig('x86_relative_performance.png', dpi=300, bbox_inches='tight')
+plt.savefig('ARM64_relative_performance.png', dpi=300, bbox_inches='tight')
 plt.show()
 
 # Generate summary statistics
