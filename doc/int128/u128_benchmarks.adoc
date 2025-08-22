@@ -19,16 +19,16 @@ On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__ms
 
 === x86_64
 
-[cols="1,1,1,1"]
+[cols="1,1,1,1,1"]
 |===
-| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 2068491 | 2416378 | 3191439
-| Addition | 383258 | 180522 | 545521
-| Subtraction | 208155 | 192633 | 420573
-| Multiplication | 291075 | 241174 | 675361
-| Division | 3953939 | 4246753 | 4976285
-| Modulo | 4042166 | 3953441 | 4478923
+| Comparisons | 785130 | 765065 | 1363581 | 766205
+| Addition | 90260 | 85758 | 89958 | 89255
+| Subtraction | 91143 | 91449 | 91224 | 89716
+| Multiplication | 111803 | 90069 | 113559 | 89660
+| Division | 1058435 | 901516 | 1040071 | 1044710
+| Modulo | 1003366 | 830830 | 1001701 | 978533
 |===
 
 ////
