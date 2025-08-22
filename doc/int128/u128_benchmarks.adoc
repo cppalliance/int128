@@ -39,16 +39,16 @@ image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, 
 
 === ARM64
 
-[cols="1,1,1,1"]
+[cols="1,1,1,1,1"]
 |===
-| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
+| Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 3424403 | 2062167 | 5026689
-| Addition | 123659 | 133084 | 587373
-| Subtraction | 171721 | 99453 | 330052
-| Multiplication | 329287 | 283443 | 972009
-| Division | 2044821 | 1825020 | 2190856
-| Modulo | 2176318 | 1897933 | 2227961
+| Comparisons | 3427201 | 2078586 | 5026689 | 3753922
+| Addition | 194968 | 159662 | 587373 | 194070
+| Subtraction | 193067 | 161903 | 330052 | 140777
+| Multiplication | 263187 | 201333 | 972009 | 244420
+| Division | 2338258 | 2247175 | 2190856 | 2223032
+| Modulo | 2260200 | 2097760 | 2227961 | 2186750
 |===
 
 ////
