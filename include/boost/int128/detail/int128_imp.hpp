@@ -2282,7 +2282,7 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
 
     #  endif
 
-    #elif defined(__aarch64__)
+    #elif defined(__aarch64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
 
