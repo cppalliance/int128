@@ -2243,7 +2243,7 @@ BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int1
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
+    #if ((defined(__aarch64__) && defined(__APPLE__)) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
     #  if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -2281,6 +2281,10 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, con
     return library_mul(lhs, rhs);
 
     #  endif
+
+    #elif defined(__aarch64__)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
 
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
