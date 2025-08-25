@@ -1861,13 +1861,17 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_sub(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW)
+    #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (!defined(__aarch64__) || defined(__APPLE__) || !defined(BOOST_INT128_HAS_INT128)))
 
     // __builtin_sub_overflow is marked constexpr so we don't need if consteval handling
     std::uint64_t result_low {};
     const auto result_high {static_cast<std::uint64_t>(lhs.high) - static_cast<std::uint64_t>(rhs.high) - static_cast<std::uint64_t>(__builtin_sub_overflow(lhs.low, rhs.low, &result_low))};
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
+
+    #elif defined(__aarch64__) && !defined(__APPLE__)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) - static_cast<detail::builtin_i128>(rhs));
 
     #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
