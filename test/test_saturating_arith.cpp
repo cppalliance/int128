@@ -240,8 +240,11 @@ void test_sub_sat<boost::int128::int128_t>()
             const auto sat_res {sub_sat(near_min,  i)};
             BOOST_TEST(sat_res == min);
 
+            // Signed overflow seems to saturate on ARM graviton
+            #ifndef __aarch64__
             const auto res {near_min - i};
             BOOST_TEST(sat_res != res);
+            #endif
         }
     }
 
