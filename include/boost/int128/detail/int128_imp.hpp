@@ -1807,7 +1807,11 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, con
 
 BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW
+    #if (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_WIN32) && defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs));
+
+    #elif defined(BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW)
 
     std::uint64_t result_low {};
     std::uint64_t result_high {};
@@ -1815,37 +1819,6 @@ BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, con
     result_high = static_cast<std::uint64_t>(lhs.high) + static_cast<std::uint64_t>(rhs.high) + __builtin_add_overflow(lhs.low, rhs.low, &result_low);
 
     return int128_t{static_cast<std::int64_t>(result_high), result_low};
-
-    #elif defined(__x86_64__) && !defined(_WIN32) && defined(BOOST_INT128_HAS_INT128)
-
-    return static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs);
-
-    #elif defined(__aarch64__) && !defined(__APPLE__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && defined(__GNUC__) && defined(BOOST_INT128_HAS_INT128)
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return library_add(lhs, rhs);
-    }
-    else
-    {
-        #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wclass-memaccess"
-
-        detail::builtin_i128 builtin_lhs {};
-        detail::builtin_i128 builtin_rhs {};
-
-        std::memcpy(&builtin_lhs, &lhs, sizeof(builtin_i128));
-        std::memcpy(&builtin_rhs, &rhs, sizeof(builtin_i128));
-
-        auto builtin_res {builtin_lhs + builtin_rhs};
-
-        int128_t result {};
-        std::memcpy(&result, &builtin_res, sizeof(int128_t));
-
-        return result;
-
-        #pragma GCC diagnostic pop
-    }
 
     #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
