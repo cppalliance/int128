@@ -370,7 +370,7 @@ std::vector<int> generate_shift_vector()
     std::random_device rd;
     const auto seed = rd();
     std::mt19937_64 gen(seed);
-    std::uniform_int_distribution<int> dist(-127, 127);
+    std::uniform_int_distribution<int> dist(0, 127);
 
     std::vector<int> data_vec;
     data_vec.reserve(N);
@@ -506,13 +506,13 @@ int main()
         std::cerr << std::endl;
 
         #if (defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)) && defined(BOOST_INT128_BENCHMARK_BUILTIN_GCD)
-        test_gcd(builtin_vector, "Builtin");
+        //test_gcd(builtin_vector, "Builtin");
         #endif
 
-        test_gcd(library_vector,  "Library");
-        test_gcd(mp_vector,  "mp::u128");
+        //test_gcd(library_vector,  "Library");
+        //test_gcd(mp_vector,  "mp::u128");
 
-        std::cerr << std::endl;
+        //std::cerr << std::endl;
     }
     // Single word operations
     {
