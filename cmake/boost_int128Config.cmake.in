@@ -1,0 +1,16 @@
+# Copyright 2023 - 2025 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
+
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/boost_int128Targets.cmake")
+
+# Recreate the alias for the imported target
+if(NOT TARGET Boost::int128 AND TARGET Boost::boost_int128)
+    add_library(Boost::int128 ALIAS Boost::boost_int128)
+endif()
+
+check_required_components(boost_int128)
+
+set(boost_int128_FOUND TRUE)
