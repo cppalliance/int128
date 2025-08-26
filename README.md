@@ -17,6 +17,26 @@ int128 is under active development and is not an official boost library.
 This library is header only. It contains no other dependencies.
 Simply `#include` it and use it.
 
+## CMake
+
+```sh
+git clone https://github.com/cppalliance/int128
+cd int128
+mkdir build && cd build
+cmake .. OR cmake .. -DCMAKE_INSTALL_PREFIX=/your/custom/path
+cmake --build . --target install
+```
+
+then you can use `find_package(boost_int128 REQUIRED)`
+
+## vcpkg
+
+```sh
+git clone https://github.com/cppalliance/int128
+cd int128
+vcpkg install int128 --overlay-ports=ports/int128 
+```
+
 # Supported Platforms
 
 Boost.Int128 is tested natively on Ubuntu (x86_64, x86_32, s390x, aarch64, ARM32v7), macOS (x86_64, and Apple Silicon), and Windows (x86_64, x86_32, and ARM64);
