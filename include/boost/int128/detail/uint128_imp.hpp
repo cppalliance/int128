@@ -1791,20 +1791,9 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 
     if (rhs < 64)
     {
-        #ifdef __x86_64__
-
-        return {
-            lhs.high >> rhs,
-            __shrdq(lhs.low, lhs.high, rhs)
-        };
-
-        #else
-
         const auto result_low {(lhs.low >> rhs) | (lhs.high << (64 - rhs))};
         const auto result_high {lhs.high >> rhs};
         return {result_high, result_low};
-
-        #endif
     }
 
     return {0, lhs.high >> (rhs - 64)};
