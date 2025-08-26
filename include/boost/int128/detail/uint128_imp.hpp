@@ -1792,6 +1792,8 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
             __shrdq(lhs.low, lhs.high, rhs)
         };
 
+        #else
+
         const auto result_low {(lhs.low >> rhs) | (lhs.high << (64 - rhs))};
         const auto result_high {lhs.high >> rhs};
         return {result_high, result_low};
@@ -1866,30 +1868,27 @@ constexpr unsigned operator>>(UnsignedInteger lhs, const uint128_t rhs) noexcept
 
 BOOST_INT128_EXPORT constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs >= 128U)
+    if (BOOST_INT128_UNLIKELY(rhs.high != 0U))
     {
         return {0, 0};
     }
 
-    if (rhs.low == 0U)
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return lhs;
+        return detail::default_rs_impl(lhs, rhs.low);
+    }
+    else
+    {
+        return detail::intrinsic_rs_impl(lhs, rhs.low);
     }
 
-    if (rhs.low == 64)
-    {
-        return {0, lhs.high};
-    }
+    #else
 
-    if (rhs.low > 64)
-    {
-        return {0, lhs.high >> (rhs.low - UINT64_C(64))};
-    }
+    return detail::default_rs_impl(lhs, rhs.low);
 
-    return {
-        lhs.high >> rhs.low,
-        (lhs.low >> rhs.low) | (lhs.high << (UINT64_C(64) - rhs.low))
-    };
+    #endif
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
