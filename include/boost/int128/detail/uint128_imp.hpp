@@ -1774,6 +1774,12 @@ constexpr uint128_t default_rs_impl(const uint128_t lhs, const Integer rhs) noex
 template <typename Integer>
 uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
+    #ifdef BOOST_INT128_HAS_INT128
+
+    return static_cast<builtin_u128>(lhs) >> rhs;
+
+    #else
+
     if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
     {
         return {0, 0};
@@ -1802,6 +1808,8 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
     }
 
     return {0, lhs.high >> (rhs - 64)};
+
+    #endif
 }
 
 } // namespace detail
