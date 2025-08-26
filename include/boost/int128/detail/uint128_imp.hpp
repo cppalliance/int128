@@ -1740,8 +1740,10 @@ inline uint128_t& uint128_t::operator<<=(Integer rhs) noexcept
 // Right Shift Operator
 //=====================================
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value, bool> = true>
-constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
+namespace detail {
+
+template <typename Integer>
+constexpr uint128_t default_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
     if (rhs < 0 || rhs >= 128)
     {
@@ -1767,6 +1769,60 @@ constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
         lhs.high >> rhs,
         (lhs.low >> rhs) | (lhs.high << (64 - rhs))
     };
+}
+
+template <typename Integer>
+uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
+    {
+        return {0, 0};
+    }
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return lhs;
+    }
+
+    if (rhs < 64)
+    {
+        #ifdef __x86_64__
+
+        return {
+            lhs.high >> rhs,
+            __shrdq(lhs.low, lhs.high, rhs)
+        };
+
+        const auto result_low {(lhs.low >> rhs) | (lhs.high << (64 - rhs))};
+        const auto result_high {lhs.high >> rhs};
+        return {result_high, result_low};
+
+        #endif
+    }
+
+    return {0, lhs.high >> (rhs - 64)};
+}
+
+} // namespace detail
+
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value, bool> = true>
+constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return detail::default_rs_impl(lhs, rhs);
+    }
+    else
+    {
+        return detail::intrinsic_rs_impl(lhs, rhs);
+    }
+
+    #else
+
+    return detail::default_rs_impl(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
