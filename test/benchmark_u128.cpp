@@ -1024,6 +1024,32 @@ int main()
 
         std::cerr << std::endl;
 
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_operator_bitwise(builtin_vector, bitwise_operation::b_or, "Builtin");
+        #endif
+
+        test_operator_bitwise(library_vector, bitwise_operation::b_or, "Library");
+        test_operator_bitwise(mp_vector, bitwise_operation::b_or, "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_operator_bitwise(mp_vector, bitwise_operation::b_or, "absl::u128");
+        #endif
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_operator_bitwise(builtin_vector, bitwise_operation::b_xor, "Builtin");
+        #endif
+
+        test_operator_bitwise(library_vector, bitwise_operation::b_xor, "Library");
+        test_operator_bitwise(mp_vector, bitwise_operation::b_xor, "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_operator_bitwise(mp_vector, bitwise_operation::b_xor, "absl::u128");
+        #endif
+
+        std::cerr << std::endl;
+
     }
 
     return 1;
