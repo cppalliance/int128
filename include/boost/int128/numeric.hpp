@@ -78,8 +78,8 @@ BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t x, const uint128
     return z;
 }
 
-constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
-constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
 
 #ifdef _MSC_VER
 #  pragma warning(push)
@@ -87,7 +87,7 @@ constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-BOOST_INT128_EXPORT constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x >= 0 && y >= 0)
     {
@@ -115,7 +115,7 @@ BOOST_INT128_EXPORT constexpr int128_t add_sat(const int128_t x, const int128_t 
     }
 }
 
-BOOST_INT128_EXPORT constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x <= 0 && y >= 0)
     {

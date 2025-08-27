@@ -23,7 +23,7 @@
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT struct
+struct
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
     alignas(alignof(detail::builtin_i128))
     #else
@@ -2745,21 +2745,21 @@ inline int128_t& int128_t::operator/=(const Integer rhs) noexcept
 // Modulo Operator
 //=====================================
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(int128_t lhs, UnsignedInteger rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(UnsignedInteger lhs, int128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(int128_t lhs, SignedInteger rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(SignedInteger lhs, int128_t rhs) noexcept;
 
-constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
 
-BOOST_INT128_EXPORT template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
@@ -2790,7 +2790,7 @@ constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noex
     #endif
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
@@ -2823,19 +2823,19 @@ constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noex
     #endif
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const int128_t lhs, const SignedInteger rhs) noexcept
 {
     return lhs % static_cast<int128_t>(rhs);
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const SignedInteger lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) % rhs;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
+constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
 {
     if (rhs == 0)
     {
