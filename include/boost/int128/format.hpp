@@ -134,7 +134,7 @@ struct is_library_type_impl
 };
 
 template <typename T>
-static constexpr bool is_library_type_v = is_library_type_impl<T>::value;
+BOOST_INT128_INLINE_CONSTEXPR bool is_library_type_v = is_library_type_impl<T>::value;
 
 template <typename T>
 concept is_library_type = is_library_type_v<T>;

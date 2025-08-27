@@ -32,7 +32,7 @@ struct streamable_overload
 };
 
 template <typename T>
-static constexpr bool is_streamable_overload_v = streamable_overload<T>::value;
+BOOST_INT128_INLINE_CONSTEXPR bool is_streamable_overload_v = streamable_overload<T>::value;
 
 } // namespace detail
 
