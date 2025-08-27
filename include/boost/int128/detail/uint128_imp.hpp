@@ -1776,13 +1776,13 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
     {
-        return {0, 0};
+        return {0, 0}; // LCOV_EXCL_LINE
     }
     if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
         return lhs;
     }
-    
+
     #ifdef BOOST_INT128_HAS_INT128
 
     return static_cast<builtin_u128>(lhs) >> rhs;
@@ -1810,7 +1810,7 @@ constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return detail::default_rs_impl(lhs, rhs);
+        return detail::default_rs_impl(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
@@ -1874,7 +1874,7 @@ BOOST_INT128_EXPORT constexpr uint128_t operator>>(const uint128_t lhs, const ui
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return detail::default_rs_impl(lhs, rhs.low);
+        return detail::default_rs_impl(lhs, rhs.low); // LCOV_EXCL_LINE
     }
     else
     {
