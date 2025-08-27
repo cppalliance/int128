@@ -1686,15 +1686,19 @@ uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
 
     #else
 
+    if (rhs == 64)
+    {
+        return {lhs.low, 0};
+    }
+
     if (rhs > 64)
     {
         return {lhs.low << (rhs - 64), 0};
     }
 
-    const auto shift {static_cast<std::uint64_t>(rhs)};
     return {
-        (lhs.high << shift) | (lhs.low >> (UINT64_C(64) - shift)),
-        lhs.low << shift
+        (lhs.high << rhs) | (lhs.low >> (64 - rhs)),
+        lhs.low << rhs
     };
 
     #endif
@@ -1881,6 +1885,11 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
     #  endif
 
     #else
+
+    if (rhs == 64)
+    {
+        return {0, lhs.high};
+    }
 
     if (rhs < 64)
     {
