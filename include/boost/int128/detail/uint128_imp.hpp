@@ -1648,7 +1648,7 @@ constexpr uint128_t default_ls_impl(const uint128_t lhs, const Integer rhs) noex
 template <typename T>
 uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(rhs < 0 || rhs >= 128))
+    if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
     {
         return {0, 0};
     }
@@ -1659,7 +1659,7 @@ uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    #  ifdef __aarch64__
+    #  if defined(__aarch64__)
 
         #if defined(__GNUC__) && __GNUC__ >= 8
         #  pragma GCC diagnostic push
@@ -1691,9 +1691,10 @@ uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
         return {lhs.low << (rhs - 64), 0};
     }
 
+    const auto shift {static_cast<std::uint64_t>(rhs)};
     return {
-        (lhs.high << rhs) | (lhs.low >> (64 - rhs)),
-        lhs.low << rhs
+        (lhs.high << shift) | (lhs.low >> (UINT64_C(64) - shift)),
+        lhs.low << shift
     };
 
     #endif
@@ -1708,7 +1709,7 @@ constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return detail::default_ls_impl(lhs, rhs);
+        return detail::default_ls_impl(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
