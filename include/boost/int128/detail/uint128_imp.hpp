@@ -1786,6 +1786,12 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
     #ifdef BOOST_INT128_HAS_INT128
 
     #  ifdef __aarch64__
+
+        #if defined(__GNUC__) && __GNUC__ >= 8
+        #  pragma GCC diagnostic push
+        #  pragma GCC diagnostic ignored "-Wclass-memaccess"
+        #endif
+
         builtin_u128 value;
         std::memcpy(&value, &lhs, sizeof(builtin_u128));
         const auto res {value >> rhs};
@@ -1793,6 +1799,11 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
         uint128_t return_value;
         std::memcpy(&return_value, &res, sizeof(uint128_t));
         return return_value;
+
+        #if defined(__GNUC__) && __GNUC__ >= 8
+        #  pragma GCC diagnostic pop
+        #endif
+
     #  else
         return static_cast<builtin_u128>(lhs) >> rhs;
     #  endif
