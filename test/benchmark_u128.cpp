@@ -420,6 +420,68 @@ BOOST_INT128_NO_INLINE void test_left_shift(const std::vector<T>& data_vec, cons
     std::cerr << "ls" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
+enum class bitwise_operation
+{
+    b_and,
+    b_or,
+    b_xor
+};
+
+template <typename T>
+BOOST_INT128_NO_INLINE void test_operator_bitwise(const std::vector<T>& data_vec, const bitwise_operation op, const char* type)
+{
+    const auto t1 = std::chrono::steady_clock::now();
+    std::uint64_t s = 0; // discard variable
+
+    switch (op)
+    {
+        case bitwise_operation::b_and:
+            for (std::size_t k {}; k < K; ++k)
+            {
+                for (std::size_t i {}; i < data_vec.size() - 1; ++i)
+                {
+                    s += static_cast<std::uint64_t>(data_vec[i] & data_vec[i + 1]);
+                }
+            }
+            break;
+        case bitwise_operation::b_or:
+            for (std::size_t k {}; k < K; ++k)
+            {
+                for (std::size_t i {}; i < data_vec.size() - 1; ++i)
+                {
+                    s += static_cast<std::uint64_t>(data_vec[i] | data_vec[i + 1]);
+                }
+            }
+            break;
+        case bitwise_operation::b_xor:
+            for (std::size_t k {}; k < K; ++k)
+            {
+                for (std::size_t i {}; i < data_vec.size() - 1; ++i)
+                {
+                    s += static_cast<std::uint64_t>(data_vec[i] ^ data_vec[i + 1]);
+                }
+            }
+            break;
+    }
+
+    const auto t2 = std::chrono::steady_clock::now();
+
+    switch (op)
+    {
+        case bitwise_operation::b_and:
+            std::cerr << "and";
+            break;
+        case bitwise_operation::b_or:
+            std::cerr << "or ";
+            break;
+        case bitwise_operation::b_xor:
+            std::cerr << "xor";
+            break;
+    }
+
+    std::cerr << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+}
+
 int main()
 {
     using namespace boost::int128::detail;
@@ -945,6 +1007,19 @@ int main()
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
         test_right_shift(mp_vector, shift_vector, "absl::u128");
+        #endif
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_operator_bitwise(builtin_vector, bitwise_operation::b_and, "Builtin");
+        #endif
+
+        test_operator_bitwise(library_vector, bitwise_operation::b_and, "Library");
+        test_operator_bitwise(mp_vector, bitwise_operation::b_and, "mp::u128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_operator_bitwise(mp_vector, bitwise_operation::b_and, "absl::u128");
         #endif
 
         std::cerr << std::endl;
