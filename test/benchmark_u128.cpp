@@ -911,6 +911,10 @@ int main()
         test_right_shift(library_vector, shift_vector, "Library");
         test_right_shift(mp_vector, shift_vector, "mp::u128");
 
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_right_shift(mp_vector, shift_vector, "absl::u128");
+        #endif
+
         std::cerr << std::endl;
 
     }
