@@ -1732,7 +1732,7 @@ constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
 constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * CHAR_BIT};
+    constexpr auto bit_width {sizeof(Integer) * 8};
 
     if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
     {
@@ -1745,7 +1745,7 @@ constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(SignedInteger) * CHAR_BIT};
+    constexpr auto bit_width {sizeof(SignedInteger) * 8};
 
     if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
     {
@@ -1758,7 +1758,7 @@ constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(UnsignedInteger) * CHAR_BIT};
+    constexpr auto bit_width {sizeof(UnsignedInteger) * 8};
 
     if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
     {
@@ -3166,7 +3166,7 @@ inline uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
 
 namespace std {
 
-BOOST_INT128_EXPORT template <>
+template <>
 class numeric_limits<boost::int128::uint128_t>
 {
 public:
