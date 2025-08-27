@@ -3006,7 +3006,7 @@ inline int128_t& int128_t::operator%=(const Integer rhs) noexcept
 
 namespace std {
 
-BOOST_INT128_EXPORT template <>
+template <>
 class numeric_limits<boost::int128::int128_t>
 {
 public:
