@@ -828,6 +828,11 @@ void test_operator_left_shift()
     BOOST_TEST((val << -5) == 0);
     res = (val << static_cast<boost::int128::uint128_t>(0));
     BOOST_TEST(res == val);
+
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 130) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, boost::int128::uint128_t{1, 0}) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 0) == val);
 }
 
 template <typename IntType>
@@ -883,6 +888,11 @@ void test_operator_right_shift()
     BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
     res = (val >> static_cast<boost::int128::uint128_t>(0));
     BOOST_TEST(res == val);
+
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 130) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, boost::int128::uint128_t{1, 0}) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, -5) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 0) == val);
 }
 
 void test_increment_operator()
