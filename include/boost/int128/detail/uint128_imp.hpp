@@ -1776,7 +1776,7 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
     {
-        return {0, 0}; // LCOV_EXCL_LINE
+        return {0, 0};
     }
     if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
@@ -1785,7 +1785,17 @@ uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    return static_cast<builtin_u128>(lhs) >> rhs;
+    #  ifdef __aarch64__
+        builtin_u128 value;
+        std::memcpy(&value, &lhs, sizeof(builtin_u128));
+        const auto res {value >> rhs};
+
+        uint128_t return_value;
+        std::memcpy(&return_value, &res, sizeof(uint128_t));
+        return return_value;
+    #  else
+        return static_cast<builtin_u128>(lhs) >> rhs;
+    #  endif
 
     #else
 
