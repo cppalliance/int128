@@ -652,12 +652,19 @@ void test_operator_left_shift()
                                    decltype(int_shift_emulated)>::value, "Mismatched types");
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
+
+        // Test 4: Make sure the consteval path is also tested
+        const auto consteval_result = boost::int128::detail::default_ls_impl(emulated_value, shift_value);
+        BOOST_TEST(consteval_result == shifted_emulated);
     }
 
     // Edge cases
     const boost::int128::int128_t val {UINT64_MAX};
     BOOST_TEST((val << 130) == 0);
     BOOST_TEST((val << -5) == 0);
+
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 130) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
 }
 
 template <typename IntType>
