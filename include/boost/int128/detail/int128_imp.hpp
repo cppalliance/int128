@@ -1560,10 +1560,6 @@ int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
     {
         return {0, 0};
     }
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
-    {
-        return lhs;
-    }
 
     #ifdef BOOST_INT128_HAS_INT128
 
@@ -1594,6 +1590,10 @@ int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 
     #else
 
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return lhs;
+    }
     if (rhs == 64)
     {
         return {static_cast<std::int64_t>(lhs.low), 0};
