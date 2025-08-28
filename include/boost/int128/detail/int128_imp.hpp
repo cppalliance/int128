@@ -1804,7 +1804,7 @@ int128_t intrinsic_rs_impl(const int128_t lhs, const Integer rhs) noexcept
 
     if (rhs >= 64)
     {
-        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high) >> (rhs - 64)))};
+        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high) >> (rhs - 64)};
     }
     else
     {
