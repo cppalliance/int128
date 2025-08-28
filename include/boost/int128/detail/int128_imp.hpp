@@ -1518,8 +1518,10 @@ inline int128_t& int128_t::operator^=(const Integer rhs) noexcept
 // Left Shift Operator
 //=====================================
 
-BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+namespace detail {
+
+template <typename Integer>
+constexpr int128_t default_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 {
     if (rhs < 0 || rhs >= 128)
     {
@@ -1549,6 +1551,92 @@ constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
         static_cast<std::int64_t>(high_part),
         lhs.low << rhs
     };
+}
+
+template <typename Integer>
+int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
+    {
+        return {0, 0};
+    }
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return lhs;
+    }
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    #  if defined(__aarch64__)
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wclass-memaccess"
+    #endif
+
+    builtin_i128 value;
+    std::memcpy(&value, &lhs, sizeof(builtin_i128));
+    const auto res {value << rhs};
+
+    int128_t return_value;
+    std::memcpy(&return_value, &res, sizeof(int128_t));
+    return return_value;
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic pop
+    #endif
+
+    #  else
+
+    return static_cast<builtin_i128>(lhs) << rhs;
+
+    #  endif
+
+    #else
+
+    if (rhs == 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low), 0};
+    }
+
+    if (rhs > 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
+    }
+
+    // For shifts < 64
+    const auto high_part = (static_cast<std::uint64_t>(lhs.high) << rhs) |
+                           (lhs.low >> (64 - rhs));
+
+    return {
+        static_cast<std::int64_t>(high_part),
+        lhs.low << rhs
+    };
+
+    #endif
+}
+
+} // namespace detail
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return detail::default_ls_impl(lhs, rhs); // LCOV_EXCL_LINE
+    }
+    else
+    {
+        return detail::intrinsic_ls_impl(lhs, rhs);
+    }
+
+    #else
+
+    return detail::default_ls_impl(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
