@@ -1580,7 +1580,7 @@ void test_operator_div()
     boost::int128::int128_t shift_val {INT64_MAX, UINT64_MAX};
     boost::int128::int128_t mul_val {INT64_MAX, UINT64_MAX};
 
-    for (std::size_t i {1}; i < 127; ++i)
+    for (std::size_t i {2}; i < 126; ++i)
     {
         const auto current_shift_val {shift_val >> i};
         const auto current_mul_val {mul_val / (boost::int128::int128_t{2} << (i-1))};

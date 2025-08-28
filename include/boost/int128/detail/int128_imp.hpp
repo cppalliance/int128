@@ -1590,7 +1590,7 @@ int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 
     #elif defined(_M_AMD64)
 
-    if (rhs > 64)
+    if (rhs >= 64)
     {
         return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
     }
