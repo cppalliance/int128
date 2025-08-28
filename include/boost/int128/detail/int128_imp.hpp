@@ -1588,6 +1588,21 @@ int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 
     #  endif
 
+    #elif defined(_M_AMD64)
+
+    if (rhs > 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
+    }
+    else
+    {
+        int128_t res;
+        res.high = static_cast<std::int64_t>(__shiftleft128(lhs.low, static_cast<std::uint64_t>(lhs.high), static_cast<unsigned char>(rhs)));
+        res.low = lhs.low << rhs;
+
+        return res;
+    }
+
     #else
 
     if (BOOST_INT128_UNLIKELY(rhs == 0))
