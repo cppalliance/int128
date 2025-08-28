@@ -355,6 +355,25 @@ BOOST_INT128_NO_INLINE void test_left_shift(const std::vector<T>& data_vec, cons
     std::cerr << "ls" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
+template <typename T>
+BOOST_INT128_NO_INLINE void test_right_shift(const std::vector<T>& data_vec, const std::vector<int>& shift_vector, const char* type)
+{
+    const auto t1 = std::chrono::steady_clock::now();
+    std::uint64_t s = 0; // discard variable
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size(); ++i)
+        {
+            s += static_cast<std::uint64_t>(data_vec[i] >> shift_vector[i]);
+        }
+    }
+
+    const auto t2 = std::chrono::steady_clock::now();
+
+    std::cerr << "rs" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+}
+
 int main()
 {
     const auto shift_vector = generate_shift_vector();
@@ -851,6 +870,19 @@ int main()
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
         test_left_shift(absl_vector, shift_vector, "absl::i128");
+        #endif
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_right_shift(builtin_vector, shift_vector, "Builtin");
+        #endif
+
+        test_right_shift(library_vector, shift_vector, "Library");
+        test_right_shift(mp_vector, shift_vector, "mp::i128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_right_shift(absl_vector, shift_vector, "absl::i128");
         #endif
 
         std::cerr << std::endl;
