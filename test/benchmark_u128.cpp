@@ -993,7 +993,7 @@ int main()
         test_left_shift(mp_vector, shift_vector, "mp::u128");
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
-        test_left_shift(mp_vector, shift_vector, "absl::u128");
+        test_left_shift(absl_vector, shift_vector, "absl::u128");
         #endif
 
         std::cerr << std::endl;
@@ -1006,7 +1006,7 @@ int main()
         test_right_shift(mp_vector, shift_vector, "mp::u128");
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
-        test_right_shift(mp_vector, shift_vector, "absl::u128");
+        test_right_shift(absl_vector, shift_vector, "absl::u128");
         #endif
 
         std::cerr << std::endl;
@@ -1019,7 +1019,7 @@ int main()
         test_operator_bitwise(mp_vector, bitwise_operation::b_and, "mp::u128");
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
-        test_operator_bitwise(mp_vector, bitwise_operation::b_and, "absl::u128");
+        test_operator_bitwise(absl_vector, bitwise_operation::b_and, "absl::u128");
         #endif
 
         std::cerr << std::endl;
@@ -1032,7 +1032,7 @@ int main()
         test_operator_bitwise(mp_vector, bitwise_operation::b_or, "mp::u128");
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
-        test_operator_bitwise(mp_vector, bitwise_operation::b_or, "absl::u128");
+        test_operator_bitwise(absl_vector, bitwise_operation::b_or, "absl::u128");
         #endif
 
         std::cerr << std::endl;
@@ -1045,7 +1045,7 @@ int main()
         test_operator_bitwise(mp_vector, bitwise_operation::b_xor, "mp::u128");
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
-        test_operator_bitwise(mp_vector, bitwise_operation::b_xor, "absl::u128");
+        test_operator_bitwise(absl_vector, bitwise_operation::b_xor, "absl::u128");
         #endif
 
         std::cerr << std::endl;
