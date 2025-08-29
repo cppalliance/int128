@@ -22,7 +22,7 @@ namespace int128 {
 namespace detail {
 
 namespace impl {
-static constexpr unsigned char uchar_values[] =
+BOOST_INT128_INLINE_CONSTEXPR unsigned char uchar_values[] =
      {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,

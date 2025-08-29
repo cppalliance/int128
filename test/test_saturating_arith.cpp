@@ -391,7 +391,7 @@ void test_mul_sat<boost::int128::int128_t>()
             BOOST_TEST(res == sat_res);
 
             x <<= 1;
-            y <<= 1;
+            y *= 2;
 
             bit_count += 2;
         }
@@ -406,7 +406,7 @@ void test_mul_sat<boost::int128::int128_t>()
             const boost::int128::int128_t sat_res {mul_sat(x, y)};
             BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::min());
             x <<= 1;
-            y <<= 1;
+            y *= 2;
 
             bit_count += 2;
         }

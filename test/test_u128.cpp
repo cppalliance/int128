@@ -814,6 +814,10 @@ void test_operator_left_shift()
                                    decltype(int_shift_emulated)>::value, "Mismatched types");
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
+
+        // Test 4: Test the consteval path
+        auto shift_value_consteval = boost::int128::detail::default_ls_impl(emulated_value, shift_value);
+        BOOST_TEST(shifted_emulated == shift_value_consteval);
     }
 
     // Edge cases
@@ -824,6 +828,11 @@ void test_operator_left_shift()
     BOOST_TEST((val << -5) == 0);
     res = (val << static_cast<boost::int128::uint128_t>(0));
     BOOST_TEST(res == val);
+
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 130) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, boost::int128::uint128_t{1, 0}) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
+    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 0) == val);
 }
 
 template <typename IntType>
@@ -839,7 +848,7 @@ void test_operator_right_shift()
         const IntType value {dist(rng)};
         const unsigned shift_value {shift_dist(rng)};
         auto builtin_value = static_cast<builtin_u128>(value);
-        boost::int128::uint128_t emulated_value {value};
+        const boost::int128::uint128_t emulated_value {value};
 
         // Test 1: Test the >>= operator
         auto builtin_copy = builtin_value;
@@ -852,8 +861,8 @@ void test_operator_right_shift()
         BOOST_TEST(emulated_copy == (emulated_value >> static_cast<boost::int128::uint128_t>(shift_value)));
 
         // Test 2: Test the binary >> operator
-        auto shifted_builtin = builtin_value << shift_value;
-        auto shifted_emulated = emulated_value << shift_value;
+        auto shifted_builtin = builtin_value >> shift_value;
+        auto shifted_emulated = emulated_value >> shift_value;
 
         BOOST_TEST(shifted_emulated == shifted_builtin);
 
@@ -865,6 +874,10 @@ void test_operator_right_shift()
                                    decltype(int_shift_emulated)>::value, "Mismatched types");
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin);
+
+        // Test 4: Test the consteval path
+        auto shift_value_consteval = boost::int128::detail::default_rs_impl(emulated_value, shift_value);
+        BOOST_TEST(shifted_emulated == shift_value_consteval);
     }
 
     // Edge cases
@@ -875,6 +888,11 @@ void test_operator_right_shift()
     BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
     res = (val >> static_cast<boost::int128::uint128_t>(0));
     BOOST_TEST(res == val);
+
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 130) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, boost::int128::uint128_t{1, 0}) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, -5) == 0);
+    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 0) == val);
 }
 
 void test_increment_operator()

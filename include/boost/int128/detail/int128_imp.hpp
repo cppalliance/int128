@@ -23,7 +23,7 @@
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT struct
+struct
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
     alignas(alignof(detail::builtin_i128))
     #else
@@ -1518,8 +1518,10 @@ inline int128_t& int128_t::operator^=(const Integer rhs) noexcept
 // Left Shift Operator
 //=====================================
 
-BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+namespace detail {
+
+template <typename Integer>
+constexpr int128_t default_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 {
     if (rhs < 0 || rhs >= 128)
     {
@@ -1549,6 +1551,107 @@ constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
         static_cast<std::int64_t>(high_part),
         lhs.low << rhs
     };
+}
+
+template <typename Integer>
+int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
+    {
+        return {0, 0};
+    }
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    #  if defined(__aarch64__)
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wclass-memaccess"
+    #endif
+
+    builtin_i128 value;
+    std::memcpy(&value, &lhs, sizeof(builtin_i128));
+    const auto res {value << rhs};
+
+    int128_t return_value;
+    std::memcpy(&return_value, &res, sizeof(int128_t));
+    return return_value;
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic pop
+    #endif
+
+    #  else
+
+    return static_cast<builtin_i128>(lhs) << rhs;
+
+    #  endif
+
+    #elif defined(_M_AMD64)
+
+    if (rhs >= 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
+    }
+    else
+    {
+        int128_t res;
+        res.high = static_cast<std::int64_t>(__shiftleft128(lhs.low, static_cast<std::uint64_t>(lhs.high), static_cast<unsigned char>(rhs)));
+        res.low = lhs.low << rhs;
+
+        return res;
+    }
+
+    #else
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return lhs;
+    }
+    if (rhs == 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low), 0};
+    }
+
+    if (rhs > 64)
+    {
+        return {static_cast<std::int64_t>(lhs.low << (rhs - 64)), 0};
+    }
+
+    // For shifts < 64
+    const auto high_part = (static_cast<std::uint64_t>(lhs.high) << rhs) |
+                           (lhs.low >> (64 - rhs));
+
+    return {
+        static_cast<std::int64_t>(high_part),
+        lhs.low << rhs
+    };
+
+    #endif
+}
+
+} // namespace detail
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return detail::default_ls_impl(lhs, rhs); // LCOV_EXCL_LINE
+    }
+    else
+    {
+        return detail::intrinsic_ls_impl(lhs, rhs);
+    }
+
+    #else
+
+    return detail::default_ls_impl(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
@@ -1631,10 +1734,12 @@ inline int128_t& int128_t::operator<<=(const Integer rhs) noexcept
 // Right Shift Operator
 //=====================================
 
-BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
+namespace detail {
+
+template <typename Integer>
+constexpr int128_t default_rs_impl(const int128_t lhs, const Integer rhs) noexcept
 {
-    if (rhs < 0 || rhs >= 128)
+    if (rhs >= 128 || rhs < 0 )
     {
         return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
     }
@@ -1644,12 +1749,7 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
         return lhs;
     }
 
-    if (rhs == 64)
-    {
-        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high)};
-    }
-
-    if (rhs > 64)
+    if (rhs >= 64)
     {
         return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high >> (rhs - 64))};
     }
@@ -1663,6 +1763,104 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
         lhs.high >> rhs,
         low_part
     };
+}
+
+template <typename Integer>
+int128_t intrinsic_rs_impl(const int128_t lhs, const Integer rhs) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
+    {
+        return {0, 0};
+    }
+
+    #ifdef BOOST_INT128_HAS_INT128
+
+    #  if defined(__aarch64__)
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wclass-memaccess"
+    #endif
+
+    builtin_i128 value;
+    std::memcpy(&value, &lhs, sizeof(builtin_i128));
+    const auto res {value >> rhs};
+
+    int128_t return_value;
+    std::memcpy(&return_value, &res, sizeof(int128_t));
+    return return_value;
+
+    #if defined(__GNUC__) && __GNUC__ >= 8
+    #  pragma GCC diagnostic pop
+    #endif
+
+    #  else
+
+    return static_cast<builtin_i128>(lhs) >> rhs;
+
+    #  endif
+
+    #elif defined(_M_AMD64)
+
+    if (rhs >= 64)
+    {
+        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high >> (rhs - 64))};
+    }
+    else
+    {
+        int128_t res;
+        res.low = __shiftright128(lhs.low, static_cast<std::uint64_t>(lhs.high), static_cast<unsigned char>(rhs));
+        res.high = lhs.high >> rhs;
+
+        return res;
+    }
+
+    #else
+
+    if (BOOST_INT128_UNLIKELY(rhs == 0))
+    {
+        return lhs;
+    }
+
+    if (rhs >= 64)
+    {
+        return {lhs.high < 0 ? -1 : 0, static_cast<std::uint64_t>(lhs.high >> (rhs - 64))};
+    }
+
+    // For shifts < 64
+    const auto high_to_low {static_cast<std::uint64_t>(lhs.high) << (64 - rhs)};
+    const auto low_shifted {lhs.low >> rhs};
+    const auto low_part {high_to_low | low_shifted};
+
+    return {
+        lhs.high >> rhs,
+        low_part
+    };
+
+    #endif
+}
+
+} // namespace detail
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return detail::default_rs_impl(lhs, rhs); // LCOV_EXCL_LINE
+    }
+    else
+    {
+        return detail::intrinsic_rs_impl(lhs, rhs);
+    }
+
+    #else
+
+    return detail::default_rs_impl(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
@@ -2745,21 +2943,21 @@ inline int128_t& int128_t::operator/=(const Integer rhs) noexcept
 // Modulo Operator
 //=====================================
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(int128_t lhs, UnsignedInteger rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(UnsignedInteger lhs, int128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(int128_t lhs, SignedInteger rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(SignedInteger lhs, int128_t rhs) noexcept;
 
-constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
 
-BOOST_INT128_EXPORT template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
@@ -2790,7 +2988,7 @@ constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noex
     #endif
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
     #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
@@ -2823,19 +3021,19 @@ constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noex
     #endif
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const int128_t lhs, const SignedInteger rhs) noexcept
 {
     return lhs % static_cast<int128_t>(rhs);
 }
 
-BOOST_INT128_EXPORT template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
+template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 constexpr int128_t operator%(const SignedInteger lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) % rhs;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
+constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
 {
     if (rhs == 0)
     {
@@ -3006,7 +3204,7 @@ inline int128_t& int128_t::operator%=(const Integer rhs) noexcept
 
 namespace std {
 
-BOOST_INT128_EXPORT template <>
+template <>
 class numeric_limits<boost::int128::int128_t>
 {
 public:
