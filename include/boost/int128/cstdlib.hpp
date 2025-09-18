@@ -73,8 +73,12 @@ constexpr i128div_t div(const int128_t x, const int128_t y) noexcept
     const auto abs_lhs {static_cast<uint128_t>(abs(x))};
     const auto abs_rhs {static_cast<uint128_t>(abs(y))};
 
-    const auto unsigned_res {div(abs_lhs, abs_rhs)};
+    if (abs_rhs > abs_lhs)
+    {
+        return {0, x};
+    }
 
+    const auto unsigned_res {div(abs_lhs, abs_rhs)};
 
     const auto negative_quot {(x.high < 0) != (y.high < 0)};
     #if defined(_MSC_VER) && !defined(__GNUC__)
