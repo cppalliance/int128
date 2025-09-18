@@ -5,7 +5,7 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#stream]
-= <iostream>
+= `<iostream>`
 :idprefix: stream_
 
 The following stream operators are available, and work similar to built-in integer types:
