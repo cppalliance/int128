@@ -58,6 +58,16 @@ void test_unsigned_div()
         BOOST_TEST_EQ(inv_div_res.quot, rhs / lhs);
         BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
     }
+
+    uint128_t lhs {dist(rng), dist(rng)};
+    uint128_t zero {dist(rng) * 0U, dist(rng) * 0U};
+    const auto lhs_num {div(lhs, zero)};
+    BOOST_TEST_EQ(lhs_num.quot, 0U);
+    BOOST_TEST_EQ(lhs_num.rem, 0U);
+
+    const auto lhs_denom {div(zero, lhs)};
+    BOOST_TEST_EQ(lhs_denom.quot, 0U);
+    BOOST_TEST_EQ(lhs_denom.rem, 0U);
 }
 
 #ifdef _MSC_VER
