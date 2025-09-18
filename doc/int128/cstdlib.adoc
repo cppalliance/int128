@@ -1,0 +1,58 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#cstdlib]
+= `<cstdlib>`
+:idprefix: cstdlib_
+
+From the `<cstdlib>` header we support functions and structures that are analogous to https://en.cppreference.com/w/cpp/numeric/math/div.html[`std::div`].
+These are of particular importance with this library since unlike a hardware type, the compiler may not be able to optimize a division followed by a modulo operation.
+Knuth's algorithm naturally returns both so it costs nearly nothing above a division or modulo to get both results.
+
+[#div_structs]
+[source, c++]
+----
+#include <boost/int128/cstdlib.hpp>
+
+namespace boost {
+namespace int128 {
+
+struct u128div_t
+{
+    uint128_t quot;
+    uint128_t rem;
+};
+
+struct i128div_t
+{
+    int128_t quot;
+    int128_t rem;
+};
+
+} // namespace int128
+} // namespace boost
+
+----
+
+[#div_source]
+Using the `struct`s defined above we can then define the `div` function:
+
+[source, c++]
+----
+#include <boost/int128/cstdlib.hpp>
+
+namespace boost {
+namespace int128 {
+
+constexpr u128div_t div(uint128_t lhs, uint128_t rhs) noexcept;
+
+constexpr i128div_t div(int128_t lhs, int128_t rhs) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The result of `quot` and `rem` from this function, to include the sign, are the same as if you did a division and modulo separately.
