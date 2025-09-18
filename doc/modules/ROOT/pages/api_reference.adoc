@@ -65,14 +65,16 @@ Listed by analogous STL header.
 === `<cmath>`
 - `abs` - Absolute Value
 
-[#api_iostream]
+[#api_cstdlib]
 === `<cstdlib>`
 - <<cstdlib, `div`>>
 
-=== <<std_format, `<format>`>>
+[#api_formatting]
+=== Formatting
+==== <<std_format, `<format>`>>
+==== <<fmt_format, `pass:[{fmt}]`>>
 
-=== <<fmt_format, `pass:[{fmt}]`>>
-
+[#api_iostream]
 === `<iostream>`
 - <<stream, `operator<<`>>
 - <<stream, `operator>>`>>
