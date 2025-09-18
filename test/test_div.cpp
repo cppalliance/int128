@@ -20,7 +20,7 @@ static std::uniform_int_distribution<std::int64_t> idist(INT64_MIN, INT64_MAX);
 #  pragma warning(disable:4127)
 #endif
 
-template <std::size_t N>
+template <std::size_t layout>
 void test_unsigned_div()
 {
     for (std::size_t i {}; i < N; ++i)
@@ -28,7 +28,7 @@ void test_unsigned_div()
         uint128_t lhs;
         uint128_t rhs;
 
-        switch (N)
+        switch (layout)
         {
             case 0U:
                 lhs = uint128_t {dist(rng), dist(rng)};
