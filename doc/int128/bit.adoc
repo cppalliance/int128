@@ -5,7 +5,7 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#Bit]
-= <bit>
+= `<bit>`
 :idprefix: bit_
 
 The following are functions analogous to those found in C\++20's https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
