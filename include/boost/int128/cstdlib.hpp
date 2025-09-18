@@ -61,23 +61,36 @@ constexpr i128div_t div(const int128_t x, const int128_t y) noexcept
         return i128div_t{0, 0};
     }
 
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    const auto builtin_x {static_cast<detail::builtin_i128>(x)};
+    const auto builtin_y {static_cast<detail::builtin_i128>(y)};
+    return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
+                     static_cast<int128_t>(builtin_x % builtin_y)};
+
+    #else
+
     const auto abs_lhs {static_cast<uint128_t>(abs(x))};
     const auto abs_rhs {static_cast<uint128_t>(abs(y))};
 
     const auto unsigned_res {div(abs_lhs, abs_rhs)};
 
+
+    const auto negative_quot {(lhs.high < 0) != (rhs.high < 0)};
     #if defined(_MSC_VER) && !defined(__GNUC__)
-    const auto is_neg{static_cast<bool>(x < 0)};
+    const auto negative_rem {static_cast<bool>(x.high < 0)};
     #else
-    const auto is_neg {static_cast<bool>((x < 0) != (y < 0))};
+    const auto negative_rem {static_cast<bool>((x.high < 0) != (y.high < 0))};
     #endif
 
     i128div_t res {static_cast<int128_t>(unsigned_res.quot), static_cast<int128_t>(unsigned_res.rem)};
 
-    res.quot = is_neg ? -res.quot : res.quot;
-    res.rem = (x < 0) ? -res.rem : res.rem;
+    res.quot = negative_quot ? -res.quot : res.quot;
+    res.rem = negative_rem ? -res.rem : res.rem;
 
     return res;
+
+    #endif
 }
 
 } // namespace int128
