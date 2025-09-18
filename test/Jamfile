@@ -81,6 +81,8 @@ run test_midpoint.cpp ;
 run test_format.cpp ;
 run test_fmt_format.cpp ;
 
+run test_div.cpp ;
+
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
