@@ -71,8 +71,8 @@ Listed by analogous STL header.
 
 [#api_formatting]
 === Formatting
-==== <<std_format, `<format>`>>
-==== <<fmt_format, `pass:[{fmt}]`>>
+- <<std_format, `<format>`>>
+- <<fmt_format, `pass:[{fmt}]`>>
 
 [#api_iostream]
 === `<iostream>`
