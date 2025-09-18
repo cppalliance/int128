@@ -13,6 +13,7 @@
 #include <boost/int128/format.hpp>
 #include <boost/int128/limits.hpp>
 #include <boost/int128/climits.hpp>
+#include <boost/int128/cstdlib.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 #include <boost/int128/fmt_format.hpp>
