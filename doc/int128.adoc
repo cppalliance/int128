@@ -38,6 +38,8 @@ include::int128/bit.adoc[]
 
 include::int128/charconv.adoc[]
 
+include::int128/cstdlib.adoc[]
+
 include::int128/stream.adoc[]
 
 include::int128/numeric.adoc[]
