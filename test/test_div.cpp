@@ -70,6 +70,56 @@ void test_unsigned_div()
     BOOST_TEST_EQ(lhs_denom.rem, 0U);
 }
 
+template <std::size_t layout>
+void test_signed_div()
+{
+    for (std::size_t i {}; i < N; ++i)
+    {
+        int128_t lhs;
+        int128_t rhs;
+
+        switch (layout)
+        {
+            case 0U:
+                lhs = int128_t {idist(rng), dist(rng)};
+                rhs = int128_t {idist(rng), dist(rng)};
+                break;
+            case 1U:
+                lhs = int128_t {idist(rng)};
+                rhs = int128_t {idist(rng), dist(rng)};
+                break;
+            case 2U:
+                lhs = int128_t {idist(rng), dist(rng)};
+                rhs = int128_t {idist(rng)};
+                break;
+            case 3U:
+                lhs = int128_t {idist(rng)};
+                rhs = int128_t {idist(rng)};
+                break;
+            default:                        // LCOV_EXCL_LINE
+                BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
+        }
+
+        const auto div_res {div(lhs, rhs)};
+        BOOST_TEST_EQ(div_res.quot, lhs / rhs);
+        BOOST_TEST_EQ(div_res.rem, lhs % rhs);
+
+        const auto inv_div_res {div(rhs, lhs)};
+        BOOST_TEST_EQ(inv_div_res.quot, rhs / lhs);
+        BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
+    }
+
+    int128_t lhs {idist(rng), dist(rng)};
+    int128_t zero {idist(rng) * 0, dist(rng) * 0U};
+    const auto lhs_num {div(lhs, zero)};
+    BOOST_TEST_EQ(lhs_num.quot, 0);
+    BOOST_TEST_EQ(lhs_num.rem, 0);
+
+    const auto lhs_denom {div(zero, lhs)};
+    BOOST_TEST_EQ(lhs_denom.quot, 0);
+    BOOST_TEST_EQ(lhs_denom.rem, 0);
+}
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
@@ -80,6 +130,11 @@ int main()
     test_unsigned_div<1>();
     test_unsigned_div<2>();
     test_unsigned_div<3>();
+
+    test_signed_div<0>();
+    test_signed_div<1>();
+    test_signed_div<2>();
+    test_signed_div<3>();
 
     return boost::report_errors();
 }
