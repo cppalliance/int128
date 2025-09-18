@@ -6,8 +6,6 @@
 #include <boost/core/lightweight_test.hpp>
 #include <random>
 
-#include "boost/multiprecision/fwd.hpp"
-
 using namespace boost::int128;
 
 static constexpr std::size_t N {1024U};
