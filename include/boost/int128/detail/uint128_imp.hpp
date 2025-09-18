@@ -2849,7 +2849,7 @@ constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
         return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
     }
     #else
-    else if (rhs.high != 0)
+    else if (rhs.high != 0U)
     {
         return detail::knuth_div(lhs, rhs);
     }
@@ -3060,7 +3060,7 @@ constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
         return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
     }
     #else
-    else if (rhs.high != 0)
+    else if (rhs.high != 0U)
     {
         uint128_t remainder {};
         detail::knuth_div(lhs, rhs, remainder);
