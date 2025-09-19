@@ -87,7 +87,7 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
 
     // Put back unconsumed characters
     // If r is greater than 0 then an errno values has been hit
-    const auto consumed {r > 0 ? 0 : -r};
+    const auto consumed {static_cast<std::size_t>(r > 0 ? 0 : -r)};
     BOOST_INT128_ASSERT(t_buffer_len >= consumed);
     const auto return_chars {static_cast<std::size_t>(t_buffer_len - consumed)};
 
