@@ -19,14 +19,7 @@ void endpos_using_istream(const std::string& str, const int expected_endpos)
     is.clear();
     const auto endpos = is.tellg();
 
-    if (!BOOST_TEST_EQ(endpos, expected_endpos))
-    {
-        // LCOV_EXCL_START
-        std::cerr << "String: " << str << '\n'
-                  << "Expected: " << expected_endpos << '\n'
-                  << "Got: " << is.tellg() << std::endl;
-        // LCOV_EXCL_STOP
-    }
+    BOOST_TEST_EQ(endpos, expected_endpos);
 }
 
 template <typename T>
