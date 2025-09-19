@@ -170,7 +170,9 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
         }
     }
 
-    return 0;
+    // This value will be negative to differentiate from errno values
+    // since they are in the range of acceptable distances
+    return static_cast<int>(first - next);
 }
 } // namespace impl
 
