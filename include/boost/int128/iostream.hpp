@@ -43,6 +43,8 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     charT t_buffer[64] {};
     is >> std::ws >> std::setw(63) >> t_buffer;
 
+    const auto t_buffer_len {std::char_traits<charT>::length(t_buffer)};
+
     char buffer[64] {};
     auto buffer_start {buffer};
 
@@ -81,7 +83,18 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
         }
     }
 
-    detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base);
+    const auto r {detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base)};
+
+    // Put back unconsumed characters
+    // If r is greater than 0 then an errno values has been hit
+    const auto consumed {r > 0 ? 0 : -r};
+    BOOST_INT128_ASSERT(t_buffer_len >= consumed);
+    const auto return_chars {static_cast<std::size_t>(t_buffer_len - consumed)};
+
+    for (std::size_t i {}; i < return_chars; ++i)
+    {
+        is.putback(t_buffer[t_buffer_len - i - 1]);
+    }
 
     return is;
 }
