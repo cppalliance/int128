@@ -1,4 +1,4 @@
 /pdf/
 /html/
-*.DS_Store
-*.html
+/build/
+/node_modules/

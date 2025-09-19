@@ -5,13 +5,15 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#overview]
-= Overview
-:idprefix: overview_
+
+= Int128: Portable and Performant 128-bit integers
+
+Matt Borland
 
 == Description
 
-Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (e.g. bit counting).
-Importantly, on all platforms, the `sizeof` the types provided in this library are 128-bits.
+Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (i.e. `<bit>`, `<iostream>`, etc).
+Importantly, on all platforms, the `sizeof` the types provided in this library are exactly 128-bits.
 
 The library is header-only, has no dependencies, and requires only C++14.
 
@@ -22,7 +24,7 @@ An example is a 64-bit machine running Linux (say Ubuntu 24.04) has `__int128`, 
 
 == Use Cases
 
-Anywhere 128-bits are needed.
+Anywhere 128-bit integers are needed.
 
 == Supported Compilers
 

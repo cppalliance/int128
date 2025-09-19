@@ -10,6 +10,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 All the following examples can be found in the examples/ folder of the library.
 
+[#examples_construction]
 == Basic Construction
 [source, c++]
 ----
@@ -68,6 +69,7 @@ int main()
 
 ----
 
+[#examples_arithmetic]
 == Basic Arithmetic
 [source, c++]
 ----
@@ -117,6 +119,7 @@ int main()
 
 ----
 
+[#examples_io]
 == IO Streaming
 [source, c++]
 ----
@@ -148,6 +151,7 @@ int main()
 }
 ----
 
+[#examples_bit]
 == Bitwise Functions (<bit>)
 [source,c++]
 ----
@@ -205,6 +209,7 @@ int main()
 
 ----
 
+[#examples_numeric]
 == Saturating Arithmetic (<numeric>)
 [source, c++]
 ----
@@ -251,6 +256,7 @@ int main()
 }
 ----
 
+[#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 [source, c++]
 ----
@@ -290,6 +296,7 @@ int main()
 }
 ----
 
+[#examples_boost_math_random]
 == Boost.Math and Boost.Random Integration
 
 [source, c++]
@@ -328,6 +335,7 @@ int main()
 
 ----
 
+[#examples_boost_charconv]
 == Boost.Charconv Integration
 [source,c++]
 ----
