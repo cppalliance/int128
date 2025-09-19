@@ -7,8 +7,8 @@
 vcpkg_from_github(
         OUT_SOURCE_PATH SOURCE_PATH
         REPO cppalliance/int128
-        REF v1.2.0
-        SHA512 336e77887c9dbc85dc6ec246f63a3df06e2f196d866da5a2e79e085e1b437ac8ee9870b4ef9e02e0cf06282a34f79d71ee1b0e1330e1edc46e75ab3ea6784cac
+        REF v1.3.0
+        SHA512 833d3bd494571c28d1b9f7e1317f70dbf412a1a5f3146ec937da13966ddc2fb25cf48ba45074a0557706a4e731264cd7e7fae3a947bc3e970a6a7dbfa8df3df4
         HEAD_REF master
 )
 

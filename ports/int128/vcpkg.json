@@ -1,6 +1,6 @@
 {
   "name": "int128",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "description": "Portable and performant 128-bit integers",
   "homepage": "https://github.com/cppalliance/int128",
   "license": "BSL-1.0",
