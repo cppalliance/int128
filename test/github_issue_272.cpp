@@ -1,0 +1,50 @@
+// Copyright 2025 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+//
+// See: https://github.com/cppalliance/int128/issues/272
+
+#include <boost/int128.hpp>
+#include <boost/core/lightweight_test.hpp>
+#include <sstream>
+#include <iostream>
+
+template <typename T>
+void endpos_using_istream(const std::string& str, const int expected_endpos)
+{
+    std::istringstream is(str);
+    T x;
+
+    is >> x;
+    is.clear();
+    const auto endpos = is.tellg();
+
+    if (!BOOST_TEST_EQ(endpos, expected_endpos))
+    {
+        // LCOV_EXCL_START
+        std::cerr << "String: " << str << '\n'
+                  << "Expected: " << expected_endpos << '\n'
+                  << "Got: " << is.tellg() << std::endl;
+        // LCOV_EXCL_STOP
+    }
+}
+
+template <typename T>
+void check_endpos()
+{
+    endpos_using_istream<T>("Inf", 0);
+    endpos_using_istream<T>("Nan", 0);
+
+    endpos_using_istream<T>("127.0.0.1", 3);
+    endpos_using_istream<T>("42", 2);
+
+    endpos_using_istream<T>("42Junk", 2);
+}
+
+int main()
+{
+    check_endpos<boost::int128::uint128_t>();
+    check_endpos<boost::int128::int128_t>();
+
+    return boost::report_errors();
+}
