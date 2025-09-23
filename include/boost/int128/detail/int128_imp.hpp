@@ -1523,6 +1523,8 @@ namespace detail {
 template <typename Integer>
 constexpr int128_t default_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 {
+    static_assert(std::is_integral<Integer>::value, "Only builtin types allowed");
+
     if (rhs < 0 || rhs >= 128)
     {
         return {0, 0};
@@ -1654,10 +1656,21 @@ constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
     #endif
 }
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator<<(const Integer lhs, const int128_t rhs) noexcept
+constexpr int128_t operator<<(const int128_t lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * 8};
+    if (rhs.high != 0 || rhs.low >= 128)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
 
     if (rhs.high != 0 || rhs.low >= bit_width)
     {
@@ -1666,6 +1679,20 @@ constexpr Integer operator<<(const Integer lhs, const int128_t rhs) noexcept
 
     return lhs << rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept
@@ -1863,18 +1890,43 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
     #endif
 }
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator>>(const Integer lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT constexpr int128_t operator>>(const int128_t lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * 8};
+    if (rhs.high != 0 || rhs.low >= 128)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
 
     if (rhs.high != 0 || rhs.low >= bit_width)
     {
         return 0;
     }
 
-    return lhs >> rhs.low;
+    return lhs << rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator>>(const SignedInteger lhs, const int128_t rhs) noexcept

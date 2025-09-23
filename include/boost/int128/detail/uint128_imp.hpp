@@ -1619,6 +1619,8 @@ namespace detail {
 template <typename Integer>
 constexpr uint128_t default_ls_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
+    static_assert(std::is_integral<Integer>::value, "Needs to be a builtin type");
+
     if (rhs < 0 || rhs >= 128)
     {
         return {0, 0};
@@ -1729,10 +1731,21 @@ constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept
 
 // A number of different overloads to ensure that we return the same type as the builtins would
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * 8};
+    if (rhs.high > UINT64_C(0) || rhs.low >= UINT64_C(128))
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128 ) * 8};
 
     if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
     {
@@ -1741,6 +1754,20 @@ constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept
 
     return lhs << rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
+
+    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
@@ -1766,26 +1793,6 @@ constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs
     }
 
     return static_cast<unsigned int>(lhs) << rhs.low;
-}
-
-BOOST_INT128_EXPORT constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept
-{
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return detail::default_ls_impl(lhs, rhs.low); // LCOV_EXCL_LINE
-    }
-    else
-    {
-        return detail::intrinsic_ls_impl(lhs, rhs.low);
-    }
-
-    #else
-
-    return detail::default_ls_impl(lhs, rhs.low);
-
-    #endif
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
@@ -1926,10 +1933,21 @@ constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
     #endif
 }
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator>>(const Integer lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width = sizeof(Integer) * 8;
+    if (rhs.high > UINT64_C(0) || rhs.low >= UINT64_C(128))
+    {
+        return 0;
+    }
+
+    return lhs >> rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width = sizeof(detail::builtin_u128) * 8;
 
     if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
     {
@@ -1938,6 +1956,20 @@ constexpr Integer operator>>(const Integer lhs, const uint128_t rhs) noexcept
 
     return lhs >> rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+{
+    constexpr auto bit_width = sizeof(detail::builtin_i128) * 8;
+
+    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs >> rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator>>(const SignedInteger lhs, const uint128_t rhs) noexcept
@@ -1963,31 +1995,6 @@ constexpr unsigned operator>>(UnsignedInteger lhs, const uint128_t rhs) noexcept
     }
 
     return static_cast<unsigned>(lhs) >> rhs.low;
-}
-
-BOOST_INT128_EXPORT constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept
-{
-    if (BOOST_INT128_UNLIKELY(rhs.high != 0U))
-    {
-        return {0, 0};
-    }
-
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        return detail::default_rs_impl(lhs, rhs.low); // LCOV_EXCL_LINE
-    }
-    else
-    {
-        return detail::intrinsic_rs_impl(lhs, rhs.low);
-    }
-
-    #else
-
-    return detail::default_rs_impl(lhs, rhs.low);
-
-    #endif
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
