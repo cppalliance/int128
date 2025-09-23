@@ -833,6 +833,15 @@ void test_operator_left_shift()
     BOOST_TEST(boost::int128::detail::default_ls_impl(val, boost::int128::uint128_t{1, 0}) == 0);
     BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
     BOOST_TEST(boost::int128::detail::default_ls_impl(val, 0) == val);
+
+    auto builtin_value {static_cast<builtin_u128>(dist(rng))};
+    boost::int128::uint128_t small_shift {1u};
+    boost::int128::uint128_t big_shift {180u};
+    boost::int128::uint128_t biggest_shift {1u, 180u};
+
+    BOOST_TEST((builtin_value << small_shift) == (builtin_value << 1u));
+    BOOST_TEST((builtin_value << big_shift) == 0u);
+    BOOST_TEST((builtin_value << biggest_shift) == 0u);
 }
 
 template <typename IntType>
@@ -893,6 +902,15 @@ void test_operator_right_shift()
     BOOST_TEST(boost::int128::detail::default_rs_impl(val, boost::int128::uint128_t{1, 0}) == 0);
     BOOST_TEST(boost::int128::detail::default_rs_impl(val, -5) == 0);
     BOOST_TEST(boost::int128::detail::default_rs_impl(val, 0) == val);
+
+    auto builtin_value {static_cast<builtin_u128>(dist(rng))};
+    boost::int128::uint128_t small_shift {1u};
+    boost::int128::uint128_t big_shift {180u};
+    boost::int128::uint128_t biggest_shift {1u, 180u};
+
+    BOOST_TEST((builtin_value >> small_shift) == (builtin_value >> 1u));
+    BOOST_TEST((builtin_value >> big_shift) == 0u);
+    BOOST_TEST((builtin_value >> biggest_shift) == 0u);
 }
 
 void test_increment_operator()
