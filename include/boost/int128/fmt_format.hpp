@@ -10,6 +10,8 @@
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/int128.hpp>
+#include <cstring>
+#include <cstdlib>
 #include <fmt/base.h>
 #include <fmt/format.h>
 #include <algorithm>
