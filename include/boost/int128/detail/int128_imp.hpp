@@ -3344,8 +3344,21 @@ template <bool b> constexpr bool numeric_limits_impl_i128<b>::tinyness_before;
 } // namespace int128
 } // namespace boost
 
+namespace std {
+
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
+
 template <>
-class std::numeric_limits<boost::int128::int128_t> :
+class numeric_limits<boost::int128::int128_t> :
     public boost::int128::detail::numeric_limits_impl_i128<true> {};
+
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif
+
+} // namespace std
 
 #endif // BOOST_INT128_DETAIL_INT128_HPP
