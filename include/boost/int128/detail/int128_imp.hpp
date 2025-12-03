@@ -188,11 +188,11 @@ int128_t
 
     // Prefix and postfix increment
     constexpr int128_t& operator++() noexcept;
-    constexpr int128_t& operator++(int) noexcept;
+    constexpr int128_t operator++(int) noexcept;
 
     // Prefix and postfix decrment
     constexpr int128_t& operator--() noexcept;
-    constexpr int128_t& operator--(int) noexcept;
+    constexpr int128_t operator--(int) noexcept;
 
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
@@ -2005,14 +2005,11 @@ constexpr int128_t& int128_t::operator++() noexcept
     return *this;
 }
 
-constexpr int128_t& int128_t::operator++(int) noexcept
+constexpr int128_t int128_t::operator++(int) noexcept
 {
-    if (++low == UINT64_C(0))
-    {
-        ++high;
-    }
-
-    return *this;
+    const auto temp {*this};
+    ++(*this);
+    return temp;
 }
 
 //=====================================
@@ -2029,14 +2026,11 @@ constexpr int128_t& int128_t::operator--() noexcept
     return *this;
 }
 
-constexpr int128_t& int128_t::operator--(int) noexcept
+constexpr int128_t int128_t::operator--(int) noexcept
 {
-    if (low-- == UINT64_C(0))
-    {
-        --high;
-    }
-
-    return *this;
+    const auto temp {*this};
+    --(*this);
+    return temp;
 }
 
 //=====================================

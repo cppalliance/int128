@@ -198,9 +198,9 @@ uint128_t
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     constexpr uint128_t& operator++() noexcept;
-    constexpr uint128_t& operator++(int) noexcept;
+    constexpr uint128_t operator++(int) noexcept;
     constexpr uint128_t& operator--() noexcept;
-    constexpr uint128_t& operator--(int) noexcept;
+    constexpr uint128_t operator--(int) noexcept;
 
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
@@ -2035,9 +2035,11 @@ constexpr uint128_t& uint128_t::operator++() noexcept
     return *this;
 }
 
-constexpr uint128_t& uint128_t::operator++(int) noexcept
+constexpr uint128_t uint128_t::operator++(int) noexcept
 {
-    return ++(*this);
+    const auto temp {*this};
+    ++(*this);
+    return temp;
 }
 
 //=====================================
@@ -2054,9 +2056,11 @@ constexpr uint128_t& uint128_t::operator--() noexcept
     return *this;
 }
 
-constexpr uint128_t& uint128_t::operator--(int) noexcept
+constexpr uint128_t uint128_t::operator--(int) noexcept
 {
-    return --(*this);
+    const auto temp {*this};
+    --(*this);
+    return temp;
 }
 
 //=====================================
