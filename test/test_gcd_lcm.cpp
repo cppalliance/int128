@@ -15,6 +15,8 @@ void test_gcd()
     BOOST_TEST_EQ(gcd(T(12), T(8)), T(4));
     BOOST_TEST_EQ(gcd(T(54), T(24)), T(6));
     BOOST_TEST_EQ(gcd(T(48), T(18)), T(6));
+    BOOST_TEST_EQ(detail::gcd64(UINT64_C(0), UINT64_C(12)), UINT64_C(12));
+    BOOST_TEST_EQ(detail::gcd64(UINT64_C(12), UINT64_C(0)), UINT64_C(12));
 
     // Edge cases with zero
     BOOST_TEST_EQ(gcd(T(0), T(5)), T(5));

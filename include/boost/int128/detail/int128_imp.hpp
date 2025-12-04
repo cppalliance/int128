@@ -188,11 +188,11 @@ int128_t
 
     // Prefix and postfix increment
     constexpr int128_t& operator++() noexcept;
-    constexpr int128_t& operator++(int) noexcept;
+    constexpr int128_t operator++(int) noexcept;
 
     // Prefix and postfix decrment
     constexpr int128_t& operator--() noexcept;
-    constexpr int128_t& operator--(int) noexcept;
+    constexpr int128_t operator--(int) noexcept;
 
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
@@ -1523,6 +1523,8 @@ namespace detail {
 template <typename Integer>
 constexpr int128_t default_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 {
+    static_assert(std::is_integral<Integer>::value, "Only builtin types allowed");
+
     if (rhs < 0 || rhs >= 128)
     {
         return {0, 0};
@@ -1654,10 +1656,21 @@ constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
     #endif
 }
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator<<(const Integer lhs, const int128_t rhs) noexcept
+constexpr int128_t operator<<(const int128_t lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * 8};
+    if (rhs.high != 0 || rhs.low >= 128)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
 
     if (rhs.high != 0 || rhs.low >= bit_width)
     {
@@ -1666,6 +1679,20 @@ constexpr Integer operator<<(const Integer lhs, const int128_t rhs) noexcept
 
     return lhs << rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept
@@ -1863,18 +1890,43 @@ constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
     #endif
 }
 
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16), bool> = true>
-constexpr Integer operator>>(const Integer lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT constexpr int128_t operator>>(const int128_t lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(Integer) * 8};
+    if (rhs.high != 0 || rhs.low >= 128)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#ifdef BOOST_INT128_HAS_INT128
+
+BOOST_INT128_EXPORT constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
 
     if (rhs.high != 0 || rhs.low >= bit_width)
     {
         return 0;
     }
 
-    return lhs >> rhs.low;
+    return lhs << rhs.low;
 }
+
+BOOST_INT128_EXPORT constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+{
+    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
+
+    if (rhs.high != 0 || rhs.low >= bit_width)
+    {
+        return 0;
+    }
+
+    return lhs << rhs.low;
+}
+
+#endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 constexpr int operator>>(const SignedInteger lhs, const int128_t rhs) noexcept
@@ -1953,14 +2005,11 @@ constexpr int128_t& int128_t::operator++() noexcept
     return *this;
 }
 
-constexpr int128_t& int128_t::operator++(int) noexcept
+constexpr int128_t int128_t::operator++(int) noexcept
 {
-    if (++low == UINT64_C(0))
-    {
-        ++high;
-    }
-
-    return *this;
+    const auto temp {*this};
+    ++(*this);
+    return temp;
 }
 
 //=====================================
@@ -1977,14 +2026,11 @@ constexpr int128_t& int128_t::operator--() noexcept
     return *this;
 }
 
-constexpr int128_t& int128_t::operator--(int) noexcept
+constexpr int128_t int128_t::operator--(int) noexcept
 {
-    if (low-- == UINT64_C(0))
-    {
-        --high;
-    }
-
-    return *this;
+    const auto temp {*this};
+    --(*this);
+    return temp;
 }
 
 //=====================================
@@ -3199,17 +3245,14 @@ inline int128_t& int128_t::operator%=(const Integer rhs) noexcept
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
 
-} // namespace int128
-} // namespace boost
+namespace detail {
 
-namespace std {
-
-template <>
-class numeric_limits<boost::int128::int128_t>
+template <bool>
+class numeric_limits_impl_i128
 {
 public:
 
-    // Member constants
+        // Member constants
     static constexpr bool is_specialized = true;
     static constexpr bool is_signed = true;
     static constexpr bool is_integer = true;
@@ -3262,6 +3305,59 @@ public:
     static constexpr auto signaling_NaN() -> boost::int128::int128_t { return {0, 0}; }
     static constexpr auto denorm_min   () -> boost::int128::int128_t { return {0, 0}; }
 };
+
+#if !defined(__cpp_inline_variables) || __cpp_inline_variables < 201606L
+
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_specialized;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_signed;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_integer;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_exact;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_infinity;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_quiet_NaN;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_signaling_NaN;
+
+// These members were deprecated in C++23
+#if ((!defined(_MSC_VER) && (__cplusplus <= 202002L)) || (defined(_MSC_VER) && (_MSVC_LANG <= 202002L)))
+template <bool b> constexpr std::float_denorm_style numeric_limits_impl_i128<b>::has_denorm;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_denorm_loss;
+#endif
+
+template <bool b> constexpr std::float_round_style numeric_limits_impl_i128<b>::round_style;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_iec559;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_bounded;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::is_modulo;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::digits;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::digits10;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::max_digits10;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::radix;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::min_exponent;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::min_exponent10;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::max_exponent;
+template <bool b> constexpr int numeric_limits_impl_i128<b>::max_exponent10;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::traps;
+template <bool b> constexpr bool numeric_limits_impl_i128<b>::tinyness_before;
+
+#endif // !defined(__cpp_inline_variables) || __cpp_inline_variables < 201606L
+
+} // namespace detail
+
+} // namespace int128
+} // namespace boost
+
+namespace std {
+
+#ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
+
+template <>
+class numeric_limits<boost::int128::int128_t> :
+    public boost::int128::detail::numeric_limits_impl_i128<true> {};
+
+#ifdef __clang__
+#  pragma clang diagnostic pop
+#endif
 
 } // namespace std
 

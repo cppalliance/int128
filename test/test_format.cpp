@@ -84,6 +84,10 @@ void test_decimal()
         BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{-42}).c_str(), "-042");
         BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{-42}).c_str(), "-042");
     }
+
+    BOOST_TEST_CSTR_EQ(std::format("{:+d}", T{42}).c_str(), "+42");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#?d}", T{42}).c_str(), "+42");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#c}", T{42}).c_str(), "+42");
 }
 
 template <typename T>
