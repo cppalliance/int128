@@ -19,7 +19,7 @@ def uint128_summary(valobj, internal_dict):
         low  = val.GetChildMemberWithName("low").GetValueAsUnsigned()
 
         value = (high << 64) | low
-        return str(value)
+        return f"{value:,}"
     except Exception as e:
         return f"<invalid uint128_t: {e}>"
 
@@ -36,7 +36,7 @@ def int128_summary(valobj, internal_dict):
         low  = val.GetChildMemberWithName("low").GetValueAsUnsigned()
 
         value = (high << 64) + low
-        return str(value)
+        return f"{value:,}"
     except Exception as e:
         return f"<invalid int128_t: {e}>"
 
