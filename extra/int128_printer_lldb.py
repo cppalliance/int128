@@ -1,4 +1,6 @@
-# int128_printer.py
+# Copyright 2025 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
 #
 # Struct definitions:
 #   struct uint128_t { std::uint64_t low; std::uint64_t high; };
