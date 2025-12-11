@@ -1,4 +1,6 @@
-# int128_printer.py
+# Copyright 2025 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
 #
 # Struct definitions:
 #   struct uint128_t { std::uint64_t low; std::uint64_t high; };
@@ -45,17 +47,17 @@ def __lldb_init_module(debugger, internal_dict):
     int128_pattern = r"^(const )?(boost::int128::int128_t|(\w+::)*int128_t)( &| \*)?$"
 
     debugger.HandleCommand(
-        f'type summary add -x "{uint128_pattern}" -e -F int128_printer.uint128_summary'
+        f'type summary add -x "{uint128_pattern}" -e -F int128_printer_lldb.uint128_summary'
     )
     debugger.HandleCommand(
-        f'type synthetic add -x "{uint128_pattern}" -l int128_printer.Uint128SyntheticProvider'
+        f'type synthetic add -x "{uint128_pattern}" -l int128_printer_lldb.Uint128SyntheticProvider'
     )
 
     debugger.HandleCommand(
-        f'type summary add -x "{int128_pattern}" -e -F int128_printer.int128_summary'
+        f'type summary add -x "{int128_pattern}" -e -F int128_printer_lldb.int128_summary'
     )
     debugger.HandleCommand(
-        f'type synthetic add -x "{int128_pattern}" -l int128_printer.Int128SyntheticProvider'
+        f'type synthetic add -x "{int128_pattern}" -l int128_printer_lldb.Int128SyntheticProvider'
     )
 
     print("int128_t and uint128_t pretty printers loaded successfully")
