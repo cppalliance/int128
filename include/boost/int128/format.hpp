@@ -5,8 +5,7 @@
 #ifndef BOOST_INT128_FORMAT_HPP
 #define BOOST_INT128_FORMAT_HPP
 
-#if (__cplusplus >= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)) && \
-((defined(__GNUC__) && __GNUC__ >= 13) || (defined(__clang__) && __clang_major__ >= 18) || (defined(_MSC_VER) && _MSC_VER >= 1940))
+#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L && !defined(BOOST_DECIMAL_DISABLE_CLIB)
 
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/config.hpp>
