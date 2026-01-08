@@ -677,8 +677,10 @@ BOOST_INT128_EXPORT constexpr bool operator<(const uint128_t lhs, const uint128_
     }
     else
     {
-        const uint32_t* l = reinterpret_cast<const uint32_t*>(&lhs);
-        const uint32_t* r = reinterpret_cast<const uint32_t*>(&rhs);
+        std::uint32_t l[4] {};
+        std::uint32_t r[4] {};
+        std::memcpy(l, &lhs, sizeof(lhs));
+        std::memcpy(r, &rhs, sizeof(rhs));
 
         if (l[3] != r[3])
         {
@@ -830,8 +832,10 @@ BOOST_INT128_EXPORT constexpr bool operator<=(const uint128_t lhs, const uint128
     }
     else
     {
-        const uint32_t* l = reinterpret_cast<const uint32_t*>(&lhs);
-        const uint32_t* r = reinterpret_cast<const uint32_t*>(&rhs);
+        std::uint32_t l[4] {};
+        std::uint32_t r[4] {};
+        std::memcpy(l, &lhs, sizeof(lhs));
+        std::memcpy(r, &rhs, sizeof(rhs));
 
         if (l[3] != r[3])
         {
@@ -983,8 +987,10 @@ BOOST_INT128_EXPORT constexpr bool operator>(const uint128_t lhs, const uint128_
     }
     else
     {
-        const uint32_t* l = reinterpret_cast<const uint32_t*>(&lhs);
-        const uint32_t* r = reinterpret_cast<const uint32_t*>(&rhs);
+        std::uint32_t l[4] {};
+        std::uint32_t r[4] {};
+        std::memcpy(l, &lhs, sizeof(lhs));
+        std::memcpy(r, &rhs, sizeof(rhs));
 
         if (l[3] != r[3])
         {
@@ -1136,8 +1142,10 @@ BOOST_INT128_EXPORT constexpr bool operator>=(const uint128_t lhs, const uint128
     }
     else
     {
-        const uint32_t* l = reinterpret_cast<const uint32_t*>(&lhs);
-        const uint32_t* r = reinterpret_cast<const uint32_t*>(&rhs);
+        std::uint32_t l[4] {};
+        std::uint32_t r[4] {};
+        std::memcpy(l, &lhs, sizeof(lhs));
+        std::memcpy(r, &rhs, sizeof(rhs));
 
         if (l[3] != r[3])
         {
