@@ -96,6 +96,7 @@ run ../examples/charconv.cpp ;
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 
 # Github Issues
+run decimal_github_issue_1260.cpp ;
 run github_issue_207.cpp ;
 run github_issue_210.cpp ;
 run github_issue_221.cpp ;

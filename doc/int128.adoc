@@ -20,6 +20,8 @@ Matt Borland
 
 include::int128/overview.adoc[]
 
+include::int128/printer.adoc[]
+
 include::int128/api_reference.adoc[]
 
 include::int128/file_structure.adoc[]
