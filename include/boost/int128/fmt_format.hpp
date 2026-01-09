@@ -12,10 +12,21 @@
 #include <boost/int128/int128.hpp>
 #include <cstring>
 #include <cstdlib>
-#include <fmt/base.h>
-#include <fmt/format.h>
 #include <algorithm>
 #include <tuple>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
+#include <fmt/base.h>
+#include <fmt/format.h>
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #define BOOST_INT128_HAS_FMT_FORMAT
 
