@@ -1,0 +1,6 @@
+name: int128
+version: ~
+title: Boost.int128
+nav:
+  - modules/ROOT/nav.adoc
+start_page: overview.adoc
