@@ -15,6 +15,7 @@ On most platforms we use the builtin `\__int128` as the reference benchmark.
 When this is unavailable (such as on 32-bit architectures) we us `boost::multiprecision::int128_t` (abbreviated as `boost::mp::int128_t`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Signed128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
 
+[#i128_linux]
 == Linux
 
 === x86_64
@@ -142,6 +143,7 @@ image::i128_graphs/linux/ARM32_benchmarks.png[ARM32 Benchmark Results, width=100
 
 image::i128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
 
+[#i128_windows]
 == Windows
 
 === x86_64
@@ -201,6 +203,7 @@ image::i128_graphs/windows/x86_benchmarks.png[x86_32 Benchmark Results, width=10
 
 image::i128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
 
+[#i128_mac]
 == macOS
 
 === ARM64 (Apple Silicon)

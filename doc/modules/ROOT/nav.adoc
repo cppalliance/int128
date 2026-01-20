@@ -40,6 +40,12 @@
 * xref:numeric.adoc[]
 * Benchmarks
 ** xref:u128_benchmarks.adoc[]
+*** xref:u128_benchmarks.adoc#u128_linux[Linux]
+*** xref:u128_benchmarks.adoc#u128_windows[Windows]
+*** xref:u128_benchmarks.adoc#u128_mac[macOS]
 ** xref:i128_benchmarks.adoc[]
+*** xref:i128_benchmarks.adoc#i128_linux[Linux]
+*** xref:i128_benchmarks.adoc#i128_windows[Windows]
+*** xref:i128_benchmarks.adoc#i128_mac[macOS]
 * xref:reference.adoc[]
 * xref:copyright.adoc[]
