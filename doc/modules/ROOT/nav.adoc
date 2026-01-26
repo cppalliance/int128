@@ -30,6 +30,7 @@
 ** xref:concepts.adoc#unsigned_integer[Unsigned Integer]
 ** xref:concepts.adoc#integer[Integer]
 * xref:uint128_t.adoc[]
+** xref:uint128_t.adoc#u128_alignment[Alignment]
 * xref:int128_t.adoc[]
 * xref:mixed_type_ops.adoc[]
 * xref:literals.adoc[]
