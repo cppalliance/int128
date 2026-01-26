@@ -282,11 +282,11 @@ constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcep
 
 constexpr uint128_t& uint128_t::operator++() noexcept;
 
-constexpr uint128_t& uint128_t::operator++(int) noexcept;
+constexpr uint128_t uint128_t::operator++(int) noexcept;
 
 constexpr uint128_t& uint128_t::operator--() noexcept;
 
-constexpr uint128_t& uint128_t::operator--(int) noexcept;
+constexpr uint128_t uint128_t::operator--(int) noexcept;
 
 //=====================================
 // Add, Sub, Mul, Div, Mod
