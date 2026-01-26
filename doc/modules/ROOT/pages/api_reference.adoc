@@ -12,29 +12,29 @@ https://www.boost.org/LICENSE_1_0.txt
 == Namespaces
 
 - `boost::int128` contains all components of the library except `<charconv>` functionality
-- <<literals, `boost::int128::literals`>>
+- xref:literals.adoc[`boost::int128::literals`]
 
 [#api_types]
 == Types
 
-- <<uint128_t, `uint128_t`>>
-- <<int128_t, `int128_t`>>
+- xref:uint128_t.adoc[`uint128_t`]
+- xref:int128_t.adoc[`int128_t`]
 
 [#api_literals]
 == Literals
 
-- <<literals, `_u128`>>
-- <<literals, `_U128`>>
-- <<literals, `_i128`>>
-- <<literals, `_I128`>>
+- xref:literals.adoc[`_u128`]
+- xref:literals.adoc[`_U128`]
+- xref:literals.adoc[`_i128`]
+- xref:literals.adoc[`_I128`]
 
 [#api_structs]
 == Structures
 
 - https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
 - https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
-- <<div_structs, `u128div_t`>>
-- <<div_structs, `i128div_t`>>
+- xref:cstdlib.adoc#div_structs[`u128div_t`]
+- xref:cstdlib.adoc#div_structs[`i128div_t`]
 
 [#api_functions]
 == Functions
@@ -43,23 +43,23 @@ Listed by analogous STL header.
 
 [#api_bit]
 === `<bit>`
-- <<has_single_bit, `has_single_bit`>>
-- <<countl_zero, `countl_zero`>>
-- <<countl_one, `countl_one`>>
-- <<bit_width, `bit_width`>>
-- <<bit_ceil, `bit_ceil`>>
-- <<bit_floor, `bit_floor`>>
-- <<countr_zero, `countr_zero`>>
-- <<countr_one, `countr_one`>>
-- <<rotl, `rotl`>>
-- <<rotr, `rotr`>>
-- <<popcount, `popcount`>>
-- <<byteswap, `byteswap`>>
+- xref:bit.adoc#has_single_bit[`has_single_bit`]
+- xref:bit.adoc#countl_zero[`countl_zero`]
+- xref:bit.adoc#countl_one[`countl_one`]
+- xref:bit.adoc#bit_width[`bit_width`]
+- xref:bit.adoc#bit_ceil[`bit_ceil`]
+- xref:bit.adoc#bit_floor[`bit_floor`]
+- xref:bit.adoc#countr_zero[`countr_zero`]
+- xref:bit.adoc#countr_one[`countr_one`]
+- xref:bit.adoc#rotl[`rotl`]
+- xref:bit.adoc#rotr[`rotr`]
+- xref:bit.adoc#popcount[`popcount`]
+- xref:bit.adoc#byteswap[`byteswap`]
 
 [#api_charconv]
 === `<charconv>`
-- <<to_chars, `to_chars`>>
-- <<from_chars, `from_chars`>>
+- xref:charconv.adoc#to_chars[`to_chars`]
+- xref:charconv.adoc#from_chars[`from_chars`]
 
 [#api_cmath]
 === `<cmath>`
@@ -67,43 +67,43 @@ Listed by analogous STL header.
 
 [#api_cstdlib]
 === `<cstdlib>`
-- <<cstdlib, `div`>>
+- xref:cstdlib.adoc[`div`]
 
 [#api_formatting]
 === Formatting
-- <<std_format, `<format>`>>
-- <<fmt_format, `pass:[{fmt}]`>>
+- xref:format.adoc#std_format[`<format>`]
+- xref:format.adoc#fmt_format[`pass:[{fmt}]`]
 
 [#api_iostream]
 === `<iostream>`
-- <<stream, `operator<<`>>
-- <<stream, `operator>>`>>
+- xref:stream.adoc#stream[`operator<<`]
+- xref:stream.adoc#stream[`operator>>`]
 
 [#api_ios]
 === `<ios>`
-- <<ios, `std::oct`>>
-- <<ios, `std::dec`>>
-- <<ios, `std::hex`>>
-- <<ios, `std::uppercase`>>
-- <<ios, `std::nouppercase`>>
+- xref:stream.adoc#ios[`std::oct`]
+- xref:stream.adoc#ios[`std::dec`]
+- xref:stream.adoc#ios[`std::hex`]
+- xref:stream.adoc#ios[`std::uppercase`]
+- xref:stream.adoc#ios[`std::nouppercase`]
 
 [#api_numeric]
 === `<numeric>`
-- <<sat_arith, `add_sat`>>
-- <<sat_arith, `sub_sat`>>
-- <<sat_arith, `mul_sat`>>
-- <<sat_arith, `div_sat`>>
-- <<saturating_cast, `saturate_cast`>>
-- <<gcd, `gcd`>>
-- <<lcm, `lcm`>>
-- <<midpoint, `midpoint`>>
+- xref:numeric.adoc#sat_arith[`add_sat`]
+- xref:numeric.adoc#sat_arith[`sub_sat`]
+- xref:numeric.adoc#sat_arith[`mul_sat`]
+- xref:numeric.adoc#sat_arith[`div_sat`]
+- xref:numeric.adoc#saturating_cast[`saturate_cast`]
+- xref:numeric.adoc#gcd[`gcd`]
+- xref:numeric.adoc#lcm[`lcm`]
+- xref:numeric.adoc#midpoint[`midpoint`]
 
 [#api_concepts]
 == Concepts
 
-- <<unsigned_integer, `unsigned_integer`>>
-- <<signed_integer, `signed_integer`>>
-- <<integer, `integer`>>
+- xref:concepts.adoc#unsigned_integer[`unsigned_integer`]
+- xref:concepts.adoc#signed_integer[`signed_integer`]
+- xref:concepts.adoc#integer[`integer`]
 
 [#api_macros]
 == Macros
@@ -117,21 +117,21 @@ Listed by analogous STL header.
 
 === Literals
 
-- <<literals, `BOOST_INT128_UINT128_C`>>
-- <<literals, `BOOST_INT128_INT128_C`>>
+- xref:literals.adoc[`BOOST_INT128_UINT128_C`]
+- xref:literals.adoc[`BOOST_INT128_INT128_C`]
 
 [#api_macro_configuration]
 === Configuration
 
 ==== User Configuration
 
-- <<no_int128, `BOOST_INT128_NO_BUILTIN_INT128`>>
-- <<sign_compare, `BOOST_INT128_ALLOW_SIGN_COMPARE`>>
-- <<sign_conversion, `BOOST_INT128_ALLOW_SIGN_CONVERSION`>>
-- <<disable_exceptions, `BOOST_INT128_DISABLE_EXCEPTIONS`>>
+- xref:config.adoc#no_int128[`BOOST_INT128_NO_BUILTIN_INT128`]
+- xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`]
+- xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`]
+- xref:config.adoc#disable_exceptions[`BOOST_INT128_DISABLE_EXCEPTIONS`]
 
 ==== Automatic Configuration
 
-- <<automatic_config, `BOOST_INT128_HAS_INT128`>>
-- <<automatic_config, `BOOST_INT128_ENDIAN_LITTLE_BYTE`>>
-- <<automatic_config, `BOOST_INT128_ENDIAN_BIG_BYTE`>>
+- xref:config.adoc#automatic_config[`BOOST_INT128_HAS_INT128`]
+- xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_LITTLE_BYTE`]
+- xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_BIG_BYTE`]
