@@ -336,3 +336,19 @@ constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
 } // namespace boost
 
 ----
+
+== Alignment
+
+If your platform has a native 128-bit unsigned integer, the struct is defined as so:
+
+[source, c++]
+----
+struct alignas(alignof(unsigned __int128)) uint128_t
+----
+
+Otherwise, it is
+
+[source, c++]
+----
+struct alignas(sizeof(std::uint64_t) * 2) uint128_t
+----
