@@ -26,6 +26,54 @@ include::example$construction.cpp[]
 include::example$basic_arithmetic.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Signed 128-bit Arithmetic ===
+x = 1000000000000
+y = 999999999999
+
+Addition and Subtraction:
+x + y = 1999999999999
+x - y = 1
+
+Multiplication (exceeds 64-bit range):
+x * y = 999999999999000000000000
+
+Division and Modulo:
+x / 7 = 142857142857
+x % 7 = 1
+
+Comparisons:
+x > y:  true
+x == y: false
+x != y: true
+
+Negative values:
+negative = -42
+abs(negative) = 42
+
+Compound assignment operators:
+z = 100
+z += 50: 150
+z -= 25: 125
+z *= 2:  250
+z /= 5:  50
+z %= 7:  1
+
+=== Unsigned 128-bit Arithmetic ===
+large (2^64) = 18446744073709551616
+large * 2 = 36893488147419103232
+large + large = 36893488147419103232
+
+Increment and Decrement:
+counter = 10
+++counter = 11
+counter++ = 11
+counter = 12
+--counter = 11
+----
+
 [#examples_io]
 == IO Streaming
 
