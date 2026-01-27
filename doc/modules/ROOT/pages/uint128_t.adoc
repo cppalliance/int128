@@ -458,3 +458,86 @@ constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
 
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Addition
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator+(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator+(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns as a `uint128_t` the sum of `lhs` and `rhs`.
+If the sum is greater than is representable by a `uint128_t`, the operation silently performs unsigned rollover in the direction of 0.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Subtraction
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator-(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator-(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator-(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns as a `uint128_t` the difference of `lhs` and `rhs`.
+If the difference is less than is representable by a `uint128_t`, the operation silently performs unsigned rollover in the direction of `UINT128_MAX`.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Multiplication
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator*(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator*(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator*(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns as a `uint128_t` the product of `lhs` and `rhs`.
+If the product is greater than is representable by a `uint128_t`, the operation silently performs unsigned rollover in the direction of 0.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Division
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator/(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator/(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns as a `uint128_t` the quotient of `lhs` and `rhs` without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Modulo
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator%(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator%(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns as a `uint128_t` the remainder of `lhs` and `rhs` without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
