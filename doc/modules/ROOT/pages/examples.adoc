@@ -121,3 +121,23 @@ include::example$math_and_random.cpp[]
 ----
 include::example$charconv.cpp[]
 ----
+
+.Expected Output
+[listing]
+----
+=== to_chars ===
+uint128_t max (decimal): 340282366920938463463374607431768211455
+int128_t min (decimal):  -170141183460469231731687303715884105728
+uint128_t (hex): 0xdeadbeefcafebabe12345678
+int128_t 511 (octal): 0777
+
+=== from_chars ===
+Parsed "340282366920938463463374607431768211455"
+  Result: 340282366920938463463374607431768211455
+  Equals max? true
+Parsed "-170141183460469231731687303715884105728"
+  Result: -170141183460469231731687303715884105728
+  Equals min? true
+Parsed hex "DEADBEEFCAFEBABE12345678"
+  Result: 68915718020162848918556923512
+----
