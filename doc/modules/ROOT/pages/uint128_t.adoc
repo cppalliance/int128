@@ -79,8 +79,6 @@ struct uint128_t {
     #endif // BOOST_INT128_HAS_INT128
 
     // Conversion to float
-    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
-    // but can be constexpr at C++11 instead of C++26
     explicit constexpr operator float() const noexcept;
     explicit constexpr operator double() const noexcept;
     explicit constexpr operator long double() const noexcept;
@@ -517,6 +515,53 @@ constexpr uint128_t operator^(const uint128_t lhs, const uint128_t rhs) noexcept
 
 Returns the bitwise xor of `lhs` and `rhs` without exception.
 This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Left Shift
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
+constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept;
+
+template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
+constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept;
+
+template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
+constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns the bitwise left shift of `lhs` without exception.
+The return type is dependent on the type of `Integer` when it is the `lhs` value to match the promotion behavior of built-in integer types.
+This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Right Shift
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
+constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept;
+
+template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
+constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept;
+
+template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
+constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns the bitwise right shift of `lhs` without exception.
+The return type is dependent on the type of `Integer` when it is the `lhs` value to match the promotion behavior of built-in integer types.
+This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
 
 [#u128_math_operators]
 === Addition
