@@ -18,6 +18,31 @@ All the following examples can be found in the examples/ folder of the library.
 include::example$construction.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== uint128_t Construction ===
+From builtin (42U): 42
+From parts (1, 0) = 2^64: 18446744073709551616
+From parts (max, max): 340282366920938463463374607431768211455
+  Equals numeric_limits max? true
+From literal "36893488147419103232"_U128: 36893488147419103232
+From BOOST_INT128_UINT128_C(max): 340282366920938463463374607431768211455
+From stringstream: 12345678901234567890123456789
+
+=== int128_t Construction ===
+From builtin (-42): -42
+From parts (INT64_MIN, 0): -170141183460469231731687303715884105728
+  Equals numeric_limits min? true
+From literal "-99999999999999999999"_i128: -99999999999999999999
+From literal "99999999999999999999"_I128: 99999999999999999999
+From BOOST_INT128_INT128_C(min): -170141183460469231731687303715884105728
+
+=== Default and Copy Construction ===
+Default constructed: 0
+Copy constructed: 36893488147419103232
+----
+
 [#examples_arithmetic]
 == Basic Arithmetic
 
