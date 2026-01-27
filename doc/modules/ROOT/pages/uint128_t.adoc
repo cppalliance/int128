@@ -43,20 +43,20 @@ struct uint128_t {
     constexpr uint128_t(const int128_t& v) noexcept;
 
     // Construct from integral types
-    #if BOOST_INT128_ENDIAN_LITTLE_BYTE
-
     constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept;
 
-    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_SIGNED_INTEGER_CONCEPT SignedInteger>
     constexpr uint128_t(const SignedInteger v) noexcept;
 
-    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT UnsignedInteger>
     constexpr uint128_t(const UnsignedInteger v) noexcept;
 
     #ifdef BOOST_INT128_HAS_INT128
 
+    // Typically a typedef from __int128
     constexpr uint128_t(const detail::builtin_i128 v) noexcept;
 
+    // Typically a typedef unsigned __int128
     constexpr uint128_t(const detail::builtin_u128 v) noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
@@ -64,10 +64,10 @@ struct uint128_t {
     // Integer conversion operators
     constexpr operator bool() const noexcept;
 
-    template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_SIGNED_INTEGER_CONCEPT SignedInteger>
     explicit constexpr operator SignedInteger() const noexcept;
 
-    template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+    template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT UnsignedInteger>
     explicit constexpr operator UnsignedInteger() const noexcept;
 
     #ifdef BOOST_INT128_HAS_INT128
@@ -86,31 +86,31 @@ struct uint128_t {
     explicit constexpr operator long double() const noexcept;
 
     // Compound OR
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator|=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator|=(uint128_t rhs) noexcept;
 
     // Compound AND
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator&=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator&=(uint128_t rhs) noexcept;
 
     // Compound XOR
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator^=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator^=(uint128_t rhs) noexcept;
 
     // Compound Left Shift
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator<<=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator<<=(uint128_t rhs) noexcept;
 
     // Compound Right Shift
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator>>=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator>>=(uint128_t rhs) noexcept;
@@ -121,31 +121,31 @@ struct uint128_t {
     constexpr uint128_t& operator--(int) noexcept;
 
     // Compound Addition
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator+=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator+=(uint128_t rhs) noexcept;
 
     // Compound Subtraction
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator-=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator-=(uint128_t rhs) noexcept;
 
     // Compound Multiplication
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator*=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator*=(uint128_t rhs) noexcept;
 
     // Compound Division
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator/=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator/=(uint128_t rhs) noexcept;
 
     // Compound modulo
-    template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+    template <BOOST_INT128_INTEGER_CONCEPT Integer>
     constexpr uint128_t& operator%=(Integer rhs) noexcept;
 
     constexpr uint128_t& operator%=(uint128_t rhs) noexcept;
@@ -168,50 +168,50 @@ namespace int128 {
 // Comparison Operators
 //=====================================
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator<(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator<(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator<=(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator<=(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator>(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator>(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator>=(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator>=(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator==(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator==(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator!=(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr bool operator!=(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
@@ -222,33 +222,33 @@ constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator~(const uint128_t rhs) noexcept
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator|(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator|(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator|(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator&(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator&(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator&(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator^(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator^(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator^(const uint128_t lhs, const uint128_t rhs) noexcept;
 
 // Shift operators have a number of overloads to ensure they return type matches the behavior of built-in types
 
-template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept;
 
 template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
@@ -292,42 +292,42 @@ constexpr uint128_t uint128_t::operator--(int) noexcept;
 // Add, Sub, Mul, Div, Mod
 //=====================================
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator+(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator+(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator-(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator-(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator-(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator*(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator*(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator*(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator/(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator/(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator%(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <BOOST_INT128_DEFAULTED_INTEGER_TYPE>
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
 constexpr uint128_t operator%(const Integer lhs, const uint128_t rhs) noexcept;
 
 constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept;
@@ -353,3 +353,108 @@ Otherwise, it is
 ----
 struct alignas(sizeof(std::uint64_t) * 2) uint128_t
 ----
+
+[#u128_operator_behavior]
+== Operator Behavior
+
+For all the following operators use of signed overloads will error from `static_assert` by default.
+This is our way of enforcing the behavior of `-Wsign-conversion` and `-Wsign-comparison` in a library type.
+If you want to compare with signed types you must define `BOOST_INT128_ALLOW_SIGN_COMPARE`, 
+and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signess.
+These will both cast the signed integer to an unsigned integer and then perform the operation.
+
+=== Less Than
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator<(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator<(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is less than the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Less Than or Equal To
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator<=(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator<=(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is less than or equal to the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Greater Than
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator>(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator>(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is greater than the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Greater Than or Equal To
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator>=(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator>=(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is greater than or equal to the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Equality
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator==(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator==(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is equal to the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Inequality
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator!=(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr bool operator!=(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns if the `lhs` value is not equal to the `rhs` value without exception.
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
