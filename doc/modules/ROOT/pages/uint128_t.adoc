@@ -363,6 +363,7 @@ If you want to compare with signed types you must define `BOOST_INT128_ALLOW_SIG
 and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signess.
 These will both cast the signed integer to an unsigned integer and then perform the operation.
 
+[#u128_comparison_operators]
 === Less Than
 
 [source, c++]
@@ -459,6 +460,65 @@ constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
+[#u128_bitwise_operators]
+=== Negation
+
+[source, c++]
+----
+constexpr uint128_t operator~(const uint128_t rhs) noexcept
+----
+
+Returns the bitwise negation of `rhs` without exception
+
+=== Or
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator|(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator|(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator|(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns the bitwise or of `lhs` and `rhs` without exception.
+This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== And
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator&(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator&(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator&(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns the bitwise and of `lhs` and `rhs` without exception.
+This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+=== Xor
+
+[source, c++]
+----
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator^(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr uint128_t operator^(const Integer lhs, const uint128_t rhs) noexcept;
+
+constexpr uint128_t operator^(const uint128_t lhs, const uint128_t rhs) noexcept;
+----
+
+Returns the bitwise xor of `lhs` and `rhs` without exception.
+This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+[#u128_math_operators]
 === Addition
 
 [source, c++]
