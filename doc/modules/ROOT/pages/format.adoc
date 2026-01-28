@@ -11,6 +11,32 @@ https://www.boost.org/LICENSE_1_0.txt
 Boost.int128 support formatting with both `<format>` (when pass:[C++20] and the header are both available), and `<fmt/format.h>`
 The following modifiers are listed in order of how they should be specified in the format string to be valid, and all information applies for both `<format>` and `<fmt/format.h>`
 
+== Fill and Alignment
+
+You can specify alignment with an optional fill character. The format is `[[fill]align]` where:
+
+|===
+| Alignment | Effect
+| `<`       | Left-aligns the value within the available space
+| `>`       | Right-aligns the value within the available space
+| `^`       | Centers the value within the available space
+|===
+
+The optional fill character (default is space) appears before the alignment character.
+
+Examples:
+|===
+| Format    | Output for 42
+| `{:<6d}`  | `"42    "` (left-aligned with spaces)
+| `{:>6d}`  | `"    42"` (right-aligned with spaces)
+| `{:^6d}`  | `"  42  "` (centered with spaces)
+| `{:*<6d}` | `"42****"` (left-aligned with asterisks)
+| `{:0>6d}` | `"000042"` (right-aligned with zeros)
+| `{:*^6d}` | `"**42**"` (centered with asterisks)
+|===
+
+NOTE: When no alignment is specified but a width is given (e.g., `{:6d}`), zero-padding is applied from the left.
+
 == Sign
 
 There are three allowable sings first in the format string:
@@ -70,7 +96,8 @@ Examples using all of the above modifiers in some permutation:
 
 int main()
 {
-    constexpr boost::decimal::deciaml32_t value {42};
+    constexpr boost::int128::int128_t value {42};
+
     // Default format
     std::cout << std::format("{}", value) << '\n'; // Outputs: 42
 
@@ -78,18 +105,30 @@ int main()
     std::cout << std::format("{:+d}", value) << '\n'; // Outputs +42
     std::cout << std::format("{:+d}", -value) << '\n'; // Outputs -42
 
+    // Alignment with fill characters
+    std::cout << std::format("{:<10d}", value) << '\n';  // Outputs "42        " (left-aligned)
+    std::cout << std::format("{:>10d}", value) << '\n';  // Outputs "        42" (right-aligned)
+    std::cout << std::format("{:^10d}", value) << '\n';  // Outputs "    42    " (centered)
+    std::cout << std::format("{:*<10d}", value) << '\n'; // Outputs "42********" (left, fill with *)
+    std::cout << std::format("{:0>10d}", value) << '\n'; // Outputs "0000000042" (right, fill with 0)
+    std::cout << std::format("{:*^10d}", value) << '\n'; // Outputs "****42****" (centered, fill with *)
+
+    // Alignment with sign
+    std::cout << std::format("{:>+10d}", value) << '\n'; // Outputs "       +42"
+    std::cout << std::format("{:<+10d}", value) << '\n'; // Outputs "+42       "
+
     // Output base modifier and Prefix
     std::cout << std::format("{:x}", value) << '\n'; // Outputs 2a
     std::cout << std::format("{:X}", value) << '\n'; // Outputs 2A
     std::cout << std::format("{:#X}", value) << '\n'; // Outputs 0X2A
 
-    // Padding
-    // Notice there are a total of 5 charaters to the right of the prefix
-    std::cout << std::format("{:#5X}", value) << '\n'; // Outputs 0X0002A
+    // Alignment with hex and prefix
+    std::cout << std::format("{:>#10x}", value) << '\n';  // Outputs "      0x2a"
+    std::cout << std::format("{:<#10x}", value) << '\n';  // Outputs "0x2a      "
+    std::cout << std::format("{:*^#10x}", value) << '\n'; // Outputs "***0x2a***"
 
-    // All together
-    // Notice theres a space before the first character - quoted for clarity
-    std::cout << std::format("{: #5X}", value) << '\n'; // Outputs " 0X0002A"
+    // Zero-padding (no alignment specified)
+    std::cout << std::format("{:#10X}", value) << '\n'; // Outputs 0X00000002A
 
     return 0;
 }
@@ -108,7 +147,8 @@ This is nearly the same as above but with `fmt::format` in place of `std::format
 
 int main()
 {
-    constexpr boost::decimal::deciaml32_t value {42};
+    constexpr boost::int128::int128_t value {42};
+
     // Default format
     std::cout << fmt::format("{}", value) << '\n'; // Outputs: 42
 
@@ -116,18 +156,30 @@ int main()
     std::cout << fmt::format("{:+d}", value) << '\n'; // Outputs +42
     std::cout << fmt::format("{:+d}", -value) << '\n'; // Outputs -42
 
+    // Alignment with fill characters
+    std::cout << fmt::format("{:<10d}", value) << '\n';  // Outputs "42        " (left-aligned)
+    std::cout << fmt::format("{:>10d}", value) << '\n';  // Outputs "        42" (right-aligned)
+    std::cout << fmt::format("{:^10d}", value) << '\n';  // Outputs "    42    " (centered)
+    std::cout << fmt::format("{:*<10d}", value) << '\n'; // Outputs "42********" (left, fill with *)
+    std::cout << fmt::format("{:0>10d}", value) << '\n'; // Outputs "0000000042" (right, fill with 0)
+    std::cout << fmt::format("{:*^10d}", value) << '\n'; // Outputs "****42****" (centered, fill with *)
+
+    // Alignment with sign
+    std::cout << fmt::format("{:>+10d}", value) << '\n'; // Outputs "       +42"
+    std::cout << fmt::format("{:<+10d}", value) << '\n'; // Outputs "+42       "
+
     // Output base modifier and Prefix
     std::cout << fmt::format("{:x}", value) << '\n'; // Outputs 2a
     std::cout << fmt::format("{:X}", value) << '\n'; // Outputs 2A
     std::cout << fmt::format("{:#X}", value) << '\n'; // Outputs 0X2A
 
-    // Padding
-    // Notice there are a total of 5 charaters to the right of the prefix
-    std::cout << fmt::format("{:#5X}", value) << '\n'; // Outputs 0X0002A
+    // Alignment with hex and prefix
+    std::cout << fmt::format("{:>#10x}", value) << '\n';  // Outputs "      0x2a"
+    std::cout << fmt::format("{:<#10x}", value) << '\n';  // Outputs "0x2a      "
+    std::cout << fmt::format("{:*^#10x}", value) << '\n'; // Outputs "***0x2a***"
 
-    // All together
-    // Notice theres a space before the first character - quoted for clarity
-    std::cout << fmt::format("{: #5X}", value) << '\n'; // Outputs " 0X0002A"
+    // Zero-padding (no alignment specified)
+    std::cout << fmt::format("{:#10X}", value) << '\n'; // Outputs 0X00000002A
 
     return 0;
 }

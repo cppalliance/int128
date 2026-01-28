@@ -278,6 +278,27 @@ Space sign:  42 and -42
 8-digit padding:  00000255
 16-digit padding: 0000000000000255
 
+=== Alignment ===
+Left align:   '42        '
+Right align:  '        42'
+Center align: '    42    '
+
+=== Alignment with Fill Characters ===
+Left with *:   '42********'
+Right with 0:  '0000000042'
+Center with -: '----42----'
+
+=== Alignment with Sign ===
+Right align +:  '       +42'
+Left align +:   '+42       '
+Center align +: '    +42    '
+Right align -:  '*******-42'
+
+=== Alignment with Hex and Prefix ===
+Right align hex:  '        ff'
+Left align hex:   'ff        '
+Center with prefix: '****0xff****'
+
 === Large Values ===
 uint128_t max: 340282366920938463463374607431768211455
 uint128_t max (hex): 0xffffffffffffffffffffffffffffffff

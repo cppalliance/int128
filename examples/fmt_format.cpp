@@ -61,9 +61,38 @@ int main()
 
     std::cout << "\n=== Zero Padding ===" << std::endl;
 
-    // Padding with zeros
+    // Padding with zeros (no alignment specifier)
     std::cout << fmt::format("8-digit padding:  {:08}", value) << std::endl;
     std::cout << fmt::format("16-digit padding: {:016}", value) << std::endl;
+
+    std::cout << "\n=== Alignment ===" << std::endl;
+
+    // Left, right, and center alignment with default fill (space)
+    std::cout << fmt::format("Left align:   '{:<10}'", positive) << std::endl;
+    std::cout << fmt::format("Right align:  '{:>10}'", positive) << std::endl;
+    std::cout << fmt::format("Center align: '{:^10}'", positive) << std::endl;
+
+    std::cout << "\n=== Alignment with Fill Characters ===" << std::endl;
+
+    // Custom fill characters
+    std::cout << fmt::format("Left with *:   '{:*<10}'", positive) << std::endl;
+    std::cout << fmt::format("Right with 0:  '{:0>10}'", positive) << std::endl;
+    std::cout << fmt::format("Center with -: '{:-^10}'", positive) << std::endl;
+
+    std::cout << "\n=== Alignment with Sign ===" << std::endl;
+
+    // Alignment combined with sign specifiers
+    std::cout << fmt::format("Right align +:  '{:>+10}'", positive) << std::endl;
+    std::cout << fmt::format("Left align +:   '{:<+10}'", positive) << std::endl;
+    std::cout << fmt::format("Center align +: '{:^+11}'", positive) << std::endl;
+    std::cout << fmt::format("Right align -:  '{:*>10}'", negative) << std::endl;
+
+    std::cout << "\n=== Alignment with Hex and Prefix ===" << std::endl;
+
+    // Alignment with base specifiers and prefixes
+    std::cout << fmt::format("Right align hex:  '{:>10x}'", value) << std::endl;
+    std::cout << fmt::format("Left align hex:   '{:<10x}'", value) << std::endl;
+    std::cout << fmt::format("Center with prefix: '{:*^#12x}'", value) << std::endl;
 
     std::cout << "\n=== Large Values ===" << std::endl;
 
