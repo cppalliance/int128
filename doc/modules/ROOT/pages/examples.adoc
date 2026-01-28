@@ -131,6 +131,26 @@ include::example$saturating_arithmetic.cpp[]
 include::example$mixed_type_arithmetic.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Mixed Type Arithmetic with uint128_t ===
+unsigned_value = 3
+unsigned_value + 1 = 4
+unsigned_value - 1 = 2
+unsigned_value * 2 = 6
+unsigned_value / 3 = 1
+unsigned_value % 3 = 0
+unsigned_value + 5 = 8 (same as greater_unsigned_value: 8)
+
+=== Mixed Type Arithmetic with int128_t ===
+signed_value = -3
+signed_value + 1U = -2
+signed_value - 4U = -7
+signed_value * 2 = -6
+signed_value / 4U = 0
+----
+
 [#examples_boost_math_random]
 == Boost.Math and Boost.Random Integration
 
