@@ -123,6 +123,31 @@ include::example$bit.cpp[]
 include::example$saturating_arithmetic.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Saturating Arithmetic ===
+uint128_t max = 340282366920938463463374607431768211455
+int128_t max  = 170141183460469231731687303715884105727
+int128_t min  = -170141183460469231731687303715884105728
+
+=== Saturating Addition and Subtraction ===
+add_sat(uint_max, uint_max) = 340282366920938463463374607431768211455 (saturates to uint_max)
+sub_sat(0, uint_max) = 0 (saturates to 0, not underflow)
+
+=== Saturating Multiplication ===
+mul_sat(int_max, 2) = 170141183460469231731687303715884105727 (saturates to int_max)
+mul_sat(-(int_max - 2), 5) = -170141183460469231731687303715884105728 (saturates to int_min)
+
+=== Saturating Division ===
+div_sat(int_min, -1) = 170141183460469231731687303715884105727 (saturates to int_max; normally this overflows)
+
+=== Saturating Casts ===
+saturate_cast<int128_t>(uint_max) = 170141183460469231731687303715884105727 (saturates to int_max)
+saturate_cast<int64_t>(int_max) = 9223372036854775807 (saturates to INT64_MAX)
+saturate_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
+----
+
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 
