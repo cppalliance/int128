@@ -24,6 +24,14 @@ enum class sign_option
     space
 };
 
+enum class alignment
+{
+    none,
+    left,   // <
+    right,  // >
+    center  // ^
+};
+
 template <typename ParseContext>
 constexpr auto parse_impl(ParseContext& ctx)
 {
@@ -35,6 +43,56 @@ constexpr auto parse_impl(ParseContext& ctx)
     bool prefix = false;
     bool write_as_character = false;
     bool character_debug_format = false;
+    char fill_char = ' ';
+    auto align = alignment::none;
+
+    // Parse fill and alignment: [[fill]align]
+    // Alignment characters are: < (left), > (right), ^ (center)
+    if (it != ctx.end())
+    {
+        // Check if we have [fill]align (fill char followed by alignment)
+        auto next = it;
+        ++next;
+        if (next != ctx.end() && (*next == '<' || *next == '>' || *next == '^'))
+        {
+            fill_char = *it;
+            it = next;
+            switch (*it)
+            {
+                case '<':
+                    align = alignment::left;
+                    break;
+                case '>':
+                    align = alignment::right;
+                    break;
+                case '^':
+                    align = alignment::center;
+                    break;
+                default:
+                    break;
+            }
+            ++it;
+        }
+        // Check if we just have align (no fill char)
+        else if (*it == '<' || *it == '>' || *it == '^')
+        {
+            switch (*it)
+            {
+                case '<':
+                    align = alignment::left;
+                    break;
+                case '>':
+                    align = alignment::right;
+                    break;
+                case '^':
+                    align = alignment::center;
+                    break;
+                default:
+                    break;
+            }
+            ++it;
+        }
+    }
 
     // Handle sign or space
     if (it != ctx.end())
@@ -121,7 +179,7 @@ constexpr auto parse_impl(ParseContext& ctx)
         BOOST_INT128_THROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
-    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, it);
+    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, fill_char, align, it);
 }
 
 template <typename T>
@@ -150,6 +208,8 @@ struct formatter<T>
     bool prefix;
     bool write_as_character;
     bool character_debug_format;
+    char fill_char;
+    boost::int128::detail::alignment align;
 
     constexpr formatter() : base {10},
                             padding_digits {0},
@@ -157,7 +217,9 @@ struct formatter<T>
                             is_upper {false},
                             prefix {false},
                             write_as_character {false},
-                            character_debug_format {false}
+                            character_debug_format {false},
+                            fill_char {' '},
+                            align {boost::int128::detail::alignment::none}
     {}
 
     constexpr auto parse(format_parse_context& ctx)
@@ -171,8 +233,10 @@ struct formatter<T>
         prefix = std::get<4>(res);
         write_as_character = std::get<5>(res);
         character_debug_format = std::get<6>(res);
+        fill_char = std::get<7>(res);
+        align = std::get<8>(res);
 
-        return std::get<7>(res);
+        return std::get<9>(res);
     }
 
     template <typename FormatContext>
@@ -210,7 +274,8 @@ struct formatter<T>
         const auto end = boost::int128::detail::mini_to_chars(buffer, abs_v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
-        if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
+        // Zero-padding only applies when no explicit alignment is set
+        if (align == boost::int128::detail::alignment::none && s.size() - 1u < static_cast<std::size_t>(padding_digits))
         {
             s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, '0');
         }
@@ -293,6 +358,33 @@ struct formatter<T>
 
         s.erase(0, s.find_first_not_of('\0'));
         s.erase(s.find_last_not_of('\0') + 1);
+
+        // Apply alignment if specified
+        if (align != boost::int128::detail::alignment::none && s.size() < static_cast<std::size_t>(padding_digits))
+        {
+            auto fill_count = static_cast<std::size_t>(padding_digits) - s.size();
+            switch (align)
+            {
+                case boost::int128::detail::alignment::left:
+                    s.append(fill_count, fill_char);
+                    break;
+                case boost::int128::detail::alignment::right:
+                    s.insert(s.begin(), fill_count, fill_char);
+                    break;
+                case boost::int128::detail::alignment::center:
+                {
+                    auto left_fill = fill_count / 2;
+                    auto right_fill = fill_count - left_fill;
+                    s.insert(s.begin(), left_fill, fill_char);
+                    s.append(right_fill, fill_char);
+                    break;
+                }
+                    // LCOV_EXCL_START
+                default:
+                    break;
+                    // LCOV_EXCL_STOP
+            }
+        }
 
         return std::format_to(ctx.out(), "{}", s);
     }
