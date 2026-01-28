@@ -13,7 +13,9 @@ All the following examples can be found in the examples/ folder of the library.
 [#examples_construction]
 == Basic Construction
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/construction.cpp[example] demonstrates the various ways to construct uint128_t and int128_t values
+====
+[source, c++]
 ----
 include::example$construction.cpp[]
 ----
@@ -42,11 +44,14 @@ From BOOST_INT128_INT128_C(min): -170141183460469231731687303715884105728
 Default constructed: 0
 Copy constructed: 36893488147419103232
 ----
+====
 
 [#examples_arithmetic]
 == Basic Arithmetic
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/basic_arithmetic.cpp[example] demonstrates arithmetic operations with 128-bit integers
+====
+[source, c++]
 ----
 include::example$basic_arithmetic.cpp[]
 ----
@@ -98,11 +103,14 @@ counter++ = 11
 counter = 12
 --counter = 11
 ----
+====
 
 [#examples_io]
 == IO Streaming
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/stream.cpp[example] demonstrates iostream support and string conversions
+====
+[source, c++]
 ----
 include::example$stream.cpp[]
 ----
@@ -135,19 +143,25 @@ As string:    "68915718020162848918556923512"
 Round-tripped: 68915718020162848918556923512
 Match: true
 ----
+====
 
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/bit.cpp[example] demonstrates bitwise operations from the <bit> header
+====
+[source, c++]
 ----
 include::example$bit.cpp[]
 ----
+====
 
 [#examples_numeric]
 == Saturating Arithmetic (<numeric>)
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/saturating_arithmetic.cpp[example] demonstrates saturating arithmetic operations that clamp to min/max instead of overflowing
+====
+[source, c++]
 ----
 include::example$saturating_arithmetic.cpp[]
 ----
@@ -176,11 +190,14 @@ saturate_cast<int128_t>(uint_max) = 170141183460469231731687303715884105727 (sat
 saturate_cast<int64_t>(int_max) = 9223372036854775807 (saturates to INT64_MAX)
 saturate_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
 ----
+====
 
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/mixed_type_arithmetic.cpp[example] demonstrates arithmetic between 128-bit and built-in integer types
+====
+[source, c++]
 ----
 include::example$mixed_type_arithmetic.cpp[]
 ----
@@ -204,19 +221,25 @@ signed_value - 4U = -7
 signed_value * 2 = -6
 signed_value / 4U = 0
 ----
+====
 
 [#examples_boost_math_random]
 == Boost.Math and Boost.Random Integration
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/math_and_random.cpp[example] demonstrates integration with Boost.Math and Boost.Random libraries
+====
+[source, c++]
 ----
 include::example$math_and_random.cpp[]
 ----
+====
 
 [#examples_boost_charconv]
 == Boost.Charconv Integration
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/charconv.cpp[example] demonstrates fast string-to-number and number-to-string conversions using Boost.Charconv
+====
+[source, c++]
 ----
 include::example$charconv.cpp[]
 ----
@@ -240,11 +263,14 @@ Parsed "-170141183460469231731687303715884105728"
 Parsed hex "DEADBEEFCAFEBABE12345678"
   Result: 68915718020162848918556923512
 ----
+====
 
 [#examples_fmt_format]
 == \{fmt} Library Integration
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/fmt_format.cpp[example] demonstrates formatting with the \{fmt} library including alignment specifiers
+====
+[source, c++]
 ----
 include::example$fmt_format.cpp[]
 ----
@@ -308,11 +334,14 @@ int128_t min: -170141183460469231731687303715884105728
 Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
 Signed with plus, padded: -00123456789012345678
 ----
+====
 
 [#examples_cstdlib]
 == Division with Remainder (<cstdlib>)
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/cstdlib.cpp[example] demonstrates the div() function that returns both quotient and remainder
+====
+[source, c++]
 ----
 include::example$cstdlib.cpp[]
 ----
@@ -342,11 +371,14 @@ Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
 --- Edge Cases ---
 3 / 10 = 0 remainder 3
 ----
+====
 
 [#examples_numeric_algorithms]
 == Numeric Algorithms (<numeric>)
 
-[source,c++]
+.This https://github.com/cppalliance/int128/blob/develop/examples/numeric_algorithms.cpp[example] demonstrates gcd, lcm, and midpoint algorithms
+====
+[source, c++]
 ----
 include::example$numeric_algorithms.cpp[]
 ----
@@ -381,3 +413,4 @@ midpoint(uint128_max, uint128_max - 10) = 34028236692093846346337460743176821145
 midpoint(-100, 100) = 0
 midpoint(-100, -50) = -75
 ----
+====
