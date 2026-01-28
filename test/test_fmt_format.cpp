@@ -133,6 +133,63 @@ void test_string_insertion()
     BOOST_TEST_CSTR_EQ(fmt::format("Height is: {} meters", T {2}).c_str(), "Height is: 2 meters");
 }
 
+template <typename T>
+void test_alignment()
+{
+    // Left alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6d}", T{42}).c_str(), "42    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6}", T{42}).c_str(), "42    ");
+
+    // Right alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6d}", T{42}).c_str(), "    42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6}", T{42}).c_str(), "    42");
+
+    // Center alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^6d}", T{42}).c_str(), "  42  ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^7d}", T{42}).c_str(), "  42   ");
+
+    // Left alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*<6d}", T{42}).c_str(), "42****");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:-<6d}", T{42}).c_str(), "42----");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:0<6d}", T{42}).c_str(), "420000");
+
+    // Right alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*>6d}", T{42}).c_str(), "****42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>>6d}", T{42}).c_str(), ">>>>42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:0>6d}", T{42}).c_str(), "000042");
+
+    // Center alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^6d}", T{42}).c_str(), "**42**");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^7d}", T{42}).c_str(), "**42***");
+
+    // Alignment with sign
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>+6d}", T{42}).c_str(), "   +42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<+6d}", T{42}).c_str(), "+42   ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^+7d}", T{42}).c_str(), "  +42  ");
+
+    // Alignment with hex
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6x}", T{42}).c_str(), "    2a");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6x}", T{42}).c_str(), "2a    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^6x}", T{42}).c_str(), "**2a**");
+
+    // Alignment with prefix (# comes before width in fmt spec)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>#8x}", T{42}).c_str(), "    0x2a");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<#8x}", T{42}).c_str(), "0x2a    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^#8x}", T{42}).c_str(), "**0x2a**");
+}
+
+template <typename T>
+void test_alignment_negative()
+{
+    // Alignment with negative values
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6d}", T{-42}).c_str(), "   -42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6d}", T{-42}).c_str(), "-42   ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^7d}", T{-42}).c_str(), "  -42  ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*>6d}", T{-42}).c_str(), "***-42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*<6d}", T{-42}).c_str(), "-42***");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^7d}", T{-42}).c_str(), "**-42**");
+}
+
 int main()
 {
     test_empty<boost::int128::uint128_t>();
@@ -155,6 +212,10 @@ int main()
 
     test_string_insertion<boost::int128::uint128_t>();
     test_string_insertion<boost::int128::int128_t>();
+
+    test_alignment<boost::int128::uint128_t>();
+    test_alignment<boost::int128::int128_t>();
+    test_alignment_negative<boost::int128::int128_t>();
 
     return boost::report_errors();
 }
