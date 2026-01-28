@@ -240,3 +240,50 @@ Parsed "-170141183460469231731687303715884105728"
 Parsed hex "DEADBEEFCAFEBABE12345678"
   Result: 68915718020162848918556923512
 ----
+
+[#examples_fmt_format]
+== \{fmt} Library Integration
+
+[source,c++]
+----
+include::example$fmt_format.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Basic Formatting ===
+Default (decimal): 68915718020162848918556923512
+Signed value: -123456789012345678
+
+=== Base Specifiers ===
+Binary:      11111111
+Octal:       377
+Decimal:     255
+Hexadecimal: ff
+Hex (upper): FF
+
+=== Alternate Form (Prefixes) ===
+Binary with prefix:  0b11111111
+Octal with prefix:   0377
+Hex with prefix:     0xff
+Hex upper prefix:    0XFF
+
+=== Sign Options ===
+Plus sign:  +42 and -42
+Minus only: 42 and -42
+Space sign:  42 and -42
+
+=== Zero Padding ===
+8-digit padding:  00000255
+16-digit padding: 0000000000000255
+
+=== Large Values ===
+uint128_t max: 340282366920938463463374607431768211455
+uint128_t max (hex): 0xffffffffffffffffffffffffffffffff
+int128_t min: -170141183460469231731687303715884105728
+
+=== Combined Format Specifiers ===
+Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
+Signed with plus, padded: -00123456789012345678
+----
