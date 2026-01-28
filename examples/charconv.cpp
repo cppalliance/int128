@@ -2,9 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-// Allowing sign conversion is a required pre-requisite for Boost.Charconv
-#define BOOST_INT128_ALLOW_SIGN_CONVERSION
-
 #include <boost/int128/int128.hpp>
 #include <boost/int128/iostream.hpp>
 #include <boost/int128/charconv.hpp>
