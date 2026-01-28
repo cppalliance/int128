@@ -49,7 +49,7 @@ void test_big<boost::int128::int128_t>()
     constexpr auto max = std::numeric_limits<int128_t>::max();
     constexpr auto min = std::numeric_limits<int128_t>::min();
 
-    BOOST_TEST_EQ(BOOST_INT128_INT128_C(-170141183460469231731687303715884105728), midpoint(max, min));
+    BOOST_TEST_EQ(0, midpoint(max, min));
 
     BOOST_TEST_EQ(max - 1, midpoint(max, max - 2));
     BOOST_TEST_EQ(min, midpoint(min, min + 1));
