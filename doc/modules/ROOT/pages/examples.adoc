@@ -107,6 +107,35 @@ counter = 12
 include::example$stream.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Basic Streaming ===
+Signed value: -42
+Unsigned value (dec): 36893488147419103231
+Unsigned value (hex): 0x1ffffffffffffffff
+Unsigned value (oct): 03777777777777777777777
+Upper unsigned value: 0X1FFFFFFFFFFFFFFFF
+Lower unsigned value: 36893488147419103231
+
+=== Large Values (Beyond 64-bit) ===
+2^64 = 18446744073709551616
+2^100 = 1267650600228229401496703205376
+uint128_t max = 340282366920938463463374607431768211455
+int128_t min = -170141183460469231731687303715884105728
+int128_t max = 170141183460469231731687303715884105727
+
+=== String Conversion with std::stringstream ===
+uint128_t to string: "1267650600228229401496703205376"
+String to uint128_t: 123456789012345678901234567890
+
+=== Round-trip Conversion ===
+Original:     68915718020162848918556923512
+As string:    "68915718020162848918556923512"
+Round-tripped: 68915718020162848918556923512
+Match: true
+----
+
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
@@ -123,12 +152,57 @@ include::example$bit.cpp[]
 include::example$saturating_arithmetic.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Saturating Arithmetic ===
+uint128_t max = 340282366920938463463374607431768211455
+int128_t max  = 170141183460469231731687303715884105727
+int128_t min  = -170141183460469231731687303715884105728
+
+=== Saturating Addition and Subtraction ===
+add_sat(uint_max, uint_max) = 340282366920938463463374607431768211455 (saturates to uint_max)
+sub_sat(0, uint_max) = 0 (saturates to 0, not underflow)
+
+=== Saturating Multiplication ===
+mul_sat(int_max, 2) = 170141183460469231731687303715884105727 (saturates to int_max)
+mul_sat(-(int_max - 2), 5) = -170141183460469231731687303715884105728 (saturates to int_min)
+
+=== Saturating Division ===
+div_sat(int_min, -1) = 170141183460469231731687303715884105727 (saturates to int_max; normally this overflows)
+
+=== Saturating Casts ===
+saturate_cast<int128_t>(uint_max) = 170141183460469231731687303715884105727 (saturates to int_max)
+saturate_cast<int64_t>(int_max) = 9223372036854775807 (saturates to INT64_MAX)
+saturate_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
+----
+
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 
 [source,c++]
 ----
 include::example$mixed_type_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Mixed Type Arithmetic with uint128_t ===
+unsigned_value = 3
+unsigned_value + 1 = 4
+unsigned_value - 1 = 2
+unsigned_value * 2 = 6
+unsigned_value / 3 = 1
+unsigned_value % 3 = 0
+unsigned_value + 5 = 8 (same as greater_unsigned_value: 8)
+
+=== Mixed Type Arithmetic with int128_t ===
+signed_value = -3
+signed_value + 1U = -2
+signed_value - 4U = -7
+signed_value * 2 = -6
+signed_value / 4U = 0
 ----
 
 [#examples_boost_math_random]
@@ -165,4 +239,124 @@ Parsed "-170141183460469231731687303715884105728"
   Equals min? true
 Parsed hex "DEADBEEFCAFEBABE12345678"
   Result: 68915718020162848918556923512
+----
+
+[#examples_fmt_format]
+== \{fmt} Library Integration
+
+[source,c++]
+----
+include::example$fmt_format.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Basic Formatting ===
+Default (decimal): 68915718020162848918556923512
+Signed value: -123456789012345678
+
+=== Base Specifiers ===
+Binary:      11111111
+Octal:       377
+Decimal:     255
+Hexadecimal: ff
+Hex (upper): FF
+
+=== Alternate Form (Prefixes) ===
+Binary with prefix:  0b11111111
+Octal with prefix:   0377
+Hex with prefix:     0xff
+Hex upper prefix:    0XFF
+
+=== Sign Options ===
+Plus sign:  +42 and -42
+Minus only: 42 and -42
+Space sign:  42 and -42
+
+=== Zero Padding ===
+8-digit padding:  00000255
+16-digit padding: 0000000000000255
+
+=== Large Values ===
+uint128_t max: 340282366920938463463374607431768211455
+uint128_t max (hex): 0xffffffffffffffffffffffffffffffff
+int128_t min: -170141183460469231731687303715884105728
+
+=== Combined Format Specifiers ===
+Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
+Signed with plus, padded: -00123456789012345678
+----
+
+[#examples_cstdlib]
+== Division with Remainder (<cstdlib>)
+
+[source,c++]
+----
+include::example$cstdlib.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== div() Function ===
+Returns both quotient and remainder in a single operation
+
+--- Unsigned Division ---
+1000000000000000000 / 7 = 142857142857142857 remainder 1
+Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
+
+--- Large Value Division ---
+2^100 / 2^50 = 1125899906842624 remainder 0
+
+--- Signed Division ---
+-100 / 7 = -14 remainder -2
+
+--- Sign Combinations ---
+ 17 /  5 = 3 remainder 2
+ 17 / -5 = -3 remainder 2
+-17 /  5 = -3 remainder -2
+-17 / -5 = 3 remainder -2
+
+--- Edge Cases ---
+3 / 10 = 0 remainder 3
+----
+
+[#examples_numeric_algorithms]
+== Numeric Algorithms (<numeric>)
+
+[source,c++]
+----
+include::example$numeric_algorithms.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Greatest Common Divisor (gcd) ===
+gcd(48, 18) = 6
+gcd(123456789012345678, 987654321098765432) = 2
+gcd(2^100, 2^80) = 1208925819614629174706176 (= 2^80)
+gcd(-48, 18) = 6 (always positive)
+
+=== Least Common Multiple (lcm) ===
+lcm(12, 18) = 36
+lcm(7, 11) = 77 (coprime: lcm = p * q)
+
+Verifying gcd * lcm = a * b:
+gcd(12, 18) * lcm(12, 18) = 216
+12 * 18 = 216
+
+=== Midpoint ===
+midpoint(10, 20) = 15
+midpoint(10, 21) = 15 (rounds toward first arg)
+midpoint(21, 10) = 16 (rounds toward first arg)
+
+--- Overflow-safe midpoint ---
+midpoint(uint128_max, uint128_max - 10) = 340282366920938463463374607431768211450
+(This would overflow if computed as (a + b) / 2)
+
+--- Signed midpoint ---
+midpoint(-100, 100) = 0
+midpoint(-100, -50) = -75
 ----

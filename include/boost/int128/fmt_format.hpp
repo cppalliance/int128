@@ -12,7 +12,6 @@
 #include <boost/int128/int128.hpp>
 #include <cstring>
 #include <cstdlib>
-#include <algorithm>
 #include <tuple>
 
 #ifdef __GNUC__
@@ -192,17 +191,34 @@ struct formatter
     {
         char buffer[64];
         bool isneg {false};
+        boost::int128::uint128_t abs_v {};
 
         BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
         {
             if (v < T{0})
             {
                 isneg = true;
-                v = -v;
+                // Can't negate int128_t::min(), handle specially
+                if (v == (std::numeric_limits<T>::min)())
+                {
+                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                }
+                else
+                {
+                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                }
+            }
+            else
+            {
+                abs_v = static_cast<boost::int128::uint128_t>(v);
             }
         }
+        else
+        {
+            abs_v = v;
+        }
 
-        const auto end = detail::mini_to_chars(buffer, v, base, is_upper);
+        const auto end = detail::mini_to_chars(buffer, abs_v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
         if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
@@ -249,7 +265,11 @@ struct formatter
         switch (sign)
         {
             case sign_option::plus:
-                if (!isneg)
+                if (isneg)
+                {
+                    s.insert(s.begin(), '-');
+                }
+                else
                 {
                     s.insert(s.begin(), '+');
                 }

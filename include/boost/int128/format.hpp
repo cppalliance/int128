@@ -180,17 +180,34 @@ struct formatter<T>
     {
         char buffer[64];
         bool isneg {false};
+        boost::int128::uint128_t abs_v {};
 
         if constexpr (std::is_same_v<T, boost::int128::int128_t>)
         {
             if (v < 0)
             {
                 isneg = true;
-                v = -v;
+                // Can't negate int128_t::min(), handle specially
+                if (v == (std::numeric_limits<T>::min)())
+                {
+                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                }
+                else
+                {
+                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                }
+            }
+            else
+            {
+                abs_v = static_cast<boost::int128::uint128_t>(v);
             }
         }
+        else
+        {
+            abs_v = v;
+        }
 
-        const auto end = boost::int128::detail::mini_to_chars(buffer, v, base, is_upper);
+        const auto end = boost::int128::detail::mini_to_chars(buffer, abs_v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
         if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
@@ -237,7 +254,11 @@ struct formatter<T>
         switch (sign)
         {
             case boost::int128::detail::sign_option::plus:
-                if (!isneg)
+                if (isneg)
+                {
+                    s.insert(s.begin(), '-');
+                }
+                else
                 {
                     s.insert(s.begin(), '+');
                 }

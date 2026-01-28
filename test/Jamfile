@@ -89,11 +89,14 @@ run test_num_digits.cpp ;
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
-compile-fail ../examples/mixed_type_arithmetic.cpp ;
+run ../examples/mixed_type_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
 run ../examples/math_and_random.cpp ;
 run ../examples/charconv.cpp ;
+run ../examples/fmt_format.cpp ;
+run ../examples/cstdlib.cpp ;
+run ../examples/numeric_algorithms.cpp ;
 
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 
