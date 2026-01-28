@@ -107,6 +107,35 @@ counter = 12
 include::example$stream.cpp[]
 ----
 
+.Expected Output
+[listing]
+----
+=== Basic Streaming ===
+Signed value: -42
+Unsigned value (dec): 36893488147419103231
+Unsigned value (hex): 0x1ffffffffffffffff
+Unsigned value (oct): 03777777777777777777777
+Upper unsigned value: 0X1FFFFFFFFFFFFFFFF
+Lower unsigned value: 36893488147419103231
+
+=== Large Values (Beyond 64-bit) ===
+2^64 = 18446744073709551616
+2^100 = 1267650600228229401496703205376
+uint128_t max = 340282366920938463463374607431768211455
+int128_t min = -170141183460469231731687303715884105728
+int128_t max = 170141183460469231731687303715884105727
+
+=== String Conversion with std::stringstream ===
+uint128_t to string: "1267650600228229401496703205376"
+String to uint128_t: 123456789012345678901234567890
+
+=== Round-trip Conversion ===
+Original:     68915718020162848918556923512
+As string:    "68915718020162848918556923512"
+Round-tripped: 68915718020162848918556923512
+Match: true
+----
+
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
