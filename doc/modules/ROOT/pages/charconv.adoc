@@ -10,7 +10,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 The following functions are all overloads injected into https://www.boost.org/doc/libs/master/libs/charconv/doc/html/charconv.html[Boost.Charconv].
 
-IMPORTANT: Unlike the rest of the library, using this header depends on Boost.Charconv being present. This header will `#error` if Boost.Charconv is missing
+IMPORTANT: Unlike the rest of the library, using this header depends on the headers of Boost.Charconv being present, otherwise it will `#error`.
 
 [#to_chars]
 == to_chars
@@ -25,13 +25,27 @@ For full documentation and explanation see the Boost.Charconv https://www.boost.
 namespace boost {
 namespace charconv {
 
-BOOST_CHARCONV_CONSTEXPR to_chars(char* first, char* last, int128::uint128_t, int base = 10) noexcept;
+struct to_chars_result
+{
+    char* ptr;
+    std::errc ec;
 
-BOOST_CHARCONV_CONSTEXPR to_chars(char* first, char* last, int128::int128_t, int base = 10) noexcept;
+    friend constexpr bool operator==(const to_chars_result& lhs, const to_chars_result& rhs) noexcept; = default;
+    constexpr explicit operator bool() const noexcept { return ec == std::errc{}; }
+};
+
+
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::uint128_t, int base = 10) noexcept;
+
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::int128_t, int base = 10) noexcept;
 
 } // namespace charconv
 } // namespace boost
 ----
+
+`BOOST_CHARCONV_CONSTEXPR` is defined as `constexpr` when using a compiler with pass:[__builtin_is_constant_evaluated],
+or pass:[c++20] with `std::is_constant_evaluated()`.
+Otherwise, it is defined as `inline`.
 
 NOTE: These functions are in the namespace `boost::charconv`, and not `boost::int128`
 
@@ -47,6 +61,15 @@ For full documentation and explanation see the Boost.Charconv https://www.boost.
 
 namespace boost {
 namespace charconv {
+
+struct from_chars_result
+{
+    const char* ptr;
+    std::errc ec;
+
+    friend constexpr bool operator==(const from_chars_result& lhs, const from_chars_result& rhs) noexcept = default;
+    constexpr explicit operator bool() const noexcept { return ec == std::errc{}; }
+}
 
 constexpr from_chars_result from_chars(const char* first, const char* last, int128::uint128_t& value, int base = 10) noexcept;
 
