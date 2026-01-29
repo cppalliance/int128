@@ -6,13 +6,10 @@
 
 require-b2 5.2 ;
 
-project /boost/int128
-    : common-requirements
-        <include>include
-    ;
+project /boost/int128 ;
 
 explicit
-    [ alias boost_int128 ]
+    [ alias boost_int128 : : : : <include>include <library>$(boost_dependencies) ]
     [ alias all : boost_int128 test ]
     ;
 
