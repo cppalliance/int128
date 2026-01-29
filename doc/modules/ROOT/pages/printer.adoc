@@ -8,7 +8,11 @@ https://www.boost.org/LICENSE_1_0.txt
 = Pretty Printers
 :idprefix: pretty_printers_
 
-The library contains a pretty printer for LLDB in the `extra/` folder.
+Pretty printers allow debuggers to display `uint128_t` and `int128_t` values in human-readable decimal format instead of showing the raw struct members.
+The library contains pretty printers for LLDB and GDB in the `extra/` folder.
+
+== LLDB
+
 To use this, add the following line to your `~/.lldbinit` file:
 
 [source]
@@ -18,4 +22,20 @@ command script import /path/to/int128/extra/int128_printer.py
 
 If this is successful, you should see the following message in your debugger upon startup:
 
-"int128_t and uint128_t pretty printers loaded successfully"
+`"int128_t and uint128_t pretty printers loaded successfully"`
+
+== GDB
+
+To load the pretty printer, add the following line to your `.gdbinit`:
+
+[source]
+----
+source /path/to/int128/extra/int128_printer_gdb.py
+----
+
+or you can source it manually in GDB.
+
+[source]
+----
+(gdb) source /path/to/int128/extra/int128_printer_gdb.py
+----
