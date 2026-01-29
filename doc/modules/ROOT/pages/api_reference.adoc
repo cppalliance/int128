@@ -244,23 +244,6 @@ Listed by analogous STL header.
 | Midpoint between two values
 |===
 
-[#api_concepts]
-== Concepts
-
-[cols="1,2", options="header"]
-|===
-| Concept | Description
-
-| xref:concepts.adoc#unsigned_integer[`unsigned_integer`]
-| Constrains to unsigned integer types
-
-| xref:concepts.adoc#signed_integer[`signed_integer`]
-| Constrains to signed integer types
-
-| xref:concepts.adoc#integer[`integer`]
-| Constrains to any integer type
-|===
-
 [#api_macros]
 == Macros
 
