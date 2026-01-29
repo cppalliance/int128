@@ -660,7 +660,7 @@ This operation is subject to mixed sign limitations discussed xref:uint128_t.ado
 
 
 [#u128_math_operators]
-== Mathematical Operators
+== Arithmetic Operators
 
 === Addition
 

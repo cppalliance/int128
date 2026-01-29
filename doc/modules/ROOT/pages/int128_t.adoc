@@ -664,7 +664,7 @@ This operation is subject to mixed sign limitations discussed xref:int128_t.adoc
 
 
 [#i128_math_operators]
-== Mathematical Operators
+== Arithmetic Operators
 
 === Addition
 
