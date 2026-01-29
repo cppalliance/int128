@@ -172,7 +172,7 @@ Listed by analogous STL header.
 | C++20 `std::format` support
 
 | xref:format.adoc#fmt_format[`pass:[{fmt}]`]
-| `{fmt}` library support
+| `pass:[{fmt}]` library support
 |===
 
 [#api_iostream]
