@@ -8,13 +8,14 @@ https://www.boost.org/LICENSE_1_0.txt
 = Formatting Support
 :idprefix: format_
 
-Boost.int128 support formatting with both `<format>` (when pass:[C++20] and the header are both available), and `<fmt/format.h>`
-The following modifiers are listed in order of how they should be specified in the format string to be valid, and all information applies for both `<format>` and `<fmt/format.h>`
+Boost.Int128 supports formatting with both `<format>` (when pass:[C++20] and the header are both available), and `pass:[<fmt/format.h>]`.
+The following modifiers are listed in order of how they should be specified in the format string to be valid, and all information applies for both `<format>` and `pass:[<fmt/format.h>]`.
 
 == Fill and Alignment
 
 You can specify alignment with an optional fill character. The format is `[[fill]align]` where:
 
+[options="header"]
 |===
 | Alignment | Effect
 | `<`       | Left-aligns the value within the available space
@@ -25,6 +26,7 @@ You can specify alignment with an optional fill character. The format is `[[fill
 The optional fill character (default is space) appears before the alignment character.
 
 Examples:
+[options="header"]
 |===
 | Format    | Output for 42
 | `{:<6d}`  | `"42    "` (left-aligned with spaces)
@@ -39,8 +41,9 @@ NOTE: When no alignment is specified but a width is given (e.g., `{:6d}`), zero-
 
 == Sign
 
-There are three allowable sings first in the format string:
+There are three allowable signs first in the format string:
 
+[options="header"]
 |===
 | Sign      | Effect
 | `+`       | Adds a `+` to positive values, and a `-` to negative values
@@ -57,18 +60,20 @@ Any integer value is accepted here.
 
 If you want to prepend the prefix to your number (if applicable) add `#`
 
+[options="header"]
 |===
 | Output Base   | Effect
 | Binary        | `0b` or `0B`
-| Octal         | `O`
+| Octal         | `0`
 | Decimal       | None
 | Hex           | `0x` or `0X`
 |===
 
 == Output Base Modifiers
 
-The following type modifiers are the same as those used by built-in integer values
+The following type modifiers are the same as those used by built-in integer values.
 
+[options="header"]
 |===
 | Modifier  | Format
 | b, B      | Binary
@@ -77,110 +82,25 @@ The following type modifiers are the same as those used by built-in integer valu
 | x, X      | Hex
 |===
 
-NOTE: When the uppercase modifier is used all characters will be capitalized (e.g. 0x2a vs 0X2A)
+NOTE: When the uppercase modifier is used, all characters will be capitalized (e.g. 0x2a vs 0X2A).
 
 == Default
 
 The default format string `{}` will output the same as `{:-d}`, that is a decimal value which only has a sign if negative.
 
-[#std_format]
-== `<format>`
-
-Examples using all of the above modifiers in some permutation:
-
-[source, c++]
-----
-#include <boost/int128.hpp>
-#include <format>
-#include <iostream>
-
-int main()
-{
-    constexpr boost::int128::int128_t value {42};
-
-    // Default format
-    std::cout << std::format("{}", value) << '\n'; // Outputs: 42
-
-    // Sign modifier
-    std::cout << std::format("{:+d}", value) << '\n'; // Outputs +42
-    std::cout << std::format("{:+d}", -value) << '\n'; // Outputs -42
-
-    // Alignment with fill characters
-    std::cout << std::format("{:<10d}", value) << '\n';  // Outputs "42        " (left-aligned)
-    std::cout << std::format("{:>10d}", value) << '\n';  // Outputs "        42" (right-aligned)
-    std::cout << std::format("{:^10d}", value) << '\n';  // Outputs "    42    " (centered)
-    std::cout << std::format("{:*<10d}", value) << '\n'; // Outputs "42********" (left, fill with *)
-    std::cout << std::format("{:0>10d}", value) << '\n'; // Outputs "0000000042" (right, fill with 0)
-    std::cout << std::format("{:*^10d}", value) << '\n'; // Outputs "****42****" (centered, fill with *)
-
-    // Alignment with sign
-    std::cout << std::format("{:>+10d}", value) << '\n'; // Outputs "       +42"
-    std::cout << std::format("{:<+10d}", value) << '\n'; // Outputs "+42       "
-
-    // Output base modifier and Prefix
-    std::cout << std::format("{:x}", value) << '\n'; // Outputs 2a
-    std::cout << std::format("{:X}", value) << '\n'; // Outputs 2A
-    std::cout << std::format("{:#X}", value) << '\n'; // Outputs 0X2A
-
-    // Alignment with hex and prefix
-    std::cout << std::format("{:>#10x}", value) << '\n';  // Outputs "      0x2a"
-    std::cout << std::format("{:<#10x}", value) << '\n';  // Outputs "0x2a      "
-    std::cout << std::format("{:*^#10x}", value) << '\n'; // Outputs "***0x2a***"
-
-    // Zero-padding (no alignment specified)
-    std::cout << std::format("{:#10X}", value) << '\n'; // Outputs 0X00000002A
-
-    return 0;
-}
-----
-
 [#fmt_format]
 == `pass:[{fmt}]`
 
-This is nearly the same as above but with `fmt::format` in place of `std::format`:
+To use the `pass:[{fmt}]` library, include `<boost/int128/fmt_format.hpp>` and `<fmt/format.h>`.
+The format specifiers described above work with `fmt::format`.
 
-[source, c++]
-----
-#include <boost/int128.hpp>
-#include <fmt/format.h>
-#include <iostream>
+See the xref:examples.adoc#examples_fmt_format[formatting example] for a complete demonstration of these features.
 
-int main()
-{
-    constexpr boost::int128::int128_t value {42};
+[#std_format]
+== `<format>`
 
-    // Default format
-    std::cout << fmt::format("{}", value) << '\n'; // Outputs: 42
+To use `std::format`, include `<boost/int128/format.hpp>` and `<format>`.
+The format specifiers described above work with `std::format`.
 
-    // Sign modifier
-    std::cout << fmt::format("{:+d}", value) << '\n'; // Outputs +42
-    std::cout << fmt::format("{:+d}", -value) << '\n'; // Outputs -42
-
-    // Alignment with fill characters
-    std::cout << fmt::format("{:<10d}", value) << '\n';  // Outputs "42        " (left-aligned)
-    std::cout << fmt::format("{:>10d}", value) << '\n';  // Outputs "        42" (right-aligned)
-    std::cout << fmt::format("{:^10d}", value) << '\n';  // Outputs "    42    " (centered)
-    std::cout << fmt::format("{:*<10d}", value) << '\n'; // Outputs "42********" (left, fill with *)
-    std::cout << fmt::format("{:0>10d}", value) << '\n'; // Outputs "0000000042" (right, fill with 0)
-    std::cout << fmt::format("{:*^10d}", value) << '\n'; // Outputs "****42****" (centered, fill with *)
-
-    // Alignment with sign
-    std::cout << fmt::format("{:>+10d}", value) << '\n'; // Outputs "       +42"
-    std::cout << fmt::format("{:<+10d}", value) << '\n'; // Outputs "+42       "
-
-    // Output base modifier and Prefix
-    std::cout << fmt::format("{:x}", value) << '\n'; // Outputs 2a
-    std::cout << fmt::format("{:X}", value) << '\n'; // Outputs 2A
-    std::cout << fmt::format("{:#X}", value) << '\n'; // Outputs 0X2A
-
-    // Alignment with hex and prefix
-    std::cout << fmt::format("{:>#10x}", value) << '\n';  // Outputs "      0x2a"
-    std::cout << fmt::format("{:<#10x}", value) << '\n';  // Outputs "0x2a      "
-    std::cout << fmt::format("{:*^#10x}", value) << '\n'; // Outputs "***0x2a***"
-
-    // Zero-padding (no alignment specified)
-    std::cout << fmt::format("{:#10X}", value) << '\n'; // Outputs 0X00000002A
-
-    return 0;
-}
-----
+The xref:examples.adoc#examples_fmt_format[formatting example] can be trivially modified by including `<format>`,
+and replacing all instances of `fmt::` with `std::`
