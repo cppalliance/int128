@@ -8,29 +8,36 @@ https://www.boost.org/LICENSE_1_0.txt
 = Configuration Macros
 :idprefix: config_
 
+[source,c++]
+----
+#include <boost/int128/config.hpp>
+----
+
 == User Configurable Macros
 
+These macros allow customization of library behavior. User-configurable macros should be defined before including any library headers.
+
 [#no_int128]
-- `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `\__int128` or `unsigned __int128` types.
+- `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.
 
 [#sign_compare]
-- `BOOST_INT128_ALLOW_SIGN_COMPARE` - Allows only comparisons between this library's types, and built-in types of the opposite sign.
+- `BOOST_INT128_ALLOW_SIGN_COMPARE`: Allows comparisons between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-compare` warning.
 
-IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
+IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
 
 [#sign_conversion]
-- `BOOST_INT128_ALLOW_SIGN_CONVERSION` - Allows operations between this library's types, and built-in types of opposite signedness, to include sign comparisons.
+- `BOOST_INT128_ALLOW_SIGN_CONVERSION`: Allows arithmetic operations between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-conversion` warning. Implies `BOOST_INT128_ALLOW_SIGN_COMPARE`.
 
-IMPORTANT: DISABLED BY DEFAULT FOR CORRECTNESS
+IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
 
 [#disable_exceptions]
-- `BOOST_INT128_DISABLE_EXCEPTIONS` - Allows exceptions to be disabled.
+- `BOOST_INT128_DISABLE_EXCEPTIONS`: Allows exceptions to be disabled.
 This macro will automatically be defined in the presence of `-fno-exceptions` or similar MSVC flags.
 
 [#automatic_config]
 == Automatic Configuration Macros
 
-- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `\___int128` or `unsigned __int128` types (e.g. `\__x86_64___`).
+- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `pass:[__int128]` or `pass:[unsigned __int128]` types (e.g. `pass:[__x86_64__]`).
 
 - `BOOST_INT128_ENDIAN_LITTLE_BYTE`: This is defined to `1` when compiling on a little endian architecture, otherwise `0`.
 

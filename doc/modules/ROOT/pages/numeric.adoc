@@ -12,53 +12,48 @@ https://www.boost.org/LICENSE_1_0.txt
 == Saturating Arithmetic
 
 Saturating arithmetic avoids the possibility of overflow or underflow, by clamping the value to a defined range should either of these situations occur.
-This means that on overflow the types will return `std::numeric_limits::max()`, and on underflow they will return `std::numeric_limits::min()`.
+This means that on overflow the result will be the maximum value of the type, and on underflow it will be the minimum value of the type.
 The following functions are provided for saturating arithmetic, and they *do not* require C++26.
 
 [source, c++]
 ----
-
 #include <boost/int128/numeric.hpp>
+----
 
+[source, c++]
+----
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t add_sat(uint128_t lhs, uint128_t rhs) noexcept;
+constexpr uint128_t add_sat(const uint128_t& lhs, const uint128_t& rhs) noexcept;
+constexpr int128_t add_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
 
-constexpr int128_t add_sat(int128_t lhs, int128_t rhs) noexcept;
+constexpr uint128_t sub_sat(const uint128_t& lhs, const uint128_t& rhs) noexcept;
+constexpr int128_t sub_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
 
-constexpr uint128_t sub_sat(uint128_t lhs, uint128_t rhs) noexcept;
+constexpr uint128_t mul_sat(const uint128_t& lhs, const uint128_t& rhs) noexcept;
+constexpr int128_t mul_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
 
-constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) noexcept;
-
-constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
-
-constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
-
-constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
-
-constexpr int128_t div_sat(int128_t lhs, int128_t rhs) noexcept;
+constexpr uint128_t div_sat(const uint128_t& lhs, const uint128_t& rhs) noexcept;
+constexpr int128_t div_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#saturating_cast]
 == Saturating Cast
 
 This function allows a `LibraryIntegerType` (i.e. `uint128_t` or `int128_t`) to be safely casted to another integer type to include built-in and hardware integer types (`TargetIntegerType`).
-Should the `TargetIntegerType` not be able to represent the value of the `LibraryIntegerType` it will be set to either `std::numeric_limits::max()` or `std::numeric_limits::min()` depending on if the situation is overflow or underflow.
+Should the `TargetIntegerType` not be able to represent the value of the `LibraryIntegerType`, it will be clamped to either the maximum or minimum value of `TargetIntegerType` depending on whether the situation is overflow or underflow.
 
 [source, c++]
 ----
-#include <boost/int128/numeric.hpp>
-
 namespace boost {
 namespace int128 {
 
-constexpr <typename LibraryIntegerType, typename TargetIntegerType>
-constexpr TargetIntegerType saturate_cast(LibraryIntegerType x) noexcept;
+template <typename TargetIntegerType, typename LibraryIntegerType>
+constexpr TargetIntegerType saturate_cast(const LibraryIntegerType& x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -71,18 +66,14 @@ Computes the greatest common divisor of `a` and `b`.
 
 [source, c++]
 ----
-#include <boost/int128/numeric.hpp>
-
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
-
-constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
+constexpr uint128_t gcd(const uint128_t& a, const uint128_t& b) noexcept;
+constexpr int128_t gcd(const int128_t& a, const int128_t& b) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#lcm]
@@ -92,18 +83,14 @@ Computes the least common multiple of `a` and `b`.
 
 [source, c++]
 ----
-#include <boost/int128/numeric.hpp>
-
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
-
-constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
+constexpr uint128_t lcm(const uint128_t& a, const uint128_t& b) noexcept;
+constexpr int128_t lcm(const int128_t& a, const int128_t& b) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#midpoint]
@@ -113,16 +100,12 @@ Computes the midpoint of `a` and `b`, rounding towards `a`.
 
 [source, c++]
 ----
-#include <boost/int128/numeric.hpp>
-
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
-
-constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
+constexpr uint128_t midpoint(const uint128_t& a, const uint128_t& b) noexcept;
+constexpr int128_t midpoint(const int128_t& a, const int128_t& b) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----

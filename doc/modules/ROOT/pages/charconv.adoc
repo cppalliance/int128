@@ -16,7 +16,7 @@ IMPORTANT: Unlike the rest of the library, using this header depends on the head
 == to_chars
 
 `to_chars` is a set of functions that attempts to convert `value` into a character buffer specified by `[first, last)`.
-For full documentation and explanation see the Boost.Charconv https://www.boost.org/doc/libs/master/libs/charconv/doc/html/charconv.html[`to_chars` docs]
+For full documentation and explanation see the https://www.boost.org/doc/libs/develop/libs/charconv/doc/html/charconv.html[Boost.Charconv documentation].
 
 [source,c++]
 ----
@@ -30,14 +30,14 @@ struct to_chars_result
     char* ptr;
     std::errc ec;
 
-    friend constexpr bool operator==(const to_chars_result& lhs, const to_chars_result& rhs) noexcept; = default;
+    friend constexpr bool operator==(const to_chars_result& lhs, const to_chars_result& rhs) noexcept = default;
     constexpr explicit operator bool() const noexcept { return ec == std::errc{}; }
 };
 
 
-BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::uint128_t, int base = 10) noexcept;
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::uint128_t value, int base = 10) noexcept;
 
-BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::int128_t, int base = 10) noexcept;
+BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, int128::int128_t value, int base = 10) noexcept;
 
 } // namespace charconv
 } // namespace boost
@@ -53,7 +53,7 @@ NOTE: These functions are in the namespace `boost::charconv`, and not `boost::in
 == from_chars
 
 `from_chars` is a set of functions that parse a string from `[first, last)` in an attempt to convert the string into value according to the chars_format specified (if applicable).
-For full documentation and explanation see the Boost.Charconv https://www.boost.org/doc/libs/master/libs/charconv/doc/html/charconv.html[`from_chars` docs]
+For full documentation and explanation see the https://www.boost.org/doc/libs/develop/libs/charconv/doc/html/charconv.html[Boost.Charconv documentation].
 
 [source,c++]
 ----
@@ -69,7 +69,7 @@ struct from_chars_result
 
     friend constexpr bool operator==(const from_chars_result& lhs, const from_chars_result& rhs) noexcept = default;
     constexpr explicit operator bool() const noexcept { return ec == std::errc{}; }
-}
+};
 
 constexpr from_chars_result from_chars(const char* first, const char* last, int128::uint128_t& value, int base = 10) noexcept;
 
@@ -83,5 +83,4 @@ constexpr from_chars_result from_chars(core::string_view sv, int128::int128_t& v
 
 } // namespace charconv
 } // namespace boost
-
 ----

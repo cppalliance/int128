@@ -82,7 +82,7 @@ https://www.boost.org/LICENSE_1_0.txt
 Listed by analogous STL header.
 
 [#api_bit]
-=== `<bit>`
+=== xref:bit.adoc[`<bit>`]
 
 [cols="1,2", options="header"]
 |===
@@ -126,7 +126,7 @@ Listed by analogous STL header.
 |===
 
 [#api_charconv]
-=== `<charconv>`
+=== xref:charconv.adoc[`<charconv>`]
 
 [cols="1,2", options="header"]
 |===
@@ -151,7 +151,7 @@ Listed by analogous STL header.
 |===
 
 [#api_cstdlib]
-=== `<cstdlib>`
+=== xref:cstdlib.adoc[`<cstdlib>`]
 
 [cols="1,2", options="header"]
 |===
@@ -162,7 +162,7 @@ Listed by analogous STL header.
 |===
 
 [#api_formatting]
-=== Formatting
+=== xref:format.adoc[Formatting]
 
 [cols="1,2", options="header"]
 |===
@@ -176,7 +176,7 @@ Listed by analogous STL header.
 |===
 
 [#api_iostream]
-=== `<iostream>`
+=== xref:stream.adoc[`<iostream>`]
 
 [cols="1,2", options="header"]
 |===
@@ -190,7 +190,7 @@ Listed by analogous STL header.
 |===
 
 [#api_ios]
-=== `<ios>`
+=== xref:stream.adoc#ios[`<ios>`]
 
 [cols="1,2", options="header"]
 |===
@@ -213,7 +213,7 @@ Listed by analogous STL header.
 |===
 
 [#api_numeric]
-=== `<numeric>`
+=== xref:numeric.adoc[`<numeric>`]
 
 [cols="1,2", options="header"]
 |===
@@ -242,23 +242,6 @@ Listed by analogous STL header.
 
 | xref:numeric.adoc#midpoint[`midpoint`]
 | Midpoint between two values
-|===
-
-[#api_concepts]
-== Concepts
-
-[cols="1,2", options="header"]
-|===
-| Concept | Description
-
-| xref:concepts.adoc#unsigned_integer[`unsigned_integer`]
-| Constrains to unsigned integer types
-
-| xref:concepts.adoc#signed_integer[`signed_integer`]
-| Constrains to signed integer types
-
-| xref:concepts.adoc#integer[`integer`]
-| Constrains to any integer type
 |===
 
 [#api_macros]
