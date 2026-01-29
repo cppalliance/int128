@@ -10,20 +10,44 @@ https://www.boost.org/LICENSE_1_0.txt
 :idprefix: structure_
 
 The entire library can be consumed via `<boost/int128.hpp>`, or by independently selecting any of the library headers.
-Below is the directory structure for reference:
 
-----
-boost/
-├── int128.hpp
-└── int128/
-    ├── bit.hpp
-    ├── charconv.hpp
-    ├── climits.hpp
-    ├── fmt_format.hpp
-    ├── format.hpp
-    ├── int128.hpp
-    ├── iostream.hpp
-    ├── limits.hpp
-    ├── literals.hpp
-    └── numeric.hpp
-----
+[cols="1,2", options="header"]
+|===
+| Header | Description
+
+| `<boost/int128.hpp>`
+| The complete library (includes all headers below)
+
+| xref:bit.adoc[`<boost/int128/bit.hpp>`]
+| Bit manipulation functions
+
+| xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
+| Character conversion (`to_chars`/`from_chars`)
+
+| xref:api_reference.adoc#api_macro_literals[`<boost/int128/climits.hpp>`]
+| C-style limit macros (`BOOST_INT128_INT128_MAX`, etc.)
+
+| xref:cstdlib.adoc[`<boost/int128/cstdlib.hpp>`]
+| Division with quotient and remainder (`div`)
+
+| xref:format.adoc[`<boost/int128/fmt_format.hpp>`]
+| `pass:[{fmt}]` library support
+
+| xref:format.adoc[`<boost/int128/format.hpp>`]
+| C++20 `std::format` support
+
+| `<boost/int128/int128.hpp>`
+| Core type definitions (`uint128_t`, `int128_t`)
+
+| xref:stream.adoc[`<boost/int128/iostream.hpp>`]
+| Stream insertion/extraction operators
+
+| xref:api_reference.adoc#api_structs[`<boost/int128/limits.hpp>`]
+| `std::numeric_limits` specializations
+
+| xref:literals.adoc[`<boost/int128/literals.hpp>`]
+| User-defined literals (`_u128`, `_i128`)
+
+| xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
+| Numeric functions (`gcd`, `lcm`, saturating arithmetic)
+|===
