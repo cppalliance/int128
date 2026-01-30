@@ -18,6 +18,7 @@
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wconversion"
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
 
 #include <fmt/base.h>
