@@ -50,6 +50,8 @@ void test_binary()
     BOOST_TEST_CSTR_EQ(fmt::format("{:6b}", T{5}).c_str(), "000101");
     BOOST_TEST_CSTR_EQ(fmt::format("{:#6b}", T{5}).c_str(), "0b000101");
     BOOST_TEST_CSTR_EQ(fmt::format("{:#06B}", T{5}).c_str(), "0B000101");
+
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#010b}", T{42}).c_str(), "0b00101010");
 }
 
 template <typename T>
