@@ -286,10 +286,49 @@ struct formatter
         const auto end = detail::mini_to_chars(buffer, abs_v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
-        // Zero-padding only applies when no explicit alignment is set
-        if (align == alignment::none && s.size() - 1u < static_cast<std::size_t>(padding_digits))
+        // Calculate prefix length that will be added later
+        std::size_t prefix_len {0};
+        if (prefix)
         {
-            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, '0');
+            switch (base)
+            {
+                case 2:
+                case 16:
+                    prefix_len = 2;  // "0b", "0B", "0x", or "0X"
+                    break;
+                case 8:
+                    prefix_len = 1;  // "0"
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // Calculate sign length that will be added later
+        std::size_t sign_len {0};
+        if (sign == sign_option::plus || sign == sign_option::space || isneg)
+        {
+            sign_len = 1;
+        }
+
+        // Zero-padding only applies when no explicit alignment is set
+        // Account for prefix and sign in the padding calculation
+        if (align == alignment::none && padding_digits > 0)
+        {
+            auto target_digit_width {static_cast<std::size_t>(padding_digits)};
+            if (target_digit_width > prefix_len + sign_len)
+            {
+                target_digit_width -= prefix_len + sign_len;
+            }
+            else
+            {
+                target_digit_width = 0;
+            }
+
+            if (s.size() - 1u < target_digit_width)
+            {
+                s.insert(s.begin(), target_digit_width - s.size() + 1u, '0');
+            }
         }
 
         if (prefix)
