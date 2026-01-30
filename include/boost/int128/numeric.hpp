@@ -52,7 +52,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<Intege
 
 } // namespace detail
 
-BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t& x, const uint128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x + y};
 
@@ -64,7 +64,7 @@ BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t& x, const uint12
     return z;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t& x, const uint128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x - y};
 
@@ -76,8 +76,8 @@ BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t& x, const uint12
     return z;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t add_sat(const int128_t& x, const int128_t& y) noexcept;
-BOOST_INT128_EXPORT constexpr int128_t sub_sat(const int128_t& x, const int128_t& y) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
+BOOST_INT128_EXPORT constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
 
 #ifdef _MSC_VER
 #  pragma warning(push)
@@ -85,7 +85,7 @@ BOOST_INT128_EXPORT constexpr int128_t sub_sat(const int128_t& x, const int128_t
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-constexpr int128_t add_sat(const int128_t& x, const int128_t& y) noexcept
+constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x >= 0 && y >= 0)
     {
@@ -113,7 +113,7 @@ constexpr int128_t add_sat(const int128_t& x, const int128_t& y) noexcept
     }
 }
 
-constexpr int128_t sub_sat(const int128_t& x, const int128_t& y) noexcept
+constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
     if (x <= 0 && y >= 0)
     {
@@ -141,7 +141,7 @@ constexpr int128_t sub_sat(const int128_t& x, const int128_t& y) noexcept
 #  pragma warning(pop)
 #endif
 
-BOOST_INT128_EXPORT constexpr uint128_t mul_sat(const uint128_t& x, const uint128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
@@ -175,12 +175,12 @@ BOOST_INT128_EXPORT constexpr int128_t mul_sat(const int128_t& x, const int128_t
     return res;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t div_sat(const uint128_t& x, const uint128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t& x, const int128_t& y) noexcept
+BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
     {
@@ -197,7 +197,7 @@ BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t& x, const int128_t
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr TargetType saturate_cast(const uint128_t& value) noexcept
+constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
     {
@@ -219,7 +219,7 @@ constexpr TargetType saturate_cast(const uint128_t& value) noexcept
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr TargetType saturate_cast(const int128_t& value) noexcept
+constexpr TargetType saturate_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
     {
@@ -283,21 +283,17 @@ constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
 
 } // namespace detail
 
-constexpr uint128_t gcd(const uint128_t& a_in, const uint128_t& b_in) noexcept
+constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 {
     // Base case
-    if (a_in == 0U)
+    if (a == 0U)
     {
-        return b_in;
+        return b;
     }
-    if (b_in == 0U)
+    if (b == 0U)
     {
-        return a_in;
+        return a;
     }
-
-    // Local copies since we modify these
-    auto a {a_in};
-    auto b {b_in};
 
     const auto a_zero {countr_zero(a)};
     const auto b_zero {countr_zero(b)};
@@ -330,7 +326,7 @@ constexpr uint128_t gcd(const uint128_t& a_in, const uint128_t& b_in) noexcept
     return a << shift; // LCOV_EXCL_LINE : Should be unreachable, but this is also the correct answer
 }
 
-constexpr int128_t gcd(const int128_t& a, const int128_t& b) noexcept
+constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
@@ -340,7 +336,7 @@ constexpr int128_t gcd(const int128_t& a, const int128_t& b) noexcept
 // but very slow impl that we know works.
 #if !(defined(_M_IX86) && !defined(_NDEBUG))
 
-constexpr uint128_t lcm(const uint128_t& a, const uint128_t& b) noexcept
+constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
     {
@@ -356,19 +352,16 @@ constexpr uint128_t lcm(const uint128_t& a, const uint128_t& b) noexcept
 
 #else
 
-constexpr uint128_t lcm(const uint128_t& a_in, const uint128_t& b_in) noexcept
+constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
 {
-    if (a_in == 0U || b_in == 0U)
+    if (a == 0U || b == 0U)
     {
         return 0;
     }
 
-    // Local copies since we modify these
-    auto a {a_in};
-    auto b {b_in};
 
     unsigned shift{};
-    while ((a & 1U) == 0U && (b & 1U) == 0U)
+    while ((a & 1U) == 0U && (b & 1U) == 0U) 
     {
         a >>= 1U;
         b >>= 1U;
@@ -381,24 +374,24 @@ constexpr uint128_t lcm(const uint128_t& a_in, const uint128_t& b_in) noexcept
         std::swap(a, b);
     }
 
-    uint128_t lcm_val{a};
+    uint128_t lcm{a};
 
-    while (lcm_val % b != 0U)
+    while (lcm % b != 0U) 
     {
-        lcm_val += a;
+        lcm += a;
     }
 
-    return lcm_val << shift;
+    return lcm << shift;
 }
 
 #endif
 
-constexpr int128_t lcm(const int128_t& a, const int128_t& b) noexcept
+constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
-constexpr uint128_t midpoint(const uint128_t& a, const uint128_t& b) noexcept
+constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
 {
     // Bit manipulation formula works for unsigned integers
     auto mid {(a & b) + ((a ^ b) >> 1)};
@@ -412,7 +405,7 @@ constexpr uint128_t midpoint(const uint128_t& a, const uint128_t& b) noexcept
     return mid;
 }
 
-constexpr int128_t midpoint(const int128_t& a, const int128_t& b) noexcept
+constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
 {
     // For signed integers, we use a + (b - a) / 2 or a - (a - b) / 2
     // The subtraction is done in unsigned arithmetic to handle overflow correctly
