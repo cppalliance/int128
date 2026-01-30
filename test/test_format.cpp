@@ -41,8 +41,8 @@ void test_binary()
     BOOST_TEST_CSTR_EQ(std::format("{:#B}", T{5}).c_str(), "0B101");
 
     BOOST_TEST_CSTR_EQ(std::format("{:6b}", T{5}).c_str(), "000101");
-    BOOST_TEST_CSTR_EQ(std::format("{:#6b}", T{5}).c_str(), "0b000101");
-    BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), "0B000101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#6b}", T{5}).c_str(), "0b0101");
+    BOOST_TEST_CSTR_EQ(std::format("{:#06B}", T{5}).c_str(), "0B0101");
 }
 
 template <typename T>
@@ -52,7 +52,7 @@ void test_octal()
     BOOST_TEST_CSTR_EQ(std::format("{:#o}", T{42}).c_str(), "052");
 
     BOOST_TEST_CSTR_EQ(std::format("{:4o}", T{42}).c_str(), "0052");
-    BOOST_TEST_CSTR_EQ(std::format("{:#4o}", T{42}).c_str(), "00052");
+    BOOST_TEST_CSTR_EQ(std::format("{:#4o}", T{42}).c_str(), "0052");
 }
 
 template <typename T>
@@ -67,22 +67,22 @@ void test_decimal()
     BOOST_TEST_CSTR_EQ(std::format("{: d}", T{42}).c_str(), " 42");
     BOOST_TEST_CSTR_EQ(std::format("{: #d}", T{42}).c_str(), " 42");
 
-    BOOST_TEST_CSTR_EQ(std::format("{:+3d}", T{42}).c_str(), "+042");
-    BOOST_TEST_CSTR_EQ(std::format("{:+#3d}", T{42}).c_str(), "+042");
+    BOOST_TEST_CSTR_EQ(std::format("{:+3d}", T{42}).c_str(), "+42");
+    BOOST_TEST_CSTR_EQ(std::format("{:+#3d}", T{42}).c_str(), "+42");
 
     BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{42}).c_str(), "042");
     BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{42}).c_str(), "042");
 
     if constexpr (std::is_same_v<T, boost::int128::int128_t>)
     {
-        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{42}).c_str(), " 042");
-        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{42}).c_str(), " 042");
+        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{42}).c_str(), " 42");
+        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{42}).c_str(), " 42");
 
-        BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{-42}).c_str(), "-042");
-        BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{-42}).c_str(), "-042");
+        BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{-42}).c_str(), "-42");
+        BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{-42}).c_str(), "-42");
 
-        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{-42}).c_str(), "-042");
-        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{-42}).c_str(), "-042");
+        BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{-42}).c_str(), "-42");
+        BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{-42}).c_str(), "-42");
     }
 
     BOOST_TEST_CSTR_EQ(std::format("{:+d}", T{42}).c_str(), "+42");
@@ -112,10 +112,10 @@ void test_hex()
     }
 
     BOOST_TEST_CSTR_EQ(std::format("{:5X}", T{42}).c_str(), "0002A");
-    BOOST_TEST_CSTR_EQ(std::format("{:#5X}", T{42}).c_str(), "0X0002A");
+    BOOST_TEST_CSTR_EQ(std::format("{:#5X}", T{42}).c_str(), "0X02A");
 
-    BOOST_TEST_CSTR_EQ(std::format("{: 5X}", T{42}).c_str(), " 0002A");
-    BOOST_TEST_CSTR_EQ(std::format("{: #5X}", T{42}).c_str(), " 0X0002A");
+    BOOST_TEST_CSTR_EQ(std::format("{: 5X}", T{42}).c_str(), " 002A");
+    BOOST_TEST_CSTR_EQ(std::format("{: #5X}", T{42}).c_str(), " 0X2A");
 }
 
 template <typename T>
