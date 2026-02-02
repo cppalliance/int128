@@ -13,6 +13,7 @@ module;
 #include <cassert>
 #include <cerrno>
 #include <cstddef>
+#include <compare>
 
 #if __has_include(<__msvc_int128.hpp>) && _MSVC_LANG >= 202002L
 
