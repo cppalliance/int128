@@ -278,4 +278,11 @@ using builtin_u128 = std::_Unsigned128;
 
 #endif // Exceptions
 
+#if defined(__cpp_impl_three_way_comparison) && __cpp_impl_three_way_comparison >= 201907L
+#  define BOOST_INT128_HAS_SPACESHIP_OPERATOR
+#  ifndef BOOST_INT128_BUILD_MODULE
+#    include <compare>
+#  endif
+#endif
+
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP
