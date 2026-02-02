@@ -303,6 +303,25 @@ constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept;
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
+=== Spaceship Operator (Requires pass:[C++20])
+
+[source, c++]
+----
+constexpr std::strong_ordering operator<=>(const uint128_t lhs, const uint128_t rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr std::strong_ordering operator<=>(const uint128_t lhs, const Integer rhs) noexcept;
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+constexpr std::strong_ordering operator<=>(const Integer lhs, const uint128_t rhs) noexcept;
+----
+
+Returns one of the following without exception:
+
+- `std::strong_ordering::less` if `lhs < rhs`
+- `std::strong_ordering::equivalent` if `lhs == rhs`
+- `std::strong_ordering::greater` otherwise (implies `lhs > rhs`)
+
 [#u128_bitwise_operators]
 == Bitwise Operators
 
