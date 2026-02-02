@@ -85,8 +85,8 @@ constexpr auto parse_impl(ParseContext& ctx)
                 case '^':
                     align = alignment::center;
                     break;
-                default:
-                    break;
+                default:                        // LCOV_EXCL_LINE
+                    BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
             }
             ++it;
         }
@@ -104,8 +104,8 @@ constexpr auto parse_impl(ParseContext& ctx)
                 case '^':
                     align = alignment::center;
                     break;
-                default:
-                    break;
+                default:                        // LCOV_EXCL_LINE
+                    BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
             }
             ++it;
         }
