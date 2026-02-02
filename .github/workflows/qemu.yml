@@ -204,7 +204,7 @@ jobs:
       - name: Install multiarch packages
         if: startsWith(matrix.compiler, 'gcc')
         run: |
-          bdde sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y $pkgs libabsl-dev
+          bdde apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y $pkgs libabsl-dev
 
       - name: Run tests
         if: '!matrix.coverity'
