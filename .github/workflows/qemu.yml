@@ -185,6 +185,12 @@ jobs:
           BDDE_ARCH: ${{matrix.arch}}
         run: ci/github/setup_bdde.sh
 
+      - name: Install multiarch packages
+        if: startsWith(matrix.compiler, 'gcc')
+        run: |
+          sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT update
+          sudo apt-get -o Acquire::Retries=$NET_RETRY_COUNT install -y $pkgs libabsl-dev
+
       - name: Setup Boost
         env:
           B2_ADDRESS_MODEL: ${{matrix.address-model}}
