@@ -1101,6 +1101,120 @@ BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const T, const int128_t) noexcept
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
+// Spaceship Operator
+//=====================================
+
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+BOOST_INT128_EXPORT constexpr std::strong_ordering operator<=>(const int128_t lhs, const int128_t rhs) noexcept
+{
+    if (lhs < rhs)
+    {
+        return std::strong_ordering::less
+    }
+    else if (lhs == rhs)
+    {
+        return std::strong_ordering::equivalent;
+    }
+    else
+    {
+        return std::strong_ordering::greater;
+    }
+}
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator<=>(const int128_t lhs, const SignedInteger rhs) noexcept
+{
+    if (lhs < rhs)
+    {
+        return std::strong_ordering::less
+    }
+    else if (lhs == rhs)
+    {
+        return std::strong_ordering::equivalent;
+    }
+    else
+    {
+        return std::strong_ordering::greater;
+    }
+}
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
+constexpr bool operator<=>(const SignedInteger lhs, const int128_t rhs) noexcept
+{
+    if (lhs < rhs)
+    {
+        return std::strong_ordering::less
+    }
+    else if (lhs == rhs)
+    {
+        return std::strong_ordering::equivalent;
+    }
+    else
+    {
+        return std::strong_ordering::greater;
+    }
+}
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator<=>(const int128_t lhs, const UnsignedInteger rhs) noexcept
+{
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
+
+    if (lhs < rhs)
+    {
+        return std::strong_ordering::less
+    }
+    else if (lhs == rhs)
+    {
+        return std::strong_ordering::equivalent;
+    }
+    else
+    {
+        return std::strong_ordering::greater;
+    }
+
+    #else
+
+    static_assert(detail::is_signed_integer_v<UnsignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
+}
+
+BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
+constexpr bool operator<=>(const UnsignedInteger lhs, const int128_t rhs) noexcept
+{
+    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
+
+    if (lhs < rhs)
+    {
+        return std::strong_ordering::less
+    }
+    else if (lhs == rhs)
+    {
+        return std::strong_ordering::equivalent;
+    }
+    else
+    {
+        return std::strong_ordering::greater;
+    }
+
+    #else
+
+    static_assert(detail::is_signed_integer_v<UnsignedInteger>, "Sign Compare Error");
+    static_cast<void>(lhs);
+    static_cast<void>(rhs);
+    return true;
+
+    #endif
+}
+
+#endif
+
+//=====================================
 // Not Operator
 //=====================================
 
