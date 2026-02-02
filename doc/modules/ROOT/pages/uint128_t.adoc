@@ -73,6 +73,45 @@ If you want to compare with signed types you must define `BOOST_INT128_ALLOW_SIG
 and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signedness.
 These will both cast the signed integer to an unsigned integer and then perform the operation.
 
+=== Sign Compare Behavior Deviation
+
+The behavior of `uint128_t` will deviate from the behavior of builtin unsigned integers with mixed sign comparisons in hopefully a less surprising way.
+A built-in sign compare looks something like
+
+[source, c++]
+----
+template <typename UnsignedInteger, typename SignedInteger>
+constexpr bool operator>(const UnsignedInteger lhs, const SignedInteger rhs)
+{
+    return lhs > static_cast<UnsignedInteger>(rhs)
+}
+----
+
+If you were to call this function with arguments 5U and -5, you would get the surprising answer of `false`.
+Why?
+The two's complement representation of -5 has its most significant bit set (along with many other high bits).
+When cast to unsigned, this bit pattern is reinterpreted as a huge positive number, far greater than 5.
+
+With `uint128_t` we have checks even in this case like so:
+
+[source, c++]
+----
+template <typename SignedInteger>
+constexpr bool operator>(const uint128_t lhs, const SignedInteger rhs) noexcept
+{
+    if (rhs >= 0)
+    {
+        return lhs > static_cast<uint128_t>(rhs);
+    }
+    else
+    {
+        return true;
+    }
+}
+----
+
+This allows the library to return the correct answer even when mixing signs.
+
 [#u128_constructors]
 == Constructors
 
