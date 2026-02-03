@@ -12,6 +12,7 @@
 #include <boost/int128/int128.hpp>
 #include <string>
 #include <format>
+#include <tuple>
 
 #define BOOST_INT128_HAS_FORMAT
 
