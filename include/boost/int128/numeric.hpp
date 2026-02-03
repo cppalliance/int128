@@ -313,17 +313,11 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
         }
 
         b -= a;
+    } while (b != 0U && (a.high | b.high) > 0U);
 
-        // Stop doing 128-bit math as soon as we can
-        if (a.high == 0U && b.high == 0U)
-        {
-            const auto g {detail::gcd64(a.low, b.low)};
-            return uint128_t{0, g} << shift;
-        }
-
-    } while (b != 0U);
-
-    return a << shift;
+    // Stop doing 128-bit math as soon as we can
+    const auto g {detail::gcd64(a.low, b.low)};
+    return uint128_t{0, g} << shift;
 }
 
 constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
