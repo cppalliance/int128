@@ -323,7 +323,7 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 
     } while (b != 0U);
 
-    return a << shift; // LCOV_EXCL_LINE : Should be unreachable, but this is also the correct answer
+    return a << shift;
 }
 
 constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
