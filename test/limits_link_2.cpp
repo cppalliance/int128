@@ -9,9 +9,9 @@
 void test_odr_use( int const* );
 void test_odr_use( std::size_t const* );
 
-template<typename T> void test()
+template<typename T> void test()                        // LCOV_EXCL_LINE
 {
-    test_odr_use( &std::numeric_limits<T>::digits10 );
+    test_odr_use( &std::numeric_limits<T>::digits10 );  // LCOV_EXCL_LINE
 }
 
 void f2()

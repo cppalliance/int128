@@ -18,6 +18,6 @@ void test_odr_use( int const* )
 {
 }
 
-void test_odr_use ( std::size_t const* )
+void test_odr_use ( std::size_t const* )    // LCOV_EXCL_LINE
 {
 }
