@@ -27,13 +27,13 @@ static std::mt19937_64 rng{42};
 boost::random::uniform_int_distribution<boost::int128::uint128_t> dist(std::numeric_limits<boost::int128::uint128_t>::min(),
                                                                        std::numeric_limits<boost::int128::uint128_t>::max());
 
-constexpr std::array<boost::int128::uint128_t, 5> edge_cases {
+constexpr std::array<boost::int128::uint128_t, 5> edge_cases {{
     boost::int128::uint128_t{1, 0},
     boost::int128::uint128_t{1, 1},
     boost::int128::uint128_t{2, 0},
     boost::int128::uint128_t{2, UINT64_MAX - 1U},
     boost::int128::uint128_t{4, 0},
-};
+}};
 
 constexpr int trivial_num_digits(boost::int128::uint128_t x) noexcept
 {
