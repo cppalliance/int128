@@ -145,6 +145,35 @@ Match: true
 ----
 ====
 
+[#examples_rollover]
+== Rollover Behavior
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/rollover.cpp[example] demonstrates the rollover behavior of both the unsigned and signed type
+====
+[source, c++]
+----
+include::example$rollover.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== uint128_t behavior ===
+Max of uint128_t: 340282366920938463463374607431768211455
+Max + 1U: 0
+
+Min of uint128_t: 0
+Min - 1U: 340282366920938463463374607431768211455
+
+=== int128_t behavior ===
+Max of int128_t: 170141183460469231731687303715884105727
+Max + 1: -170141183460469231731687303715884105728
+
+Min of int128_t: -170141183460469231731687303715884105728
+Min - 1: 170141183460469231731687303715884105727
+----
+====
+
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
