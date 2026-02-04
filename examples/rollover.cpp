@@ -8,7 +8,6 @@
 #include <iostream>
 #include <iomanip>
 #include <limits>
-#include <fmt/format.h>
 
 int main()
 {
