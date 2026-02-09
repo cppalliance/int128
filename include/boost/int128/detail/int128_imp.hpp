@@ -98,7 +98,7 @@ int128_t
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
     // Integer Conversion operators
-    constexpr operator bool() const noexcept { return low || high; }
+    explicit constexpr operator bool() const noexcept { return low || high; }
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     explicit constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
@@ -271,7 +271,7 @@ BOOST_INT128_EXPORT constexpr int128_t abs(int128_t value) noexcept
         value.low = ~value.low + 1U;
         value.high = static_cast<std::int64_t>(~static_cast<std::uint64_t>(value.high) + static_cast<std::uint64_t>(value.low == 0 ? 1 : 0));
     }
-    
+
     return value;
 }
 
@@ -3215,7 +3215,7 @@ constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
     #else
 
     const auto is_neg{static_cast<bool>(lhs < 0)};
-    
+
     int128_t remainder {};
 
     if (abs_rhs.high != 0)
