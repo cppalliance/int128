@@ -14,5 +14,6 @@
 #include <boost/int128/limits.hpp>
 #include <boost/int128/climits.hpp>
 #include <boost/int128/cstdlib.hpp>
+#include <boost/int128/string.hpp>
 
 #endif // BOOST_INT128_HPP
