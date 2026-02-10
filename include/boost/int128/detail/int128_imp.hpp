@@ -98,7 +98,7 @@ int128_t
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
     // Integer Conversion operators
-    constexpr operator bool() const noexcept { return low || high; }
+    explicit constexpr operator bool() const noexcept { return low || high; }
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     explicit constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
