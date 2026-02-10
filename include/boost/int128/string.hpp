@@ -20,10 +20,9 @@ namespace int128 {
 template <typename T>
 auto to_string(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value), std::string>
 {
-    char buffer[64U];
+    char buffer[64U] {};
     const auto last {detail::mini_to_chars(buffer, value, 10, false)};
-    *last = '\0';
-    return std::string(buffer);
+    return std::string{last, buffer + sizeof(buffer)};
 }
 
 } // namespace int128
