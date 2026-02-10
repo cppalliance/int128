@@ -47,6 +47,7 @@
 * xref:charconv.adoc[]
 * xref:stream.adoc[]
 * xref:numeric.adoc[]
+* xref:string.adoc[]
 * Benchmarks
 ** xref:u128_benchmarks.adoc[]
 *** xref:u128_benchmarks.adoc#u128_linux[Linux]
