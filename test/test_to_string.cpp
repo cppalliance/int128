@@ -50,6 +50,7 @@ void test_builtin()
         const auto value_str {to_string(int128_t{value})};
 
         BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
+        BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
     }
 }
 
@@ -71,11 +72,13 @@ void test_builtin()
             const auto value_str {to_string(int128_t{value})};
 
             BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
+            BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
         }
         {
             const auto value_str {to_string(uint128_t{value})};
 
             BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
+            BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
         }
     }
 }
