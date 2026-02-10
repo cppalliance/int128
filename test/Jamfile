@@ -85,6 +85,7 @@ run test_div.cpp ;
 
 run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
+run test_to_string.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
