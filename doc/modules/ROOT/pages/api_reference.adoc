@@ -244,6 +244,16 @@ Listed by analogous STL header.
 | Midpoint between two values
 |===
 
+[#api_string]
+=== xref:string.adoc[`<string>`]
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:string.adoc[`to_string`]
+| `std::string` conversion of base-10 values
+|===
+
 [#api_macros]
 == Macros
 

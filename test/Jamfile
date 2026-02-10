@@ -85,6 +85,7 @@ run test_div.cpp ;
 
 run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
+run test_to_string.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
@@ -122,3 +123,4 @@ compile compile_tests/iostream_compile.cpp ;
 compile compile_tests/limits_compile.cpp ;
 compile compile_tests/literals_compile.cpp ;
 compile compile_tests/numeric_compile.cpp ;
+compile compile_tests/string_compile.cpp ;
