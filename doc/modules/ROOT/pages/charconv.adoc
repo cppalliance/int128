@@ -10,7 +10,19 @@ https://www.boost.org/LICENSE_1_0.txt
 
 The following functions are all overloads injected into https://www.boost.org/doc/libs/master/libs/charconv/doc/html/charconv.html[Boost.Charconv].
 
-IMPORTANT: Unlike the rest of the library, using this header depends on the headers of Boost.Charconv being present, otherwise it will `#error`.
+IMPORTANT: This header depends on the headers of Boost.Charconv being present, otherwise it will `#error`.
+
+Since Boost.Charconv is a compiled library, auto-linking may occur (Especially on MSVC platforms).
+If you do not use Boost.Charconv in your application except for the dependency to this library, you can define the following:
+
+[source, c++]
+----
+#define BOOST_CHARCONV_NO_LIB
+#include <boost/int128.hpp> // or any other boost.int128 header
+----
+
+`BOOST_CHARCONV_NO_LIB` must be defined before the inclusion of any int128 header.
+This will disable auto-linking for Boost.Charconv.
 
 [#to_chars]
 == to_chars
