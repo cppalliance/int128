@@ -100,6 +100,7 @@ run ../examples/fmt_format.cpp ;
 run ../examples/cstdlib.cpp ;
 run ../examples/numeric_algorithms.cpp ;
 run ../examples/rollover.cpp ;
+run ../examples/to_string.cpp ;
 
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 
