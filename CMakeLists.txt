@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.10...3.20)
 
 # Set version explicitly if not part of Boost superproject
 if(NOT BOOST_SUPERPROJECT_VERSION)
-    set(BOOST_INT128_VERSION 1.3.0)
+    set(BOOST_INT128_VERSION 1.6.0)
 else()
     set(BOOST_INT128_VERSION ${BOOST_SUPERPROJECT_VERSION})
 endif()
