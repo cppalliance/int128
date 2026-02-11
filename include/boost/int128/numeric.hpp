@@ -11,8 +11,6 @@
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <limits>
-#include <iostream>
-#include <limits>
 
 #endif
 
@@ -203,7 +201,7 @@ constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
     {
-        return value;
+        return static_cast<TargetType>(value);
     }
     else
     {
@@ -225,7 +223,7 @@ constexpr TargetType saturate_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
     {
-        return value;
+        return static_cast<TargetType>(value);
     }
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
     else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value || std::is_same<detail::builtin_u128, TargetType>::value)
@@ -315,17 +313,11 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
         }
 
         b -= a;
+    } while (b != 0U && (a.high | b.high) > 0U);
 
-        // Stop doing 128-bit math as soon as we can
-        if (a.high == 0U && b.high == 0U)
-        {
-            const auto g {detail::gcd64(a.low, b.low)};
-            return uint128_t{0, g} << shift;
-        }
-
-    } while (b != 0U);
-
-    return a << shift; // LCOV_EXCL_LINE : Should be unreachable, but this is also the correct answer
+    // Stop doing 128-bit math as soon as we can
+    const auto g {detail::gcd64(a.low, b.low)};
+    return uint128_t{0, g} << shift;
 }
 
 constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
@@ -393,35 +385,41 @@ constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
-namespace detail {
-
-template <typename T>
-constexpr T midpoint_impl(const T a, const T b) noexcept
+constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
 {
-    const auto unsigned_a {static_cast<uint128_t>(a)};
-    const auto unsigned_b {static_cast<uint128_t>(b)};
-
-    auto mid {(unsigned_a & unsigned_b) + ((unsigned_a ^ unsigned_b) >> 1)};
+    // Bit manipulation formula works for unsigned integers
+    auto mid {(a & b) + ((a ^ b) >> 1)};
 
     // std::midpoint rounds towards the first parameter
-    if ((unsigned_a ^ unsigned_b) & 1U && a > b)
+    if ((a ^ b) & 1U && a > b)
     {
         ++mid;
     }
 
-    return static_cast<T>(mid);
-}
-
-} // namespace detail
-
-constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
-{
-    return detail::midpoint_impl(a, b);
+    return mid;
 }
 
 constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
 {
-    return detail::midpoint_impl(a, b);
+    // For signed integers, we use a + (b - a) / 2 or a - (a - b) / 2
+    // The subtraction is done in unsigned arithmetic to handle overflow correctly
+    // Integer division automatically rounds toward the first argument
+
+    const auto ua {static_cast<uint128_t>(a)};
+    const auto ub {static_cast<uint128_t>(b)};
+
+    if (a <= b)
+    {
+        // diff = b - a (computed in unsigned, handles wrap-around correctly)
+        const auto diff {ub - ua};
+        return a + static_cast<int128_t>(diff / 2U);
+    }
+    else
+    {
+        // diff = a - b (computed in unsigned, handles wrap-around correctly)
+        const auto diff {ua - ub};
+        return a - static_cast<int128_t>(diff / 2U);
+    }
 }
 
 } // namespace int128

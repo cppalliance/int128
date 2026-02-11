@@ -14,13 +14,17 @@ The ability to convert between the two types via `static_cast` is available as d
 
 == Comparisons and Arithmetics
 
-The following operations are *ALL ILLEGAL*.
-Since we can not enforce `-Wsign-conversion` and `-Wsign-compare` through the compiler we instead `static_assert` that the operation is unavailable, and that the *USER MUST CAST TO A COMMON TYPE*.
-This removes a common source of error (search "Sign Conversion" on Stack Overflow)
+The following operations are *disabled by default*.
+Since we cannot enforce `-Wsign-conversion` and `-Wsign-compare` through the compiler, we instead `static_assert` that the operation is unavailable.
+This removes a common source of error (search "Sign Conversion" on Stack Overflow).
+
+To enable these operations, define the appropriate configuration macros before including any library headers:
+
+* xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`] - enables comparison operators between signed and unsigned types
+* xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`] - enables arithmetic operators between signed and unsigned types (implies `BOOST_INT128_ALLOW_SIGN_COMPARE`)
 
 [source, c++]
 ----
-
 namespace boost {
 namespace int128 {
 

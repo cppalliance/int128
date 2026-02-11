@@ -1,0 +1,44 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#configuration]
+= Configuration Macros
+:idprefix: config_
+
+[source,c++]
+----
+#include <boost/int128/config.hpp>
+----
+
+== User Configurable Macros
+
+These macros allow customization of library behavior. User-configurable macros should be defined before including any library headers.
+
+[#no_int128]
+- `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.
+
+[#sign_compare]
+- `BOOST_INT128_ALLOW_SIGN_COMPARE`: Allows comparisons between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-compare` warning.
+
+IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
+
+[#sign_conversion]
+- `BOOST_INT128_ALLOW_SIGN_CONVERSION`: Allows arithmetic operations between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-conversion` warning. Implies `BOOST_INT128_ALLOW_SIGN_COMPARE`.
+
+IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
+
+[#disable_exceptions]
+- `BOOST_INT128_DISABLE_EXCEPTIONS`: Allows exceptions to be disabled.
+This macro will automatically be defined in the presence of `-fno-exceptions` or similar MSVC flags.
+
+[#automatic_config]
+== Automatic Configuration Macros
+
+- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `pass:[__int128]` or `pass:[unsigned __int128]` types (e.g. `pass:[__x86_64__]`).
+
+- `BOOST_INT128_ENDIAN_LITTLE_BYTE`: This is defined to `1` when compiling on a little endian architecture, otherwise `0`.
+
+- `BOOST_INT128_ENDIAN_BIG_BYTE`: This is defined to `1` when compiling on a big endian architecture, otherwise `0`.

@@ -48,8 +48,10 @@ void test_binary()
     BOOST_TEST_CSTR_EQ(fmt::format("{:#B}", T{5}).c_str(), "0B101");
 
     BOOST_TEST_CSTR_EQ(fmt::format("{:6b}", T{5}).c_str(), "000101");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:#6b}", T{5}).c_str(), "0b000101");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:#06B}", T{5}).c_str(), "0B000101");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#6b}", T{5}).c_str(), "0b0101");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#06B}", T{5}).c_str(), "0B0101");
+
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#010b}", T{42}).c_str(), "0b00101010");
 }
 
 template <typename T>
@@ -59,7 +61,7 @@ void test_octal()
     BOOST_TEST_CSTR_EQ(fmt::format("{:#o}", T{42}).c_str(), "052");
 
     BOOST_TEST_CSTR_EQ(fmt::format("{:4o}", T{42}).c_str(), "0052");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:#4o}", T{42}).c_str(), "00052");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#4o}", T{42}).c_str(), "0052");
 }
 
 template <typename T>
@@ -74,8 +76,8 @@ void test_decimal()
     BOOST_TEST_CSTR_EQ(fmt::format("{: d}", T{42}).c_str(), " 42");
     BOOST_TEST_CSTR_EQ(fmt::format("{: #d}", T{42}).c_str(), " 42");
 
-    BOOST_TEST_CSTR_EQ(fmt::format("{:+3d}", T{42}).c_str(), "+042");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:+#3d}", T{42}).c_str(), "+042");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:+3d}", T{42}).c_str(), "+42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:+#3d}", T{42}).c_str(), "+42");
 
     BOOST_TEST_CSTR_EQ(fmt::format("{:-3d}", T{42}).c_str(), "042");
     BOOST_TEST_CSTR_EQ(fmt::format("{:-#3d}", T{42}).c_str(), "042");
@@ -84,14 +86,14 @@ void test_decimal()
 template <typename T>
 void test_decimal_negative()
 {
-    BOOST_TEST_CSTR_EQ(fmt::format("{: 3d}", T{42}).c_str(), " 042");
-    BOOST_TEST_CSTR_EQ(fmt::format("{: #3d}", T{42}).c_str(), " 042");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: 3d}", T{42}).c_str(), " 42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: #3d}", T{42}).c_str(), " 42");
 
-    BOOST_TEST_CSTR_EQ(fmt::format("{:-3d}", T{-42}).c_str(), "-042");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:-#3d}", T{-42}).c_str(), "-042");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:-3d}", T{-42}).c_str(), "-42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:-#3d}", T{-42}).c_str(), "-42");
 
-    BOOST_TEST_CSTR_EQ(fmt::format("{: 3d}", T{-42}).c_str(), "-042");
-    BOOST_TEST_CSTR_EQ(fmt::format("{: #3d}", T{-42}).c_str(), "-042");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: 3d}", T{-42}).c_str(), "-42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: #3d}", T{-42}).c_str(), "-42");
 }
 
 template <typename T>
@@ -110,10 +112,10 @@ void test_hex()
     BOOST_TEST_CSTR_EQ(fmt::format("{:+#X}", T{42}).c_str(), "+0X2A");
 
     BOOST_TEST_CSTR_EQ(fmt::format("{:5X}", T{42}).c_str(), "0002A");
-    BOOST_TEST_CSTR_EQ(fmt::format("{:#5X}", T{42}).c_str(), "0X0002A");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:#5X}", T{42}).c_str(), "0X02A");
 
-    BOOST_TEST_CSTR_EQ(fmt::format("{: 5X}", T{42}).c_str(), " 0002A");
-    BOOST_TEST_CSTR_EQ(fmt::format("{: #5X}", T{42}).c_str(), " 0X0002A");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: 5X}", T{42}).c_str(), " 002A");
+    BOOST_TEST_CSTR_EQ(fmt::format("{: #5X}", T{42}).c_str(), " 0X2A");
 }
 
 template <typename T>
@@ -131,6 +133,63 @@ void test_string_insertion()
 
     BOOST_TEST_CSTR_EQ(fmt::format("Height is: {:d} meters", T {0}).c_str(), "Height is: 0 meters");
     BOOST_TEST_CSTR_EQ(fmt::format("Height is: {} meters", T {2}).c_str(), "Height is: 2 meters");
+}
+
+template <typename T>
+void test_alignment()
+{
+    // Left alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6d}", T{42}).c_str(), "42    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6}", T{42}).c_str(), "42    ");
+
+    // Right alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6d}", T{42}).c_str(), "    42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6}", T{42}).c_str(), "    42");
+
+    // Center alignment with default fill (space)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^6d}", T{42}).c_str(), "  42  ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^7d}", T{42}).c_str(), "  42   ");
+
+    // Left alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*<6d}", T{42}).c_str(), "42****");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:-<6d}", T{42}).c_str(), "42----");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:0<6d}", T{42}).c_str(), "420000");
+
+    // Right alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*>6d}", T{42}).c_str(), "****42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>>6d}", T{42}).c_str(), ">>>>42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:0>6d}", T{42}).c_str(), "000042");
+
+    // Center alignment with custom fill
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^6d}", T{42}).c_str(), "**42**");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^7d}", T{42}).c_str(), "**42***");
+
+    // Alignment with sign
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>+6d}", T{42}).c_str(), "   +42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<+6d}", T{42}).c_str(), "+42   ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^+7d}", T{42}).c_str(), "  +42  ");
+
+    // Alignment with hex
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6x}", T{42}).c_str(), "    2a");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6x}", T{42}).c_str(), "2a    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^6x}", T{42}).c_str(), "**2a**");
+
+    // Alignment with prefix (# comes before width in fmt spec)
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>#8x}", T{42}).c_str(), "    0x2a");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<#8x}", T{42}).c_str(), "0x2a    ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^#8x}", T{42}).c_str(), "**0x2a**");
+}
+
+template <typename T>
+void test_alignment_negative()
+{
+    // Alignment with negative values
+    BOOST_TEST_CSTR_EQ(fmt::format("{:>6d}", T{-42}).c_str(), "   -42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:<6d}", T{-42}).c_str(), "-42   ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:^7d}", T{-42}).c_str(), "  -42  ");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*>6d}", T{-42}).c_str(), "***-42");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*<6d}", T{-42}).c_str(), "-42***");
+    BOOST_TEST_CSTR_EQ(fmt::format("{:*^7d}", T{-42}).c_str(), "**-42**");
 }
 
 int main()
@@ -155,6 +214,10 @@ int main()
 
     test_string_insertion<boost::int128::uint128_t>();
     test_string_insertion<boost::int128::int128_t>();
+
+    test_alignment<boost::int128::uint128_t>();
+    test_alignment<boost::int128::int128_t>();
+    test_alignment_negative<boost::int128::int128_t>();
 
     return boost::report_errors();
 }

@@ -4,6 +4,7 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/int128/bit.hpp>
+#include <boost/int128/iostream.hpp>
 #include <boost/core/lightweight_test.hpp>
 
 void test_has_single_bit()

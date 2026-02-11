@@ -5,7 +5,7 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#saturating]
-= `<numeric>`
+= `<numeric>` Support
 :idprefix: saturating_
 
 [#sat_arith]

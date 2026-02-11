@@ -5,34 +5,35 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#stream]
-= `<iostream>`
+= `<iostream>` Support
 :idprefix: stream_
 
-The following stream operators are available, and work similar to built-in integer types:
+The following stream operators are available and work similar to built-in integer types.
 
 [source, c++]
 ----
-
 #include <boost/int128/iostream.hpp>
+----
 
+[source, c++]
+----
 namespace boost {
 namespace int128 {
 
 template <typename charT, typename traits>
-std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const int128_t& v)
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const int128_t& v);
 
 template <typename charT, typename traits>
-std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, int128_t& v)
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, int128_t& v);
 
 template <typename charT, typename traits>
-std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const uint128_t& v)
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const uint128_t& v);
 
 template <typename charT, typename traits>
-std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, uint128_t& v)
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, uint128_t& v);
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 == Flags
@@ -45,3 +46,5 @@ The following flags from `<ios>` are supported for both streaming directions:
 - `std::hex` - Hexadecimal Numbers
 - `std::uppercase` - Upper Case Formatting (e.g. 0XFFFF)
 - `std::nouppercase` - Lower Case Formatting (e.g. 0xffff)
+
+See the xref:examples.adoc#examples_io[IO streaming example] for usage demonstrations.

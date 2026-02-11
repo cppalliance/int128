@@ -8,15 +8,20 @@ https://www.boost.org/LICENSE_1_0.txt
 = `<cstdlib>`
 :idprefix: cstdlib_
 
-From the `<cstdlib>` header we support functions and structures that are analogous to https://en.cppreference.com/w/cpp/numeric/math/div.html[`std::div`].
+From the `<cstdlib>` header we support functions and structures that are analogous to https://en.cppreference.com/w/cpp/numeric/math/div[`std::div`].
 These are of particular importance with this library since unlike a hardware type, the compiler may not be able to optimize a division followed by a modulo operation.
 Knuth's algorithm naturally returns both so it costs nearly nothing above a division or modulo to get both results.
 
-[#div_structs]
 [source, c++]
 ----
 #include <boost/int128/cstdlib.hpp>
+----
 
+[#div_structs]
+== Structures
+
+[source, c++]
+----
 namespace boost {
 namespace int128 {
 
@@ -34,16 +39,15 @@ struct i128div_t
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#div_source]
-Using the `struct`s defined above we can then define the `div` function:
+== div
+
+Using the structures defined above, the `div` function computes both quotient and remainder simultaneously:
 
 [source, c++]
 ----
-#include <boost/int128/cstdlib.hpp>
-
 namespace boost {
 namespace int128 {
 
@@ -55,4 +59,4 @@ constexpr i128div_t div(int128_t lhs, int128_t rhs) noexcept;
 } // namespace boost
 ----
 
-The result of `quot` and `rem` from this function, to include the sign, are the same as if you did a division and modulo separately.
+The result of `quot` and `rem` from this function, including the sign, are the same as if you performed division and modulo separately.

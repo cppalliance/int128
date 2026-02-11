@@ -83,15 +83,24 @@ run test_fmt_format.cpp ;
 
 run test_div.cpp ;
 
+run test_num_digits.cpp ;
+run test_spaceship_operator.cpp ;
+run test_to_string.cpp ;
+
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
-compile-fail ../examples/mixed_type_arithmetic.cpp ;
+run ../examples/mixed_type_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
 run ../examples/math_and_random.cpp ;
 run ../examples/charconv.cpp ;
+run ../examples/fmt_format.cpp ;
+run ../examples/cstdlib.cpp ;
+run ../examples/numeric_algorithms.cpp ;
+run ../examples/rollover.cpp ;
+run ../examples/to_string.cpp ;
 
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 
@@ -115,3 +124,4 @@ compile compile_tests/iostream_compile.cpp ;
 compile compile_tests/limits_compile.cpp ;
 compile compile_tests/literals_compile.cpp ;
 compile compile_tests/numeric_compile.cpp ;
+compile compile_tests/string_compile.cpp ;

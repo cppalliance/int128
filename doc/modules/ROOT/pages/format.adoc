@@ -1,0 +1,106 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#format]
+= Formatting Support
+:idprefix: format_
+
+Boost.Int128 supports formatting with both `<format>` (when pass:[C++20] and the header are both available), and `pass:[<fmt/format.h>]`.
+The following modifiers are listed in order of how they should be specified in the format string to be valid, and all information applies for both `<format>` and `pass:[<fmt/format.h>]`.
+
+== Fill and Alignment
+
+You can specify alignment with an optional fill character. The format is `[[fill]align]` where:
+
+[options="header"]
+|===
+| Alignment | Effect
+| `<`       | Left-aligns the value within the available space
+| `>`       | Right-aligns the value within the available space
+| `^`       | Centers the value within the available space
+|===
+
+The optional fill character (default is space) appears before the alignment character.
+
+Examples:
+[options="header"]
+|===
+| Format    | Output for 42
+| `{:<6d}`  | `"42    "` (left-aligned with spaces)
+| `{:>6d}`  | `"    42"` (right-aligned with spaces)
+| `{:^6d}`  | `"  42  "` (centered with spaces)
+| `{:*<6d}` | `"42****"` (left-aligned with asterisks)
+| `{:0>6d}` | `"000042"` (right-aligned with zeros)
+| `{:*^6d}` | `"**42**"` (centered with asterisks)
+|===
+
+NOTE: When no alignment is specified but a width is given (e.g., `{:6d}`), zero-padding is applied from the left.
+
+== Sign
+
+There are three allowable signs first in the format string:
+
+[options="header"]
+|===
+| Sign      | Effect
+| `+`       | Adds a `+` to positive values, and a `-` to negative values
+| `-`       | Only adds a `-` to negative values
+| pass:[` `] (Space)       | Adds a ` ` to positive values, and a `-` to negative values. Preserves alignment
+|===
+
+== Padding
+
+You can then add any number of padding characters to make sure that a formatted value takes up a specified width (5 means minimum width of 5 characters and so on).
+Any integer value is accepted here.
+
+== Prepend Prefix
+
+If you want to prepend the prefix to your number (if applicable) add `#`
+
+[options="header"]
+|===
+| Output Base   | Effect
+| Binary        | `0b` or `0B`
+| Octal         | `0`
+| Decimal       | None
+| Hex           | `0x` or `0X`
+|===
+
+== Output Base Modifiers
+
+The following type modifiers are the same as those used by built-in integer values.
+
+[options="header"]
+|===
+| Modifier  | Format
+| b, B      | Binary
+| o         | Octal
+| d         | Decimal
+| x, X      | Hex
+|===
+
+NOTE: When the uppercase modifier is used, all characters will be capitalized (e.g. 0x2a vs 0X2A).
+
+== Default
+
+The default format string `{}` will output the same as `{:-d}`, that is a decimal value which only has a sign if negative.
+
+[#fmt_format]
+== `pass:[{fmt}]`
+
+To use the `pass:[{fmt}]` library, include `<boost/int128/fmt_format.hpp>` and `<fmt/format.h>`.
+The format specifiers described above work with `fmt::format`.
+
+See the xref:examples.adoc#examples_fmt_format[formatting example] for a complete demonstration of these features.
+
+[#std_format]
+== `<format>`
+
+To use `std::format`, include `<boost/int128/format.hpp>` and `<format>`.
+The format specifiers described above work with `std::format`.
+
+The xref:examples.adoc#examples_fmt_format[formatting example] can be trivially modified by including `<format>`,
+and replacing all instances of `fmt::` with `std::`

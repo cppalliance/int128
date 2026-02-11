@@ -8,6 +8,7 @@
 
 #include <boost/int128/detail/int128_imp.hpp>
 #include <boost/int128/detail/conversions.hpp>
+#include <boost/int128/iostream.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11.hpp>
 #include <cstring>

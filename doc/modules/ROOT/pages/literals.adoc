@@ -8,7 +8,7 @@ https://www.boost.org/LICENSE_1_0.txt
 = Literals
 :idprefix: literals_
 
-The following literals and macros are provided for convenient construction of the types provided in the library:
+The following literals and macros are provided for convenient construction of the types provided in the library.
 
 [source, c++]
 ----
@@ -51,21 +51,6 @@ constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept;
 
 ----
 
-The macros at the end allow you to write out a 128-bit number like you would with say `UINT64_C` without having to add quotes:
+The macros at the end allow you to write out a 128-bit number like you would with say `UINT64_C` without having to add quotes.
 
-[source, c++]
-----
-
-#include <boost/int128.hpp>
-
-int main()
-{
-    const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
-
-    // The following type for auto will be boost::int128::uint128_t
-    const auto macro_val{BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
-
-    return !(max_val == macro_val);
-}
-
-----
+See the xref:examples.adoc#examples_construction[construction examples] for usage demonstrations of both literals and macros.

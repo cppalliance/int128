@@ -1,0 +1,326 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#api_reference]
+= API Reference
+:idprefix: api_ref_
+
+[#api_namespaces]
+== Namespaces
+
+[cols="1,2", options="header"]
+|===
+| Namespace | Description
+
+| `boost::int128`
+| Contains all components of the library except `<charconv>` functionality
+
+| xref:literals.adoc[`boost::int128::literals`]
+| User-defined literals for 128-bit integers
+|===
+
+[#api_types]
+== Types
+
+[cols="1,2", options="header"]
+|===
+| Type | Description
+
+| xref:uint128_t.adoc[`uint128_t`]
+| Unsigned 128-bit integer
+
+| xref:int128_t.adoc[`int128_t`]
+| Signed 128-bit integer
+|===
+
+[#api_literals]
+== Literals
+
+[cols="1,2", options="header"]
+|===
+| Literal | Description
+
+| xref:literals.adoc[`_u128`]
+| Unsigned 128-bit literal (lowercase)
+
+| xref:literals.adoc[`_U128`]
+| Unsigned 128-bit literal (uppercase)
+
+| xref:literals.adoc[`_i128`]
+| Signed 128-bit literal (lowercase)
+
+| xref:literals.adoc[`_I128`]
+| Signed 128-bit literal (uppercase)
+|===
+
+[#api_structs]
+== Structures
+
+[cols="1,2", options="header"]
+|===
+| Structure | Description
+
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
+| Numeric limits specialization for `uint128_t`
+
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
+| Numeric limits specialization for `int128_t`
+
+| xref:cstdlib.adoc#div_structs[`u128div_t`]
+| Result type for `div(uint128_t, uint128_t)`
+
+| xref:cstdlib.adoc#div_structs[`i128div_t`]
+| Result type for `div(int128_t, int128_t)`
+|===
+
+[#api_functions]
+== Functions
+
+Listed by analogous STL header.
+
+[#api_bit]
+=== xref:bit.adoc[`<bit>`]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:bit.adoc#has_single_bit[`has_single_bit`]
+| Checks if value is a power of two
+
+| xref:bit.adoc#countl_zero[`countl_zero`]
+| Counts leading zeros
+
+| xref:bit.adoc#countl_one[`countl_one`]
+| Counts leading ones
+
+| xref:bit.adoc#bit_width[`bit_width`]
+| Returns minimum bits needed to represent value
+
+| xref:bit.adoc#bit_ceil[`bit_ceil`]
+| Rounds up to nearest power of two
+
+| xref:bit.adoc#bit_floor[`bit_floor`]
+| Rounds down to nearest power of two
+
+| xref:bit.adoc#countr_zero[`countr_zero`]
+| Counts trailing zeros
+
+| xref:bit.adoc#countr_one[`countr_one`]
+| Counts trailing ones
+
+| xref:bit.adoc#rotl[`rotl`]
+| Rotates bits left
+
+| xref:bit.adoc#rotr[`rotr`]
+| Rotates bits right
+
+| xref:bit.adoc#popcount[`popcount`]
+| Counts number of set bits
+
+| xref:bit.adoc#byteswap[`byteswap`]
+| Reverses byte order
+|===
+
+[#api_charconv]
+=== xref:charconv.adoc[`<charconv>`]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:charconv.adoc#to_chars[`to_chars`]
+| Converts integer to character sequence
+
+| xref:charconv.adoc#from_chars[`from_chars`]
+| Converts character sequence to integer
+|===
+
+[#api_cmath]
+=== `<cmath>`
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| `abs`
+| Absolute value
+|===
+
+[#api_cstdlib]
+=== xref:cstdlib.adoc[`<cstdlib>`]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:cstdlib.adoc[`div`]
+| Computes quotient and remainder simultaneously
+|===
+
+[#api_formatting]
+=== xref:format.adoc[Formatting]
+
+[cols="1,2", options="header"]
+|===
+| Library | Description
+
+| xref:format.adoc#std_format[`<format>`]
+| C++20 `std::format` support
+
+| xref:format.adoc#fmt_format[`pass:[{fmt}]`]
+| `pass:[{fmt}]` library support
+|===
+
+[#api_iostream]
+=== xref:stream.adoc[`<iostream>`]
+
+[cols="1,2", options="header"]
+|===
+| Operator | Description
+
+| xref:stream.adoc#stream[`operator<<`]
+| Stream insertion operator
+
+| xref:stream.adoc#stream[`operator>>`]
+| Stream extraction operator
+|===
+
+[#api_ios]
+=== xref:stream.adoc#ios[`<ios>`]
+
+[cols="1,2", options="header"]
+|===
+| Manipulator | Description
+
+| xref:stream.adoc#ios[`std::oct`]
+| Octal output format
+
+| xref:stream.adoc#ios[`std::dec`]
+| Decimal output format
+
+| xref:stream.adoc#ios[`std::hex`]
+| Hexadecimal output format
+
+| xref:stream.adoc#ios[`std::uppercase`]
+| Uppercase hex digits
+
+| xref:stream.adoc#ios[`std::nouppercase`]
+| Lowercase hex digits
+|===
+
+[#api_numeric]
+=== xref:numeric.adoc[`<numeric>`]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:numeric.adoc#sat_arith[`add_sat`]
+| Saturating addition
+
+| xref:numeric.adoc#sat_arith[`sub_sat`]
+| Saturating subtraction
+
+| xref:numeric.adoc#sat_arith[`mul_sat`]
+| Saturating multiplication
+
+| xref:numeric.adoc#sat_arith[`div_sat`]
+| Saturating division
+
+| xref:numeric.adoc#saturating_cast[`saturate_cast`]
+| Saturating type cast
+
+| xref:numeric.adoc#gcd[`gcd`]
+| Greatest common divisor
+
+| xref:numeric.adoc#lcm[`lcm`]
+| Least common multiple
+
+| xref:numeric.adoc#midpoint[`midpoint`]
+| Midpoint between two values
+|===
+
+[#api_string]
+=== xref:string.adoc[`<string>`]
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:string.adoc[`to_string`]
+| `std::string` conversion of base-10 values
+|===
+
+[#api_macros]
+== Macros
+
+[#api_macro_literals]
+=== Constants (`<boost/int128/climits.hpp>`)
+
+[cols="1,2", options="header"]
+|===
+| Macro | Description
+
+| `BOOST_INT128_UINT128_MAX`
+| Maximum value for `uint128_t`
+
+| `BOOST_INT128_INT128_MAX`
+| Maximum value for `int128_t`
+
+| `BOOST_INT128_INT128_MIN`
+| Minimum value for `int128_t`
+|===
+
+=== Literals
+
+[cols="1,2", options="header"]
+|===
+| Macro | Description
+
+| xref:literals.adoc[`BOOST_INT128_UINT128_C`]
+| Unsigned 128-bit constant macro
+
+| xref:literals.adoc[`BOOST_INT128_INT128_C`]
+| Signed 128-bit constant macro
+|===
+
+[#api_macro_configuration]
+=== Configuration
+
+==== User Configuration
+
+[cols="1,2", options="header"]
+|===
+| Macro | Description
+
+| xref:config.adoc#no_int128[`BOOST_INT128_NO_BUILTIN_INT128`]
+| Disables use of compiler built-in `__int128`
+
+| xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`]
+| Allows comparison between signed and unsigned types
+
+| xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`]
+| Allows implicit sign conversion
+
+| xref:config.adoc#disable_exceptions[`BOOST_INT128_DISABLE_EXCEPTIONS`]
+| Disables exception throwing
+|===
+
+==== Automatic Configuration
+
+[cols="1,2", options="header"]
+|===
+| Macro | Description
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_HAS_INT128`]
+| Defined if compiler provides `__int128`
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_LITTLE_BYTE`]
+| Defined on little-endian systems
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_BIG_BYTE`]
+| Defined on big-endian systems
+|===

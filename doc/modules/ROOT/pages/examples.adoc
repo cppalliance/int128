@@ -1,0 +1,483 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#examples]
+= Examples
+:idprefix: examples_
+
+All the following examples can be found in the examples/ folder of the library.
+
+[#examples_construction]
+== Basic Construction
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/construction.cpp[example] demonstrates the various ways to construct uint128_t and int128_t values
+====
+[source, c++]
+----
+include::example$construction.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== uint128_t Construction ===
+From builtin (42U): 42
+From parts (1, 0) = 2^64: 18446744073709551616
+From parts (max, max): 340282366920938463463374607431768211455
+  Equals numeric_limits max? true
+From literal "36893488147419103232"_U128: 36893488147419103232
+From BOOST_INT128_UINT128_C(max): 340282366920938463463374607431768211455
+From stringstream: 12345678901234567890123456789
+
+=== int128_t Construction ===
+From builtin (-42): -42
+From parts (INT64_MIN, 0): -170141183460469231731687303715884105728
+  Equals numeric_limits min? true
+From literal "-99999999999999999999"_i128: -99999999999999999999
+From literal "99999999999999999999"_I128: 99999999999999999999
+From BOOST_INT128_INT128_C(min): -170141183460469231731687303715884105728
+
+=== Default and Copy Construction ===
+Default constructed: 0
+Copy constructed: 36893488147419103232
+----
+====
+
+[#examples_arithmetic]
+== Basic Arithmetic
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/basic_arithmetic.cpp[example] demonstrates arithmetic operations with 128-bit integers
+====
+[source, c++]
+----
+include::example$basic_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Signed 128-bit Arithmetic ===
+x = 1000000000000
+y = 999999999999
+
+Addition and Subtraction:
+x + y = 1999999999999
+x - y = 1
+
+Multiplication (exceeds 64-bit range):
+x * y = 999999999999000000000000
+
+Division and Modulo:
+x / 7 = 142857142857
+x % 7 = 1
+
+Comparisons:
+x > y:  true
+x == y: false
+x != y: true
+
+Negative values:
+negative = -42
+abs(negative) = 42
+
+Compound assignment operators:
+z = 100
+z += 50: 150
+z -= 25: 125
+z *= 2:  250
+z /= 5:  50
+z %= 7:  1
+
+=== Unsigned 128-bit Arithmetic ===
+large (2^64) = 18446744073709551616
+large * 2 = 36893488147419103232
+large + large = 36893488147419103232
+
+Increment and Decrement:
+counter = 10
+++counter = 11
+counter++ = 11
+counter = 12
+--counter = 11
+----
+====
+
+[#examples_io]
+== IO Streaming
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/stream.cpp[example] demonstrates iostream support and string conversions
+====
+[source, c++]
+----
+include::example$stream.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Basic Streaming ===
+Signed value: -42
+Unsigned value (dec): 36893488147419103231
+Unsigned value (hex): 0x1ffffffffffffffff
+Unsigned value (oct): 03777777777777777777777
+Upper unsigned value: 0X1FFFFFFFFFFFFFFFF
+Lower unsigned value: 36893488147419103231
+
+=== Large Values (Beyond 64-bit) ===
+2^64 = 18446744073709551616
+2^100 = 1267650600228229401496703205376
+uint128_t max = 340282366920938463463374607431768211455
+int128_t min = -170141183460469231731687303715884105728
+int128_t max = 170141183460469231731687303715884105727
+
+=== String Conversion with std::stringstream ===
+uint128_t to string: "1267650600228229401496703205376"
+String to uint128_t: 123456789012345678901234567890
+
+=== Round-trip Conversion ===
+Original:     68915718020162848918556923512
+As string:    "68915718020162848918556923512"
+Round-tripped: 68915718020162848918556923512
+Match: true
+----
+====
+
+[#examples_rollover]
+== Rollover Behavior
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/rollover.cpp[example] demonstrates the rollover behavior of both the unsigned and signed type
+====
+[source, c++]
+----
+include::example$rollover.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== uint128_t behavior ===
+Max of uint128_t: 340282366920938463463374607431768211455
+Max + 1U: 0
+
+Min of uint128_t: 0
+Min - 1U: 340282366920938463463374607431768211455
+
+=== int128_t behavior ===
+Max of int128_t: 170141183460469231731687303715884105727
+Max + 1: -170141183460469231731687303715884105728
+
+Min of int128_t: -170141183460469231731687303715884105728
+Min - 1: 170141183460469231731687303715884105727
+----
+====
+
+[#examples_bit]
+== Bitwise Functions (<bit>)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/bit.cpp[example] demonstrates bitwise operations from the <bit> header
+====
+[source, c++]
+----
+include::example$bit.cpp[]
+----
+====
+
+[#examples_numeric]
+== Saturating Arithmetic (<numeric>)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/saturating_arithmetic.cpp[example] demonstrates saturating arithmetic operations that clamp to min/max instead of overflowing
+====
+[source, c++]
+----
+include::example$saturating_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Saturating Arithmetic ===
+uint128_t max = 340282366920938463463374607431768211455
+int128_t max  = 170141183460469231731687303715884105727
+int128_t min  = -170141183460469231731687303715884105728
+
+=== Saturating Addition and Subtraction ===
+add_sat(uint_max, uint_max) = 340282366920938463463374607431768211455 (saturates to uint_max)
+sub_sat(0, uint_max) = 0 (saturates to 0, not underflow)
+
+=== Saturating Multiplication ===
+mul_sat(int_max, 2) = 170141183460469231731687303715884105727 (saturates to int_max)
+mul_sat(-(int_max - 2), 5) = -170141183460469231731687303715884105728 (saturates to int_min)
+
+=== Saturating Division ===
+div_sat(int_min, -1) = 170141183460469231731687303715884105727 (saturates to int_max; normally this overflows)
+
+=== Saturating Casts ===
+saturate_cast<int128_t>(uint_max) = 170141183460469231731687303715884105727 (saturates to int_max)
+saturate_cast<int64_t>(int_max) = 9223372036854775807 (saturates to INT64_MAX)
+saturate_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
+----
+====
+
+[#examples_numeric_algorithms]
+== Numeric Algorithms (<numeric>)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/numeric_algorithms.cpp[example] demonstrates gcd, lcm, and midpoint algorithms
+====
+[source, c++]
+----
+include::example$numeric_algorithms.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Greatest Common Divisor (gcd) ===
+gcd(48, 18) = 6
+gcd(123456789012345678, 987654321098765432) = 2
+gcd(2^100, 2^80) = 1208925819614629174706176 (= 2^80)
+gcd(-48, 18) = 6 (always positive)
+
+=== Least Common Multiple (lcm) ===
+lcm(12, 18) = 36
+lcm(7, 11) = 77 (coprime: lcm = p * q)
+
+Verifying gcd * lcm = a * b:
+gcd(12, 18) * lcm(12, 18) = 216
+12 * 18 = 216
+
+=== Midpoint ===
+midpoint(10, 20) = 15
+midpoint(10, 21) = 15 (rounds toward first arg)
+midpoint(21, 10) = 16 (rounds toward first arg)
+
+--- Overflow-safe midpoint ---
+midpoint(uint128_max, uint128_max - 10) = 340282366920938463463374607431768211450
+(This would overflow if computed as (a + b) / 2)
+
+--- Signed midpoint ---
+midpoint(-100, 100) = 0
+midpoint(-100, -50) = -75
+----
+====
+
+[#examples_mixed_sign]
+== Mixed Signedness Arithmetic
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/mixed_type_arithmetic.cpp[example] demonstrates arithmetic between 128-bit and built-in integer types
+====
+[source, c++]
+----
+include::example$mixed_type_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Mixed Type Arithmetic with uint128_t ===
+unsigned_value = 3
+unsigned_value + 1 = 4
+unsigned_value - 1 = 2
+unsigned_value * 2 = 6
+unsigned_value / 3 = 1
+unsigned_value % 3 = 0
+unsigned_value + 5 = 8 (same as greater_unsigned_value: 8)
+
+=== Mixed Type Arithmetic with int128_t ===
+signed_value = -3
+signed_value + 1U = -2
+signed_value - 4U = -7
+signed_value * 2 = -6
+signed_value / 4U = 0
+----
+====
+
+[#examples_boost_math_random]
+== Boost.Math and Boost.Random Integration
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/math_and_random.cpp[example] demonstrates integration with Boost.Math and Boost.Random libraries
+====
+[source, c++]
+----
+include::example$math_and_random.cpp[]
+----
+====
+
+[#examples_boost_charconv]
+== Boost.Charconv Integration
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/charconv.cpp[example] demonstrates fast string-to-number and number-to-string conversions using Boost.Charconv
+====
+[source, c++]
+----
+include::example$charconv.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== to_chars ===
+uint128_t max (decimal): 340282366920938463463374607431768211455
+int128_t min (decimal):  -170141183460469231731687303715884105728
+uint128_t (hex): 0xdeadbeefcafebabe12345678
+int128_t 511 (octal): 0777
+
+=== from_chars ===
+Parsed "340282366920938463463374607431768211455"
+  Result: 340282366920938463463374607431768211455
+  Equals max? true
+Parsed "-170141183460469231731687303715884105728"
+  Result: -170141183460469231731687303715884105728
+  Equals min? true
+Parsed hex "DEADBEEFCAFEBABE12345678"
+  Result: 68915718020162848918556923512
+----
+====
+
+[#examples_to_string]
+== String Conversion (to_string)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/to_string.cpp[example] demonstrates to_string for 128-bit integers, comparing results against std::to_string for values that fit in 64 bits
+====
+[source, c++]
+----
+include::example$to_string.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== to_string with uint128_t ===
+uint128_t to_string(1234567890): 1234567890
+std::to_string(uint64_t 1234567890): 1234567890
+Match: true
+
+uint128_t to_string(UINT64_MAX): 18446744073709551615
+std::to_string(UINT64_MAX):      18446744073709551615
+Match: true
+
+uint128_t max: 340282366920938463463374607431768211455
+
+=== to_string with int128_t ===
+int128_t to_string(-42): -42
+std::to_string(int64_t -42): -42
+Match: true
+
+int128_t to_string(INT64_MAX): 9223372036854775807
+std::to_string(INT64_MAX):     9223372036854775807
+Match: true
+
+int128_t min: -170141183460469231731687303715884105728
+int128_t max: 170141183460469231731687303715884105727
+----
+====
+
+[#examples_fmt_format]
+== \{fmt} Library Integration
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/fmt_format.cpp[example] demonstrates formatting with the \{fmt} library including alignment specifiers
+====
+[source, c++]
+----
+include::example$fmt_format.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Basic Formatting ===
+Default (decimal): 68915718020162848918556923512
+Signed value: -123456789012345678
+
+=== Base Specifiers ===
+Binary:      11111111
+Octal:       377
+Decimal:     255
+Hexadecimal: ff
+Hex (upper): FF
+
+=== Alternate Form (Prefixes) ===
+Binary with prefix:  0b11111111
+Octal with prefix:   0377
+Hex with prefix:     0xff
+Hex upper prefix:    0XFF
+
+=== Sign Options ===
+Plus sign:  +42 and -42
+Minus only: 42 and -42
+Space sign:  42 and -42
+
+=== Zero Padding ===
+8-digit padding:  00000255
+16-digit padding: 0000000000000255
+
+=== Alignment ===
+Left align:   '42        '
+Right align:  '        42'
+Center align: '    42    '
+
+=== Alignment with Fill Characters ===
+Left with *:   '42********'
+Right with 0:  '0000000042'
+Center with -: '----42----'
+
+=== Alignment with Sign ===
+Right align +:  '       +42'
+Left align +:   '+42       '
+Center align +: '    +42    '
+Right align -:  '*******-42'
+
+=== Alignment with Hex and Prefix ===
+Right align hex:  '        ff'
+Left align hex:   'ff        '
+Center with prefix: '****0xff****'
+
+=== Large Values ===
+uint128_t max: 340282366920938463463374607431768211455
+uint128_t max (hex): 0xffffffffffffffffffffffffffffffff
+int128_t min: -170141183460469231731687303715884105728
+
+=== Combined Format Specifiers ===
+Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
+Signed with plus, padded: -00123456789012345678
+----
+====
+
+[#examples_cstdlib]
+== Division with Remainder (<cstdlib>)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/cstdlib.cpp[example] demonstrates the div() function that returns both quotient and remainder
+====
+[source, c++]
+----
+include::example$cstdlib.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== div() Function ===
+Returns both quotient and remainder in a single operation
+
+--- Unsigned Division ---
+1000000000000000000 / 7 = 142857142857142857 remainder 1
+Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
+
+--- Large Value Division ---
+2^100 / 2^50 = 1125899906842624 remainder 0
+
+--- Signed Division ---
+-100 / 7 = -14 remainder -2
+
+--- Sign Combinations ---
+ 17 /  5 = 3 remainder 2
+ 17 / -5 = -3 remainder 2
+-17 /  5 = -3 remainder -2
+-17 / -5 = 3 remainder -2
+
+--- Edge Cases ---
+3 / 10 = 0 remainder 3
+----
+====

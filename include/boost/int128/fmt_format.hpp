@@ -12,13 +12,13 @@
 #include <boost/int128/int128.hpp>
 #include <cstring>
 #include <cstdlib>
-#include <algorithm>
 #include <tuple>
 
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wconversion"
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
 
 #include <fmt/base.h>
@@ -41,6 +41,14 @@ enum class sign_option
     space
 };
 
+enum class alignment
+{
+    none,
+    left,   // <
+    right,  // >
+    center  // ^
+};
+
 template <typename ParseContext>
 constexpr auto parse_impl(ParseContext& ctx)
 {
@@ -52,6 +60,56 @@ constexpr auto parse_impl(ParseContext& ctx)
     bool prefix = false;
     bool write_as_character = false;
     bool character_debug_format = false;
+    char fill_char = ' ';
+    auto align = alignment::none;
+
+    // Parse fill and alignment: [[fill]align]
+    // Alignment characters are: < (left), > (right), ^ (center)
+    if (it != ctx.end())
+    {
+        // Check if we have [fill]align (fill char followed by alignment)
+        auto next = it;
+        ++next;
+        if (next != ctx.end() && (*next == '<' || *next == '>' || *next == '^'))
+        {
+            fill_char = *it;
+            it = next;
+            switch (*it)
+            {
+                case '<':
+                    align = alignment::left;
+                    break;
+                case '>':
+                    align = alignment::right;
+                    break;
+                case '^':
+                    align = alignment::center;
+                    break;
+                default:                        // LCOV_EXCL_LINE
+                    BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
+            }
+            ++it;
+        }
+        // Check if we just have align (no fill char)
+        else if (*it == '<' || *it == '>' || *it == '^')
+        {
+            switch (*it)
+            {
+                case '<':
+                    align = alignment::left;
+                    break;
+                case '>':
+                    align = alignment::right;
+                    break;
+                case '^':
+                    align = alignment::center;
+                    break;
+                default:                        // LCOV_EXCL_LINE
+                    BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
+            }
+            ++it;
+        }
+    }
 
     // Handle sign or space
     if (it != ctx.end())
@@ -140,7 +198,7 @@ constexpr auto parse_impl(ParseContext& ctx)
         BOOST_INT128_THROW_EXCEPTION(std::logic_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
-    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, it);
+    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, fill_char, align, it);
 }
 
 template <typename T>
@@ -162,6 +220,8 @@ struct formatter
     bool prefix;
     bool write_as_character;
     bool character_debug_format;
+    char fill_char;
+    alignment align;
 
     constexpr formatter() : base {10},
                             padding_digits {0},
@@ -169,7 +229,9 @@ struct formatter
                             is_upper {false},
                             prefix {false},
                             write_as_character {false},
-                            character_debug_format {false}
+                            character_debug_format {false},
+                            fill_char {' '},
+                            align {alignment::none}
     {}
 
     constexpr auto parse(fmt::format_parse_context& ctx)
@@ -183,8 +245,10 @@ struct formatter
         prefix = std::get<4>(res);
         write_as_character = std::get<5>(res);
         character_debug_format = std::get<6>(res);
+        fill_char = std::get<7>(res);
+        align = std::get<8>(res);
 
-        return std::get<7>(res);
+        return std::get<9>(res);
     }
 
     template <typename FormatContext>
@@ -192,22 +256,79 @@ struct formatter
     {
         char buffer[64];
         bool isneg {false};
+        boost::int128::uint128_t abs_v {};
 
         BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
         {
             if (v < T{0})
             {
                 isneg = true;
-                v = -v;
+                // Can't negate int128_t::min(), handle specially
+                if (v == (std::numeric_limits<T>::min)())
+                {
+                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                }
+                else
+                {
+                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                }
+            }
+            else
+            {
+                abs_v = static_cast<boost::int128::uint128_t>(v);
+            }
+        }
+        else
+        {
+            abs_v = v;
+        }
+
+        const auto end = detail::mini_to_chars(buffer, abs_v, base, is_upper);
+        std::string s(end, buffer + sizeof(buffer));
+
+        // Calculate prefix length that will be added later
+        std::size_t prefix_len {0};
+        if (prefix)
+        {
+            switch (base)
+            {
+                case 2:
+                case 16:
+                    prefix_len = 2;  // "0b", "0B", "0x", or "0X"
+                    break;
+                case 8:
+                    prefix_len = 1;  // "0"
+                    break;
+                default:
+                    break;
             }
         }
 
-        const auto end = detail::mini_to_chars(buffer, v, base, is_upper);
-        std::string s(end, buffer + sizeof(buffer));
-
-        if (s.size() - 1u < static_cast<std::size_t>(padding_digits))
+        // Calculate sign length that will be added later
+        std::size_t sign_len {0};
+        if (sign == sign_option::plus || sign == sign_option::space || isneg)
         {
-            s.insert(s.begin(), static_cast<std::size_t>(padding_digits) - s.size() + 1u, '0');
+            sign_len = 1;
+        }
+
+        // Zero-padding only applies when no explicit alignment is set
+        // Account for prefix and sign in the padding calculation
+        if (align == alignment::none && padding_digits > 0)
+        {
+            auto target_digit_width {static_cast<std::size_t>(padding_digits)};
+            if (target_digit_width > prefix_len + sign_len)
+            {
+                target_digit_width -= prefix_len + sign_len;
+            }
+            else
+            {
+                target_digit_width = 0;
+            }
+
+            if (s.size() - 1u < target_digit_width)
+            {
+                s.insert(s.begin(), target_digit_width - s.size() + 1u, '0');
+            }
         }
 
         if (prefix)
@@ -249,7 +370,11 @@ struct formatter
         switch (sign)
         {
             case sign_option::plus:
-                if (!isneg)
+                if (isneg)
+                {
+                    s.insert(s.begin(), '-');
+                }
+                else
                 {
                     s.insert(s.begin(), '+');
                 }
@@ -284,6 +409,33 @@ struct formatter
 
         s.erase(0, s.find_first_not_of('\0'));
         s.erase(s.find_last_not_of('\0') + 1);
+
+        // Apply alignment if specified
+        if (align != alignment::none && s.size() < static_cast<std::size_t>(padding_digits))
+        {
+            auto fill_count = static_cast<std::size_t>(padding_digits) - s.size();
+            switch (align)
+            {
+                case alignment::left:
+                    s.append(fill_count, fill_char);
+                    break;
+                case alignment::right:
+                    s.insert(s.begin(), fill_count, fill_char);
+                    break;
+                case alignment::center:
+                {
+                    auto left_fill = fill_count / 2;
+                    auto right_fill = fill_count - left_fill;
+                    s.insert(s.begin(), left_fill, fill_char);
+                    s.append(right_fill, fill_char);
+                    break;
+                }
+                    // LCOV_EXCL_START
+                default:
+                    break;
+                    // LCOV_EXCL_STOP
+            }
+        }
 
         return fmt::format_to(ctx.out(), "{}", s);
     }

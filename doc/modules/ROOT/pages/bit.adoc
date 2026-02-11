@@ -8,9 +8,14 @@ https://www.boost.org/LICENSE_1_0.txt
 = `<bit>`
 :idprefix: bit_
 
-The following are functions analogous to those found in C\++20's https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
-None of these functions applied to signed integral types, and thus none have overloads for `boost::int128::int128_t`.
-All of these functions are available using C ++14 like the rest of the library.
+[source,c++]
+----
+#include <boost/int128/bit.hpp>
+----
+
+The following are functions analogous to those found in pass:[C++20] https://en.cppreference.com/w/cpp/header/bit[<bit>] header, but for `boost::int128::uint128_t`.
+None of these functions apply to signed integral types, and thus none have overloads for `boost::int128::int128_t`.
+All of these functions are available using pass:[C++14] like the rest of the library.
 
 [#has_single_bit]
 == has_single_bit
@@ -36,7 +41,6 @@ Returns the number of consecutive `0` bits in the value `x`, starting from the m
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -44,7 +48,6 @@ constexpr int countl_zero(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#countl_one]
@@ -54,7 +57,6 @@ Returns the number of consecutive `1` bits in the value `x`, starting from the m
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -62,7 +64,6 @@ constexpr int countl_one(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#bit_width]
@@ -73,7 +74,6 @@ If `x` is zero, returns 0
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -81,7 +81,6 @@ constexpr int bit_width(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#bit_ceil]
@@ -103,7 +102,7 @@ constexpr uint128_t bit_ceil(uint128_t x) noexcept;
 [#bit_floor]
 == bit_floor
 
-Returns the smallest integral power of two that is not greater than `x`.
+Returns the largest integral power of two that is not greater than `x`.
 If `x` is 0 then returns 0.
 
 [source, c++]
@@ -124,7 +123,6 @@ Returns the number of consecutive `0` bits in the value `x`, starting from the l
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -132,7 +130,6 @@ constexpr int countr_zero(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#countr_one]
@@ -142,7 +139,6 @@ Returns the number of consecutive `1` bits in the value `x`, starting from the l
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -150,7 +146,6 @@ constexpr int countr_one(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#rotl]
@@ -161,7 +156,6 @@ This operation is also known as a left circular shift.
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -169,7 +163,6 @@ constexpr uint128_t rotl(uint128_t x, int s) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#rotr]
@@ -180,7 +173,6 @@ This operation is also known as a right circular shift.
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -188,7 +180,6 @@ constexpr uint128_t rotr(uint128_t x, int s) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#popcount]
@@ -198,7 +189,6 @@ Returns the number of `1` bits in `x`.
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
@@ -206,7 +196,6 @@ constexpr int popcount(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
 [#byteswap]
@@ -216,14 +205,12 @@ Reverses the bytes in the given integer value `x`.
 
 [source,c++]
 ----
-
 namespace boost {
 namespace int128 {
 
-constexpr int byteswap(uint128_t x) noexcept;
+constexpr uint128_t byteswap(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
-
 ----
 
