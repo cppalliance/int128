@@ -336,6 +336,44 @@ Parsed hex "DEADBEEFCAFEBABE12345678"
 ----
 ====
 
+[#examples_to_string]
+== String Conversion (to_string)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/to_string.cpp[example] demonstrates to_string for 128-bit integers, comparing results against std::to_string for values that fit in 64 bits
+====
+[source, c++]
+----
+include::example$to_string.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== to_string with uint128_t ===
+uint128_t to_string(1234567890): 1234567890
+std::to_string(uint64_t 1234567890): 1234567890
+Match: true
+
+uint128_t to_string(UINT64_MAX): 18446744073709551615
+std::to_string(UINT64_MAX):      18446744073709551615
+Match: true
+
+uint128_t max: 340282366920938463463374607431768211455
+
+=== to_string with int128_t ===
+int128_t to_string(-42): -42
+std::to_string(int64_t -42): -42
+Match: true
+
+int128_t to_string(INT64_MAX): 9223372036854775807
+std::to_string(INT64_MAX):     9223372036854775807
+Match: true
+
+int128_t min: -170141183460469231731687303715884105728
+int128_t max: 170141183460469231731687303715884105727
+----
+====
+
 [#examples_fmt_format]
 == \{fmt} Library Integration
 

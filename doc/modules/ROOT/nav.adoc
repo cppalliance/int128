@@ -8,6 +8,7 @@
 ** xref:examples.adoc#examples_numeric[`<numeric>` support (Saturating Arithmetic)]
 ** xref:examples.adoc#examples_numeric[`<numeric>` support (Numeric Logarithms)]
 ** xref:examples.adoc#examples_mixed_sign[Mixed Signedness Arithmetic]
+** xref:examples.adoc#examples_to_string[String Conversion (to_string)]
 ** xref:examples.adoc#examples_boost_math_random[Boost Math and Random Integration]
 ** xref:examples.adoc#examples_boost_charconv[Boost.Charconv Integration]
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]

@@ -32,3 +32,4 @@ inline std::string to_string(const uint128_t& value);
 Returns a `std::string` containing the decimal(base-10) representation of `value`.
 These functions may throw `std::bad_alloc` from the constructor of `std::string`.
 
+An example of how to use these functions is available xref:examples.adoc#examples_to_string[on the examples page.]
