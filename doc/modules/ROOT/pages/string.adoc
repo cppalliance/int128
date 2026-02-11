@@ -5,7 +5,7 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#String]
-= `<string>`
+= `<string>` Support
 :idprefix: string_
 
 [source,c++]

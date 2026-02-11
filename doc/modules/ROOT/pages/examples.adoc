@@ -221,6 +221,48 @@ saturate_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
 ----
 ====
 
+[#examples_numeric_algorithms]
+== Numeric Algorithms (<numeric>)
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/numeric_algorithms.cpp[example] demonstrates gcd, lcm, and midpoint algorithms
+====
+[source, c++]
+----
+include::example$numeric_algorithms.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Greatest Common Divisor (gcd) ===
+gcd(48, 18) = 6
+gcd(123456789012345678, 987654321098765432) = 2
+gcd(2^100, 2^80) = 1208925819614629174706176 (= 2^80)
+gcd(-48, 18) = 6 (always positive)
+
+=== Least Common Multiple (lcm) ===
+lcm(12, 18) = 36
+lcm(7, 11) = 77 (coprime: lcm = p * q)
+
+Verifying gcd * lcm = a * b:
+gcd(12, 18) * lcm(12, 18) = 216
+12 * 18 = 216
+
+=== Midpoint ===
+midpoint(10, 20) = 15
+midpoint(10, 21) = 15 (rounds toward first arg)
+midpoint(21, 10) = 16 (rounds toward first arg)
+
+--- Overflow-safe midpoint ---
+midpoint(uint128_max, uint128_max - 10) = 340282366920938463463374607431768211450
+(This would overflow if computed as (a + b) / 2)
+
+--- Signed midpoint ---
+midpoint(-100, 100) = 0
+midpoint(-100, -50) = -75
+----
+====
+
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 
@@ -399,47 +441,5 @@ Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
 
 --- Edge Cases ---
 3 / 10 = 0 remainder 3
-----
-====
-
-[#examples_numeric_algorithms]
-== Numeric Algorithms (<numeric>)
-
-.This https://github.com/cppalliance/int128/blob/develop/examples/numeric_algorithms.cpp[example] demonstrates gcd, lcm, and midpoint algorithms
-====
-[source, c++]
-----
-include::example$numeric_algorithms.cpp[]
-----
-
-.Expected Output
-[listing]
-----
-=== Greatest Common Divisor (gcd) ===
-gcd(48, 18) = 6
-gcd(123456789012345678, 987654321098765432) = 2
-gcd(2^100, 2^80) = 1208925819614629174706176 (= 2^80)
-gcd(-48, 18) = 6 (always positive)
-
-=== Least Common Multiple (lcm) ===
-lcm(12, 18) = 36
-lcm(7, 11) = 77 (coprime: lcm = p * q)
-
-Verifying gcd * lcm = a * b:
-gcd(12, 18) * lcm(12, 18) = 216
-12 * 18 = 216
-
-=== Midpoint ===
-midpoint(10, 20) = 15
-midpoint(10, 21) = 15 (rounds toward first arg)
-midpoint(21, 10) = 16 (rounds toward first arg)
-
---- Overflow-safe midpoint ---
-midpoint(uint128_max, uint128_max - 10) = 340282366920938463463374607431768211450
-(This would overflow if computed as (a + b) / 2)
-
---- Signed midpoint ---
-midpoint(-100, 100) = 0
-midpoint(-100, -50) = -75
 ----
 ====
