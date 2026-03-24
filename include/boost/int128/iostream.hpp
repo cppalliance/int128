@@ -124,14 +124,17 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
 
     auto first {detail::mini_to_chars(buffer, v, base, uppercase)};
 
-    if (base == 8)
+    if (flags & std::ios_base::showbase)
     {
-        *--first = '0';
-    }
-    else if (base == 16)
-    {
-        *--first = uppercase ? 'X' : 'x';
-        *--first = '0';
+        if (base == 8)
+        {
+            *--first = '0';
+        }
+        else if (base == 16)
+        {
+            *--first = uppercase ? 'X' : 'x';
+            *--first = '0';
+        }
     }
 
     BOOST_INT128_IF_CONSTEXPR (!std::is_same<charT, char>::value)
