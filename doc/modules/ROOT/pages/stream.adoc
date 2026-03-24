@@ -44,7 +44,9 @@ The following flags from `<ios>` are supported for both streaming directions:
 - `std::oct` - Octal Numbers
 - `std::dec` - Decimal Numbers
 - `std::hex` - Hexadecimal Numbers
-- `std::uppercase` - Upper Case Formatting (e.g. 0XFFFF)
-- `std::nouppercase` - Lower Case Formatting (e.g. 0xffff)
+- `std::uppercase` - Upper Case Formatting (e.g. FFFF)
+- `std::nouppercase` - Lower Case Formatting (e.g. ffff)
+- `std::showbase` - Adds a leading base for hex or oct numbers (e.g. 0xffff)
+- `std::noshowbase` - Removes the leading base for hex or oct numbers (e.g. ffff)
 
 See the xref:examples.adoc#examples_io[IO streaming example] for usage demonstrations.
