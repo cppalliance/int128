@@ -1198,7 +1198,7 @@ jobs:
             cd ../boost-root
             rm -rf __build__
             mkdir __build__ && cd __build__
-            cmake -DBOOST_INCLUDE_LIBRARIES=$LIBRARY -DBUILD_TESTING=ON -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DBOOST_INT128_ENABLE_CUDA=1 -DCMAKE_CUDA_ARCHITECTURES="75;86" -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda-12.8 -DCMAKE_CUDA_STANDARD=${std} ..
+            cmake -DBOOST_INCLUDE_LIBRARIES=$LIBRARY -DBUILD_TESTING=ON -DCMAKE_CUDA_COMPILER=/usr/local/cuda/bin/nvcc -DBOOST_INT128_ENABLE_CUDA=1 -DCMAKE_CUDA_ARCHITECTURES="75;86" -DCMAKE_CUDA_STANDARD=${std} ..
             cmake --build . --target tests -j $(nproc)
             ctest --output-on-failure --no-tests=error
             cd $GITHUB_WORKSPACE
