@@ -30,10 +30,10 @@ __global__ void cuda_gcd(const test_type* in1, const test_type* in2, test_type* 
 }
 
 // Allocate managed space so that the arrays can be used on both host and device
-void allocate(test_type* in, int numElements)
+void allocate(test_type** in, int numElements)
 {
     cudaError_t err = cudaSuccess;
-    err = cudaMallocManaged(&in, numElements * sizeof(test_type));
+    err = cudaMallocManaged(in, numElements * sizeof(test_type));
     if (err != cudaSuccess)
     {
         throw std::runtime_error(cudaGetErrorString(err));
@@ -42,25 +42,27 @@ void allocate(test_type* in, int numElements)
     cudaDeviceSynchronize();
 }
 
-void cleanup(test_type* in1, test_type* in2, test_type* out)
+void cleanup(test_type** in1, test_type** in2, test_type** out)
 {
-    if (in1 != nullptr)
+    if (*in1 != nullptr)
     {
-        free(in1);
-        in1 = nullptr;
+        cudaFree(*in1);
+        *in1 = nullptr;
     }
 
-    if (in2 != nullptr)
+    if (*in2 != nullptr)
     {
-        free(in2);
-        in2 = nullptr;
+        cudaFree(*in2);
+        *in2 = nullptr;
     }
 
-    if (out != nullptr)
+    if (*out != nullptr)
     {
-        free(out);
-        out = nullptr;
+        cudaFree(*out);
+        *out = nullptr;
     }
+
+    cudaDeviceReset();
 }
 
 int main()
@@ -77,9 +79,9 @@ int main()
     test_type* in2 = nullptr;
     test_type* out = nullptr;
 
-    allocate(in1, numElements);
-    allocate(in2, numElements);
-    allocate(out, numElements);
+    allocate(&in1, numElements);
+    allocate(&in2, numElements);
+    allocate(&out, numElements);
 
     boost::random::uniform_int_distribution<test_type> dist {(std::numeric_limits<test_type>::min)(), (std::numeric_limits<test_type>::max)()};
     for (std::size_t i = 0; i < numElements; ++i)
@@ -101,7 +103,7 @@ int main()
     if (err != cudaSuccess)
     {
         std::cerr << "Failed to launch kernel (error code " << cudaGetErrorString(err) << ")!" << std::endl;
-        cleanup(in1, in2, out);
+        cleanup(&in1, &in2, &out);
         return EXIT_FAILURE;
     }
 
@@ -113,7 +115,7 @@ int main()
 
     for (int i = 0; i < numElements; ++i)
     {
-        results.push_back(boost::int128::gcd(in1[i], in2[i]));
+        results.emplace_back(boost::int128::gcd(in1[i], in2[i]));
     }
 
     // We can now compare that our operation on GPU and the same operation on CPU have identical results
@@ -123,12 +125,12 @@ int main()
         if (out[i] != results[i])
         {
             std::cerr << "Result verification failed at element: " << i << "!" << std::endl;
-            cleanup(in1, in2, out);
+            cleanup(&in1, &in2, &out);
             return EXIT_FAILURE;
         }
     }
 
-    cleanup(in1, in2, out);
+    cleanup(&in1, &in2, &out);
 
     return 0;
 }
