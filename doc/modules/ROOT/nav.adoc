@@ -12,6 +12,7 @@
 ** xref:examples.adoc#examples_boost_math_random[Boost Math and Random Integration]
 ** xref:examples.adoc#examples_boost_charconv[Boost.Charconv Integration]
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]
+** xref:examples.adoc#examples_cuda[Use of the library in a CUDA kernel]
 * xref:api_reference.adoc[]
 ** xref:api_reference.adoc#api_namespaces[Namespaces]
 ** xref:api_reference.adoc#api_types[Types]

@@ -492,3 +492,22 @@ Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
 3 / 10 = 0 remainder 3
 ----
 ====
+
+[#examples_cuda]
+== CUDA Usage
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/cuda.cu[example] demonstrates how to use library types and functions inside a CUDA kernel.
+====
+[source, c++]
+----
+include::example$cuda.cu[]
+----
+
+.Expected Output
+[listing]
+----
+[Vector operation on 50000 elements]
+CUDA kernel launch with 196 blocks of 256 threads
+All CPU and GPU computed elements match!
+----
+====
