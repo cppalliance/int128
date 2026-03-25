@@ -31,7 +31,7 @@ __global__ void cuda_gcd(const test_type* in1, const test_type* in2, test_type* 
 void allocate(test_type* in, int numElements)
 {
     cudaError_t err = cudaSuccess;
-    err = cudaMallocManaged(&in, numElements * sizeof(T));
+    err = cudaMallocManaged(&in, numElements * sizeof(test_type));
     if (err != cudaSuccess)
     {
         throw std::runtime_error(cudaGetErrorString(err));
@@ -65,15 +65,15 @@ int main()
 {
     std::mt19937_64 rng {42};
 
-    int numElements = 50000;
+    const int numElements = 50000;
     std::cout << "[Vector operation on " << numElements << " elements]" << std::endl;
 
     // Allocate managed space for our inputs and GPU outputs
     // We then fill them with random numbers
 
-    test_type* in1;
-    test_type* in2;
-    test_type* out;
+    test_type* in1 = nullptr;
+    test_type* in2 = nullptr;
+    test_type* out = nullptr;
 
     allocate(in1, numElements);
     allocate(in2, numElements);
@@ -95,7 +95,7 @@ int main()
     cuda_gcd<<<blocksPerGrid, threadsPerBlock>>>(in1, in2, out, numElements);
     cudaDeviceSynchronize();
 
-    err = cudaGetLastError();
+    cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess)
     {
         std::cerr << "Failed to launch kernel (error code " << cudaGetErrorString(err) << ")!" << std::endl;
