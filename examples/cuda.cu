@@ -132,5 +132,7 @@ int main()
 
     cleanup(&in1, &in2, &out);
 
+    std::cout << "All CPU and GPU computed elements match!" << std::endl;
+
     return 0;
 }
