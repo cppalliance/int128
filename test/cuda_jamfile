@@ -92,3 +92,5 @@ run test_signed_from_chars_bases.cu ;
 
 run test_unsigned_literals.cu ;
 run test_signed_literals.cu ;
+
+run ../examples/cuda.cu ;
