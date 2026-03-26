@@ -19,7 +19,7 @@ These macros allow customization of library behavior. User-configurable macros s
 
 [#enable_cuda]
 - `BOOST_INT128_ENABLE_CUDA`: Defining this macro allows both types and selected functions to be run on both host and device when compiling with NVCC.
-Allowed functions have `BOOST_IN128_HOST_DEVICE` as part of their function signature in their documentation.
+Allowed functions have `BOOST_INT128_HOST_DEVICE` as part of their function signature in their documentation.
 
 [#no_int128]
 - `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.

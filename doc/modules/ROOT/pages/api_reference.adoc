@@ -20,6 +20,9 @@ https://www.boost.org/LICENSE_1_0.txt
 
 | xref:literals.adoc[`boost::int128::literals`]
 | User-defined literals for 128-bit integers
+
+| xref:charconv.adoc[`boost::charconv`]
+| `to_chars` and `from_chars` overloads for 128-bit integers (requires Boost.Charconv)
 |===
 
 [#api_types]
@@ -146,7 +149,7 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| `abs`
+| xref:int128_t.adoc#i128_math_operators[`abs`]
 | Absolute value
 |===
 
@@ -359,8 +362,8 @@ Listed by analogous STL header.
 | xref:format.adoc#std_format[`<boost/int128/format.hpp>`]
 | Formatting integration for pass:[C++20] `<format>`
 
-| xref:uint128_t.adoc[`<boost/int128/int128.hpp>`]
-| The `int128_t` and `uint128_t` types
+| `<boost/int128/int128.hpp>`
+| The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
 | Iostream overloads for `int128_t` and `uint128_t`

@@ -110,7 +110,7 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator!=(uint128_t lhs, int128_t rhs);
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(int128_t lhs, uint128_t rhs);
 ----
 
-If the `int128_t` argument is less than 0 returns `false`.
+If the `int128_t` argument is less than 0 returns `true`.
 Otherwise, returns the same as `static_cast<uint128_t>(lhs) != static_cast<uint128_t>(rhs)`.
 
 === Less Than
@@ -152,7 +152,7 @@ If `lhs` is type `int128_t` returns `false` if `lhs < 0`
 If `rhs` is type `int128_t` returns `true` if `rhs < 0`
 Otherwise, returns the same as `static_cast<uint128_t>(lhs) > static_cast<uint128_t>(rhs)`.
 
-=== Less Than or Equal To
+=== Greater Than or Equal To
 
 [source, c++]
 ----
@@ -167,7 +167,7 @@ Otherwise, returns the same as `static_cast<uint128_t>(lhs) pass:[>=] static_cas
 
 == Arithmetic
 
-If you define xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_CONVERSION`], the operators have the following behavior.
+If you define xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`], the operators have the following behavior.
 
 === Addition
 

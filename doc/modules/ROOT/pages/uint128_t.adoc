@@ -405,18 +405,18 @@ This operation is subject to mixed sign limitations discussed xref:uint128_t.ado
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept;
 
 template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr Integer operator>>(const Integer lhs, const uint128_t rhs) noexcept;
 
 template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128_t rhs) noexcept;
 
 template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr unsigned int operator>>(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept;
 ----
 
 Returns the bitwise right shift of `lhs` without exception.
