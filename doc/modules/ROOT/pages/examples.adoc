@@ -304,7 +304,7 @@ signed_value / 4U = 0
 include::example$math_and_random.cpp[]
 ----
 
-.Expected Output
+.Example Output (values vary per run)
 [listing]
 ----
 === uint128_t ===

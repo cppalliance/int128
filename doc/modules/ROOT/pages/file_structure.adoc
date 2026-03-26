@@ -16,22 +16,25 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | Header | Description
 
 | `<boost/int128.hpp>`
-| The complete library (includes all headers below)
+| Convenience header (includes most headers below; does not include `charconv.hpp`, `fmt_format.hpp`, or `random.hpp`)
 
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
 | Bit manipulation functions
 
 | xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
-| Character conversion (`to_chars`/`from_chars`)
+| Character conversion (`to_chars`/`from_chars`); requires Boost.Charconv headers
 
 | xref:api_reference.adoc#api_macro_literals[`<boost/int128/climits.hpp>`]
 | C-style limit macros (`BOOST_INT128_INT128_MAX`, etc.)
+
+| xref:config.adoc[`<boost/int128/config.hpp>`]
+| Configuration macros
 
 | xref:cstdlib.adoc[`<boost/int128/cstdlib.hpp>`]
 | Division with quotient and remainder (`div`)
 
 | xref:format.adoc[`<boost/int128/fmt_format.hpp>`]
-| `pass:[{fmt}]` library support
+| `pass:[{fmt}]` library support; requires the `pass:[{fmt}]` library
 
 | xref:format.adoc[`<boost/int128/format.hpp>`]
 | C++20 `std::format` support
@@ -50,4 +53,10 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
 | Numeric functions (`gcd`, `lcm`, saturating arithmetic)
+
+| `<boost/int128/random.hpp>`
+| Traits for usage with Boost.Random
+
+| xref:string.adoc[`<boost/int128/string.hpp>`]
+| `to_string` overloads
 |===

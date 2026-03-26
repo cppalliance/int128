@@ -12,7 +12,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 The benchmarks below represent the time in microseconds it takes to perform 20'000'000 operations between two values of random width (e.g. 2x1 words, 1x2 words, etc.).
 On most platforms we use the builtin `\__int128` as the reference benchmark.
-When this is unavailable (such as on 32-bit architectures) we us `boost::multiprecision::int128_t` (abbreviated as `boost::mp::int128_t`) as it is widely used, and known to be portable.
+When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::int128_t` (abbreviated as `boost::mp::int128_t`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Signed128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
 
 [#i128_linux]
@@ -56,7 +56,7 @@ image::i128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, 
 image::i128_graphs/linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::i128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
+image::i128_graphs/linux/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === S390x
 
