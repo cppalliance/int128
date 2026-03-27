@@ -56,9 +56,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void half_word_div(
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void half_word_div(const T& lhs, const std::uint32_t rhs, T& quotient) noexcept
 {
+    using high_word_type = decltype(T{}.high);
+
     BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-    quotient.high = lhs.high / rhs;
+    quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
     auto remainder {((static_cast<std::uint64_t>(lhs.high) % rhs) << 32) | (lhs.low >> 32)};
     quotient.low = (remainder / rhs) << 32;
     remainder = ((remainder % rhs) << 32) | (lhs.low & UINT32_MAX);
