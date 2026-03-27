@@ -2058,7 +2058,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const
         return 0;
     }
 
-    return lhs << rhs.low;
+    return lhs >> rhs.low;
 }
 
 #ifdef BOOST_INT128_HAS_INT128
@@ -2072,7 +2072,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 oper
         return 0;
     }
 
-    return lhs << rhs.low;
+    return lhs >> rhs.low;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
@@ -2084,7 +2084,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 oper
         return 0;
     }
 
-    return lhs << rhs.low;
+    return lhs >> rhs.low;
 }
 
 #endif
