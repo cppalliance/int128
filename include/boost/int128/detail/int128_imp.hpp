@@ -2881,18 +2881,18 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
         return {0, 0};
     }
 
+    constexpr int128_t min_val {INT64_MIN, 0};
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
 
-    if (abs_lhs < abs_rhs)
+    if (lhs != min_val && abs_lhs < abs_rhs)
     {
         return {0,0};
     }
     #if defined(BOOST_INT128_HAS_INT128)
-    else
-    {
-        return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
-    }
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
+
     #else
 
     int128_t quotient {};
@@ -2989,11 +2989,12 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
 
     int128_t quotient {};
 
+    constexpr int128_t min_val {INT64_MIN, 0};
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
     const auto abs_rhs {rhs < 0 ? -rhs : rhs};
     const auto abs_lhs {abs(lhs)};
 
-    if (abs_lhs < abs_rhs)
+    if (lhs != min_val && abs_lhs < abs_rhs)
     {
         return {0, 0};
     }
