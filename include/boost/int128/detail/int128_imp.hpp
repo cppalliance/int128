@@ -317,7 +317,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const 
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t value) noexcept
 {
-    return (value.low == 0) ? int128_t{-value.high, 0} :
+    return (value.low == 0) ? int128_t{static_cast<std::int64_t>(0ULL - static_cast<std::uint64_t>(value.high)), 0} :
                               int128_t{~value.high, ~value.low + 1};
 }
 
