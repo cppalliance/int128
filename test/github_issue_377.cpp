@@ -23,9 +23,9 @@ template <typename T>
 void test_other_vals()
 {
     constexpr auto min_val {std::numeric_limits<int128_t>::min()};
-    constexpr auto min_div_2 {BOOST_INT128_INT128_C(-85070591730234615865843651857942052864)};
-    constexpr auto min_div_4 {BOOST_INT128_INT128_C(-42535295865117307932921825928971026432)};
-    constexpr auto min_div_16 {BOOST_INT128_INT128_C(-10633823966279326983230456482242756608)};
+    const auto min_div_2 {BOOST_INT128_INT128_C(-85070591730234615865843651857942052864)};
+    const auto min_div_4 {BOOST_INT128_INT128_C(-42535295865117307932921825928971026432)};
+    const auto min_div_16 {BOOST_INT128_INT128_C(-10633823966279326983230456482242756608)};
 
     BOOST_TEST_EQ(min_div_2, min_val / T{2});
     BOOST_TEST_EQ(min_div_4, min_val / T{4});
