@@ -183,7 +183,7 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
     }
 
     // Return the parsed value, adding the sign back if applicable
-    // If we have overflowed then we do not return the result
+    // If we have overflowed, then we do not return the result
     if (overflowed)
     {
         return EDOM;
@@ -201,7 +201,18 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 
     // This value will be negative to differentiate from errno values
     // since they are in the range of acceptable distances
+
+    // This cast is useless on 32-bit platforms
+    #ifdef __GNUC__
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wuseless-cast"
+    #endif
+
     return static_cast<int>(first - next);
+
+    #ifdef __GNUC__
+    #  pragma GCC diagnostic pop
+    #endif
 }
 } // namespace impl
 
