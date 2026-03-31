@@ -129,7 +129,7 @@ BOOST_INT128_HOST_DEVICE constexpr void knuth_divide(std::uint32_t (&u)[u_size],
         while (q_hat > UINT32_MAX ||
                (q_hat * vn[n-2]) > ((r_hat << 32) | un[j+n-2]))
         {
-            q_hat--;
+            --q_hat;
             r_hat += vn[n-1];
             if (r_hat > UINT32_MAX)
             {
