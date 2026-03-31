@@ -203,14 +203,14 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
     // since they are in the range of acceptable distances
 
     // This cast is useless on 32-bit platforms
-    #ifdef __GNUC__
+    #if defined(__GNUC__) && !defined(__clang__)
     #  pragma GCC diagnostic push
     #  pragma GCC diagnostic ignored "-Wuseless-cast"
     #endif
 
     return static_cast<int>(first - next);
 
-    #ifdef __GNUC__
+    #if defined(__GNUC__) && !defined(__clang__)
     #  pragma GCC diagnostic pop
     #endif
 }
