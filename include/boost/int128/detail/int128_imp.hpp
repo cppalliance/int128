@@ -3264,7 +3264,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
     }
     #else
 
-    const auto is_neg{static_cast<bool>(lhs < 0)};
+    const auto is_neg{lhs < 0};
     
     int128_t remainder {};
 
