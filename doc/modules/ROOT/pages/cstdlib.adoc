@@ -51,9 +51,9 @@ Using the structures defined above, the `div` function computes both quotient an
 namespace boost {
 namespace int128 {
 
-constexpr u128div_t div(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr u128div_t div(uint128_t lhs, uint128_t rhs) noexcept;
 
-constexpr i128div_t div(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr i128div_t div(int128_t lhs, int128_t rhs) noexcept;
 
 } // namespace int128
 } // namespace boost

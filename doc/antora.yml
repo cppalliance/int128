@@ -1,6 +1,9 @@
 name: ROOT
 version: ~
 title: Boost.int128
+asciidoc:
+  attributes:
+    page-pagination: ''
 nav:
   - modules/ROOT/nav.adoc
 start_page: overview.adoc

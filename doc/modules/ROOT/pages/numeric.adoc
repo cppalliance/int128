@@ -23,21 +23,21 @@ The following functions are provided for saturating arithmetic, and they *do not
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t add_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-constexpr int128_t add_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(int128_t lhs, int128_t rhs) noexcept;
 
-constexpr uint128_t sub_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) noexcept;
 
-constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
 
-constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-constexpr int128_t div_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(int128_t lhs, int128_t rhs) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -57,8 +57,11 @@ Should the `TargetIntegerType` not be able to represent the value of the `Librar
 namespace boost {
 namespace int128 {
 
-constexpr <typename LibraryIntegerType, typename TargetIntegerType>
-constexpr TargetIntegerType saturate_cast(LibraryIntegerType x) noexcept;
+template <typename TargetType>
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(uint128_t value) noexcept;
+
+template <typename TargetType>
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(int128_t value) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -76,9 +79,9 @@ Computes the greatest common divisor of `a` and `b`.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
 
-constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -97,9 +100,9 @@ Computes the least common multiple of `a` and `b`.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
 
-constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -118,9 +121,9 @@ Computes the midpoint of `a` and `b`, rounding towards `a`.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
 
-constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost

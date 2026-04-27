@@ -16,6 +16,7 @@ int128 is under active development and is not an official boost library.
 
 This library is header only. It contains no other dependencies.
 Simply `#include` it and use it.
+With C++20 and greater you can instead `import boost.int128`.
 
 ## CMake
 
@@ -64,13 +65,13 @@ struct int128_t;
 
 These types operate like built-in integer types.
 They have their own implementations of the Standard-Library functions
-(e.g. like those found in `<limits>`, `<iostream>`, `<bit>` etc.).
+(e.g., like those found in `<limits>`, `<iostream>`, `<bit>` etc.).
 
 The entire library can be conveniently included with `#include <boost/int128.hpp>`
 
 # Full Documentation
 
-The complete documentation can be found at: https://master.int128.cpp.al
+The complete documentation can be found at: https://develop.int128.cpp.al
 
 ## References
 

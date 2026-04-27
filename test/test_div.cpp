@@ -2,7 +2,18 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#include <boost/int128.hpp>
+#ifndef BOOST_INT128_BUILD_MODULE
+
+#include <boost/int128/int128.hpp>
+#include <boost/int128/cstdlib.hpp>
+#include <boost/int128/iostream.hpp>
+
+#else
+
+import boost.int128;
+
+#endif
+
 #include <boost/core/lightweight_test.hpp>
 #include <random>
 
@@ -48,22 +59,22 @@ void test_unsigned_div()
                 BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
         }
 
-        const auto div_res {div(lhs, rhs)};
+        const auto div_res {boost::int128::div(lhs, rhs)};
         BOOST_TEST_EQ(div_res.quot, lhs / rhs);
         BOOST_TEST_EQ(div_res.rem, lhs % rhs);
 
-        const auto inv_div_res {div(rhs, lhs)};
+        const auto inv_div_res {boost::int128::div(rhs, lhs)};
         BOOST_TEST_EQ(inv_div_res.quot, rhs / lhs);
         BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
     }
 
     uint128_t lhs {dist(rng), dist(rng)};
     uint128_t zero {dist(rng) * 0U, dist(rng) * 0U};
-    const auto lhs_num {div(lhs, zero)};
+    const auto lhs_num {boost::int128::div(lhs, zero)};
     BOOST_TEST_EQ(lhs_num.quot, 0U);
     BOOST_TEST_EQ(lhs_num.rem, 0U);
 
-    const auto lhs_denom {div(zero, lhs)};
+    const auto lhs_denom {boost::int128::div(zero, lhs)};
     BOOST_TEST_EQ(lhs_denom.quot, 0U);
     BOOST_TEST_EQ(lhs_denom.rem, 0U);
 }
@@ -98,22 +109,22 @@ void test_signed_div()
                 BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
         }
 
-        const auto div_res {div(lhs, rhs)};
+        const auto div_res {boost::int128::div(lhs, rhs)};
         BOOST_TEST_EQ(div_res.quot, lhs / rhs);
         BOOST_TEST_EQ(div_res.rem, lhs % rhs);
 
-        const auto inv_div_res {div(rhs, lhs)};
+        const auto inv_div_res {boost::int128::div(rhs, lhs)};
         BOOST_TEST_EQ(inv_div_res.quot, rhs / lhs);
         BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
     }
 
     int128_t lhs {idist(rng), dist(rng)};
     int128_t zero {idist(rng) * 0, dist(rng) * 0U};
-    const auto lhs_num {div(lhs, zero)};
+    const auto lhs_num {boost::int128::div(lhs, zero)};
     BOOST_TEST_EQ(lhs_num.quot, 0);
     BOOST_TEST_EQ(lhs_num.rem, 0);
 
-    const auto lhs_denom {div(zero, lhs)};
+    const auto lhs_denom {boost::int128::div(zero, lhs)};
     BOOST_TEST_EQ(lhs_denom.quot, 0);
     BOOST_TEST_EQ(lhs_denom.rem, 0);
 }

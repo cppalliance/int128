@@ -27,3 +27,12 @@ project
 obj int128 : int128.cxx : <toolset>msvc:<cxxflags>-interface ;
 
 run quick_test.cpp int128 : : : <dependency>int128 ;
+run ../test/test_bit.cpp int128 : : : <dependency>int128 ;
+run ../test/test_div.cpp int128 : : : <dependency>int128 ;
+run ../test/test_gcd_lcm.cpp int128 : : : <dependency>int128 ;
+run ../test/test_i128.cpp int128 : : : <dependency>int128 ;
+run ../test/test_i128_no_sign_conv.cpp int128 : : : <dependency>int128 ;
+run ../test/test_limits_i128.cpp : : : <dependency>int128 ;
+run ../test/test_limits_u128.cpp : : : <dependency>int128 ;
+run ../test/test_literals.cpp : : : <dependency>int128 ;
+run ../test/test_midpoint.cpp : : : <dependency>int128 ;

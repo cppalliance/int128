@@ -12,6 +12,8 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
+#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
 BOOST_INT128_INLINE_CONSTEXPR char lower_case_digit_table[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     'a', 'b', 'c', 'd', 'e', 'f'
@@ -26,8 +28,22 @@ BOOST_INT128_INLINE_CONSTEXPR char upper_case_digit_table[] = {
 
 static_assert(sizeof(upper_case_digit_table) == sizeof(char) * 16, "10 numbers, and 6 letters");
 
-constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, const bool uppercase) noexcept
+#endif // !__NVCC__
+
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, const bool uppercase) noexcept
 {
+    #if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+    constexpr char lower_case_digit_table[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'a', 'b', 'c', 'd', 'e', 'f'
+    };
+
+    constexpr char upper_case_digit_table[] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        'A', 'B', 'C', 'D', 'E', 'F'
+    };
+    #endif
+
     char* last {buffer + 64U};
     *--last = '\0';
 
@@ -81,7 +97,7 @@ constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, c
     return last;
 }
 
-constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base, const bool uppercase) noexcept
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base, const bool uppercase) noexcept
 {
     char* p {nullptr};
 

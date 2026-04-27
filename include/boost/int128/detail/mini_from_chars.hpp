@@ -22,6 +22,9 @@ namespace int128 {
 namespace detail {
 
 namespace impl {
+
+#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
 BOOST_INT128_INLINE_CONSTEXPR unsigned char uchar_values[] =
      {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -42,14 +45,40 @@ BOOST_INT128_INLINE_CONSTEXPR unsigned char uchar_values[] =
 
 static_assert(sizeof(uchar_values) == 256, "uchar_values should represent all 256 values of unsigned char");
 
+#endif // __NVCC__
+
 // Convert characters for 0-9, A-Z, a-z to 0-35. Anything else is 255
-BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> unsigned char
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> unsigned char
 {
+    #if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+
+    constexpr unsigned char uchar_values[] =
+    {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+       0,   1,   2,   3,   4,   5,   6,   7,   8,   9, 255, 255, 255, 255, 255, 255,
+     255,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+      25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35, 255, 255, 255, 255, 255,
+     255,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
+      25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+    static_assert(sizeof(uchar_values) == 256, "uchar_values should represent all 256 values of unsigned char");
+
+    #endif // __NVCC__
+
     return uchar_values[static_cast<unsigned char>(val)];
 }
 
 template <typename Integer, typename Unsigned_Integer>
-constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
 {
     if (first >= last)
     {
@@ -76,8 +105,8 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
             ++next;
         }
 
-        overflow_value = (std::numeric_limits<Integer>::max)();
-        max_digit = (std::numeric_limits<Integer>::max)();
+        overflow_value = static_cast<Unsigned_Integer>((std::numeric_limits<Integer>::max)());
+        max_digit = static_cast<Unsigned_Integer>((std::numeric_limits<Integer>::max)());
 
         if (is_negative)
         {
@@ -154,7 +183,7 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
     }
 
     // Return the parsed value, adding the sign back if applicable
-    // If we have overflowed then we do not return the result
+    // If we have overflowed, then we do not return the result
     if (overflowed)
     {
         return EDOM;
@@ -172,16 +201,27 @@ constexpr int from_chars_integer_impl(const char* first, const char* last, Integ
 
     // This value will be negative to differentiate from errno values
     // since they are in the range of acceptable distances
+
+    // This cast is useless on 32-bit platforms
+    #if defined(__GNUC__) && !defined(__clang__)
+    #  pragma GCC diagnostic push
+    #  pragma GCC diagnostic ignored "-Wuseless-cast"
+    #endif
+
     return static_cast<int>(first - next);
+
+    #if defined(__GNUC__) && !defined(__clang__)
+    #  pragma GCC diagnostic pop
+    #endif
 }
 } // namespace impl
 
-constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
 {
     return impl::from_chars_integer_impl<uint128_t, uint128_t>(first, last, value, base);
 }
 
-constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
 {
     return impl::from_chars_integer_impl<int128_t, uint128_t>(first, last, value, base);
 }

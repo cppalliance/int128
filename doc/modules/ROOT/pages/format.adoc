@@ -37,7 +37,7 @@ Examples:
 | `{:*^6d}` | `"**42**"` (centered with asterisks)
 |===
 
-NOTE: When no alignment is specified but a width is given (e.g., `{:6d}`), zero-padding is applied from the left.
+NOTE: When no alignment is specified but a `0` prefix and width are given (e.g., `{:06d}`), zero-padding is applied from the left. Without the `0` prefix (e.g., `{:6d}`), space-padding is applied instead, matching `std::format` behavior.
 
 == Sign
 

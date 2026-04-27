@@ -52,7 +52,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<Intege
 
 } // namespace detail
 
-BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x + y};
 
@@ -64,7 +64,7 @@ BOOST_INT128_EXPORT constexpr uint128_t add_sat(const uint128_t x, const uint128
     return z;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x - y};
 
@@ -76,72 +76,67 @@ BOOST_INT128_EXPORT constexpr uint128_t sub_sat(const uint128_t x, const uint128
     return z;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t add_sat(int128_t x, int128_t y) noexcept;
-BOOST_INT128_EXPORT constexpr int128_t sub_sat(int128_t x, int128_t y) noexcept;
-
 #ifdef _MSC_VER
 #  pragma warning(push)
 #  pragma warning(disable : 4307) // Addition Overflow
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
-    if (x >= 0 && y >= 0)
-    {
-        constexpr auto max_value {static_cast<uint128_t>((std::numeric_limits<int128_t>::max)())};
-        const auto big_x {static_cast<uint128_t>(x)};
-        const auto big_y {static_cast<uint128_t>(y)};
-        const auto big_res {big_x + big_y};
+    // Detect overflow BEFORE the addition to avoid signed overflow UB.
+    // When both are non-negative: overflow iff x > max - y (subtraction safe: max - non_negative >= 0)
+    // When both are negative: overflow iff x < min - y (subtraction safe: min - negative > min)
+    // Mixed signs: overflow is impossible.
 
-        return big_res > max_value ? (std::numeric_limits<int128_t>::max)() : static_cast<int128_t>(big_res);
-    }
-    else if ((x < 0 && y > 0) || (x > 0 && y < 0))
+    if (x.high >= 0 && y.high >= 0)
     {
-        return x + y;
+        if (x > (std::numeric_limits<int128_t>::max)() - y)
+        {
+            return (std::numeric_limits<int128_t>::max)();
+        }
     }
-    else
+    else if (x.high < 0 && y.high < 0)
     {
-        // x < 0 and y < 0
-        // Nearly the same technique as the positive values case
-        constexpr auto max_value {-static_cast<uint128_t>((std::numeric_limits<int128_t>::min)())};
-        const auto big_x {static_cast<uint128_t>(abs(x))};
-        const auto big_y {static_cast<uint128_t>(abs(y))};
-        const auto big_res {big_x + big_y};
+        if (x < (std::numeric_limits<int128_t>::min)() - y)
+        {
+            return (std::numeric_limits<int128_t>::min)();
+        }
+    }
 
-        return big_res > max_value ? (std::numeric_limits<int128_t>::min)() : -static_cast<int128_t>(big_res);
-    }
+    return x + y;
 }
 
-constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
-    if (x <= 0 && y >= 0)
-    {
-        // Underflow case
-        const auto res {x - y};
-        return res > x ? (std::numeric_limits<int128_t>::min)() : res;
-    }
-    else if (x > 0 && y < 0)
-    {
-        // Overflow Case
-        constexpr auto max_val {static_cast<uint128_t>((std::numeric_limits<int128_t>::max)())};
-        const auto big_x {static_cast<uint128_t>(x)};
-        const auto big_y {-static_cast<uint128_t>(y)};
-        const auto res {big_x + big_y};
+    // Detect overflow BEFORE the subtraction to avoid signed overflow UB.
+    // Positive overflow: x >= 0 and y < 0 and x > max + y (safe: max + negative < max)
+    // Negative overflow: x < 0 and y >= 0 and x < min + y (safe: min + non_negative > min)
+    // Same signs: overflow is impossible.
 
-        return (res > max_val || res < big_x) ? (std::numeric_limits<int128_t>::max)() : static_cast<int128_t>(res);
-    }
-    else
+    if (x.high >= 0 && y.high < 0)
     {
-        return x - y;
+        if (x > (std::numeric_limits<int128_t>::max)() + y)
+        {
+            return (std::numeric_limits<int128_t>::max)();
+        }
     }
+    else if (x.high < 0 && y.high >= 0)
+    {
+        if (x < (std::numeric_limits<int128_t>::min)() + y)
+        {
+            return (std::numeric_limits<int128_t>::min)();
+        }
+    }
+
+    return x - y;
 }
 
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
 
-BOOST_INT128_EXPORT constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
@@ -154,7 +149,7 @@ BOOST_INT128_EXPORT constexpr uint128_t mul_sat(const uint128_t x, const uint128
     return x * y;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
@@ -175,12 +170,12 @@ BOOST_INT128_EXPORT constexpr int128_t mul_sat(const int128_t& x, const int128_t
     return res;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
     {
@@ -197,7 +192,7 @@ BOOST_INT128_EXPORT constexpr int128_t div_sat(const int128_t x, const int128_t 
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr TargetType saturate_cast(const uint128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
     {
@@ -219,7 +214,7 @@ constexpr TargetType saturate_cast(const uint128_t value) noexcept
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-constexpr TargetType saturate_cast(const int128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
     {
@@ -251,7 +246,7 @@ constexpr TargetType saturate_cast(const int128_t value) noexcept
 
 namespace detail {
 
-constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
 {
     if (x == 0)
     {
@@ -283,7 +278,7 @@ constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
 
 } // namespace detail
 
-constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 {
     // Base case
     if (a == 0U)
@@ -320,7 +315,7 @@ constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
     return uint128_t{0, g} << shift;
 }
 
-constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
@@ -330,7 +325,7 @@ constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 // but very slow impl that we know works.
 #if !(defined(_M_IX86) && !defined(_NDEBUG))
 
-constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
     {
@@ -346,11 +341,11 @@ constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 
 #else
 
-constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
     {
-        return 0;
+        return uint128_t{0};
     }
 
 
@@ -380,12 +375,12 @@ constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
 
 #endif
 
-constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
-constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
 {
     // Bit manipulation formula works for unsigned integers
     auto mid {(a & b) + ((a ^ b) >> 1)};
@@ -399,16 +394,22 @@ constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
     return mid;
 }
 
-constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
 {
     // For signed integers, we use a + (b - a) / 2 or a - (a - b) / 2
     // The subtraction is done in unsigned arithmetic to handle overflow correctly
     // Integer division automatically rounds toward the first argument
+    //
+    // Use direct field access for both the uint128 construction and the
+    // comparison to avoid NVCC host compiler issues with operator<= and
+    // static_cast on int128_t for large-magnitude values
 
-    const auto ua {static_cast<uint128_t>(a)};
-    const auto ub {static_cast<uint128_t>(b)};
+    const uint128_t ua {static_cast<std::uint64_t>(a.high), a.low};
+    const uint128_t ub {static_cast<std::uint64_t>(b.high), b.low};
 
-    if (a <= b)
+    const bool a_le_b {a.high == b.high ? a.low <= b.low : a.high < b.high};
+
+    if (a_le_b)
     {
         // diff = b - a (computed in unsigned, handles wrap-around correctly)
         const auto diff {ub - ua};

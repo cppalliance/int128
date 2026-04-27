@@ -32,55 +32,194 @@ namespace int128 {
 // Comparison Operators
 //=====================================
 
-constexpr bool operator==(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator==(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(int128_t lhs, uint128_t rhs);
 
-constexpr bool operator!=(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator!=(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(int128_t lhs, uint128_t rhs);
 
-constexpr bool operator<(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator<(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(int128_t lhs, uint128_t rhs);
 
-constexpr bool operator<=(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator<=(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(int128_t lhs, uint128_t rhs);
 
-constexpr bool operator>(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator>(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(int128_t lhs, uint128_t rhs);
 
-constexpr bool operator>=(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(uint128_t lhs, int128_t rhs);
 
-constexpr bool operator>=(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(int128_t lhs, uint128_t rhs);
 
 //=====================================
 // Arithmetic Operators
 //=====================================
 
-constexpr uint128_t operator+(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(uint128_t lhs, int128_t rhs);
 
-constexpr uint128_t operator+(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(int128_t lhs, uint128_t rhs);
 
-constexpr uint128_t operator-(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(uint128_t lhs, int128_t rhs);
 
-constexpr uint128_t operator-(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(int128_t lhs, uint128_t rhs);
 
-constexpr uint128_t operator*(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(uint128_t lhs, int128_t rhs);
 
-constexpr uint128_t operator*(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(int128_t lhs, uint128_t rhs);
 
-constexpr uint128_t operator/(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, int128_t rhs);
 
-constexpr uint128_t operator/(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(int128_t lhs, uint128_t rhs);
 
-constexpr uint128_t operator%(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, int128_t rhs);
 
-constexpr uint128_t operator%(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(int128_t lhs, uint128_t rhs);
 
 } // namespace int128
 } // namespace boost
 
 ----
+
+== Comparisons
+
+If you define xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`], the operators have the following behavior.
+
+=== Equality
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(int128_t lhs, uint128_t rhs);
+----
+
+If the `int128_t` argument is less than 0 returns `false`.
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) == static_cast<uint128_t>(rhs)`.
+
+=== Inequality
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(int128_t lhs, uint128_t rhs);
+----
+
+If the `int128_t` argument is less than 0 returns `true`.
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) != static_cast<uint128_t>(rhs)`.
+
+=== Less Than
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(int128_t lhs, uint128_t rhs);
+----
+
+If `lhs` is type `int128_t` returns `true` if `lhs < 0`
+If `rhs` is type `int128_t` returns `false` if `rhs < 0`
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) < static_cast<uint128_t>(rhs)`.
+
+=== Less Than or Equal To
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(int128_t lhs, uint128_t rhs);
+----
+
+If `lhs` is type `int128_t` returns `true` if `lhs < 0`
+If `rhs` is type `int128_t` returns `false` if `rhs < 0`
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) pass:[<=] static_cast<uint128_t>(rhs)`.
+
+=== Greater Than
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(int128_t lhs, uint128_t rhs);
+----
+
+If `lhs` is type `int128_t` returns `false` if `lhs < 0`
+If `rhs` is type `int128_t` returns `true` if `rhs < 0`
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) > static_cast<uint128_t>(rhs)`.
+
+=== Greater Than or Equal To
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(int128_t lhs, uint128_t rhs);
+----
+
+If `lhs` is type `int128_t` returns `false` if `lhs < 0`
+If `rhs` is type `int128_t` returns `true` if `rhs < 0`
+Otherwise, returns the same as `static_cast<uint128_t>(lhs) pass:[>=] static_cast<uint128_t>(rhs)`.
+
+== Arithmetic
+
+If you define xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`], the operators have the following behavior.
+
+=== Addition
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(int128_t lhs, uint128_t rhs);
+----
+
+Returns the same as `static_cast<uint128_t>(lhs) + static_cast<uint128_t>(rhs)`
+
+=== Subtraction
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(int128_t lhs, uint128_t rhs);
+----
+
+Returns the same as `static_cast<uint128_t>(lhs) - static_cast<uint128_t>(rhs)`
+
+=== Multiplication
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(int128_t lhs, uint128_t rhs);
+----
+
+Returns the same as `static_cast<uint128_t>(lhs) * static_cast<uint128_t>(rhs)`
+
+=== Division
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(int128_t lhs, uint128_t rhs);
+----
+
+Returns the same as `static_cast<uint128_t>(lhs) / static_cast<uint128_t>(rhs)`
+
+=== Modulo
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, int128_t rhs);
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(int128_t lhs, uint128_t rhs);
+----
+
+Returns the same as `static_cast<uint128_t>(lhs) % static_cast<uint128_t>(rhs)`

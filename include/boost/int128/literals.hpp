@@ -15,76 +15,76 @@ namespace boost {
 namespace int128 {
 namespace literals {
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_u128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept
 {
     uint128_t result {};
     detail::from_chars(str, str + detail::strlen(str), result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_U128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept
 {
     uint128_t result {};
     detail::from_chars(str, str + detail::strlen(str), result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
 {
     uint128_t result {};
     detail::from_chars(str, str + len, result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
 {
     uint128_t result {};
     detail::from_chars(str, str + len, result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_u128(unsigned long long v) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(unsigned long long v) noexcept
 {
     return uint128_t{v};
 }
 
-BOOST_INT128_EXPORT constexpr uint128_t operator ""_U128(unsigned long long v) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(unsigned long long v) noexcept
 {
     return uint128_t{v};
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator ""_i128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept
 {
     int128_t result {};
     detail::from_chars(str, str + detail::strlen(str), result);
     return result;
 }
 
-constexpr int128_t operator ""_I128(const char* str) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
 {
     int128_t result {};
     detail::from_chars(str, str + detail::strlen(str), result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator ""_i128(unsigned long long v) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(unsigned long long v) noexcept
 {
     return int128_t{v};
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator ""_I128(unsigned long long v) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(unsigned long long v) noexcept
 {
     return int128_t{v};
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
 {
     int128_t result {};
     detail::from_chars(str, str + len, result);
     return result;
 }
 
-BOOST_INT128_EXPORT constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
 {
     int128_t result {};
     detail::from_chars(str, str + len, result);

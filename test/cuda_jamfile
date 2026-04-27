@@ -1,0 +1,96 @@
+# Copyright 2024 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
+
+import testing ;
+import ../../config/checks/config : requires ;
+
+project : requirements
+    [ requires cxx14_decltype_auto cxx14_generic_lambdas cxx14_return_type_deduction cxx14_variable_templates cxx14_constexpr ]
+    ;
+
+run test_unsigned_add.cu ;
+run test_signed_add.cu ;
+run test_unsigned_sub.cu ;
+run test_signed_sub.cu ;
+run test_unsigned_mul.cu ;
+run test_signed_mul.cu ;
+run test_unsigned_div.cu ;
+run test_signed_div.cu ;
+run test_unsigned_mod.cu ;
+run test_signed_mod.cu ;
+
+run test_unsigned_or.cu ;
+run test_signed_or.cu ;
+run test_unsigned_and.cu ;
+run test_signed_and.cu ;
+run test_unsigned_xor.cu ;
+run test_signed_xor.cu ;
+run test_unsigned_not.cu ;
+run test_signed_not.cu ;
+run test_unsigned_left_shift.cu ;
+run test_signed_left_shift.cu ;
+run test_unsigned_right_shift.cu ;
+run test_signed_right_shift.cu ;
+
+run test_has_single_bit.cu ;
+run test_countl_zero.cu ;
+run test_countl_one.cu ;
+run test_bit_width.cu ;
+run test_bit_ceil.cu ;
+run test_bit_floor.cu ;
+run test_countr_zero.cu ;
+run test_countr_one.cu ;
+run test_rotl.cu ;
+run test_rotr.cu ;
+run test_popcount.cu ;
+run test_byteswap.cu ;
+
+run test_unsigned_eq.cu ;
+run test_signed_eq.cu ;
+run test_unsigned_ne.cu ;
+run test_signed_ne.cu ;
+run test_unsigned_lt.cu ;
+run test_signed_lt.cu ;
+run test_unsigned_le.cu ;
+run test_signed_le.cu ;
+run test_unsigned_gt.cu ;
+run test_signed_gt.cu ;
+run test_unsigned_ge.cu ;
+run test_signed_ge.cu ;
+
+run test_unsigned_cstdlib_div.cu ;
+run test_signed_cstdlib_div.cu ;
+
+run test_signed_to_unsigned_conversion.cu ;
+run test_unsigned_to_signed_conversion.cu ;
+
+run test_unsigned_add_sat.cu ;
+run test_signed_add_sat.cu ;
+run test_unsigned_sub_sat.cu ;
+run test_signed_sub_sat.cu ;
+run test_unsigned_mul_sat.cu ;
+run test_signed_mul_sat.cu ;
+run test_unsigned_div_sat.cu ;
+run test_signed_div_sat.cu ;
+run test_unsigned_gcd.cu ;
+run test_signed_gcd.cu ;
+run test_unsigned_lcm.cu ;
+run test_signed_lcm.cu ;
+run test_unsigned_midpoint.cu ;
+run test_signed_midpoint.cu ;
+
+run test_unsigned_to_chars.cu ;
+run test_signed_to_chars.cu ;
+run test_unsigned_from_chars.cu ;
+run test_signed_from_chars.cu ;
+
+run test_unsigned_to_chars_bases.cu ;
+run test_signed_to_chars_bases.cu ;
+run test_unsigned_from_chars_bases.cu ;
+run test_signed_from_chars_bases.cu ;
+
+run test_unsigned_literals.cu ;
+run test_signed_literals.cu ;
+
+run ../examples/cuda.cu ;

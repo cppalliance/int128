@@ -69,6 +69,8 @@ run test_stream.cpp ;
 
 compile-fail test_mixed_type_ops.cpp ;
 compile-fail test_mixed_arithmetic.cpp ;
+run test_mixed_type_sign_compare.cpp ;
+run test_mixed_type_sign_conversion.cpp ;
 
 run test_consteval_funcs.cpp ;
 run test_sign_compare.cpp ;
@@ -110,6 +112,7 @@ run github_issue_207.cpp ;
 run github_issue_210.cpp ;
 run github_issue_221.cpp ;
 run github_issue_272.cpp ;
+run github_issue_377.cpp ;
 
 # Compilation of individual headers
 compile compile_tests/int128_master_header_compile.cpp ;
@@ -125,3 +128,4 @@ compile compile_tests/limits_compile.cpp ;
 compile compile_tests/literals_compile.cpp ;
 compile compile_tests/numeric_compile.cpp ;
 compile compile_tests/string_compile.cpp ;
+compile compile_tests/random_compile.cpp ;

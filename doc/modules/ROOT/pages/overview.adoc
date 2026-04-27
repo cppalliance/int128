@@ -15,16 +15,23 @@ Matt Borland
 Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (i.e. `<bit>`, `<iostream>`, etc).
 Importantly, on all platforms, the `sizeof` the types provided in this library are exactly 128-bits.
 
-The library is header-only, has no dependencies, and requires only C++14.
+The library is header-only, has no dependencies, and requires only pass:[C++14].
+When using pass:[C++20] or newer, the library can be consumed as a module `import boost.int128`.
 
 == Motivation
 
-128-bit integers are remarkably useful in a number of domains, but portability is often an issue.
-An example is a 64-bit machine running Linux (say Ubuntu 24.04) has `__int128`, but the same exact machine running Windows does not have this type.
+128-bit integers are useful across many domains, but pass:[C++] provides no portable way to use them.
+GCC and Clang offer `__int128` as a non-standard extension on 64-bit targets, but it lacks `std::numeric_limits` specializations, `<iostream>` support, and is absent entirely on MSVC.
+Multiprecision libraries can fill the gap, but typically at the cost of a larger `sizeof` and additional overhead (e.g., Boost.Multiprecision always has an extra word).
+Boost.Int128 solves this by providing types that are exactly 128-bits on every platform.
+Operation implementations rely on compiler intrinsics where available for native performance, and optimized software implementations elsewhere.
+The types provided by the library also natively support running on GPUs using CUDA, along with many of the functions.
 
 == Use Cases
 
-Anywhere 128-bit integers are needed.
+* **Networking** — IPv6 addresses are 128 bits wide; a single integer makes masking, comparison, and arithmetic straightforward.
+* **Unique identifiers** — UUIDs / GUIDs are 128-bit values commonly used as database keys and distributed system identifiers.
+* **Scientific and Financial computing** — Extended-range accumulators, large combinatorial values, and algorithms that need overflow-free 64×64 multiplication.
 
 == Supported Compilers
 
@@ -35,6 +42,7 @@ as well as emulated PPC64LE using QEMU with the following compilers:
 * Clang 5 and later
 * Visual Studio 2017 (14.1) and later
 * Intel OneAPI DPC++ 2024.2 and later
+* NVCC 12.8 and later
 
 Tested on https://github.com/cppalliance/int128/actions[Github Actions] and https://drone.cpp.al/cppalliance/int128[Drone].
 Coverage can be found on https://app.codecov.io/gh/cppalliance/int128[Codecov].

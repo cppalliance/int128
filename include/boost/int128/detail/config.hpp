@@ -102,9 +102,9 @@ using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED
 #endif
 
-#if defined(BOOST_INT128_HAS_IS_CONSTANT_EVALUATED)
+#if defined(BOOST_INT128_HAS_IS_CONSTANT_EVALUATED) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 #  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) std::is_constant_evaluated()
-#elif defined(BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED)
+#elif defined(BOOST_INT128_HAS_BUILTIN_IS_CONSTANT_EVALUATED) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 #  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) __builtin_is_constant_evaluated()
 #else
 #  define BOOST_INT128_IS_CONSTANT_EVALUATED(x) false
@@ -283,6 +283,12 @@ using builtin_u128 = std::_Unsigned128;
 #  ifndef BOOST_INT128_BUILD_MODULE
 #    include <compare>
 #  endif
+#endif
+
+#if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+#  define BOOST_INT128_HOST_DEVICE __host__ __device__
+#else
+#  define BOOST_INT128_HOST_DEVICE
 #endif
 
 #endif // BOOST_INT128_DETAIL_CONFIG_HPP

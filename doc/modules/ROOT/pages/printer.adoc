@@ -8,8 +8,8 @@ https://www.boost.org/LICENSE_1_0.txt
 = Pretty Printers
 :idprefix: pretty_printers_
 
-Pretty printers allow debuggers to display `uint128_t` and `int128_t` values in human-readable decimal format instead of showing the raw struct members.
-The library contains pretty printers for LLDB and GDB in the `extra/` folder.
+Pretty printers allow debuggers to display `uint128_t` and `int128_t` values in human-readable format instead of showing the raw struct members.
+The library contains pretty printers for LLDB, GDB, and Visual Studio in the `extra/` folder.
 
 == LLDB
 
@@ -39,3 +39,76 @@ or you can source it manually in GDB.
 ----
 (gdb) source /path/to/int128/extra/int128_printer_gdb.py
 ----
+
+== Visual Studio (NATVIS)
+
+The `extra/int128.natvis` file provides visualization for the Visual Studio debugger.
+There are several ways to register it:
+
+=== Per-Project
+
+Add the `.natvis` file to your Visual Studio project.
+In Solution Explorer, right-click the project, select **Add > Existing Item**, and choose `int128.natvis`.
+Visual Studio will automatically use it when debugging that project.
+
+=== Per-User (All Projects)
+
+Copy `int128.natvis` to your per-user Visualizers directory:
+
+[source]
+----
+%USERPROFILE%\Documents\Visual Studio 2022\Visualizers\
+----
+
+Replace `2022` with your Visual Studio version.
+All projects debugged with that installation will use the visualizer.
+
+=== CMake Projects
+
+Add the `.natvis` file as a source file in your `CMakeLists.txt`:
+
+[source,cmake]
+----
+target_sources(my_target PRIVATE /path/to/int128/extra/int128.natvis)
+----
+
+=== Display Format
+
+Values that fit in 64 bits are displayed in decimal.
+Larger values are displayed as a synthesized hexadecimal value with a `'` digit separator between the high and low halves.
+
+[cols="1,1,2", options="header"]
+|===
+| Type | Value | Display
+
+| `uint128_t`
+| `42`
+| `42`
+
+| `uint128_t`
+| `2^64 + 1`
+| `0x0000000000000001'0000000000000001`
+
+| `uint128_t`
+| `uint128_max`
+| `0xFFFFFFFFFFFFFFFF'FFFFFFFFFFFFFFFF`
+
+| `int128_t`
+| `42`
+| `42`
+
+| `int128_t`
+| `-5`
+| `-5`
+
+| `int128_t`
+| `2^64 + 1`
+| `0x0000000000000001'0000000000000001`
+
+| `int128_t`
+| `int128_min`
+| `0x8000000000000000'0000000000000000`
+|===
+
+NOTE: Full decimal display for values beyond 64 bits is not possible in NATVIS.
+The NATVIS expression evaluator does not support 128-bit arithmetic, so values that exceed the 64-bit range are shown in hexadecimal.

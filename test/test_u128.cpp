@@ -1361,7 +1361,7 @@ int main()
 
     test_spot_div<long long>(-3237361348456748317LL, 8011834041509972187LL);
 
-    test_spot_div<boost::int128::uint128_t>(boost::int128::uint128_t{50012077812411ULL, 6429278683030093824ULL}, boost::int128::uint128_t{542101086ULL, 4477988020393345024ULL}, 92256);
+    test_spot_div<boost::int128::uint128_t>(boost::int128::uint128_t{50012077812411ULL, 6429278683030093824ULL}, boost::int128::uint128_t{542101086ULL, 4477988020393345024ULL}, boost::int128::uint128_t{92256});
 
     return boost::report_errors();
 }

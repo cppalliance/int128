@@ -2,10 +2,19 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
+#include <boost/core/lightweight_test.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <boost/int128/int128.hpp>
 #include <boost/int128/bit.hpp>
 #include <boost/int128/iostream.hpp>
-#include <boost/core/lightweight_test.hpp>
+
+#else
+
+import boost.int128;
+
+#endif
 
 void test_has_single_bit()
 {
@@ -42,7 +51,7 @@ void test_countl_zero()
 
 void test_bit_width()
 {
-    BOOST_TEST_EQ(boost::int128::bit_width(0), 0);
+    BOOST_TEST_EQ(boost::int128::bit_width(boost::int128::uint128_t{0}), 0);
 
     boost::int128::uint128_t x {1};
 

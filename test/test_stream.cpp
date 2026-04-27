@@ -89,15 +89,25 @@ void test_ostream()
     std::stringstream hex_out;
     hex_out.flags(std::ios_base::hex);
     hex_out << hex_val;
-    BOOST_TEST_CSTR_EQ(hex_out.str().c_str(), "0xff");
+    BOOST_TEST_CSTR_EQ(hex_out.str().c_str(), "ff");
 
     // 32-bit windows does not set the flags correctly in CI
     #ifndef _M_IX86
 
+    std::stringstream hex_out_base;
+    hex_out_base.flags(std::ios_base::hex | std::ios_base::showbase);
+    hex_out_base << hex_val;
+    BOOST_TEST_CSTR_EQ(hex_out_base.str().c_str(), "0xff");
+
     std::stringstream hex_out_upper;
     hex_out_upper.flags(std::ios_base::hex | std::ios_base::uppercase);
     hex_out_upper << hex_val;
-    BOOST_TEST_CSTR_EQ(hex_out_upper.str().c_str(), "0XFF");
+    BOOST_TEST_CSTR_EQ(hex_out_upper.str().c_str(), "FF");
+
+    std::stringstream hex_out_upper_base;
+    hex_out_upper_base.flags(std::ios_base::hex | std::ios_base::uppercase | std::ios_base::showbase);
+    hex_out_upper_base << hex_val;
+    BOOST_TEST_CSTR_EQ(hex_out_upper_base.str().c_str(), "0XFF");
 
     #endif
 
@@ -105,7 +115,12 @@ void test_ostream()
     std::stringstream octal_out;
     octal_out.flags(std::ios_base::oct);
     octal_out << octal_val;
-    BOOST_TEST_CSTR_EQ(octal_out.str().c_str(), "04");
+    BOOST_TEST_CSTR_EQ(octal_out.str().c_str(), "4");
+
+    std::stringstream octal_out_upper;
+    octal_out_upper.flags(std::ios_base::hex | std::ios_base::showbase);
+    octal_out_upper << octal_val;
+    BOOST_TEST_CSTR_EQ(octal_out.str().c_str(), "4");
 
     BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::uint128_t>::value)
     {

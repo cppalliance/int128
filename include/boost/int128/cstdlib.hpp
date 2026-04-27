@@ -10,19 +10,19 @@
 namespace boost {
 namespace int128 {
 
-struct u128div_t
+BOOST_INT128_EXPORT struct u128div_t
 {
     uint128_t quot;
     uint128_t rem;
 };
 
-struct i128div_t
+BOOST_INT128_EXPORT struct i128div_t
 {
     int128_t quot;
     int128_t rem;
 };
 
-constexpr u128div_t div(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint128_t x, const uint128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == 0U || y == 0U))
     {
@@ -54,7 +54,7 @@ constexpr u128div_t div(const uint128_t x, const uint128_t y) noexcept
     }
 }
 
-constexpr i128div_t div(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int128_t x, const int128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == 0 || y == 0))
     {

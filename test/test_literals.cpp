@@ -2,9 +2,18 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
+#ifndef BOOST_INT128_BUILD_MODULE
+
 #include <boost/int128/int128.hpp>
 #include <boost/int128/literals.hpp>
 #include <boost/int128/iostream.hpp>
+
+#else
+
+import boost.int128;
+
+#endif
+
 #include <boost/core/lightweight_test.hpp>
 #include <limits>
 

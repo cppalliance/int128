@@ -12,7 +12,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 The benchmarks below represent the time in microseconds it takes to perform 20'000'000 operations between two values of random width (e.g. 2x1 words, 1x2 words, etc.).
 On most platforms we use the builtin `unsigned \__int128` as the reference benchmark.
-When this is unavailable (such as on 32-bit architectures) we us `boost::multiprecision::uint128_t` (abbreviated as `boost::mp::uint128_t`) as it is widely used, and known to be portable.
+When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::uint128_t` (abbreviated as `boost::mp::uint128_t`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
 
 [#u128_linux]
@@ -56,7 +56,7 @@ image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, 
 image::u128_graphs/linux/ARM64_benchmarks.png[ARM64 Benchmark Results, width=100%]
 ////
 
-image::u128_graphs/linux/ARM64_relative_performance.png[x64 Relative Performance, width=100%]
+image::u128_graphs/linux/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === S390x
 
@@ -232,12 +232,12 @@ image::u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performan
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 131902 | 133564 | 134182
-| Addition | 20613 | 17912 | 40176
-| Subtraction | 20484 | 18237 | 40311
-| Multiplication | 20160 | 20580 | 43285
-| Division | 686521 | 699201 | 945928
-| Modulo | 777084 | 724648 | 953117
+| Comparisons | 688225 | 712352 | 689146
+| Addition | 104921 | 124992 | 137819
+| Subtraction | 129150 | 102302 | 153484
+| Multiplication | 120363 | 119652 | 164100
+| Division | 2333812 | 1981469 | 2784139
+| Modulo | 2621949 | 2219481 | 2736682
 |===
 
 ////

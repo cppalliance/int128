@@ -5,6 +5,8 @@
 #ifndef BOOST_INT128_DETAIL_UTILITIES_HPP
 #define BOOST_INT128_DETAIL_UTILITIES_HPP
 
+#include <boost/int128/detail/config.hpp>
+
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <cstddef>
@@ -16,7 +18,7 @@ namespace int128 {
 namespace detail {
 
 template <typename T>
-constexpr std::size_t strlen(const T* str) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::size_t strlen(const T* str) noexcept
 {
     std::size_t i {};
     while (*str != '\0')

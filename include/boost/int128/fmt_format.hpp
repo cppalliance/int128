@@ -280,7 +280,7 @@ struct formatter
         }
         else
         {
-            abs_v = v;
+            abs_v = static_cast<uint128_t>(v);
         }
 
         const auto end = detail::mini_to_chars(buffer, abs_v, base, is_upper);

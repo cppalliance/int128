@@ -303,6 +303,17 @@ signed_value / 4U = 0
 ----
 include::example$math_and_random.cpp[]
 ----
+
+.Example Output (values vary per run)
+[listing]
+----
+=== uint128_t ===
+    Mean: 22125900135088040520646253247977468
+Variance: 15183108029620265677746188314852225
+  Median: 169775281866460752209725324063124732284
+=== int128_t ===
+Random int128_t: 45422201008201503618595888886744218664
+----
 ====
 
 [#examples_boost_charconv]
@@ -479,5 +490,24 @@ Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
 
 --- Edge Cases ---
 3 / 10 = 0 remainder 3
+----
+====
+
+[#examples_cuda]
+== CUDA Usage
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/cuda.cu[example] demonstrates how to use library types and functions inside a CUDA kernel.
+====
+[source, c++]
+----
+include::example$cuda.cu[]
+----
+
+.Expected Output
+[listing]
+----
+[Vector operation on 50000 elements]
+CUDA kernel launch with 196 blocks of 256 threads
+All CPU and GPU computed elements match!
 ----
 ====

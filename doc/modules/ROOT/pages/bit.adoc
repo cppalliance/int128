@@ -28,7 +28,7 @@ Returns `true` if `x` is a power of two; otherwise `false`
 namespace boost {
 namespace int128 {
 
-constexpr bool has_single_bit(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -44,7 +44,7 @@ Returns the number of consecutive `0` bits in the value `x`, starting from the m
 namespace boost {
 namespace int128 {
 
-constexpr int countl_zero(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int countl_zero(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -60,7 +60,7 @@ Returns the number of consecutive `1` bits in the value `x`, starting from the m
 namespace boost {
 namespace int128 {
 
-constexpr int countl_one(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int countl_one(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -77,7 +77,7 @@ If `x` is zero, returns 0
 namespace boost {
 namespace int128 {
 
-constexpr int bit_width(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int bit_width(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -93,7 +93,7 @@ Returns the smallest integral power of two that is not smaller than `x`.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t bit_ceil(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_ceil(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -110,7 +110,7 @@ If `x` is 0 then returns 0.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t bit_floor(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_floor(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -126,7 +126,7 @@ Returns the number of consecutive `0` bits in the value `x`, starting from the l
 namespace boost {
 namespace int128 {
 
-constexpr int countr_zero(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int countr_zero(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -142,7 +142,7 @@ Returns the number of consecutive `1` bits in the value `x`, starting from the l
 namespace boost {
 namespace int128 {
 
-constexpr int countr_one(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int countr_one(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -159,7 +159,7 @@ This operation is also known as a left circular shift.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t rotl(uint128_t x, int s) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t rotl(uint128_t x, int s) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -176,7 +176,7 @@ This operation is also known as a right circular shift.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t rotr(uint128_t x, int s) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t rotr(uint128_t x, int s) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -192,7 +192,7 @@ Returns the number of `1` bits in `x`.
 namespace boost {
 namespace int128 {
 
-constexpr int popcount(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int popcount(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -208,7 +208,7 @@ Reverses the bytes in the given integer value `x`.
 namespace boost {
 namespace int128 {
 
-constexpr uint128_t byteswap(uint128_t x) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(uint128_t x) noexcept;
 
 } // namespace int128
 } // namespace boost

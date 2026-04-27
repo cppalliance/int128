@@ -20,6 +20,9 @@ https://www.boost.org/LICENSE_1_0.txt
 
 | xref:literals.adoc[`boost::int128::literals`]
 | User-defined literals for 128-bit integers
+
+| xref:charconv.adoc[`boost::charconv`]
+| `to_chars` and `from_chars` overloads for 128-bit integers (requires Boost.Charconv)
 |===
 
 [#api_types]
@@ -146,7 +149,7 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| `abs`
+| xref:int128_t.adoc#i128_math_operators[`abs`]
 | Absolute value
 |===
 
@@ -307,6 +310,9 @@ Listed by analogous STL header.
 
 | xref:config.adoc#disable_exceptions[`BOOST_INT128_DISABLE_EXCEPTIONS`]
 | Disables exception throwing
+
+| xref:config.adoc#enable_cuda[`BOOST_INT128_ENABLE_CUDA`]
+| Enables CUDA support allowing the library types and functions to be run on both host and device
 |===
 
 ==== Automatic Configuration
@@ -323,4 +329,58 @@ Listed by analogous STL header.
 
 | xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_BIG_BYTE`]
 | Defined on big-endian systems
+
+| xref:config.adoc#host_device[`BOOST_INT128_HOST_DEVICE`]
+| Expands to `pass:[__host__ __device__]` under NVCC for CUDA support
+|===
+
+[#api_headers]
+== Headers
+
+[cols="1,2", options="header"]
+|===
+| Header | Contents
+
+| `<boost/int128.hpp>`
+| Convenience header including the entire library
+
+| xref:bit.adoc[`<boost/int128/bit.hpp>`]
+| Bit manipulation functions
+
+| xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
+| Character conversion functions
+
+| `<boost/int128/climits.hpp>`
+| Min and max macros
+
+| xref:cstdlib.adoc[`<boost/int128/cstdlib.hpp>`]
+| Combined division and modulo function
+
+| xref:format.adoc#fmt_format[`<boost/int128/fmt_format.hpp>`]
+| Formatting integration for pass:[{fmt}]
+
+| xref:format.adoc#std_format[`<boost/int128/format.hpp>`]
+| Formatting integration for pass:[C++20] `<format>`
+
+| `<boost/int128/int128.hpp>`
+| The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
+
+| xref:stream.adoc[`<boost/int128/iostream.hpp>`]
+| Iostream overloads for `int128_t` and `uint128_t`
+
+| `<boost/int128/limits.hpp>`
+| Overloads for `std::numeric_limits` for `int128_t` and `uint128_t`
+
+| xref:literals.adoc[`<boost/int128/literals.hpp>`]
+| User-defined literals for `int128_t` and `uint128_t`
+
+| xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
+| Numeric algorithms (gcd, lcm, midpoint)
+
+| xref:string.adoc[`<boost/int128/string.hpp>`]
+| `to_string` overloads
+
+| `<boost/int128/random.hpp>`
+| Required for usage of Boost.Random
+
 |===
