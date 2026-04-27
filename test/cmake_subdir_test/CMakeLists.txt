@@ -8,20 +8,6 @@ project(cmake_subdir_test LANGUAGES CXX)
 
 add_subdirectory(../.. boostorg/int128)
 
-set(deps
-
-# Primary dependencies
-
-assert
-config
-core
-
-# Secondary dependencies
-
-static_assert
-throw_exception
-)
-
 foreach(dep IN LISTS deps)
 
   add_subdirectory(../../../${dep} boostorg/${dep})
