@@ -29,9 +29,9 @@ The types provided by the library also natively support running on GPUs using CU
 
 == Use Cases
 
-* **Networking** — IPv6 addresses are 128 bits wide; a single integer makes masking, comparison, and arithmetic straightforward.
-* **Unique identifiers** — UUIDs / GUIDs are 128-bit values commonly used as database keys and distributed system identifiers.
-* **Scientific and Financial computing** — Extended-range accumulators, large combinatorial values, and algorithms that need overflow-free 64×64 multiplication.
+* Networking — IPv6 addresses are 128 bits wide; a single integer makes masking, comparison, and arithmetic straightforward.
+* Unique identifiers — UUIDs / GUIDs are 128-bit values commonly used as database keys and distributed system identifiers.
+* Scientific and Financial computing — Extended-range accumulators, large combinatorial values, and algorithms that need overflow-free 64x64 multiplication.
 
 == Supported Compilers
 
