@@ -64,5 +64,6 @@
 *** xref:i128_benchmarks.adoc#i128_linux[Linux]
 *** xref:i128_benchmarks.adoc#i128_windows[Windows]
 *** xref:i128_benchmarks.adoc#i128_mac[macOS]
+* xref:comp_to_multiprecision.adoc[]
 * xref:reference.adoc[]
 * xref:copyright.adoc[]
