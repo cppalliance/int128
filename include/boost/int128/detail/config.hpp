@@ -45,7 +45,11 @@ using builtin_u128 = unsigned __int128;
 
 #define BOOST_INT128_HAS_MSVC_INT128
 
+#if _MSC_VER >= 1945
+#define BOOST_INT128_BUILTIN_CONSTEXPR constexpr
+#else
 #define BOOST_INT128_BUILTIN_CONSTEXPR inline
+#endif
 
 namespace boost {
 namespace int128 {
