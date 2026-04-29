@@ -204,6 +204,23 @@ void test_cross_type()
             BOOST_TEST_EQ(lib_i / lib_u, uint128_t{oracle_i / oracle_u});
             BOOST_TEST_EQ(lib_i % lib_u, uint128_t{oracle_i % oracle_u});
         }
+
+        // Bitwise: same-rank, signed -> unsigned, result uint128_t
+        BOOST_TEST_EQ(lib_u | lib_i, uint128_t{oracle_u | oracle_i});
+        BOOST_TEST_EQ(lib_u & lib_i, uint128_t{oracle_u & oracle_i});
+        BOOST_TEST_EQ(lib_u ^ lib_i, uint128_t{oracle_u ^ oracle_i});
+        BOOST_TEST_EQ(lib_i | lib_u, uint128_t{oracle_i | oracle_u});
+        BOOST_TEST_EQ(lib_i & lib_u, uint128_t{oracle_i & oracle_u});
+        BOOST_TEST_EQ(lib_i ^ lib_u, uint128_t{oracle_i ^ oracle_u});
+
+        // Shifts: result type follows LHS
+        const std::uint64_t shift_amount {static_cast<std::uint64_t>(rng()) % 128};
+        const uint128_t lib_u_shift {shift_amount};
+        const int128_t lib_i_shift {static_cast<std::int64_t>(shift_amount)};
+        BOOST_TEST_EQ(lib_i << lib_u_shift, int128_t{raw_i << shift_amount});
+        BOOST_TEST_EQ(lib_u << lib_i_shift, uint128_t{raw_u << shift_amount});
+        BOOST_TEST_EQ(lib_i >> lib_u_shift, int128_t{raw_i >> shift_amount});
+        BOOST_TEST_EQ(lib_u >> lib_i_shift, uint128_t{raw_u >> shift_amount});
     }
 }
 
