@@ -347,35 +347,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const boo
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs >= 0 && lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high == rhs_u.high && lhs.low == rhs_u.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs >= 0 && rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high == rhs.high && lhs_u.low == rhs.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -424,8 +404,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uin
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return lhs == static_cast<uint128_t>(rhs);
@@ -435,24 +413,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 {
     return static_cast<uint128_t>(lhs) == rhs;
 }
-
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -483,35 +443,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const boo
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs < 0 || lhs.high != UINT64_C(0) || lhs.low != static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high != rhs_u.high || lhs.low != rhs_u.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs < 0 || rhs.high != UINT64_C(0) || rhs.low != static_cast<std::uint64_t>(lhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high != rhs.high || lhs_u.low != rhs.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -560,7 +500,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uin
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_BUILTIN_CONSTEXPR)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -572,23 +511,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) != rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -609,35 +531,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs > 0 && lhs.high == UINT64_C(0) && lhs.low < static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high == rhs_u.high ? lhs.low < rhs_u.low : lhs.high < rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs < 0 || rhs.high > UINT64_C(0) || static_cast<std::uint64_t>(lhs) < rhs.low;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high == rhs.high ? lhs_u.low < rhs.low : lhs_u.high < rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -716,7 +618,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -728,23 +629,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) < rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -765,35 +649,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs >= 0 && lhs.high == UINT64_C(0) && lhs.low <= static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high == rhs_u.high ? lhs.low <= rhs_u.low : lhs.high < rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs < 0 || rhs.high > UINT64_C(0) || static_cast<std::uint64_t>(lhs) <= rhs.low;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high == rhs.high ? lhs_u.low <= rhs.low : lhs_u.high < rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -871,7 +735,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uin
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -893,23 +756,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) <= rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
@@ -920,35 +766,15 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const T,
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs < 0 || lhs.high > UINT64_C(0) || lhs.low > static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high == rhs_u.high ? lhs.low > rhs_u.low : lhs.high > rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs > 0 && rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) > rhs.low;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high == rhs.high ? lhs_u.low > rhs.low : lhs_u.high > rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1026,7 +852,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -1048,23 +873,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) > rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
@@ -1075,35 +883,15 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const T, 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return rhs < 0 || lhs.high > UINT64_C(0) || lhs.low >= static_cast<std::uint64_t>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t rhs_u {rhs};
+    return lhs.high == rhs_u.high ? lhs.low >= rhs_u.low : lhs.high > rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    return lhs >= 0 && rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
+    const uint128_t lhs_u {lhs};
+    return lhs_u.high == rhs.high ? lhs_u.low >= rhs.low : lhs_u.high > rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1191,7 +979,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) >= rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1203,23 +990,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<uint128_t>(lhs) >= rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Compare Error");
-    return true;
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
@@ -1282,8 +1052,6 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Unsign
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
     if (lhs < rhs)
     {
         return std::strong_ordering::less;
@@ -1296,22 +1064,11 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Signed
     {
         return std::strong_ordering::greater;
     }
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return std::strong_ordering::less;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_COMPARE
-
     if (lhs < rhs)
     {
         return std::strong_ordering::less;
@@ -1324,15 +1081,6 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint12
     {
         return std::strong_ordering::greater;
     }
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Compare Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return std::strong_ordering::less;
-
-    #endif
 }
 
 #endif
@@ -1353,35 +1101,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator~(const
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {lhs.high | (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low | static_cast<std::uint64_t>(rhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {rhs.high | (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low | static_cast<std::uint64_t>(lhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1403,7 +1129,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const
 
 #ifdef BOOST_INT128_HAS_INT128
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -1415,23 +1140,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const
     return static_cast<uint128_t>(lhs) | rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1448,10 +1156,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this | rhs;
     return *this;
 }
@@ -1466,10 +1170,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator|=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this | rhs;
     return *this;
 }
@@ -1483,47 +1183,25 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator|=(const Integer r
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {lhs.high & (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low & static_cast<std::uint64_t>(rhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {rhs.high & (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low & static_cast<std::uint64_t>(lhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const UnsignedInteger rhs) noexcept
 {
-    return {lhs.high, lhs.low & static_cast<std::uint64_t>(rhs)};
+    return {UINT64_C(0), lhs.low & static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const UnsignedInteger lhs, const uint128_t rhs) noexcept
 {
-    return {rhs.high, rhs.low & static_cast<std::uint64_t>(lhs)};
+    return {UINT64_C(0), rhs.low & static_cast<std::uint64_t>(lhs)};
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const uint128_t rhs) noexcept
@@ -1533,7 +1211,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const
 
 #ifdef BOOST_INT128_HAS_INT128
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -1545,23 +1222,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const
     return static_cast<uint128_t>(lhs) & rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1578,10 +1238,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator&=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this & rhs;
     return *this;
 }
@@ -1597,10 +1253,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator&=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator&=(Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this & rhs;
     return *this;
 }
@@ -1615,35 +1267,13 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator&=(Integer rhs) no
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {lhs.high ^ (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low ^ static_cast<std::uint64_t>(rhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return {rhs.high ^ (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low ^ static_cast<std::uint64_t>(lhs)};
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -1665,7 +1295,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const
 
 #ifdef BOOST_INT128_HAS_INT128
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -1677,23 +1306,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const
     return static_cast<uint128_t>(lhs) ^ rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -1710,10 +1322,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator^=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this ^ rhs;
     return *this;
 }
@@ -1729,10 +1337,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator^=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator^=(Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this ^ rhs;
     return *this;
 }
@@ -2348,37 +1952,15 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_s
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return rhs < 0 ? impl::default_sub(lhs, -static_cast<std::uint64_t>(rhs)) :
                      impl::default_add(lhs, static_cast<std::uint64_t>(rhs));
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return lhs < 0 ? impl::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
                      impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 #ifdef _MSC_VER
@@ -2404,7 +1986,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -2416,23 +1997,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return impl::default_add(static_cast<uint128_t>(lhs), rhs);
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -2449,10 +2013,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this + rhs;
     return *this;
 }
@@ -2468,10 +2028,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator+=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this + rhs;
     return *this;
 }
@@ -2491,37 +2047,15 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator+=(const Integer r
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return rhs < 0 ? impl::default_add(lhs, -static_cast<std::uint64_t>(rhs)) :
                      impl::default_sub(lhs, static_cast<std::uint64_t>(rhs));
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     return lhs < 0 ? impl::default_sub(-rhs, -static_cast<std::uint64_t>(lhs)) :
                      impl::default_add(-rhs, static_cast<std::uint64_t>(lhs));
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 #ifdef _MSC_VER
@@ -2547,7 +2081,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -2559,23 +2092,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return static_cast<uint128_t>(lhs) - rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -2592,10 +2108,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator-=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this - rhs;
     return *this;
 }
@@ -2611,10 +2123,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator-=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator-=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this - rhs;
     return *this;
 }
@@ -2775,45 +2283,23 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
     const auto abs_rhs {rhs < 0 ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
     const auto res {detail::default_mul(lhs, abs_rhs)};
 
     return rhs < 0 ? -res : res;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
     const auto abs_lhs {lhs < 0 ? -static_cast<eval_type>(lhs) : static_cast<eval_type>(lhs)};
     const auto res {detail::default_mul(rhs, abs_lhs)};
 
     return lhs < 0 ? -res : res;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
@@ -2839,7 +2325,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const
 
 #ifdef BOOST_INT128_HAS_INT128
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -2857,23 +2342,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const
     return lhs < 0 ? -res : res;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
 {
@@ -2890,10 +2358,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this * rhs;
     return *this;
 }
@@ -2909,10 +2373,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator*=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this * rhs;
     return *this;
 }
@@ -2941,37 +2401,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint1
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return lhs < 0 ? static_cast<uint128_t>(lhs) / rhs : static_cast<eval_type>(lhs) / rhs;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
@@ -3065,7 +2503,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return static_cast<uint128_t>(lhs) / rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -3077,33 +2514,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return static_cast<uint128_t>(lhs) / rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this / rhs;
     return *this;
 }
@@ -3119,10 +2535,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator/=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     *this = *this / rhs;
     return *this;
 }
@@ -3151,37 +2563,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint1
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, const SignedInteger rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return rhs < 0 ? lhs % static_cast<uint128_t>(rhs) : lhs % static_cast<eval_type>(rhs);
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    #ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
     using eval_type = detail::evaluation_type_t<SignedInteger>;
     return lhs < 0 ? static_cast<uint128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
-
-    #else
-
-    static_assert(detail::is_unsigned_integer_v<SignedInteger>, "Sign Conversion Error");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #endif
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
@@ -3279,7 +2669,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return static_cast<uint128_t>(lhs) % rhs;
 }
 
-#ifdef BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
@@ -3291,33 +2680,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint
     return static_cast<uint128_t>(lhs) % rhs;
 }
 
-#else
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const uint128_t, const T) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-BOOST_INT128_EXPORT template <typename T, std::enable_if_t<std::is_same<T, detail::builtin_i128>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const T, const uint128_t) noexcept
-{
-    static_assert(detail::is_unsigned_integer_v<T>, "Sign Conversion Error");
-    return {0, 0};
-}
-
-#endif // BOOST_INT128_ALLOW_SIGN_CONVERSION
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(detail::is_unsigned_integer_v<Integer>, "Sign Conversion Error");
-    #endif
-
     *this = *this % rhs;
     return *this;
 }
@@ -3333,10 +2701,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator%=(const uint12
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-    static_assert(!std::numeric_limits<Integer>::is_signed, "Sign Conversion Error");
-    #endif
-
     * this = *this % rhs;
     return *this;
 }
