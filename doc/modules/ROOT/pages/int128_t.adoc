@@ -62,11 +62,9 @@ Otherwise, it is left up to the compiler to decide.
 [#i128_operator_behavior]
 == Operator Behavior
 
-For all the following operators use of unsigned overloads will error from `static_assert` by default.
-This is the library's way of enforcing the behavior of `-Wsign-conversion` and `-Wsign-comparison` in a library type.
-If you want to compare with unsigned types you must define `BOOST_INT128_ALLOW_SIGN_COMPARE`,
-and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signedness.
-These will both cast the unsigned integer to a signed integer and then perform the operation.
+Mixed-sign comparisons and arithmetic between `int128_t` and built-in unsigned types follow the C++ usual arithmetic conversions, identical to the built-in `__int128` type.
+For comparisons and arithmetic with built-in unsigned types of lesser rank (`uint8_t` through `uint64_t`), `int128_t` is the common type and the operation is signed.
+For operations with `unsigned __int128` (same rank), the signed `int128_t` is converted to the unsigned counterpart and the operation is unsigned, matching the C++ usual arithmetic conversions.
 
 [#i128_constructors]
 == Constructors

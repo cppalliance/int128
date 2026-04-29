@@ -302,12 +302,6 @@ Listed by analogous STL header.
 | xref:config.adoc#no_int128[`BOOST_INT128_NO_BUILTIN_INT128`]
 | Disables use of compiler built-in `__int128`
 
-| xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`]
-| Allows comparison between signed and unsigned types
-
-| xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`]
-| Allows implicit sign conversion
-
 | xref:config.adoc#disable_exceptions[`BOOST_INT128_DISABLE_EXCEPTIONS`]
 | Disables exception throwing
 
