@@ -120,8 +120,14 @@ void test_int128_vs_unsigned_small()
 
         // Builtin path: int128_t has higher rank and can represent UnsignedT,
         // so both promote to __int128 (signed) and the result type is signed.
+        // Comparisons use the signed oracle directly. Arithmetic and bitwise
+        // are performed in the unsigned domain (well-defined wrap-around) and
+        // reinterpreted as signed for the result type, matching the library's
+        // wrap-around semantics and avoiding UB-on-overflow that UBSan flags.
         const builtin_i128 oracle_lhs {raw_lhs};
         const builtin_i128 oracle_rhs = static_cast<builtin_i128>(u_rhs);
+        const builtin_u128 oracle_lhs_u = static_cast<builtin_u128>(oracle_lhs);
+        const builtin_u128 oracle_rhs_u = static_cast<builtin_u128>(oracle_rhs);
 
         BOOST_TEST_EQ(lib_lhs == u_rhs, oracle_lhs == oracle_rhs);
         BOOST_TEST_EQ(lib_lhs != u_rhs, oracle_lhs != oracle_rhs);
@@ -137,9 +143,9 @@ void test_int128_vs_unsigned_small()
         BOOST_TEST_EQ(u_rhs >  lib_lhs, oracle_rhs >  oracle_lhs);
         BOOST_TEST_EQ(u_rhs >= lib_lhs, oracle_rhs >= oracle_lhs);
 
-        BOOST_TEST_EQ(lib_lhs + u_rhs, int128_t{oracle_lhs + oracle_rhs});
-        BOOST_TEST_EQ(lib_lhs - u_rhs, int128_t{oracle_lhs - oracle_rhs});
-        BOOST_TEST_EQ(lib_lhs * u_rhs, int128_t{oracle_lhs * oracle_rhs});
+        BOOST_TEST_EQ(lib_lhs + u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u + oracle_rhs_u)});
+        BOOST_TEST_EQ(lib_lhs - u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u - oracle_rhs_u)});
+        BOOST_TEST_EQ(lib_lhs * u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u * oracle_rhs_u)});
         if (u_rhs != 0)
         {
             BOOST_TEST_EQ(lib_lhs / u_rhs, int128_t{oracle_lhs / oracle_rhs});
@@ -147,16 +153,16 @@ void test_int128_vs_unsigned_small()
         }
         if (raw_lhs != 0)
         {
-            BOOST_TEST_EQ(u_rhs + lib_lhs, int128_t{oracle_rhs + oracle_lhs});
-            BOOST_TEST_EQ(u_rhs - lib_lhs, int128_t{oracle_rhs - oracle_lhs});
-            BOOST_TEST_EQ(u_rhs * lib_lhs, int128_t{oracle_rhs * oracle_lhs});
+            BOOST_TEST_EQ(u_rhs + lib_lhs, int128_t{static_cast<builtin_i128>(oracle_rhs_u + oracle_lhs_u)});
+            BOOST_TEST_EQ(u_rhs - lib_lhs, int128_t{static_cast<builtin_i128>(oracle_rhs_u - oracle_lhs_u)});
+            BOOST_TEST_EQ(u_rhs * lib_lhs, int128_t{static_cast<builtin_i128>(oracle_rhs_u * oracle_lhs_u)});
             BOOST_TEST_EQ(u_rhs / lib_lhs, int128_t{oracle_rhs / oracle_lhs});
             BOOST_TEST_EQ(u_rhs % lib_lhs, int128_t{oracle_rhs % oracle_lhs});
         }
 
-        BOOST_TEST_EQ(lib_lhs | u_rhs, int128_t{oracle_lhs | oracle_rhs});
-        BOOST_TEST_EQ(lib_lhs & u_rhs, int128_t{oracle_lhs & oracle_rhs});
-        BOOST_TEST_EQ(lib_lhs ^ u_rhs, int128_t{oracle_lhs ^ oracle_rhs});
+        BOOST_TEST_EQ(lib_lhs | u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u | oracle_rhs_u)});
+        BOOST_TEST_EQ(lib_lhs & u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u & oracle_rhs_u)});
+        BOOST_TEST_EQ(lib_lhs ^ u_rhs, int128_t{static_cast<builtin_i128>(oracle_lhs_u ^ oracle_rhs_u)});
     }
 }
 
@@ -213,11 +219,14 @@ void test_cross_type()
         BOOST_TEST_EQ(lib_i & lib_u, uint128_t{oracle_i & oracle_u});
         BOOST_TEST_EQ(lib_i ^ lib_u, uint128_t{oracle_i ^ oracle_u});
 
-        // Shifts: result type follows LHS
+        // Shifts: result type follows LHS. Compute the int128 left-shift via
+        // the unsigned domain (well-defined wrap-around) and reinterpret as
+        // signed to avoid UB when `raw_i` is negative or the result overflows.
         const std::uint64_t shift_amount {static_cast<std::uint64_t>(rng()) % 128};
         const uint128_t lib_u_shift {shift_amount};
         const int128_t lib_i_shift {static_cast<std::int64_t>(shift_amount)};
-        BOOST_TEST_EQ(lib_i << lib_u_shift, int128_t{raw_i << shift_amount});
+        const builtin_u128 raw_i_u = static_cast<builtin_u128>(raw_i);
+        BOOST_TEST_EQ(lib_i << lib_u_shift, int128_t{static_cast<builtin_i128>(raw_i_u << shift_amount)});
         BOOST_TEST_EQ(lib_u << lib_i_shift, uint128_t{raw_u << shift_amount});
         BOOST_TEST_EQ(lib_i >> lib_u_shift, int128_t{raw_i >> shift_amount});
         BOOST_TEST_EQ(lib_u >> lib_i_shift, uint128_t{raw_u >> shift_amount});
@@ -302,9 +311,14 @@ void test_int128_vs_builtin_u128()
         BOOST_TEST_EQ(lib_i & raw_u, uint128_t{oracle_i & oracle_u});
         BOOST_TEST_EQ(lib_i ^ raw_u, uint128_t{oracle_i ^ oracle_u});
 
-        // Shifts: result type follows LHS (int128_t for `lib_i << count`)
+        // Shifts: result type follows LHS (int128_t for `lib_i << count`).
+        // Left shift: compute via unsigned (well-defined wrap-around) and
+        // reinterpret as signed, since `signed << count` overflowing or
+        // shifting a negative value is UB pre-C++20 (UBSan flags it).
+        // Right shift: keep signed for arithmetic-shift semantics.
         const unsigned shift_amount {static_cast<unsigned>(rng() % 128)};
-        BOOST_TEST_EQ(lib_i << shift_amount, int128_t{raw_i << shift_amount});
+        const builtin_u128 raw_i_u = static_cast<builtin_u128>(raw_i);
+        BOOST_TEST_EQ(lib_i << shift_amount, int128_t{static_cast<builtin_i128>(raw_i_u << shift_amount)});
         BOOST_TEST_EQ(lib_i >> shift_amount, int128_t{raw_i >> shift_amount});
     }
 }
