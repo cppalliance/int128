@@ -1696,7 +1696,8 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_ad
 {
     #if (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_WIN32) && defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) + static_cast<detail::builtin_i128>(rhs));
+    // Compute in the unsigned domain so that overflow wraps modulo 2^128
+    return int128_t{static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW)
 
@@ -1758,7 +1759,8 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_su
 
     #elif defined(__aarch64__) && !defined(__APPLE__)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) - static_cast<detail::builtin_i128>(rhs));
+    // Unsigned wrap for consistent two's-complement semantics
+    return int128_t{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -2060,7 +2062,8 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     #  elif defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
+    // Unsigned wrap for consistent two's-complement semantics
+    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #  else
 
@@ -2070,7 +2073,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     #elif defined(__aarch64__) && defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) * static_cast<detail::builtin_i128>(rhs));
+    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
