@@ -259,7 +259,7 @@ void test_uint128_vs_builtin_i128()
         BOOST_TEST_EQ(lib_u & raw_i, uint128_t{oracle_u & oracle_i});
         BOOST_TEST_EQ(lib_u ^ raw_i, uint128_t{oracle_u ^ oracle_i});
 
-        const builtin_i128 shift_amount {static_cast<builtin_i128>(rng() % 128)};
+        const unsigned shift_amount {static_cast<unsigned>(rng() % 128)};
         BOOST_TEST_EQ(lib_u << shift_amount, uint128_t{oracle_u << shift_amount});
         BOOST_TEST_EQ(lib_u >> shift_amount, uint128_t{oracle_u >> shift_amount});
     }
@@ -302,8 +302,8 @@ void test_int128_vs_builtin_u128()
         BOOST_TEST_EQ(lib_i & raw_u, uint128_t{oracle_i & oracle_u});
         BOOST_TEST_EQ(lib_i ^ raw_u, uint128_t{oracle_i ^ oracle_u});
 
-        // Shifts: result type follows LHS (int128_t for `lib_i << raw_u`)
-        const builtin_u128 shift_amount {static_cast<builtin_u128>(rng() % 128)};
+        // Shifts: result type follows LHS (int128_t for `lib_i << count`)
+        const unsigned shift_amount {static_cast<unsigned>(rng() % 128)};
         BOOST_TEST_EQ(lib_i << shift_amount, int128_t{raw_i << shift_amount});
         BOOST_TEST_EQ(lib_i >> shift_amount, int128_t{raw_i >> shift_amount});
     }
