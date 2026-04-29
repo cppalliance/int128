@@ -2328,18 +2328,22 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
-    const auto abs_rhs {rhs < 0 ? -static_cast<uint128_t>(rhs) : static_cast<uint128_t>(rhs)};
+    const auto rhs_u {static_cast<uint128_t>(rhs)};
+    const bool rhs_negative {static_cast<std::int64_t>(rhs_u.high) < 0};
+    const auto abs_rhs {rhs_negative ? -rhs_u : rhs_u};
     const auto res {lhs * abs_rhs};
 
-    return rhs < 0 ? -res : res;
+    return rhs_negative ? -res : res;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
 {
-    const auto abs_lhs {lhs < 0 ? -static_cast<uint128_t>(lhs) : static_cast<uint128_t>(lhs)};
+    const auto lhs_u {static_cast<uint128_t>(lhs)};
+    const bool lhs_negative {static_cast<std::int64_t>(lhs_u.high) < 0};
+    const auto abs_lhs {lhs_negative ? -lhs_u : lhs_u};
     const auto res {abs_lhs * rhs};
 
-    return lhs < 0 ? -res : res;
+    return lhs_negative ? -res : res;
 }
 
 
