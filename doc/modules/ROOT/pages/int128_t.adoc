@@ -68,7 +68,7 @@ Specifically:
 
 * For built-in unsigned types of lesser rank (`uint8_t` through `uint64_t`), `int128_t` is the common type and arithmetic / bitwise operations return `int128_t` with signed semantics.
 * For `unsigned __int128` (same rank), the signed `int128_t` is converted to the unsigned counterpart, the operation is performed unsigned, and arithmetic / bitwise operations return `uint128_t` (the library's wrapper for `unsigned __int128`).
-* For shift operators, the result type follows the LHS — `int128_t << T` and `int128_t >> T` always return `int128_t`, regardless of `T`.
+* For shift operators, the result type follows the LHS: `int128_t << T` and `int128_t >> T` always return `int128_t`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
 
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.

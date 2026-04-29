@@ -39,16 +39,16 @@ The behavior and return type of every mixed-sign overload follow the C++ usual a
 | `uint128_t`
 | `uint128_t`
 
-| `int128_t` and a small unsigned built-in (`uint8_t`–`uint64_t`)
+| `int128_t` and a small unsigned built-in (`uint8_t` to `uint64_t`)
 | `int128_t`
 | `int128_t`
 
-| `uint128_t` and a small signed built-in (`int8_t`–`int64_t`)
+| `uint128_t` and a small signed built-in (`int8_t` to `int64_t`)
 | `uint128_t`
 | `uint128_t`
 |===
 
-For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type regardless of the RHS — matching the built-in shift rules.
+For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type regardless of the RHS, matching the built-in shift rules.
 
 For comparison operators (`pass:[==]`, `pass:[!=]`, `pass:[<]`, `pass:[<=]`, `pass:[>]`, `pass:[>=]`), the return type is always `bool` and the comparison is performed on the operands after they have been converted to the common type above.
 

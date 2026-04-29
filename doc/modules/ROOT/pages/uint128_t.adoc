@@ -67,7 +67,7 @@ Their behavior follows the C++ usual arithmetic conversions and is value-identic
 Specifically:
 
 * The signed operand (whether a small `intN_t` or `__int128`) is converted to `uint128_t` (sign-extended for negatives), and the operation is performed unsigned with two's-complement wrap-around semantics. Arithmetic and bitwise operations return `uint128_t`.
-* For shift operators, the result type follows the LHS — `uint128_t << T` and `uint128_t >> T` always return `uint128_t`, regardless of `T`.
+* For shift operators, the result type follows the LHS: `uint128_t << T` and `uint128_t >> T` always return `uint128_t`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
 
 For example, `uint128_t{5} > -1` returns `false` because the signed `-1` converts to a value greater than `5` under unsigned 128-bit arithmetic, exactly as `(unsigned __int128){5} > -1` would.

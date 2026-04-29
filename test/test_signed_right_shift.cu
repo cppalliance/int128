@@ -42,7 +42,7 @@ int main(void)
     cuda_managed_ptr<unsigned> shift_vector(numElements);
     cuda_managed_ptr<test_type> output_vector(numElements);
 
-    // Include negative values — right shift of negative signed integers is
+    // Include negative values -- right shift of negative signed integers is
     // implementation-defined (arithmetic shift) but not UB
     boost::random::uniform_int_distribution<test_type> dist {(std::numeric_limits<test_type>::min)(), (std::numeric_limits<test_type>::max)()};
     std::uniform_int_distribution<unsigned> shift_dist {0U, 127U};
