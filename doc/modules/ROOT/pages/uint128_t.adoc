@@ -62,9 +62,17 @@ Otherwise, it is left up to the compiler to decide.
 [#u128_operator_behavior]
 == Operator Behavior
 
-Mixed-sign comparisons and arithmetic between `uint128_t` and built-in signed types follow the C++ usual arithmetic conversions, identical to the built-in `unsigned __int128` type.
-The signed operand is converted to `uint128_t` (sign-extended for negatives) and the operation is performed unsigned, with two's-complement wrap-around semantics.
+All comparison, arithmetic, bitwise, and shift operators are defined between `uint128_t` and any built-in integer type, signed or unsigned.
+Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `unsigned __int128` operation.
+Specifically:
+
+* The signed operand (whether a small `intN_t` or `__int128`) is converted to `uint128_t` (sign-extended for negatives), and the operation is performed unsigned with two's-complement wrap-around semantics. Arithmetic and bitwise operations return `uint128_t`.
+* For shift operators, the result type follows the LHS — `uint128_t << T` and `uint128_t >> T` always return `uint128_t`, regardless of `T`.
+* All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
+
 For example, `uint128_t{5} > -1` returns `false` because the signed `-1` converts to a value greater than `5` under unsigned 128-bit arithmetic, exactly as `(unsigned __int128){5} > -1` would.
+
+See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
 [#u128_constructors]
 == Constructors

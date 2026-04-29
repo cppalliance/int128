@@ -12,13 +12,47 @@ https://www.boost.org/LICENSE_1_0.txt
 
 The ability to convert between the two types via `static_cast` is available as documented in the above class descriptions.
 
-== Comparisons and Arithmetics
+== Operator Overloads Across Types
 
-Mixed-sign comparisons and arithmetic between `int128_t`, `uint128_t`, and built-in integer types of opposite signedness follow the C++ usual arithmetic conversions.
-The results are identical to those produced by the built-in `__int128` / `unsigned __int128` types: when the two operands have the same rank (e.g. `int128_t` and `uint128_t`), the signed operand is converted to its unsigned counterpart and the operation is performed unsigned.
-When the library type has higher rank than the built-in opposite-signedness type and can represent it (e.g. `int128_t op uint64_t`), both operands are converted to the library type and the operation is signed.
+All comparison, arithmetic, bitwise, and shift operators are provided across:
 
-In all cases the result value matches what the equivalent built-in `__int128` / `unsigned __int128` operation would produce, including two's-complement wrap-around behavior.
+* `int128_t` and `uint128_t` (cross-type),
+* `int128_t` / `uint128_t` and any built-in integer type (signed or unsigned, including the compiler's 128-bit `pass:[__int128]` / `pass:[unsigned __int128]` where supported).
+
+The behavior and return type of every mixed-sign overload follow the C++ usual arithmetic conversions, identical to what the equivalent built-in `pass:[__int128]` / `pass:[unsigned __int128]` operation would produce, including two's-complement wrap-around semantics.
+
+=== Result Type Rules
+
+[cols="3,2,3", options="header"]
+|===
+| Operands | Common type | Result of arithmetic / bitwise
+
+| `int128_t` and `uint128_t` (same rank, mixed sign)
+| `uint128_t`
+| `uint128_t`
+
+| `int128_t` and `pass:[unsigned __int128]` (same rank, mixed sign)
+| `uint128_t`
+| `uint128_t`
+
+| `uint128_t` and `pass:[__int128]` (same rank, mixed sign)
+| `uint128_t`
+| `uint128_t`
+
+| `int128_t` and a small unsigned built-in (`uint8_t`–`uint64_t`)
+| `int128_t`
+| `int128_t`
+
+| `uint128_t` and a small signed built-in (`int8_t`–`int64_t`)
+| `uint128_t`
+| `uint128_t`
+|===
+
+For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type regardless of the RHS — matching the built-in shift rules.
+
+For comparison operators (`pass:[==]`, `pass:[!=]`, `pass:[<]`, `pass:[<=]`, `pass:[>]`, `pass:[>=]`), the return type is always `bool` and the comparison is performed on the operands after they have been converted to the common type above.
+
+=== Cross-type Operator Signatures
 
 [source, c++]
 ----
@@ -30,27 +64,16 @@ namespace int128 {
 //=====================================
 
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(int128_t lhs, uint128_t rhs);
 
 //=====================================
@@ -58,29 +81,45 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(int128_t lhs, uint128_t rhs);
 //=====================================
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(int128_t lhs, uint128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, int128_t rhs);
-
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(int128_t lhs, uint128_t rhs);
+
+//=====================================
+// Bitwise Operators
+//=====================================
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(int128_t lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(uint128_t lhs, int128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(int128_t lhs, uint128_t rhs);
+
+//=====================================
+// Shift Operators
+//=====================================
+// Result type follows the LHS.
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t  operator<<(int128_t  lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(uint128_t lhs, int128_t  rhs);
+BOOST_INT128_HOST_DEVICE constexpr int128_t  operator>>(int128_t  lhs, uint128_t rhs);
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(uint128_t lhs, int128_t  rhs);
 
 } // namespace int128
 } // namespace boost
-
 ----
 
-The cross-type comparison operators return the same result as `static_cast<uint128_t>(lhs) op static_cast<uint128_t>(rhs)`.
-The cross-type arithmetic operators return the same value as that expression and have return type `uint128_t`.
+The cross-type arithmetic and bitwise operators return the same value as `static_cast<uint128_t>(lhs) op static_cast<uint128_t>(rhs)`.
+The comparison operators return the same value as that expression compared with the matching unsigned operator.
+
+=== Operations with built-in `pass:[__int128]` / `pass:[unsigned __int128]`
+
+When the compiler provides 128-bit built-in integer types, all of the operators above are also available between a library type and the built-in type of opposite signedness (e.g. `uint128_t op pass:[__int128]`, `pass:[unsigned __int128] op int128_t`).
+The result type follows the same rules as the table above (`uint128_t` for arithmetic and bitwise; the LHS type for shifts; `bool` for comparisons), and the produced value is identical to what an all-built-in computation would yield.
