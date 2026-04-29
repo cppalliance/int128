@@ -2,8 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#define BOOST_INT128_ALLOW_SIGN_COMPARE
-
 #include <boost/int128/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
 
