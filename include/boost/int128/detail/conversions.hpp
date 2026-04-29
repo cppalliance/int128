@@ -178,6 +178,77 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
 }
 
 //=====================================
+// int128_t with builtin unsigned __int128 comparison operators
+//
+// These live here (not in int128_imp.hpp) 
+// to avoid C++20 rewritten-candidate ambiguity on MSVC
+//=====================================
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) == rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs == static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) != rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs != static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) < rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs < static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) <= rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs <= static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) > rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs > static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) >= rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs >= static_cast<uint128_t>(rhs);
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
+//=====================================
 // int128_t with builtin unsigned __int128 binary operators
 //=====================================
 

@@ -396,16 +396,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<int128_t>(lhs) == rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) == rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs == static_cast<detail::builtin_u128>(rhs);
-}
-
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
@@ -488,16 +478,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) != rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) != rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs != static_cast<detail::builtin_u128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -594,16 +574,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<int128_t>(lhs) < rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) < rhs;
-}
-
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs < static_cast<detail::builtin_u128>(rhs);
-}
-
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
@@ -675,16 +645,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) > rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) > rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs > static_cast<detail::builtin_u128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -760,16 +720,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
     return static_cast<int128_t>(lhs) <= rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) <= rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs <= static_cast<detail::builtin_u128>(rhs);
-}
-
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
@@ -841,16 +791,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return static_cast<int128_t>(lhs) >= rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
-{
-    return static_cast<detail::builtin_u128>(lhs) >= rhs;
-}
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
-{
-    return lhs >= static_cast<detail::builtin_u128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
