@@ -1195,6 +1195,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
 
     #ifdef BOOST_INT128_HAS_INT128
 
+    // Left-shifting a negative builtin_i128 is UB pre-C++20
     #  if defined(__aarch64__)
 
     #if defined(__GNUC__) && __GNUC__ >= 8
@@ -1202,8 +1203,8 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
     #  pragma GCC diagnostic ignored "-Wclass-memaccess"
     #endif
 
-    builtin_i128 value;
-    std::memcpy(&value, &lhs, sizeof(builtin_i128));
+    builtin_u128 value;
+    std::memcpy(&value, &lhs, sizeof(builtin_u128));
     const auto res {value << rhs};
 
     int128_t return_value;
@@ -1216,7 +1217,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
 
     #  else
 
-    return static_cast<builtin_i128>(lhs) << rhs;
+    return int128_t{static_cast<builtin_u128>(lhs) << rhs};
 
     #  endif
 
@@ -1986,7 +1987,9 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     const auto carry{hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
 
-    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+    // Compute the high word in the unsigned domain so that the multiplication
+    // and addition wrap modulo 2^64.
+    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
 
     return {high_res, low_res};
 }
@@ -2005,7 +2008,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     const auto carry{(hi_lo >> 32U) + (mid >> 32U)};
 
-    const auto high_res{lhs.high * static_cast<std::int64_t>(rhs) + static_cast<std::int64_t>(carry)};
+    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
 
     return {high_res, low_res};
 }
