@@ -13,6 +13,8 @@
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
+#ifdef BOOST_INT128_HAS_INT128
+
 static std::mt19937_64 rng{42};
 // Use sqrt-bounded ranges so multiplication doesn't overflow the 64-bit oracle, but cover
 // negative signed values to exercise the sign-extension path.
@@ -23,8 +25,6 @@ static std::uniform_int_distribution<std::int64_t> i_dist{
 static constexpr std::size_t N {1024U};
 
 using namespace boost::int128;
-
-#ifdef BOOST_INT128_HAS_INT128
 
 void test()
 {
