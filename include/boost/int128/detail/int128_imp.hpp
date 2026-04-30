@@ -1307,8 +1307,8 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
     {
         return 0;
     }
-
-    return lhs << rhs.low;
+    
+    return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
@@ -1320,7 +1320,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
         return 0;
     }
 
-    return lhs << rhs.low;
+    return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
 #endif
@@ -1558,7 +1558,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
         return 0;
     }
 
-    return lhs >> rhs.low;
+    return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
@@ -1570,7 +1570,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
         return 0;
     }
 
-    return lhs >> rhs.low;
+    return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
 #endif
