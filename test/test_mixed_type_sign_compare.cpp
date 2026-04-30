@@ -12,14 +12,14 @@
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
+#ifdef BOOST_INT128_HAS_INT128
+
 static std::mt19937_64 rng{42};
 static std::uniform_int_distribution<std::uint64_t> u_dist{0, UINT64_MAX};
 static std::uniform_int_distribution<std::int64_t> i_dist{INT64_MIN, INT64_MAX};
 static constexpr std::size_t N {1024U};
 
 using namespace boost::int128;
-
-#ifdef BOOST_INT128_HAS_INT128
 
 void test_left_unsigned()
 {
@@ -101,10 +101,12 @@ void test_right_unsigned()
 
 int main()
 {
-#ifdef BOOST_INT128_HAS_INT128
+    #ifdef BOOST_INT128_HAS_INT128
+
     test_left_unsigned();
     test_right_unsigned();
-#endif
+
+    #endif
 
     return boost::report_errors();
 }
