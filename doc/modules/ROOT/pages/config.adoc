@@ -24,16 +24,6 @@ Allowed functions have `BOOST_INT128_HOST_DEVICE` as part of their function sign
 [#no_int128]
 - `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.
 
-[#sign_compare]
-- `BOOST_INT128_ALLOW_SIGN_COMPARE`: Allows comparisons between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-compare` warning.
-
-IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
-
-[#sign_conversion]
-- `BOOST_INT128_ALLOW_SIGN_CONVERSION`: Allows arithmetic operations between this library's types and built-in types of opposite signedness. Analogous to disabling GCC's `-Wsign-conversion` warning. Implies `BOOST_INT128_ALLOW_SIGN_COMPARE`.
-
-IMPORTANT: NOT DEFINED BY DEFAULT FOR CORRECTNESS
-
 [#disable_exceptions]
 - `BOOST_INT128_DISABLE_EXCEPTIONS`: Allows exceptions to be disabled.
 This macro will automatically be defined in the presence of `-fno-exceptions` or similar MSVC flags.

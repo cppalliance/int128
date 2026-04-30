@@ -3,8 +3,6 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#define BOOST_INT128_ALLOW_SIGN_CONVERSION
-
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -44,7 +42,7 @@ int main(void)
     cuda_managed_ptr<unsigned> shift_vector(numElements);
     cuda_managed_ptr<test_type> output_vector(numElements);
 
-    // Include negative values — right shift of negative signed integers is
+    // Include negative values -- right shift of negative signed integers is
     // implementation-defined (arithmetic shift) but not UB
     boost::random::uniform_int_distribution<test_type> dist {(std::numeric_limits<test_type>::min)(), (std::numeric_limits<test_type>::max)()};
     std::uniform_int_distribution<unsigned> shift_dist {0U, 127U};

@@ -67,14 +67,12 @@ run test_bit.cpp ;
 run test_literals.cpp ;
 run test_stream.cpp ;
 
-compile-fail test_mixed_type_ops.cpp ;
-compile-fail test_mixed_arithmetic.cpp ;
 run test_mixed_type_sign_compare.cpp ;
 run test_mixed_type_sign_conversion.cpp ;
+run test_builtin_parity.cpp ;
 
 run test_consteval_funcs.cpp ;
 run test_sign_compare.cpp ;
-compile-fail test_fail_sign_compare.cpp ;
 run test_x64_msvc_div.cpp ;
 
 run test_gcd_lcm.cpp ;

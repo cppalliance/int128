@@ -2,18 +2,15 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#define BOOST_INT128_ALLOW_SIGN_CONVERSION
 #include <boost/int128.hpp>
 #include <iostream>
 
 int main()
 {
-    // By default, mixed type arithmetic is NOT ALLOWED
-    // In order for this file to compile #define BOOST_INT128_ALLOW_SIGN_CONVERSION
-    // BEFORE the inclusion of any file of this library (uncomment the top line)
-    //
-    // Unlike builtin types, we cannot enforce sign correctness via a compiler flag,
-    // so we made it the default.
+    // Mixed-sign comparisons and arithmetic between int128_t, uint128_t, and
+    // built-in integer types of opposite signedness follow the C++ usual
+    // arithmetic conversions, identical to the built-in __int128 /
+    // unsigned __int128 types.
 
     std::cout << "=== Mixed Type Arithmetic with uint128_t ===" << std::endl;
 
