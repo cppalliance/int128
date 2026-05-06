@@ -127,7 +127,6 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 
 
     overflow_value /= unsigned_base;
-    overflow_value <<= 1;
     max_digit %= unsigned_base;
 
     // If the only character was a sign abort now
@@ -138,48 +137,52 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 
     bool overflowed = false;
 
-    std::ptrdiff_t nc = last - next;
-    constexpr std::ptrdiff_t nd = std::numeric_limits<Integer>::digits10;
+    const std::ptrdiff_t nc = last - next;
 
+    // For bases 2..10 the first digits10 characters always fit in the unsigned
+    // For bases above 10, the safe window is shorter, so we must check with each iteration
+    const std::ptrdiff_t nd {
+        base <= 10
+            ? static_cast<std::ptrdiff_t>(std::numeric_limits<Integer>::digits10)
+            : std::ptrdiff_t{0}
+    };
+
+    const std::ptrdiff_t fast_limit {nd < nc ? nd : nc};
+    std::ptrdiff_t i = 0;
+
+    for (; i < fast_limit; ++i)
     {
-        std::ptrdiff_t i = 0;
+        const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
 
-        for( ; i < nd && i < nc; ++i )
+        if (current_digit >= unsigned_base)
         {
-            // overflow is not possible in the first nd characters
+            break;
+        }
 
-            const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
+        result = static_cast<Unsigned_Integer>(result * unsigned_base + current_digit);
+        ++next;
+    }
 
-            if (current_digit >= unsigned_base)
-            {
-                break;
-            }
+    for (; i < nc; ++i)
+    {
+        const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
 
+        if (current_digit >= unsigned_base)
+        {
+            break;
+        }
+
+        if (result < overflow_value || (result == overflow_value && current_digit <= max_digit))
+        {
             result = static_cast<Unsigned_Integer>(result * unsigned_base + current_digit);
-            ++next;
         }
-
-        for( ; i < nc; ++i )
+        else
         {
-            const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
-
-            if (current_digit >= unsigned_base)
-            {
-                break;
-            }
-
-            if (result < overflow_value || (result == overflow_value && current_digit <= max_digit))
-            {
-                result = static_cast<Unsigned_Integer>(result * unsigned_base + current_digit);
-            }
-            else
-            {
-                overflowed = true;
-                break;
-            }
-
-            ++next;
+            overflowed = true;
+            break;
         }
+
+        ++next;
     }
 
     // Return the parsed value, adding the sign back if applicable
