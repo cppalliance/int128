@@ -65,6 +65,7 @@ run test_climits.cpp ;
 
 run test_bit.cpp ;
 run test_literals.cpp ;
+run test_from_chars_bases.cpp ;
 run test_stream.cpp ;
 
 run test_mixed_type_sign_compare.cpp ;
