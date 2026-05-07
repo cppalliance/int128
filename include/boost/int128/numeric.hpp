@@ -11,6 +11,7 @@
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <limits>
+#include <utility>
 
 #endif
 

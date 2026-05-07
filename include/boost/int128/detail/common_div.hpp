@@ -447,7 +447,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(c
         return;
     }
 
-    #else
+    #endif
 
     if (rhs <= UINT32_MAX)
     {
@@ -467,8 +467,6 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(c
         quotient = impl::from_words<T>(q);
         remainder = impl::from_words<T>(u);
     }
-
-    #endif
 }
 
 template <typename T>
