@@ -75,18 +75,20 @@ std::string format_signed(int128_t value, int base)
     return format_unsigned(static_cast<uint128_t>(value), base);
 }
 
+inline std::string format_value(int128_t value, int base)
+{
+    return format_signed(value, base);
+}
+
+inline std::string format_value(uint128_t value, int base)
+{
+    return format_unsigned(value, base);
+}
+
 template <typename T>
 void check_roundtrip(T expected, int base)
 {
-    std::string s;
-    if constexpr (std::is_same_v<T, int128_t>)
-    {
-        s = format_signed(expected, base);
-    }
-    else
-    {
-        s = format_unsigned(expected, base);
-    }
+    const std::string s {format_value(expected, base)};
 
     T parsed {};
     const auto r {boost::int128::detail::from_chars(s.data(), s.data() + s.size(), parsed, base)};
