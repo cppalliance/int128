@@ -64,12 +64,16 @@ std::string format_signed(int128_t value, int base)
     {
         // |INT128_MIN| does not fit in int128_t; do the magnitude in uint128_t.
         const uint128_t magnitude {uint128_t{1} << 127U};
-        return std::string{"-"} + format_unsigned(magnitude, base);
+        std::string out {format_unsigned(magnitude, base)};
+        out.insert(out.begin(), '-');
+        return out;
     }
 
     if (value < int128_t{0})
     {
-        return std::string{"-"} + format_unsigned(static_cast<uint128_t>(-value), base);
+        std::string out {format_unsigned(static_cast<uint128_t>(-value), base)};
+        out.insert(out.begin(), '-');
+        return out;
     }
 
     return format_unsigned(static_cast<uint128_t>(value), base);
