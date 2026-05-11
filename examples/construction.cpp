@@ -29,8 +29,10 @@ int main()
     std::cout << "  Equals numeric_limits max? " << std::boolalpha
               << (max_value == std::numeric_limits<uint128_t>::max()) << std::endl;
 
-    // 3) From user-defined literals. Values that fit in unsigned long long
-    // can be written directly without quotes:
+    // 3) From user-defined literals.
+    // The library provides only string-form UDLs
+    // For small values like this a string is still parsed rather than direct construction
+    // Using the constructors for values that fit in (unsigned) long long should be preferred for performance
     using namespace boost::int128::literals;
     const auto small_literal {12345_U128};
     std::cout << "From literal 12345_U128: " << small_literal << std::endl;
