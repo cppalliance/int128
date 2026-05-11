@@ -1,0 +1,65 @@
+////
+Copyright 2026 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#utilities]
+= Utilities
+:idprefix: utilities_
+
+The `<boost/int128/utilities.hpp>` header collects helpers that operate on the library types directly and would not fit naturally into the analogous STL-style headers.
+The functions are tuned specifically for `uint128_t` and `int128_t` rather than being template generalizations, which allows the library to dispatch to a fast path based on the shape of the modulus.
+
+[source, c++]
+----
+#include <boost/int128/utilities.hpp>
+----
+
+[#powm]
+== Modular Exponentiation
+
+Computes `(base ^ exp) mod m`.
+The naive expression `pow(base, exp) % m` is unusable for 128-bit inputs because `base ^ exp` overflows almost immediately; `powm` performs the reduction inside the exponentiation loop and selects an algorithm based on the modulus:
+
+* If `has_single_bit(m)` is `true`, modular reduction collapses to a bitmask and no division is performed.
+* If the modulus fits in 64 bits (`m.high == 0`), the loop runs on 64-bit lanes. Each squaring is a single 64x64 -> 128 multiply followed by a 128-by-64 reduction.
+* Otherwise the modulus uses the full 128 bits, and `powm` uses a shift-and-add inner multiply so that no intermediate value ever exceeds 128 bits. This avoids forming the 256-bit product that a naive square-and-multiply implementation would require.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t powm(uint128_t base, uint128_t exp, uint128_t m) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t powm(int128_t base, int128_t exp, int128_t m) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The signed overload returns the non-negative residue in the range `[0, m)`, matching the convention used by `pow(a, b, m)` in Python and most arbitrary-precision libraries.
+Negative bases are reduced before exponentiation; `(std::numeric_limits<int128_t>::min)()` is handled correctly even though its magnitude is not representable in `int128_t`.
+
+=== Special Cases
+
+[cols="1,1", options="header"]
+|===
+| Input | Result
+
+| `m == 0`
+| `0` (consistent with the library's convention for division by zero)
+
+| `m == 1`
+| `0`
+
+| `exp == 0`
+| `1` (including `powm(0, 0, m)`, which follows the conventional definition `0^0 == 1`)
+
+| `base == 0` and `exp > 0`
+| `0`
+
+| Signed overload with `m <= 0` or `exp < 0`
+| `0` (modular exponentiation requires a positive modulus; a negative exponent would require a modular inverse, which this interface does not provide)
+|===

@@ -27,6 +27,7 @@
 *** xref:api_reference.adoc#api_ios[`<ios>`]
 *** xref:api_reference.adoc#api_numeric[`<numeric>`]
 *** xref:api_reference.adoc#api_string[`<string>`]
+*** xref:api_reference.adoc#api_utilities[Utilities]
 ** xref:api_reference.adoc#api_macros[Macros]
 *** xref:api_reference.adoc#api_macro_literals[Literals]
 *** xref:api_reference.adoc#api_macro_configuration[Configuration]
@@ -55,6 +56,8 @@
 * xref:stream.adoc[]
 * xref:numeric.adoc[]
 * xref:string.adoc[]
+* xref:utilities.adoc[]
+** xref:utilities.adoc#powm[Modular Exponentiation]
 * Benchmarks
 ** xref:u128_benchmarks.adoc[]
 *** xref:u128_benchmarks.adoc#u128_linux[Linux]

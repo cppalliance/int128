@@ -257,6 +257,17 @@ Listed by analogous STL header.
 | `std::string` conversion of base-10 values
 |===
 
+[#api_utilities]
+=== xref:utilities.adoc[Utilities]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:utilities.adoc#powm[`powm`]
+| Modular exponentiation `(base ^ exp) mod m`
+|===
+
 [#api_macros]
 == Macros
 
@@ -376,5 +387,8 @@ Listed by analogous STL header.
 
 | `<boost/int128/random.hpp>`
 | Required for usage of Boost.Random
+
+| xref:utilities.adoc[`<boost/int128/utilities.hpp>`]
+| Modular exponentiation and other library-specific utilities
 
 |===
