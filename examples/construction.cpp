@@ -29,12 +29,15 @@ int main()
     std::cout << "  Equals numeric_limits max? " << std::boolalpha
               << (max_value == std::numeric_limits<uint128_t>::max()) << std::endl;
 
-    // 3) From user-defined literals (values > 2^64 without splitting)
+    // 3) From user-defined literals.
+    // The library provides only string-form UDLs
+    // For small values like this a string is still parsed rather than direct construction
+    // Using the constructors for values that fit in (unsigned) long long should be preferred for performance
     using namespace boost::int128::literals;
-    const auto from_literal {"36893488147419103232"_U128};  // 2 * 2^64
-    std::cout << "From literal \"36893488147419103232\"_U128: " << from_literal << std::endl;
+    const auto small_literal {12345_U128};
+    std::cout << "From literal 12345_U128: " << small_literal << std::endl;
 
-    // 4) From macro (like UINT64_C but for 128-bit)
+    // 4) From macro (like UINT64_C but for 128-bit), good for values that exceed unsigned long long
     const auto from_macro {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
     std::cout << "From BOOST_INT128_UINT128_C(max): " << from_macro << std::endl;
 
@@ -57,12 +60,21 @@ int main()
     std::cout << "  Equals numeric_limits min? "
               << (min_value == std::numeric_limits<int128_t>::min()) << std::endl;
 
-    // Signed literals (lowercase and uppercase both work)
-    const auto negative_literal {"-99999999999999999999"_i128};
-    std::cout << "From literal \"-99999999999999999999\"_i128: " << negative_literal << std::endl;
+    // Signed literals. Values that fit in unsigned long long can be written
+    // directly; the leading minus is parsed as a unary operator on the
+    // literal result (lowercase and uppercase suffixes both work):
+    const auto negative_literal {-12345_i128};
+    std::cout << "From literal -12345_i128: " << negative_literal << std::endl;
 
-    const auto positive_literal {"99999999999999999999"_I128};
-    std::cout << "From literal \"99999999999999999999\"_I128: " << positive_literal << std::endl;
+    const auto positive_literal {12345_I128};
+    std::cout << "From literal 12345_I128: " << positive_literal << std::endl;
+
+    // For magnitudes beyond unsigned long long you can use the macro or a string literal
+    const auto large_signed {BOOST_INT128_INT128_C(-99999999999999999999)};
+    std::cout << "From BOOST_INT128_INT128_C(-99999999999999999999): " << large_signed << std::endl;
+
+    const auto large_signed_string {"-99999999999999999999"_i128};
+    std::cout << "From string literal: " << large_signed_string << std::endl;
 
     // Signed macro
     const auto from_signed_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
@@ -71,11 +83,11 @@ int main()
     std::cout << "\n=== Default and Copy Construction ===" << std::endl;
 
     // Default construction (zero-initialized)
-    uint128_t default_constructed {};
+    constexpr uint128_t default_constructed {};
     std::cout << "Default constructed: " << default_constructed << std::endl;
 
     // Copy construction
-    uint128_t copied {from_literal};
+    const uint128_t copied {from_macro};
     std::cout << "Copy constructed: " << copied << std::endl;
 
     return 0;

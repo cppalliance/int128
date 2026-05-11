@@ -26,10 +26,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, s
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(unsigned long long v) noexcept;
-
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(unsigned long long v) noexcept;
-
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept;
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept;
@@ -37,10 +33,6 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) no
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept;
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept;
-
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(unsigned long long v) noexcept;
-
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(unsigned long long v) noexcept;
 
 } // namespace literals
 } // namespace int128
@@ -54,3 +46,22 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(unsigned long long 
 The macros at the end allow you to write out a 128-bit number like you would with say `UINT64_C` without having to add quotes.
 
 See the xref:examples.adoc#examples_construction[construction examples] for usage demonstrations of both literals and macros.
+
+== Design Rationale
+
+All of the user-defined literals provided by the library are string-form: the operator receives a `const char*` and parses the digit sequence via `from_chars`.
+This holds even for raw numeric tokens like `12345_U128`, which the compiler forwards to the operator as the string `"12345"`.
+The choice is intentional.
+A 128-bit value cannot be represented by `unsigned long long`, so any literal whose magnitude exceeds 2^64 must go through a string-based parse.
+Providing only the string form means there is a single overload that handles every magnitude uniformly, rather than a numeric form for small values and a string form for large ones with a hard cutoff at 2^64.
+The API is the same regardless of how large the value is.
+The trade-off is that every literal pays the cost of parsing, even when the value would fit in a builtin integer.
+For values smaller than 2^64, prefer the constructor:
+
+[source, c++]
+----
+constexpr uint128_t small {42U};            // direct conversion from a builtin
+const auto small_literal {42_U128};         // parses "42" via from_chars
+----
+
+The two produce the same value, but the constructor avoids the parse and should be used in hot paths or in code where many small constants are constructed.
