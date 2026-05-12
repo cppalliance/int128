@@ -153,15 +153,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t powm(const int12
         return int128_t{0};
     }
 
-    const auto um {static_cast<uint128_t>(m)};
+    const uint128_t um {static_cast<uint128_t>(m)};
 
     uint128_t ub {};
 
     if (base.high < 0)
     {
-        const auto magnitude {static_cast<uint128_t>(abs(base))};
-        const auto r {magnitude % um};
-        ub = r == 0U ? uint128_t{0} : um - r;
+        const uint128_t magnitude {static_cast<uint128_t>(abs(base))};
+        const uint128_t r {magnitude % um};
+        ub = r == 0U ? uint128_t{0} : static_cast<uint128_t>(um - r);
     }
     else
     {
