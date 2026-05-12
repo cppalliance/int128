@@ -45,6 +45,19 @@ From BOOST_INT128_INT128_C(min): -170141183460469231731687303715884105728
 === Default and Copy Construction ===
 Default constructed: 0
 Copy constructed: 340282366920938463463374607431768211455
+
+=== Floating-Point Construction ===
+uint128_t from 12345.9 (truncated): 12345
+int128_t from -12345.9 (truncated toward zero): -12345
+uint128_t from 2^100: 1267650600228229401496703205376
+
+=== Floating-Point Edge Cases ===
+uint128_t from NaN: 0
+int128_t from NaN: 0
+uint128_t from -1.0 (clamped to zero): 0
+uint128_t from +infinity (saturates to UINT128_MAX): 340282366920938463463374607431768211455
+int128_t from 1e40 (saturates to INT128_MAX): 170141183460469231731687303715884105727
+int128_t from -1e40 (saturates to INT128_MIN): -170141183460469231731687303715884105728
 ----
 ====
 
