@@ -16,5 +16,6 @@
 #include <boost/int128/cstdlib.hpp>
 #include <boost/int128/string.hpp>
 #include <boost/int128/utilities.hpp>
+#include <boost/int128/hash.hpp>
 
 #endif // BOOST_INT128_HPP
