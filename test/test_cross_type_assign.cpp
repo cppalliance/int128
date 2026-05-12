@@ -6,6 +6,8 @@
 #include <boost/core/lightweight_test.hpp>
 #include <type_traits>
 #include <utility>
+#include <limits>
+#include <cmath>
 
 using namespace boost::int128;
 
@@ -150,6 +152,102 @@ void test_constexpr_cross_type()
     static_assert(b.low == 7U, "constexpr cross-type construction");
 }
 
+template <typename Float>
+void test_uint_from_float()
+{
+    // Basic positive values
+    BOOST_TEST_EQ(uint128_t{Float{0}}.low, 0U);
+    BOOST_TEST_EQ(uint128_t{Float{0}}.high, 0U);
+    BOOST_TEST_EQ(uint128_t{Float{42}}.low, 42U);
+    BOOST_TEST_EQ(uint128_t{Float{42}}.high, 0U);
+
+    // Truncation toward zero
+    BOOST_TEST_EQ(uint128_t{Float{3.7}}.low, 3U);
+    BOOST_TEST_EQ(uint128_t{Float{0.99}}.low, 0U);
+
+    // NaN -> 0
+    const Float nan {std::numeric_limits<Float>::quiet_NaN()};
+    BOOST_TEST_EQ(uint128_t{nan}.low, 0U);
+    BOOST_TEST_EQ(uint128_t{nan}.high, 0U);
+
+    // Negative -> 0 (matches libgcc)
+    BOOST_TEST_EQ(uint128_t{Float{-1}}.low, 0U);
+    BOOST_TEST_EQ(uint128_t{Float{-1}}.high, 0U);
+
+    // Saturation on overflow: infinity (or any value >= 2^128) -> UINT128_MAX.
+    // For float, 2^128 itself is +infinity since the 8-bit exponent saturates.
+    const Float two_64 {static_cast<Float>(UINT64_C(1) << 32) * static_cast<Float>(UINT64_C(1) << 32)};
+    const uint128_t saturated {std::numeric_limits<Float>::infinity()};
+    BOOST_TEST_EQ(saturated.low, UINT64_MAX);
+    BOOST_TEST_EQ(saturated.high, UINT64_MAX);
+
+    // 2^127 should fit (representable in float, double, long double)
+    const Float two_127 {two_64 * static_cast<Float>(UINT64_C(1) << 63)};
+    const uint128_t large {two_127};
+    BOOST_TEST_EQ(large.low, 0U);
+    BOOST_TEST_EQ(large.high, UINT64_C(1) << 63);
+
+    // Round-trip for an exactly representable mid-range value
+    const Float round_trip_src {two_64};  // 2^64
+    const uint128_t round_trip {round_trip_src};
+    BOOST_TEST_EQ(round_trip.low, 0U);
+    BOOST_TEST_EQ(round_trip.high, 1U);
+}
+
+template <typename Float>
+void test_int_from_float()
+{
+    // Basic positive and negative
+    BOOST_TEST_EQ(int128_t{Float{0}}.low, 0U);
+    BOOST_TEST_EQ(int128_t{Float{0}}.high, 0);
+    BOOST_TEST_EQ(int128_t{Float{42}}.low, 42U);
+    BOOST_TEST_EQ(int128_t{Float{-42}}.low, static_cast<std::uint64_t>(-42));
+    BOOST_TEST_EQ(int128_t{Float{-42}}.high, -1);
+
+    // Truncation toward zero
+    BOOST_TEST_EQ(int128_t{Float{3.7}}.low, 3U);
+    BOOST_TEST_EQ(int128_t{Float{-3.7}}.low, static_cast<std::uint64_t>(-3));
+
+    // NaN -> 0
+    const Float nan {std::numeric_limits<Float>::quiet_NaN()};
+    BOOST_TEST_EQ(int128_t{nan}.low, 0U);
+    BOOST_TEST_EQ(int128_t{nan}.high, 0);
+
+    // Positive saturation: f >= 2^127 -> INT128_MAX
+    const Float two_64 {static_cast<Float>(UINT64_C(1) << 32) * static_cast<Float>(UINT64_C(1) << 32)};
+    const Float two_127 {two_64 * static_cast<Float>(UINT64_C(1) << 63)};
+    const int128_t pos_sat {two_127};
+    BOOST_TEST_EQ(pos_sat.high, (std::numeric_limits<std::int64_t>::max)());
+    BOOST_TEST_EQ(pos_sat.low, UINT64_MAX);
+
+    // Negative saturation: f <= -2^127 -> INT128_MIN
+    const int128_t neg_sat {-two_127};
+    BOOST_TEST_EQ(neg_sat.high, (std::numeric_limits<std::int64_t>::min)());
+    BOOST_TEST_EQ(neg_sat.low, 0U);
+
+    // Just below the positive boundary should not saturate
+    const int128_t near_max {two_127 * Float{0.5}};  // 2^126
+    BOOST_TEST_EQ(near_max.high, UINT64_C(1) << 62);
+    BOOST_TEST_EQ(near_max.low, 0U);
+
+    // Round-trip a negative power of two through the two's-complement path
+    const int128_t neg_round_trip {-two_64};  // -2^64
+    BOOST_TEST_EQ(neg_round_trip.low, 0U);
+    BOOST_TEST_EQ(neg_round_trip.high, -1);
+}
+
+void test_constexpr_float_construction()
+{
+    constexpr uint128_t u {42.5};
+    static_assert(u.low == 42U, "constexpr uint from double");
+
+    constexpr int128_t i {-7.9};
+    static_assert(i.high == -1, "constexpr int from double sign");
+
+    constexpr int128_t zero_from_nan {std::numeric_limits<double>::quiet_NaN()};
+    static_assert(zero_from_nan.low == 0U && zero_from_nan.high == 0, "NaN -> 0 in constexpr");
+}
+
 int main()
 {
     test_implicit_conversion_traits();
@@ -159,6 +257,14 @@ int main()
     test_int_to_uint_assignment();
     test_constexpr_cross_type();
     test_implicit_conversions_runtime();
+
+    test_uint_from_float<float>();
+    test_uint_from_float<double>();
+    test_uint_from_float<long double>();
+    test_int_from_float<float>();
+    test_int_from_float<double>();
+    test_int_from_float<long double>();
+    test_constexpr_float_construction();
 
     return boost::report_errors();
 }
