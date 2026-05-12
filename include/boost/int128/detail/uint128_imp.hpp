@@ -323,7 +323,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
 {
     constexpr Float two_32 {static_cast<Float>(UINT64_C(1) << 32)};
     constexpr Float two_64 {two_32 * two_32};
-    constexpr Float two_128 {two_64 * two_64};
 
     // !(f >= 0) catches both NaN and negative values without using <cmath>
     if (!(f >= Float{0}))
@@ -331,14 +330,18 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
         return;
     }
 
-    if (f >= two_128)
+    // Overflow test: f >= 2^128 iff f / 2^64 >= 2^64. Comparing scaled values
+    // avoids materializing 2^128 as a Float, which overflows to +infinity for
+    // `float` and is therefore not constant-evaluable on older compilers.
+    const Float scaled {f / two_64};
+    if (scaled >= two_64)
     {
         high = UINT64_MAX;
         low = UINT64_MAX;
         return;
     }
 
-    high = static_cast<std::uint64_t>(f / two_64);
+    high = static_cast<std::uint64_t>(scaled);
     const Float remainder {f - static_cast<Float>(high) * two_64};
     low = static_cast<std::uint64_t>(remainder);
 }

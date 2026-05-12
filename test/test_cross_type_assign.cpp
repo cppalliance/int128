@@ -245,8 +245,9 @@ void test_constexpr_float_construction()
     constexpr int128_t i {-7.9};
     static_assert(i.high == -1, "constexpr int from double sign");
 
-    constexpr int128_t zero_from_nan {std::numeric_limits<double>::quiet_NaN()};
-    static_assert(zero_from_nan.low == 0U && zero_from_nan.high == 0, "NaN -> 0 in constexpr");
+    // NaN -> 0 is exercised at runtime in test_uint_from_float / test_int_from_float.
+    // It cannot be constant-evaluated on GCC 9, which rejects NaN comparisons in
+    // constexpr contexts.
 }
 
 int main()
