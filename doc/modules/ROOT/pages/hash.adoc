@@ -37,8 +37,9 @@ struct hash<boost::int128::uint128_t>
 } // namespace std
 ----
 
-Both specializations hash the high and low 64-bit halves of the value individually and combine the two results using the same mixing function as `boost::hash_combine`.
-The signed specialization hashes its high word as `std::int64_t`, which prevents a negative value from colliding with the positive value that shares the same low word.
+Each 64-bit half of the value is first run through a SplitMix64 finalizer so that every input bit influences the lower bits of the result.
+This is necessary because `std::hash<std::uint64_t>` is permitted to truncate to `std::size_t`, which would lose the upper 32 bits on 32-bit platforms and cause distinct 128-bit values to collide.
+The two finalized halves are then combined with the `boost::hash_combine` mixing formula.
 
 [#hash_guarantees]
 == Guarantees
