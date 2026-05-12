@@ -106,6 +106,10 @@ uint128_t
 
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
+    // Construct from floating-point types
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128_t(Float f) noexcept;
+
     // Integer conversion operators
     BOOST_INT128_HOST_DEVICE explicit constexpr operator bool() const noexcept {return low || high; }
 
@@ -306,6 +310,38 @@ constexpr uint128_t::operator long double() const noexcept
 }
 
 #endif // __NVCC__
+
+//=====================================
+// Float Construction
+//=====================================
+
+// Inverse of operator(Float): decompose f into (high, low) by dividing by 2^64.
+// NaN/negative -> 0
+// overflow -> UINT128_MAX.
+template <BOOST_INT128_FLOATING_POINT_CONCEPT>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
+{
+    constexpr Float two_32 {static_cast<Float>(UINT64_C(1) << 32)};
+    constexpr Float two_64 {two_32 * two_32};
+    constexpr Float two_128 {two_64 * two_64};
+
+    // !(f >= 0) catches both NaN and negative values without using <cmath>
+    if (!(f >= Float{0}))
+    {
+        return;
+    }
+
+    if (f >= two_128)
+    {
+        high = UINT64_MAX;
+        low = UINT64_MAX;
+        return;
+    }
+
+    high = static_cast<std::uint64_t>(f / two_64);
+    const Float remainder {f - static_cast<Float>(high) * two_64};
+    low = static_cast<std::uint64_t>(remainder);
+}
 
 //=====================================
 // Unary Operators
