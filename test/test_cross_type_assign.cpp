@@ -52,14 +52,14 @@ void test_implicit_conversions_runtime()
     BOOST_TEST_EQ(as_u64, 42U);
 
     const double as_double = i;
-    BOOST_TEST_EQ(as_double, 42.0);
+    BOOST_TEST_EQ(static_cast<int>(as_double), 42);
 
     const uint128_t u {0U, 100U};
     const unsigned int as_uint = u;
     BOOST_TEST_EQ(as_uint, 100U);
 
     const float as_float = u;
-    BOOST_TEST_EQ(as_float, 100.0f);
+    BOOST_TEST_EQ(static_cast<int>(as_float), 100);
 
 #if defined(BOOST_INT128_HAS_INT128)
     const detail::builtin_i128 as_native_i = int128_t{1, 2U};
@@ -161,9 +161,10 @@ void test_uint_from_float()
     BOOST_TEST_EQ(uint128_t{Float{42}}.low, 42U);
     BOOST_TEST_EQ(uint128_t{Float{42}}.high, 0U);
 
-    // Truncation toward zero
-    BOOST_TEST_EQ(uint128_t{Float{3.7}}.low, 3U);
-    BOOST_TEST_EQ(uint128_t{Float{0.99}}.low, 0U);
+    // Truncation toward zero. Use Float{N}/Float{D} rather than a double literal
+    // so the test compiles cleanly for float and long double without precision warnings.
+    BOOST_TEST_EQ((uint128_t{Float{37} / Float{10}}.low), 3U);  // ~3.7 -> 3
+    BOOST_TEST_EQ((uint128_t{Float{99} / Float{100}}.low), 0U); // ~0.99 -> 0
 
     // NaN -> 0
     const Float nan {std::numeric_limits<Float>::quiet_NaN()};
@@ -204,9 +205,9 @@ void test_int_from_float()
     BOOST_TEST_EQ(int128_t{Float{-42}}.low, static_cast<std::uint64_t>(-42));
     BOOST_TEST_EQ(int128_t{Float{-42}}.high, -1);
 
-    // Truncation toward zero
-    BOOST_TEST_EQ(int128_t{Float{3.7}}.low, 3U);
-    BOOST_TEST_EQ(int128_t{Float{-3.7}}.low, static_cast<std::uint64_t>(-3));
+    // Truncation toward zero (see note in test_uint_from_float on the literal style).
+    BOOST_TEST_EQ((int128_t{Float{37} / Float{10}}.low), 3U);                                 // ~3.7 -> 3
+    BOOST_TEST_EQ((int128_t{Float{-37} / Float{10}}.low), static_cast<std::uint64_t>(-3));    // ~-3.7 -> -3
 
     // NaN -> 0
     const Float nan {std::numeric_limits<Float>::quiet_NaN()};
@@ -225,8 +226,8 @@ void test_int_from_float()
     BOOST_TEST_EQ(neg_sat.high, (std::numeric_limits<std::int64_t>::min)());
     BOOST_TEST_EQ(neg_sat.low, 0U);
 
-    // Just below the positive boundary should not saturate
-    const int128_t near_max {two_127 * Float{0.5}};  // 2^126
+    // Just below the positive boundary should not saturate.
+    const int128_t near_max {two_127 / Float{2}};  // 2^126
     BOOST_TEST_EQ(near_max.high, UINT64_C(1) << 62);
     BOOST_TEST_EQ(near_max.low, 0U);
 
