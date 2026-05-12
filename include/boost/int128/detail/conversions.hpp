@@ -39,20 +39,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexc
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
 //=====================================
-// Conversion Operators
-//=====================================
-
-BOOST_INT128_HOST_DEVICE constexpr int128_t::operator uint128_t() const noexcept
-{
-    return uint128_t{static_cast<std::uint64_t>(this->high), static_cast<std::uint64_t>(this->low)};
-}
-
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator int128_t() const noexcept
-{
-    return int128_t{static_cast<std::int64_t>(this->high), static_cast<std::uint64_t>(this->low)};
-}
-
-//=====================================
 // Comparison Operators
 //=====================================
 

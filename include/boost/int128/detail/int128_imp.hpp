@@ -57,7 +57,6 @@ int128_t
 
     // Requires a conversion file to be implemented
     BOOST_INT128_HOST_DEVICE constexpr int128_t(const uint128_t& v) noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr operator uint128_t() const noexcept;
 
     // Construct from integral types
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
