@@ -57,8 +57,7 @@ uint128_t
     constexpr uint128_t& operator=(uint128_t&&) noexcept = default;
 
     // Requires a conversion file to be implemented
-    BOOST_INT128_HOST_DEVICE explicit constexpr uint128_t(const int128_t& v) noexcept;
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator int128_t() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const int128_t& v) noexcept;
 
     // Construct from integral types
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
@@ -107,32 +106,36 @@ uint128_t
 
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
+    // Construct from floating-point types
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128_t(Float f) noexcept;
+
     // Integer conversion operators
     BOOST_INT128_HOST_DEVICE explicit constexpr operator bool() const noexcept {return low || high; }
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    BOOST_INT128_HOST_DEVICE explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_i128>(low); }
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_i128() const noexcept { return static_cast<detail::builtin_i128>(static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_i128>(low); }
 
-    BOOST_INT128_HOST_DEVICE explicit BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_u128>(low); }
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR operator detail::builtin_u128() const noexcept { return (static_cast<detail::builtin_u128>(high) << static_cast<detail::builtin_u128>(64)) | static_cast<detail::builtin_u128>(low); }
 
     #endif // BOOST_INT128_HAS_INT128
 
     // Conversion to float
     // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
     // but can be constexpr at C++11 instead of C++26
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator float() const noexcept;
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator double() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
 
     // long doubles do not exist on device
     #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-    explicit constexpr operator long double() const noexcept;
+    constexpr operator long double() const noexcept;
     #endif
 
     // Compound OR
@@ -307,6 +310,41 @@ constexpr uint128_t::operator long double() const noexcept
 }
 
 #endif // __NVCC__
+
+//=====================================
+// Float Construction
+//=====================================
+
+// Inverse of operator(Float): decompose f into (high, low) by dividing by 2^64.
+// NaN/negative -> 0
+// overflow -> UINT128_MAX.
+template <BOOST_INT128_FLOATING_POINT_CONCEPT>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
+{
+    constexpr Float two_32 {static_cast<Float>(UINT64_C(1) << 32)};
+    constexpr Float two_64 {two_32 * two_32};
+
+    // !(f >= 0) catches both NaN and negative values without using <cmath>
+    if (!(f >= Float{0}))
+    {
+        return;
+    }
+
+    // Overflow test: f >= 2^128 iff f / 2^64 >= 2^64. Comparing scaled values
+    // avoids materializing 2^128 as a Float, which overflows to +infinity for
+    // `float` and is therefore not constant-evaluable on older compilers.
+    const Float scaled {f / two_64};
+    if (scaled >= two_64)
+    {
+        high = UINT64_MAX;
+        low = UINT64_MAX;
+        return;
+    }
+
+    high = static_cast<std::uint64_t>(scaled);
+    const Float remainder {f - static_cast<Float>(high) * two_64};
+    low = static_cast<std::uint64_t>(remainder);
+}
 
 //=====================================
 // Unary Operators
