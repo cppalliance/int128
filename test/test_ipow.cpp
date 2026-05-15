@@ -191,6 +191,12 @@ void test_int128_ipow_identities()
     BOOST_TEST_EQ(ipow(int128_t{-7}, 3U) * ipow(int128_t{-7}, 4U), ipow(int128_t{-7}, 7U));
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4308) // negative integral constant converted to unsigned type
+#endif
+
 void test_constexpr_ipow()
 {
     constexpr uint128_t r1 {ipow(uint128_t{2}, 10U)};
@@ -208,6 +214,10 @@ void test_constexpr_ipow()
     constexpr uint128_t r5 {ipow(uint128_t{2}, 128U)};
     static_assert(r5 == uint128_t{0}, "ipow constexpr uint128 wrap to zero");
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 int main()
 {
