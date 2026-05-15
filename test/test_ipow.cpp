@@ -2,6 +2,14 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
+#if defined(__GNUC__) && __GNUC__ == 7 && defined(__i386__)
+
+// 32-bit GCC-7 fails with: "error: constexpr loop iteration count exceeds limit of 262144"
+
+int main() { return 0; }
+
+#else
+
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <boost/int128.hpp>
@@ -216,3 +224,5 @@ int main()
 
     return boost::report_errors();
 }
+
+#endif
