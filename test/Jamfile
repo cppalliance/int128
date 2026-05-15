@@ -90,6 +90,9 @@ run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
 run test_to_string.cpp ;
 
+# Warnings about padding propagate out of <utility>
+run test_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
@@ -123,6 +126,7 @@ compile compile_tests/charconv_compile.cpp ;
 compile compile_tests/climits_compile.cpp ;
 compile compile_tests/cstdlib_compile.cpp ;
 compile compile_tests/format_compile.cpp ;
+compile compile_tests/hash_compile.cpp ;
 compile compile_tests/int128_compile.cpp ;
 compile compile_tests/iostream_compile.cpp ;
 compile compile_tests/limits_compile.cpp ;

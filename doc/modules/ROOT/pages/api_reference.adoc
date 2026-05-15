@@ -72,6 +72,12 @@ https://www.boost.org/LICENSE_1_0.txt
 | https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
 | Numeric limits specialization for `int128_t`
 
+| xref:hash.adoc[`std::hash<uint128_t>`]
+| Hash specialization for `uint128_t`
+
+| xref:hash.adoc[`std::hash<int128_t>`]
+| Hash specialization for `int128_t`
+
 | xref:cstdlib.adoc#div_structs[`u128div_t`]
 | Result type for `div(uint128_t, uint128_t)`
 
@@ -162,6 +168,20 @@ Listed by analogous STL header.
 
 | xref:cstdlib.adoc[`div`]
 | Computes quotient and remainder simultaneously
+|===
+
+[#api_functional]
+=== xref:hash.adoc[`<functional>`]
+
+[cols="1,2", options="header"]
+|===
+| Specialization | Description
+
+| xref:hash.adoc[`std::hash<uint128_t>`]
+| Enables `uint128_t` as a key in unordered associative containers
+
+| xref:hash.adoc[`std::hash<int128_t>`]
+| Enables `int128_t` as a key in unordered associative containers
 |===
 
 [#api_formatting]
@@ -366,6 +386,9 @@ Listed by analogous STL header.
 
 | xref:format.adoc#std_format[`<boost/int128/format.hpp>`]
 | Formatting integration for pass:[C++20] `<format>`
+
+| xref:hash.adoc[`<boost/int128/hash.hpp>`]
+| `std::hash` specializations for `int128_t` and `uint128_t`
 
 | `<boost/int128/int128.hpp>`
 | The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
