@@ -218,6 +218,41 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t ba
     return result;
 }
 
+// Integer square root: returns floor(sqrt(n)).
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(const uint128_t n) noexcept
+{
+    if (n < 2U)
+    {
+        return n;
+    }
+
+    // 2^ceil(bit_width(n)/2) is the smallest power of two whose square exceeds n.
+    uint128_t x {uint128_t{1} << ((bit_width(n) + 1) / 2)};
+
+    while (true)
+    {
+        const uint128_t y {(x + n / x) >> 1};
+
+        if (y >= x)
+        {
+            return x;
+        }
+
+        x = y;
+    }
+}
+
+// Signed overload. Negative inputs are documented to return 0.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(const int128_t n) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(n < 0))
+    {
+        return int128_t{0};
+    }
+
+    return static_cast<int128_t>(isqrt(static_cast<uint128_t>(n)));
+}
+
 } // namespace int128
 } // namespace boost
 
