@@ -19,6 +19,13 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
+// The cast is only useless for 64-bit platforms
+// Without we get an implicit conversion warning which is arguably worse
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wuseless-cast"
+#endif
+
 // splitmix64 finalizer: mixes all 64 input bits into the result before any narrowing to size_t.
 // This is required for correctness on platforms where size_t is 32 bits
 inline std::size_t hash_finalize_64(std::uint64_t v) noexcept
@@ -28,8 +35,12 @@ inline std::size_t hash_finalize_64(std::uint64_t v) noexcept
     v ^= v >> 27;
     v *= UINT64_C(0x94d049bb133111eb);
     v ^= v >> 31;
-    return v;
+    return static_cast<std::size_t>(v);
 }
+
+#if defined(__GNUC__) && !defined(__clang__)
+#  pragma GCC diagnostic pop
+#endif
 
 } // namespace detail
 } // namespace int128
