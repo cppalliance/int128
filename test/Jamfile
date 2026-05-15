@@ -89,7 +89,9 @@ run test_div.cpp ;
 run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
 run test_to_string.cpp ;
-run test_hash.cpp ;
+
+# Warnings about padding propagate out of <utility>
+run test_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;
