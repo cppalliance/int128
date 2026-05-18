@@ -2024,7 +2024,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_mu
     const auto c {rhs.low >> 32U};
     const auto d {rhs.low & UINT32_MAX};
 
-    int128_t result { static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs.low + static_cast<std::uint64_t>(lhs.low) * rhs.high + a * c), b * d };
+    int128_t result { static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs.low + lhs.low * static_cast<std::uint64_t>(rhs.high) + a * c), b * d };
     result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
 
     return result;
