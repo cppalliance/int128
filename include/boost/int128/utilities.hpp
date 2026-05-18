@@ -171,6 +171,53 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t powm(const int12
     return static_cast<int128_t>(powm(ub, static_cast<uint128_t>(exp), um));
 }
 
+// Computes base^exp using exponentiation by squaring. The result is reduced
+// modulo 2^128, mirroring the wrap-around behavior of operator*.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t ipow(uint128_t base, std::uint64_t exp) noexcept
+{
+    uint128_t result {1};
+
+    while (exp != 0U)
+    {
+        if (static_cast<bool>(exp & 1U))
+        {
+            result *= base;
+        }
+
+        exp >>= 1;
+
+        if (exp != 0U)
+        {
+            base *= base;
+        }
+    }
+
+    return result;
+}
+
+// Signed overload. Wraps modulo 2^128 on overflow, matching operator*.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t base, std::uint64_t exp) noexcept
+{
+    int128_t result {1};
+
+    while (exp != 0U)
+    {
+        if (static_cast<bool>(exp & 1U))
+        {
+            result *= base;
+        }
+
+        exp >>= 1;
+
+        if (exp != 0U)
+        {
+            base *= base;
+        }
+    }
+
+    return result;
+}
+
 } // namespace int128
 } // namespace boost
 
