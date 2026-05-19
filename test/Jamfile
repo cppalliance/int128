@@ -81,6 +81,7 @@ run test_gcd_lcm.cpp ;
 run test_midpoint.cpp ;
 run test_powm.cpp ;
 run test_ipow.cpp ;
+run test_isqrt.cpp ;
 
 run test_format.cpp ;
 run test_fmt_format.cpp ;

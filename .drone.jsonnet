@@ -1,8 +1,9 @@
 # Copyright 2022, 2023 Peter Dimov
+# Copyright 2025 - 2026 Matt Borland
 # Distributed under the Boost Software License, Version 1.0.
 # https://www.boost.org/LICENSE_1_0.txt
 
-local library = "decimal";
+local library = "int128";
 
 local triggers =
 {
