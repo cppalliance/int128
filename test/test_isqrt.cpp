@@ -231,6 +231,12 @@ void test_isqrt_against_ipow()
     }
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4308) // negative integral constant converted to unsigned type
+#endif
+
 void test_constexpr_isqrt()
 {
     constexpr uint128_t r1 {isqrt(uint128_t{0})};
@@ -251,6 +257,10 @@ void test_constexpr_isqrt()
     constexpr int128_t r6 {isqrt(int128_t{12321})};
     static_assert(r6 == int128_t{111}, "isqrt(12321) constexpr");
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 int main()
 {
