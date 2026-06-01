@@ -257,8 +257,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(const int1
 
 namespace detail {
 
+// The C23 checked integer macros accept any integer type for their operands
+// except bool, plain char, enumerated types, and bit-precise (_BitInt) types.
 template <typename T>
-struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::value> {};
+struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::value &&
+                                                         !std::is_same<T, bool>::value &&
+                                                         !std::is_same<T, char>::value> {};
 
 template <>
 struct valid_checked_type<int128_t> : std::true_type {};
@@ -296,7 +300,7 @@ BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, const T2 a, const T3
     static_assert(detail::valid_checked_type<T1>::value &&
                   detail::valid_checked_type<T2>::value &&
                   detail::valid_checked_type<T3>::value,
-                  "ckd_add operands must be integer types.");
+                  "ckd_add operands must be integer types other than bool and plain char.");
 
     // Widen both operands
     const uint128_t raw_a {detail::ckd_widen(a)};
