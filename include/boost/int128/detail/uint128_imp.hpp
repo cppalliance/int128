@@ -2495,31 +2495,30 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
     {
         return {0, 0};
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
-    else
-    {
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
-    }
-    #else
-    else if (rhs.high != 0U)
-    {
-        return detail::knuth_div(lhs, rhs);
-    }
-    else
+
+    // A divisor that fits in 64 bits is handled by the hardware-accelerated narrow path. This
+    // beats the native 128/128 divide for this common case on every platform (it avoids the
+    // out-of-line __udivti3 call on GCC/Clang and uses divq / _udiv128 directly where present).
+    if (rhs.high == 0U)
     {
         if (lhs.high == 0U)
         {
             return {0, lhs.low / rhs.low};
         }
-        else
-        {
-            uint128_t quotient {};
 
-            detail::one_word_div(lhs, rhs.low, quotient);
-
-            return quotient;
-        }
+        uint128_t quotient {};
+        detail::one_word_div(lhs, rhs.low, quotient);
+        return quotient;
     }
+
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
+
+    #else
+
+    return detail::knuth_div(lhs, rhs);
+
     #endif
 }
 
@@ -2654,38 +2653,36 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
     {
         return {0, 0};
     }
-    else if (rhs > lhs)
+    if (rhs > lhs)
     {
         return lhs;
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
-    else
-    {
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
-    }
-    #else
-    else if (rhs.high != 0U)
-    {
-        uint128_t remainder {};
-        detail::knuth_div(lhs, rhs, remainder);
-        return remainder;
-    }
-    else
+
+    // A divisor that fits in 64 bits is handled by the hardware-accelerated narrow path, which
+    // beats the native 128/128 divide for this common case on every platform.
+    if (rhs.high == 0U)
     {
         if (lhs.high == 0U)
         {
             return {0, lhs.low % rhs.low};
         }
-        else
-        {
-            uint128_t quotient {};
-            uint128_t remainder {};
 
-            detail::one_word_div(lhs, rhs.low, quotient, remainder);
-
-            return remainder;
-        }
+        uint128_t quotient {};
+        uint128_t remainder {};
+        detail::one_word_div(lhs, rhs.low, quotient, remainder);
+        return remainder;
     }
+
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
+
+    #else
+
+    uint128_t remainder {};
+    detail::knuth_div(lhs, rhs, remainder);
+    return remainder;
+
     #endif
 }
 
