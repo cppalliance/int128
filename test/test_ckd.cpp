@@ -478,6 +478,11 @@ void test_mul_edges()
 //
 // constexpr usability for all three operations.
 //
+
+#if defined(__GNUC__) && __GNUC__ == 7 && !defined(__clang__) && !defined(__SIZEOF_INT128__)
+#  define BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
+#endif
+
 constexpr bool add_overflows_int_max()
 {
     int r {0};
@@ -510,11 +515,13 @@ constexpr int mul_value()
     return r;
 }
 
+#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
 constexpr bool mul_overflows_i128_min()
 {
     int128_t r {0};
     return ckd_mul(&r, (std::numeric_limits<int128_t>::min)(), int128_t{-1});
 }
+#endif
 
 void test_constexpr()
 {
@@ -523,7 +530,9 @@ void test_constexpr()
     static_assert(mul_overflows_int_max(),  "INT_MAX * 2 overflows int");
     static_assert(sub_value() == 2,         "5 - 3 == 2");
     static_assert(mul_value() == 42,        "6 * 7 == 42");
+#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
     static_assert(mul_overflows_i128_min(), "INT128_MIN * -1 overflows int128_t");
+#endif
 }
 
 int main()
