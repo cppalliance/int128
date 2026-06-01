@@ -60,6 +60,142 @@ Negative bases are reduced before exponentiation; `(std::numeric_limits<int128_t
 | `base == 0` and `exp > 0`
 | `0`
 
-| Signed overload with `m <= 0` or `exp < 0`
+| Signed overload with non-positive `m` or negative `exp`
 | `0` (modular exponentiation requires a positive modulus; a negative exponent would require a modular inverse, which this interface does not provide)
 |===
+
+[#ipow]
+== Integer Power
+
+Computes `base ^ exp` by exponentiation by squaring, with a non-negative 64-bit exponent.
+Unlike `powm` there is no modulus: the result is the true power reduced modulo `2^128`, which is the same rollover behavior as the library's `operator*`.
+`ipow(base, exp)` is therefore equivalent to multiplying `base` by itself `exp` times.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t ipow(uint128_t base, std::uint64_t exp) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t base, std::uint64_t exp) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The exponent is unsigned, so negative powers (which are not integers) cannot be requested.
+Because the result wraps on overflow rather than saturating or reporting an error, `ipow` is appropriate when rollover semantics are intended.
+
+=== Special Cases
+
+[cols="1,1", options="header"]
+|===
+| Input | Result
+
+| `exp == 0`
+| `1` (including `ipow(0, 0) == 1`, following the conventional definition `0^0 == 1`)
+
+| `base == 0` and `exp > 0`
+| `0`
+
+| `base ^ exp` exceeds 128 bits
+| The low 128 bits of the true power, matching the rollover of `operator*`
+|===
+
+[#isqrt]
+== Integer Square Root
+
+Computes the integer square root `floor(sqrt(n))`: the largest integer `r` whose square does not exceed `n`.
+The computation runs entirely in integer arithmetic using Newton's method, so it is exact (no floating-point rounding) and usable in a `constexpr` context.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(uint128_t n) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(int128_t n) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+=== Special Cases
+
+[cols="1,1", options="header"]
+|===
+| Input | Result
+
+| `n < 0` (signed overload)
+| `0` (a real square root does not exist)
+
+| `n >= 0`
+| `floor(sqrt(n))`, the largest `r` whose square does not exceed `n` (so `isqrt(0) == 0` and `isqrt(1) == 1`)
+|===
+
+[#checked]
+== Checked Arithmetic
+
+`ckd_add`, `ckd_sub`, and `ckd_mul` implement the checked integer arithmetic interface introduced by C23's `<stdckdint.h>`, but without requiring a C23 toolchain; they are available in C++14 and later.
+
+Each function computes `a + b`, `a - b`, or `a * b` respectively, as if both operands were represented in a signed integer type with infinite range, and then converts that mathematical result to the type pointed to by `result`.
+The function returns `false` when `*result` correctly represents the mathematical result of the operation.
+Otherwise it returns `true`, and `*result` is set to the mathematical result wrapped around (reduced modulo `2^N`) to the width `N` of `*result`.
+`*result` is always written, whether or not the operation overflowed.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, T2 a, T3 b) noexcept;
+
+template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_sub(T1* result, T2 a, T3 b) noexcept;
+
+template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, T2 a, T3 b) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The three type parameters are independent: the result type and the two operand types may differ in width and signedness.
+The operation always uses the exact mathematical value of each operand, so a negative signed value added to an unsigned value, or a product that needs up to 256 bits internally, is evaluated correctly.
+
+Following the C23 rules, `T1`, `T2`, and `T3` may be any integer type other than `bool`, plain `char`, an enumerated type, or a bit-precise (`_BitInt`) type.
+In addition to the standard and extended integer types, the library's `uint128_t` and `int128_t` are accepted.
+
+The following example exercises all three operations, including the wrap-around, the `INT128_MIN * -1` case, and the mixed-type behavior described above.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
+====
+[source, c++]
+----
+include::example$checked_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Results That Fit ===
+ckd_add(20, 22): overflow=false, result=42
+
+=== Addition Overflow ===
+ckd_add(UINT128_MAX, 1): overflow=true, wrapped=0
+
+=== Subtraction Underflow ===
+ckd_sub(0, 1): overflow=true, wrapped=340282366920938463463374607431768211455
+
+=== Multiplication Overflow ===
+ckd_mul(INT128_MAX, 2): overflow=true, wrapped=-2
+ckd_mul(INT128_MIN, -1): overflow=true, wrapped=-170141183460469231731687303715884105728
+
+=== Mixed Types ===
+ckd_add<int64_t>(uint128_t{5}, int128_t{-3}): overflow=false, result=2
+ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
+----
+====

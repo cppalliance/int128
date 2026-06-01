@@ -278,6 +278,38 @@ midpoint(-100, -50) = -75
 ----
 ====
 
+[#examples_checked]
+== Checked Arithmetic
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
+====
+[source, c++]
+----
+include::example$checked_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Results That Fit ===
+ckd_add(20, 22): overflow=false, result=42
+
+=== Addition Overflow ===
+ckd_add(UINT128_MAX, 1): overflow=true, wrapped=0
+
+=== Subtraction Underflow ===
+ckd_sub(0, 1): overflow=true, wrapped=340282366920938463463374607431768211455
+
+=== Multiplication Overflow ===
+ckd_mul(INT128_MAX, 2): overflow=true, wrapped=-2
+ckd_mul(INT128_MIN, -1): overflow=true, wrapped=-170141183460469231731687303715884105728
+
+=== Mixed Types ===
+ckd_add<int64_t>(uint128_t{5}, int128_t{-3}): overflow=false, result=2
+ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
+----
+====
+
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 

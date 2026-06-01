@@ -286,6 +286,21 @@ Listed by analogous STL header.
 
 | xref:utilities.adoc#powm[`powm`]
 | Modular exponentiation `(base ^ exp) mod m`
+
+| xref:utilities.adoc#ipow[`ipow`]
+| Integer power `base ^ exp` (wraps modulo `2^128`)
+
+| xref:utilities.adoc#isqrt[`isqrt`]
+| Integer square root `floor(sqrt(n))`
+
+| xref:utilities.adoc#checked[`ckd_add`]
+| Checked addition (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#checked[`ckd_sub`]
+| Checked subtraction (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#checked[`ckd_mul`]
+| Checked multiplication (C23 `<stdckdint.h>` contract)
 |===
 
 [#api_macros]
