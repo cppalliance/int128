@@ -100,6 +100,7 @@ run test_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
+run ../examples/checked_arithmetic.cpp ;
 run ../examples/mixed_type_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
