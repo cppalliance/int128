@@ -284,6 +284,72 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t ckd_widen(const T value) noexcept
     }
 }
 
+// Sign and magnitude of an operand together with its 128-bit two's complement
+// image. magnitude is the absolute value; negative records the sign.
+struct ckd_operand
+{
+    uint128_t raw;
+    uint128_t magnitude;
+    bool negative;
+};
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr ckd_operand ckd_decompose(const T value) noexcept
+{
+    const uint128_t raw {ckd_widen(value)};
+    const bool negative {std::numeric_limits<T>::is_signed && ((raw >> 127) != 0U)};
+    return ckd_operand{raw, negative ? uint128_t{0} - raw : raw, negative};
+}
+
+// Exact signed sum of two operands given as (magnitude, sign). carry marks a
+// 129th bit, which no 128-bit or narrower target can represent.
+struct ckd_sum_result
+{
+    uint128_t magnitude;
+    bool negative;
+    bool carry;
+};
+
+BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128_t a_magnitude, const bool a_negative,
+                                                                 const uint128_t b_magnitude, const bool b_negative) noexcept
+{
+    if (a_negative == b_negative)
+    {
+        // Equal signs: magnitudes add and may overflow into a 129th bit.
+        const uint128_t magnitude {a_magnitude + b_magnitude};
+        return ckd_sum_result{magnitude, a_negative, magnitude < a_magnitude};
+    }
+
+    // Opposite signs: the smaller magnitude is subtracted and never carries.
+    if (a_magnitude >= b_magnitude)
+    {
+        return ckd_sum_result{a_magnitude - b_magnitude, a_negative, false};
+    }
+
+    return ckd_sum_result{b_magnitude - a_magnitude, b_negative, false};
+}
+
+// Whether a result of the given sign and magnitude fits in T1. exceeds_width
+// forces overflow when the true magnitude does not even fit in 128 bits.
+template <typename T1>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_overflows(const uint128_t magnitude, const bool negative, const bool exceeds_width) noexcept
+{
+    if (exceeds_width)
+    {
+        return true;
+    }
+
+    const uint128_t max_magnitude {static_cast<uint128_t>((std::numeric_limits<T1>::max)())};
+
+    if (negative)
+    {
+        const uint128_t min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128_t{1} : uint128_t{0}};
+        return magnitude > min_magnitude;
+    }
+
+    return magnitude > max_magnitude;
+}
+
 } // namespace detail
 
 // Checked addition following the C23 <stdckdint.h> ckd_add contract.
@@ -302,58 +368,68 @@ BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, const T2 a, const T3
                   detail::valid_checked_type<T3>::value,
                   "ckd_add operands must be integer types other than bool and plain char.");
 
-    // Widen both operands
-    const uint128_t raw_a {detail::ckd_widen(a)};
-    const uint128_t raw_b {detail::ckd_widen(b)};
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
 
-    *result = static_cast<T1>(raw_a + raw_b);
+    // The modular sum of the widened images is the exact sum mod 2^128, which
+    // is all the wrapped result needs for any target no wider than 128 bits.
+    *result = static_cast<T1>(op_a.raw + op_b.raw);
 
-    const bool a_negative {std::numeric_limits<T2>::is_signed && ((raw_a >> 127) != 0U)};
-    const bool b_negative {std::numeric_limits<T3>::is_signed && ((raw_b >> 127) != 0U)};
+    const auto sum {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, op_b.negative)};
+    return detail::ckd_overflows<T1>(sum.magnitude, sum.negative, sum.carry);
+}
 
-    const uint128_t a_magnitude {a_negative ? uint128_t{0} - raw_a : raw_a};
-    const uint128_t b_magnitude {b_negative ? uint128_t{0} - raw_b : raw_b};
+// Checked subtraction following the C23 <stdckdint.h> ckd_sub contract.
+//
+// Behaves as ckd_add for a - b: *result receives the exact difference wrapped
+// to its width, and the return value reports whether that difference did not
+// fit.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_sub(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_sub operands must be integer types other than bool and plain char.");
 
-    // Combine into the sign, magnitude, and 129th-bit carry of the exact sum.
-    uint128_t sum_magnitude {0};
-    bool sum_negative {false};
-    bool carry {false};
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
 
-    if (a_negative == b_negative)
-    {
-        // Equal signs: magnitudes add and may overflow into a 129th bit.
-        sum_magnitude = a_magnitude + b_magnitude;
-        carry = sum_magnitude < a_magnitude;
-        sum_negative = a_negative;
-    }
-    else if (a_magnitude >= b_magnitude)
-    {
-        // Opposite signs: magnitudes subtract and never carry.
-        sum_magnitude = a_magnitude - b_magnitude;
-        sum_negative = a_negative;
-    }
-    else
-    {
-        sum_magnitude = b_magnitude - a_magnitude;
-        sum_negative = b_negative;
-    }
+    *result = static_cast<T1>(op_a.raw - op_b.raw);
 
-    // Bounds of the destination type expressed as unsigned magnitudes.
-    const auto max_magnitude {static_cast<uint128_t>((std::numeric_limits<T1>::max)())};
-    const auto min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128_t{1} : uint128_t{0}};
+    // a - b is a + (-b): negating b flips its sign while keeping its magnitude.
+    const auto difference {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, !op_b.negative)};
+    return detail::ckd_overflows<T1>(difference.magnitude, difference.negative, difference.carry);
+}
 
-    if (carry)
-    {
-        // |sum| >= 2^128 cannot be represented by any 128-bit or narrower type.
-        return true;
-    }
+// Checked multiplication following the C23 <stdckdint.h> ckd_mul contract.
+//
+// Computes a * b as if both operands had infinite range, stores the result
+// wrapped to the width of *result, and returns true when the exact product did
+// not fit.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_mul operands must be integer types other than bool and plain char.");
 
-    if (sum_negative)
-    {
-        return sum_magnitude > min_magnitude;
-    }
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
 
-    return sum_magnitude > max_magnitude;
+    *result = static_cast<T1>(op_a.raw * op_b.raw);
+
+    // The product magnitude needs more than 128 bits exactly when it exceeds
+    // UINT128_MAX. Dividing the maximum by one magnitude tests that without
+    // forming a 256-bit product.
+    const bool exceeds_width {op_a.magnitude != 0U &&
+                              op_b.magnitude > ((std::numeric_limits<uint128_t>::max)() / op_a.magnitude)};
+
+    const uint128_t product_magnitude {op_a.magnitude * op_b.magnitude};
+    const bool product_negative {op_a.negative != op_b.negative};
+
+    return detail::ckd_overflows<T1>(product_magnitude, product_negative, exceeds_width);
 }
 
 } // namespace int128
