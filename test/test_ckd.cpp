@@ -23,11 +23,103 @@ static std::uniform_int_distribution<std::uint64_t> dist {0, UINT64_MAX};
 static std::uniform_int_distribution<int> small_dist {-1000, 1000};
 
 //
-// Oracle-based testing for the standard integer types. The __builtin_*_overflow
-// intrinsics implement exactly the C23 contract (exact result, wrap into the
-// destination, return true on overflow), so they are an independent reference.
+// Oracle-based testing for the standard integer types. Addition and subtraction
+// are checked against __builtin_add_overflow / __builtin_sub_overflow, which
+// implement the C23 contract exactly (exact result, wrapped into the
+// destination, true on overflow) and so are an independent reference.
+//
+// Multiplication uses a hand-rolled reference instead. __builtin_mul_overflow
+// returns the wrong result for signed operands with an unsigned destination on
+// GCC 7, and on Clang it lowers a 128-bit checked multiply to __muloti4, a
+// compiler-rt symbol that is not always linked. ref_std_mul_overflow forms the
+// exact product from 32-bit limbs (no 128-bit type, no runtime helper) so it is
+// correct and links on every supported toolchain.
 //
 #if defined(__GNUC__) || defined(__clang__)
+
+// 64x64 -> 128 bit unsigned product, returned as hi:lo, built from 32-bit limbs.
+// This needs neither a 128-bit type nor a runtime helper such as __muloti4, so
+// it links on every target including 32-bit ones.
+static void mul_64_to_128(const std::uint64_t a, const std::uint64_t b,
+                          std::uint64_t& hi, std::uint64_t& lo) noexcept
+{
+    const std::uint64_t mask {UINT64_C(0xFFFFFFFF)};
+    const std::uint64_t a0 {a & mask};
+    const std::uint64_t a1 {a >> 32};
+    const std::uint64_t b0 {b & mask};
+    const std::uint64_t b1 {b >> 32};
+
+    const std::uint64_t p00 {a0 * b0};
+    const std::uint64_t p01 {a0 * b1};
+    const std::uint64_t p10 {a1 * b0};
+    const std::uint64_t p11 {a1 * b1};
+
+    const std::uint64_t mid {(p00 >> 32) + (p01 & mask) + (p10 & mask)};
+    lo = (p00 & mask) | (mid << 32);
+    hi = p11 + (p01 >> 32) + (p10 >> 32) + (mid >> 32);
+}
+
+// Signedness usable for the standard integer types and, through the
+// specializations in the 128-bit section below, the native extended types.
+template <typename T>
+struct oracle_is_signed : std::is_signed<T> {};
+
+template <typename T, std::enable_if_t<oracle_is_signed<T>::value, int> = 0>
+std::uint64_t std_magnitude(const T value, bool& negative) noexcept
+{
+    negative = value < 0;
+    const std::uint64_t image {static_cast<std::uint64_t>(value)};
+    return negative ? (std::uint64_t{0} - image) : image;
+}
+
+template <typename T, std::enable_if_t<!oracle_is_signed<T>::value, int> = 0>
+std::uint64_t std_magnitude(const T value, bool& negative) noexcept
+{
+    negative = false;
+    return static_cast<std::uint64_t>(value);
+}
+
+template <typename R, std::enable_if_t<!oracle_is_signed<R>::value, int> = 0>
+bool oracle_overflows_std(const std::uint64_t magnitude, const bool negative) noexcept
+{
+    const std::uint64_t r_max {static_cast<std::uint64_t>((std::numeric_limits<R>::max)())};
+    return negative ? (magnitude != 0U) : (magnitude > r_max);
+}
+
+template <typename R, std::enable_if_t<oracle_is_signed<R>::value, int> = 0>
+bool oracle_overflows_std(const std::uint64_t magnitude, const bool negative) noexcept
+{
+    const std::uint64_t r_max {static_cast<std::uint64_t>((std::numeric_limits<R>::max)())};
+    const std::uint64_t min_magnitude {r_max + 1U};
+    return negative ? (magnitude > min_magnitude) : (magnitude > r_max);
+}
+
+// Independent reference for the C23 ckd_mul contract on the standard integer
+// types: forms the exact product, wraps it into *r, and reports whether the
+// destination cannot represent the exact value.
+template <typename A, typename B, typename R>
+bool ref_std_mul_overflow(const A a, const B b, R* r) noexcept
+{
+    bool a_negative {};
+    bool b_negative {};
+    const std::uint64_t a_magnitude {std_magnitude(a, a_negative)};
+    const std::uint64_t b_magnitude {std_magnitude(b, b_negative)};
+
+    std::uint64_t hi {};
+    std::uint64_t lo {};
+    mul_64_to_128(a_magnitude, b_magnitude, hi, lo);
+
+    const bool negative {a_negative != b_negative};
+    const std::uint64_t wrapped {negative ? (std::uint64_t{0} - lo) : lo};
+    *r = static_cast<R>(wrapped);
+
+    if (hi != 0U)
+    {
+        return true;
+    }
+
+    return oracle_overflows_std<R>(lo, negative);
+}
 
 template <typename T1, typename T2, typename T3, typename Ref, typename Ckd>
 void check_op(const T2 a, const T3 b, Ref ref_overflow, Ckd ckd_overflow)
@@ -81,7 +173,7 @@ void test_standard_oracle()
         [](auto* r, auto a, auto b) { return ckd_sub(r, a, b); });
 
     fuzz_all_triples(
-        [](auto a, auto b, auto* r) { return __builtin_mul_overflow(a, b, r); },
+        [](auto a, auto b, auto* r) { return ref_std_mul_overflow(a, b, r); },
         [](auto* r, auto a, auto b) { return ckd_mul(r, a, b); });
 }
 
@@ -93,8 +185,10 @@ void test_standard_oracle() {}
 
 //
 // Oracle-based testing at the full 128-bit width using the native compiler
-// type, which again matches the C23 contract exactly. This is the only place
-// products genuinely exceed 128 bits, exercising the multiply width check.
+// type. Addition and subtraction again use the builtins; multiplication uses
+// ref_native_mul_overflow, which assembles the 256-bit product from 64-bit limb
+// products so that no 128-bit multiply (hence no __muloti4) is emitted. This is
+// the only place products genuinely exceed 128 bits, exercising the width check.
 //
 #if defined(__SIZEOF_INT128__) && (defined(__GNUC__) || defined(__clang__))
 
@@ -111,6 +205,102 @@ static int128_t lib_s(const __int128 v)
 static unsigned __int128 rand_native()
 {
     return (static_cast<unsigned __int128>(dist(rng)) << 64) | static_cast<unsigned __int128>(dist(rng));
+}
+
+// The extended integer types are not guaranteed entries in std::is_signed under
+// a strict -std flag, so their signedness is stated explicitly.
+template <>
+struct oracle_is_signed<__int128> : std::true_type {};
+
+template <>
+struct oracle_is_signed<unsigned __int128> : std::false_type {};
+
+template <typename T, std::enable_if_t<oracle_is_signed<T>::value, int> = 0>
+unsigned __int128 native_magnitude(const T value, bool& negative) noexcept
+{
+    negative = value < 0;
+    const unsigned __int128 image {static_cast<unsigned __int128>(value)};
+    return negative ? (static_cast<unsigned __int128>(0) - image) : image;
+}
+
+template <typename T, std::enable_if_t<!oracle_is_signed<T>::value, int> = 0>
+unsigned __int128 native_magnitude(const T value, bool& negative) noexcept
+{
+    negative = false;
+    return static_cast<unsigned __int128>(value);
+}
+
+template <typename R, std::enable_if_t<!oracle_is_signed<R>::value, int> = 0>
+bool oracle_overflows_128(const unsigned __int128 magnitude, const bool negative) noexcept
+{
+    // A magnitude that fits in 128 bits fits an unsigned 128-bit target exactly;
+    // only a non-zero negative value is unrepresentable.
+    return negative && magnitude != 0U;
+}
+
+template <typename R, std::enable_if_t<oracle_is_signed<R>::value, int> = 0>
+bool oracle_overflows_128(const unsigned __int128 magnitude, const bool negative) noexcept
+{
+    const unsigned __int128 positive_max {(static_cast<unsigned __int128>(1) << 127) - 1};
+    const unsigned __int128 negative_max {static_cast<unsigned __int128>(1) << 127};
+    return negative ? (magnitude > negative_max) : (magnitude > positive_max);
+}
+
+// Independent reference for the C23 ckd_mul contract at the full 128-bit width.
+// The 256-bit product is assembled from 64-bit limb products so that no 128-bit
+// multiply (and therefore no __muloti4) is emitted; only native add, shift, and
+// compare on unsigned __int128 are used.
+template <typename A, typename B, typename R>
+bool ref_native_mul_overflow(const A a, const B b, R* r) noexcept
+{
+    bool a_negative {};
+    bool b_negative {};
+    const unsigned __int128 a_magnitude {native_magnitude(a, a_negative)};
+    const unsigned __int128 b_magnitude {native_magnitude(b, b_negative)};
+
+    const std::uint64_t a0 {static_cast<std::uint64_t>(a_magnitude)};
+    const std::uint64_t a1 {static_cast<std::uint64_t>(a_magnitude >> 64)};
+    const std::uint64_t b0 {static_cast<std::uint64_t>(b_magnitude)};
+    const std::uint64_t b1 {static_cast<std::uint64_t>(b_magnitude >> 64)};
+
+    std::uint64_t h00 {};
+    std::uint64_t l00 {};
+    std::uint64_t h01 {};
+    std::uint64_t l01 {};
+    std::uint64_t h10 {};
+    std::uint64_t l10 {};
+    std::uint64_t h11 {};
+    std::uint64_t l11 {};
+    mul_64_to_128(a0, b0, h00, l00);
+    mul_64_to_128(a0, b1, h01, l01);
+    mul_64_to_128(a1, b0, h10, l10);
+    mul_64_to_128(a1, b1, h11, l11);
+
+    const unsigned __int128 p00 {(static_cast<unsigned __int128>(h00) << 64) | l00};
+    const unsigned __int128 p01 {(static_cast<unsigned __int128>(h01) << 64) | l01};
+    const unsigned __int128 p10 {(static_cast<unsigned __int128>(h10) << 64) | l10};
+    const unsigned __int128 p11 {(static_cast<unsigned __int128>(h11) << 64) | l11};
+
+    // product = p11 * 2^128 + (p01 + p10) * 2^64 + p00, split into a low and a
+    // high 128-bit half with the carries tracked explicitly.
+    const unsigned __int128 cross {p01 + p10};
+    const bool cross_carry {cross < p01};
+    const unsigned __int128 low128 {p00 + (cross << 64)};
+    const bool low_carry {low128 < p00};
+    const unsigned __int128 high128 {p11 + (cross >> 64) +
+                                     (static_cast<unsigned __int128>(cross_carry) << 64) +
+                                     static_cast<unsigned __int128>(low_carry)};
+
+    const bool negative {a_negative != b_negative};
+    const unsigned __int128 wrapped {negative ? (static_cast<unsigned __int128>(0) - low128) : low128};
+    *r = static_cast<R>(wrapped);
+
+    if (high128 != 0U)
+    {
+        return true;
+    }
+
+    return oracle_overflows_128<R>(low128, negative);
 }
 
 template <typename Ref, typename Ckd>
@@ -176,7 +366,7 @@ void test_native_oracle()
         [](auto* r, auto a, auto b) { return ckd_sub(r, a, b); });
 
     native_fuzz(
-        [](auto a, auto b, auto* r) { return __builtin_mul_overflow(a, b, r); },
+        [](auto a, auto b, auto* r) { return ref_native_mul_overflow(a, b, r); },
         [](auto* r, auto a, auto b) { return ckd_mul(r, a, b); });
 }
 
