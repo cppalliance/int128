@@ -7,6 +7,7 @@
 
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/detail/clz.hpp>
+#include <boost/int128/detail/common_mul.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -66,6 +67,214 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void half_word_div(
     remainder = ((remainder % rhs) << 32) | (lhs.low & UINT32_MAX);
     quotient.low |= (remainder / rhs) & UINT32_MAX;
 }
+
+// Portable 128-bit by 64-bit unsigned division producing a 64-bit quotient and remainder.
+// This is the classic Hacker's Delight divlu (two 32-bit "digit" steps over 64-bit words).
+// Precondition: u1 < d so the quotient is guaranteed to fit in 64 bits. It is constexpr-safe
+// and serves as the fallback for udiv_2by1 on every target without a hardware 128/64 divide.
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t divlu(std::uint64_t u1, std::uint64_t u0, std::uint64_t d, std::uint64_t& r) noexcept
+{
+    constexpr std::uint64_t b {UINT64_C(1) << 32U}; // Number base (2^32)
+
+    BOOST_INT128_ASSUME(u1 < d); // LCOV_EXCL_LINE
+
+    // D.1: normalize so that the divisor's most significant bit is set
+    const auto s {countl_zero(d)};
+    d <<= s;
+
+    const auto vn1 {d >> 32U};
+    const auto vn0 {d & UINT32_MAX};
+
+    // Shift the dividend left by s. The (64 - s) shift is undefined when s == 0, so guard it.
+    const auto un32 {s == 0 ? u1 : ((u1 << s) | (u0 >> (64 - s)))};
+    const auto un10 {u0 << s};
+
+    const auto un1 {un10 >> 32U};
+    const auto un0 {un10 & UINT32_MAX};
+
+    // First quotient digit
+    auto q1 {un32 / vn1};
+    auto rhat {un32 - (q1 * vn1)};
+
+    while (q1 >= b || (q1 * vn0) > ((b * rhat) + un1))
+    {
+        --q1;
+        rhat += vn1;
+        if (rhat >= b)
+        {
+            break;
+        }
+    }
+
+    const auto un21 {(un32 * b) + un1 - (q1 * d)};
+
+    // Second quotient digit
+    auto q0 {un21 / vn1};
+    rhat = un21 - (q0 * vn1);
+
+    while (q0 >= b || (q0 * vn0) > ((b * rhat) + un0))
+    {
+        --q0;
+        rhat += vn1;
+        if (rhat >= b)
+        {
+            break;
+        }
+    }
+
+    // The remainder is shifted back down by the normalization amount
+    r = ((un21 * b) + un0 - (q0 * d)) >> s;
+    return (q1 * b) + q0;
+}
+
+#if defined(BOOST_INT128_HAS_X86_64_DIVQ)
+
+// Inline asm cannot appear in a constexpr function body before C++20, so the x86-64 DIV
+// instruction is wrapped in a non-constexpr helper that udiv_2by1 only calls at runtime.
+BOOST_INT128_FORCE_INLINE std::uint64_t udiv_2by1_divq(const std::uint64_t u1, const std::uint64_t u0, const std::uint64_t d, std::uint64_t& r) noexcept
+{
+    std::uint64_t q {};
+    __asm__("divq %[d]" : "=a"(q), "=d"(r) : [d] "r"(d), "a"(u0), "d"(u1) : "cc");
+    return q;
+}
+
+#endif // BOOST_INT128_HAS_X86_64_DIVQ
+
+// Divides the 128-bit value (u1:u0) by d, returning a 64-bit quotient and the true remainder.
+// Precondition: u1 < d. Mirrors common_mul.hpp::umul: a hardware instruction at runtime where
+// one exists, and the portable divlu in constexpr evaluation and everywhere else.
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t udiv_2by1(const std::uint64_t u1, const std::uint64_t u0, const std::uint64_t d, std::uint64_t& r) noexcept
+{
+    BOOST_INT128_ASSUME(u1 < d); // LCOV_EXCL_LINE
+
+    #if (defined(BOOST_INT128_HAS_X86_64_DIVQ) || (defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(u1))
+    {
+        #if defined(BOOST_INT128_HAS_X86_64_DIVQ)
+
+        return udiv_2by1_divq(u1, u0, d, r);
+
+        #else
+
+        return _udiv128(u1, u0, d, &r);
+
+        #endif
+    }
+
+    #endif
+
+    return divlu(u1, u0, d, r);
+}
+
+#if defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable : 4127) // Pre c++17 the if constexpr remainder part will hit this
+#endif
+
+// Divides the 128-bit value (uh:ul) by the 128-bit divisor (vh:vl) where vh != 0. Because the
+// divisor is >= 2^64 the quotient is guaranteed to fit in a single 64-bit word, which is
+// returned. When need_remainder is true the 128-bit remainder is written to (rem_hi:rem_lo).
+//
+// This is one normalized quotient digit (Moller-Granlund / Knuth Algorithm D specialized to a
+// 2-word divisor). After normalization Knuth's Theorem B bounds the clamped estimate to
+// q <= qhat <= q + 1, so a single conditional add-back corrects it. The estimate reuses
+// udiv_2by1, so on x86-64 it lowers to a hardware divq.
+template <bool need_remainder>
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t div3by2(const std::uint64_t uh, const std::uint64_t ul,
+    const std::uint64_t vh, const std::uint64_t vl, std::uint64_t& rem_hi, std::uint64_t& rem_lo) noexcept
+{
+    BOOST_INT128_ASSUME(vh != 0); // LCOV_EXCL_LINE
+
+    // D.1: normalize so the divisor's most significant bit is set
+    const auto s {countl_zero(vh)};
+    const auto cs {64 - s};
+
+    std::uint64_t d1 {};
+    std::uint64_t d0 {};
+    std::uint64_t u2 {};
+    std::uint64_t u1 {};
+    std::uint64_t u0 {};
+
+    if (s == 0)
+    {
+        d1 = vh;
+        d0 = vl;
+        u2 = 0;
+        u1 = uh;
+        u0 = ul;
+    }
+    else
+    {
+        d1 = (vh << s) | (vl >> cs);
+        d0 = vl << s;
+        u2 = uh >> cs;
+        u1 = (uh << s) | (ul >> cs);
+        u0 = ul << s;
+    }
+
+    BOOST_INT128_ASSUME(u2 <= d1); // LCOV_EXCL_LINE
+
+    // D.3: estimate the single quotient digit. u2 == d1 saturates to 2^64 - 1 (the clamp in
+    // Knuth Theorem B); otherwise u2 < d1 satisfies the udiv_2by1 precondition.
+    std::uint64_t qhat {};
+    if (u2 < d1)
+    {
+        std::uint64_t rhat {};
+        qhat = udiv_2by1(u2, u1, d1, rhat);
+    }
+    else
+    {
+        qhat = UINT64_MAX;
+    }
+
+    // D.4: multiply and subtract (u2:u1:u0) - qhat * (d1:d0)
+    std::uint64_t qd0_hi {};
+    const auto qd0_lo {umul(qhat, d0, qd0_hi)};
+    std::uint64_t qd1_hi {};
+    const auto qd1_lo {umul(qhat, d1, qd1_hi)};
+
+    const auto p0 {qd0_lo};
+    const auto p1 {qd0_hi + qd1_lo};
+    const auto p2 {qd1_hi + static_cast<std::uint64_t>(p1 < qd0_hi)};
+
+    const auto r0 {u0 - p0};
+    const auto borrow0 {static_cast<std::uint64_t>(u0 < p0)};
+    const auto t1 {u1 - p1};
+    auto r1 {t1 - borrow0};
+    const auto borrow1 {static_cast<std::uint64_t>(u1 < p1) + static_cast<std::uint64_t>(t1 < borrow0)};
+
+    // D.5/D.6: if the top limb borrowed, qhat was one too large. Correct it and add the divisor
+    // back into the remainder. The probability of this branch is small.
+    auto r0_final {r0};
+    if (BOOST_INT128_UNLIKELY((u2 < p2) || ((u2 - p2) < borrow1)))
+    {
+        --qhat;                                                  // LCOV_EXCL_LINE
+        const auto sum0 {r0 + d0};                               // LCOV_EXCL_LINE
+        r0_final = sum0;                                         // LCOV_EXCL_LINE
+        r1 = r1 + d1 + static_cast<std::uint64_t>(sum0 < r0);    // LCOV_EXCL_LINE
+    }
+
+    BOOST_INT128_IF_CONSTEXPR (need_remainder)
+    {
+        if (s == 0)
+        {
+            rem_hi = r1;
+            rem_lo = r0_final;
+        }
+        else
+        {
+            rem_lo = (r0_final >> s) | (r1 << cs);
+            rem_hi = r1 >> s;
+        }
+    }
+
+    return qhat;
+}
+
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
 
 namespace impl {
 
@@ -395,90 +604,53 @@ BOOST_INT128_HOST_DEVICE constexpr T div_mod_msvc(T dividend, T divisor, T& rema
 
 // We only need to take the time to process the remainder in the modulo case
 // In the division case it is a waste of cycles
+//
+// 128/64 -> 128-bit quotient (and optional 64-bit remainder) by two-step long division.
+// The leading 64/64 yields the high quotient word and a remainder r < rhs, which satisfies
+// the udiv_2by1 precondition for the low quotient word. This covers every rhs (including
+// rhs <= UINT32_MAX) through the single hardware-or-portable udiv_2by1 primitive.
 
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    using high_word_type = decltype(T{}.high);
 
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        using high_word_type = decltype(T{}.high);
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-        quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
-        auto remainder {static_cast<std::uint64_t>(lhs.high) % rhs};
-        quotient.low = _udiv128(remainder, lhs.low, rhs, &remainder);
-        return;
-    }
+    const auto u_high {static_cast<std::uint64_t>(lhs.high)};
 
-    #endif
-
-    if (rhs <= UINT32_MAX)
-    {
-        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient);
-    }
-    else
-    {
-        std::uint32_t u[4] {};
-        std::uint32_t v[2] {};
-        std::uint32_t q[4] {};
-
-        const auto m {impl::to_words(lhs, u)};
-        const auto n {impl::to_words(rhs, v)};
-
-        impl::knuth_divide<false>(u, m, v, n, q);
-
-        quotient = impl::from_words<T>(q);
-    }
+    quotient.high = static_cast<high_word_type>(u_high / rhs);
+    auto r {u_high % rhs};
+    quotient.low = udiv_2by1(r, lhs.low, rhs, r);
 }
 
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint64_t rhs, T& quotient, T& remainder) noexcept
 {
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920 && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    using high_word_type = decltype(T{}.high);
 
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
-    {
-        using high_word_type = decltype(T{}.high);
+    BOOST_INT128_ASSUME(rhs != 0); // LCOV_EXCL_LINE
 
-        quotient.high = static_cast<high_word_type>(static_cast<std::uint64_t>(lhs.high) / rhs);
-        remainder.low = static_cast<std::uint64_t>(lhs.high) % rhs;
-        quotient.low = _udiv128(remainder.low, lhs.low, rhs, &remainder.low);
-        return;
-    }
+    const auto u_high {static_cast<std::uint64_t>(lhs.high)};
 
-    #endif
+    quotient.high = static_cast<high_word_type>(u_high / rhs);
+    auto r {u_high % rhs};
+    quotient.low = udiv_2by1(r, lhs.low, rhs, r);
 
-    if (rhs <= UINT32_MAX)
-    {
-        half_word_div(lhs, static_cast<std::uint32_t>(rhs), quotient, remainder);
-    }
-    else
-    {
-        std::uint32_t u[4] {};
-        std::uint32_t v[2] {};
-        std::uint32_t q[4] {};
-
-        const auto m {impl::to_words(lhs, u)};
-        const auto n {impl::to_words(rhs, v)};
-
-        impl::knuth_divide<true>(u, m, v, n, q);
-
-        quotient = impl::from_words<T>(q);
-        remainder = impl::from_words<T>(u);
-    }
+    remainder.high = static_cast<high_word_type>(0);
+    remainder.low = r;
 }
 
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient, T& remainder) noexcept
 {
-    half_word_div(lhs, rhs, quotient, remainder);
+    one_word_div(lhs, static_cast<std::uint64_t>(rhs), quotient, remainder);
 }
 
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void one_word_div(const T& lhs, const std::uint32_t rhs, T& quotient) noexcept
 {
-    half_word_div(lhs, rhs, quotient);
+    one_word_div(lhs, static_cast<std::uint64_t>(rhs), quotient);
 }
 
 #ifdef _MSC_VER
@@ -505,17 +677,15 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 
     #endif
 
-    std::uint32_t u[4]{};
-    std::uint32_t v[4]{};
-    std::uint32_t q[4]{};
+    using high_word_type = decltype(T{}.high);
 
-    const auto m{ impl::to_words(dividend, u) };
-    const auto n{ impl::to_words(divisor, v) };
+    std::uint64_t rem_hi {};
+    std::uint64_t rem_lo {};
 
-    impl::knuth_divide<false>(u, m, v, n, q);
+    const auto q {div3by2<false>(static_cast<std::uint64_t>(dividend.high), dividend.low,
+                                 static_cast<std::uint64_t>(divisor.high), divisor.low, rem_hi, rem_lo)};
 
-    return impl::from_words<T>(q);
-
+    return T{static_cast<high_word_type>(0), q};
 }
 
 template <typename T>
@@ -536,18 +706,17 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 
     #endif
 
-    std::uint32_t u[4]{};
-    std::uint32_t v[4]{};
-    std::uint32_t q[4]{};
+    using high_word_type = decltype(T{}.high);
 
-    const auto m{ impl::to_words(dividend, u) };
-    const auto n{ impl::to_words(divisor, v) };
+    std::uint64_t rem_hi {};
+    std::uint64_t rem_lo {};
 
-    impl::knuth_divide<true>(u, m, v, n, q);
+    const auto q {div3by2<true>(static_cast<std::uint64_t>(dividend.high), dividend.low,
+                                static_cast<std::uint64_t>(divisor.high), divisor.low, rem_hi, rem_lo)};
 
-    remainder = impl::from_words<T>(u);
+    remainder = T{static_cast<high_word_type>(rem_hi), rem_lo};
 
-    return impl::from_words<T>(q);
+    return T{static_cast<high_word_type>(0), q};
 }
 
 #ifdef _MSC_VER
