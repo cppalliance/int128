@@ -12,6 +12,8 @@
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <cstdint>
+#include <limits>
+#include <type_traits>
 
 #endif
 
@@ -251,6 +253,103 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(const int1
     }
 
     return static_cast<int128_t>(isqrt(static_cast<uint128_t>(n)));
+}
+
+namespace detail {
+
+template <typename T>
+struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::value> {};
+
+template <>
+struct valid_checked_type<int128_t> : std::true_type {};
+
+template <>
+struct valid_checked_type<uint128_t> : std::true_type {};
+
+// Widen an integer operand to its 128-bit two's complement bit pattern, returned as a uint128_t
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t ckd_widen(const T value) noexcept
+{
+    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<T>::is_signed)
+    {
+        return static_cast<uint128_t>(static_cast<int128_t>(value));
+    }
+    else
+    {
+        return static_cast<uint128_t>(value);
+    }
+}
+
+} // namespace detail
+
+// Checked addition following the C23 <stdckdint.h> ckd_add contract.
+//
+// Computes a + b as if both operands were represented in a signed integer
+// type of infinite range and then converts that exact result to the type
+// pointed to by result. *result always receives the exact result wrapped
+// around to the width of *result. Returns false when *result represents the
+// exact mathematical sum, and true when the sum did not fit and wrap-around
+// occurred.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_add operands must be integer types.");
+
+    // Widen both operands
+    const uint128_t raw_a {detail::ckd_widen(a)};
+    const uint128_t raw_b {detail::ckd_widen(b)};
+
+    *result = static_cast<T1>(raw_a + raw_b);
+
+    const bool a_negative {std::numeric_limits<T2>::is_signed && ((raw_a >> 127) != 0U)};
+    const bool b_negative {std::numeric_limits<T3>::is_signed && ((raw_b >> 127) != 0U)};
+
+    const uint128_t a_magnitude {a_negative ? uint128_t{0} - raw_a : raw_a};
+    const uint128_t b_magnitude {b_negative ? uint128_t{0} - raw_b : raw_b};
+
+    // Combine into the sign, magnitude, and 129th-bit carry of the exact sum.
+    uint128_t sum_magnitude {0};
+    bool sum_negative {false};
+    bool carry {false};
+
+    if (a_negative == b_negative)
+    {
+        // Equal signs: magnitudes add and may overflow into a 129th bit.
+        sum_magnitude = a_magnitude + b_magnitude;
+        carry = sum_magnitude < a_magnitude;
+        sum_negative = a_negative;
+    }
+    else if (a_magnitude >= b_magnitude)
+    {
+        // Opposite signs: magnitudes subtract and never carry.
+        sum_magnitude = a_magnitude - b_magnitude;
+        sum_negative = a_negative;
+    }
+    else
+    {
+        sum_magnitude = b_magnitude - a_magnitude;
+        sum_negative = b_negative;
+    }
+
+    // Bounds of the destination type expressed as unsigned magnitudes.
+    const auto max_magnitude {static_cast<uint128_t>((std::numeric_limits<T1>::max)())};
+    const auto min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128_t{1} : uint128_t{0}};
+
+    if (carry)
+    {
+        // |sum| >= 2^128 cannot be represented by any 128-bit or narrower type.
+        return true;
+    }
+
+    if (sum_negative)
+    {
+        return sum_magnitude > min_magnitude;
+    }
+
+    return sum_magnitude > max_magnitude;
 }
 
 } // namespace int128
