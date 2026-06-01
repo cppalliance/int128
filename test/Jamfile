@@ -88,6 +88,7 @@ run test_format.cpp ;
 run test_fmt_format.cpp ;
 
 run test_div.cpp ;
+run test_div_primitives.cpp ;
 
 run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
