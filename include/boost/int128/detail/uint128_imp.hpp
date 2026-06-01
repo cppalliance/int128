@@ -2288,18 +2288,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
     // We need to hide this if we use a non-const eval method above to avoid a litany of cross-platform warnings
     #ifndef BOOST_INT128_HIDE_MUL
 
-    constexpr std::size_t rhs_words_needed {std::is_same<UnsignedInteger, std::uint32_t>::value ? 1 :
-                                            std::is_same<UnsignedInteger, std::uint64_t>::value ? 2 :
-                                            std::is_same<UnsignedInteger, uint128_t>::value ? 4 : 0};
-
-    static_assert(rhs_words_needed != 0, "Must be 32, 64 or 128 bit unsigned integer");
-
-    std::uint32_t lhs_words[4] {};
-    std::uint32_t rhs_words[rhs_words_needed] {};
-    to_words(lhs, lhs_words);
-    to_words(rhs, rhs_words);
-
-    return knuth_multiply<uint128_t>(lhs_words, rhs_words);
+    return low_word_mul<uint128_t>(lhs, rhs);
 
     #else
     #undef BOOST_INT128_HIDE_MUL

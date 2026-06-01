@@ -2012,66 +2012,14 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator-=(const Integer rhs
 
 namespace detail {
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t signed_shift_left_32(const std::uint64_t low) noexcept
-{
-    return {static_cast<std::int64_t>(low >> 32), low << 32};
-}
-
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, const int128_t rhs) noexcept
-{
-    const auto a {lhs.low >> 32U};
-    const auto b {lhs.low & UINT32_MAX};
-    const auto c {rhs.low >> 32U};
-    const auto d {rhs.low & UINT32_MAX};
-
-    int128_t result { static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs.low + lhs.low * static_cast<std::uint64_t>(rhs.high) + a * c), b * d };
-    result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
-
-    return result;
-}
-
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
 {
-    const auto low_res{lhs.low * rhs};
-
-    const auto a_lo{lhs.low & UINT32_MAX};
-    const auto a_high{lhs.low >> 32U};
-    const auto b_lo{rhs & UINT32_MAX};
-    const auto b_high{rhs >> 32U};
-
-    const auto lo_lo{a_lo * b_lo};
-    const auto lo_hi{a_lo * b_high};
-    const auto hi_lo{a_high * b_lo};
-    const auto hi_hi{a_high * b_high};
-
-    const auto mid{(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
-
-    const auto carry{hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
-
-    // Compute the high word in the unsigned domain so that the multiplication
-    // and addition wrap modulo 2^64.
-    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
-
-    return {high_res, low_res};
+    return low_word_mul<int128_t>(lhs, rhs);
 }
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
 {
-    const auto low_res{lhs.low * rhs};
-
-    const auto a_lo{lhs.low & UINT32_MAX};
-    const auto a_hi{lhs.low >> 32U};
-
-    const auto lo_lo{a_lo * rhs};
-    const auto hi_lo{a_hi * rhs};
-
-    const auto mid{(lo_lo >> 32U) + (hi_lo & UINT32_MAX)};
-
-    const auto carry{(hi_lo >> 32U) + (mid >> 32U)};
-
-    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
-
-    return {high_res, low_res};
+    return low_word_mul<int128_t>(lhs, rhs);
 }
 
 #if defined(_M_AMD64) && !defined(__GNUC__)
@@ -2096,7 +2044,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return library_mul(lhs, rhs);
+        return low_word_mul<int128_t>(lhs, rhs);
     }
     else
     {
@@ -2126,7 +2074,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     #  else
 
-    return library_mul(lhs, rhs);
+    return low_word_mul<int128_t>(lhs, rhs);
 
     #  endif
 
@@ -2138,34 +2086,16 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
-        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
+        return low_word_mul<int128_t>(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
         return msvc_amd64_mul(lhs, rhs);
     }
 
-    #elif (defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
-    {
-        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
-    }
-    else
-    {
-        std::uint32_t lhs_words[4] {};
-        std::uint32_t rhs_words[4] {};
-
-        // Since in all likelihood this equates to memcpy we don't need to convert to non-negative integers and back
-        to_words(lhs, lhs_words);
-        to_words(rhs, rhs_words);
-
-        return knuth_multiply<int128_t>(lhs_words, rhs_words);
-    }
-
     #else
 
-    return library_mul(lhs, rhs);
+    return low_word_mul<int128_t>(lhs, rhs);
 
     #endif
 }
