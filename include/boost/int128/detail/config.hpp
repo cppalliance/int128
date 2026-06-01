@@ -169,6 +169,11 @@ using builtin_u128 = std::_Unsigned128;
 
 #endif // Platform macros
 
+// Hardware 128-bit by 64-bit unsigned division via the x86-64 DIV instruction
+#if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__)) && !defined(_MSC_VER) && !defined(__CUDA_ARCH__)
+#  define BOOST_INT128_HAS_X86_64_DIVQ
+#endif
+
 // The builtin is only constexpr from clang-7 or GCC-10
 #ifdef __has_builtin
 #  if __has_builtin(__builtin_sub_overflow) && ((defined(__clang__) && __clang_major__ >= 7) || (defined(__GNUC__) && __GNUC__ >= 10))
