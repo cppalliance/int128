@@ -2206,21 +2206,16 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
     {
         return {0,0};
     }
-    #if defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
-
-    #else
-
-    int128_t quotient {};
     const auto negative_res {(lhs.high < 0) != (rhs.high < 0)};
 
-    if (abs_rhs.high != 0)
+    // Narrow fast path: when the divisor magnitude fits in 64 bits, divide the magnitudes with
+    // the hardware-accelerated one_word_div and reapply the sign. This reuses the abs values
+    // computed above and beats native signed division (the out-of-line __divti3) for this case.
+    if (abs_rhs.high == 0)
     {
-        quotient = detail::knuth_div(abs_lhs, abs_rhs);
-    }
-    else
-    {
+        int128_t quotient {};
+
         if (abs_lhs.high == 0)
         {
             quotient = {0, abs_lhs.low / abs_rhs.low};
@@ -2229,9 +2224,19 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
         {
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient);
         }
+
+        return negative_res ? -quotient : quotient;
     }
 
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
+
+    #else
+
+    const auto quotient {detail::knuth_div(abs_lhs, abs_rhs)};
     return negative_res ? -quotient : quotient;
+
     #endif
 }
 
@@ -2468,23 +2473,15 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
     {
         return lhs;
     }
-    #if defined(BOOST_INT128_HAS_INT128)
-    else
-    {
-        return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
-    }
-    #else
 
-    const auto is_neg{lhs < 0};
-    
-    int128_t remainder {};
+    const auto is_neg {lhs < 0};
 
-    if (abs_rhs.high != 0)
+    // Narrow fast path: when the divisor magnitude fits in 64 bits, take the remainder of the
+    // magnitudes with the hardware-accelerated one_word_div and reapply the dividend's sign.
+    if (abs_rhs.high == 0)
     {
-        detail::knuth_div(abs_lhs, abs_rhs, remainder);
-    }
-    else
-    {
+        int128_t remainder {};
+
         if (abs_lhs.high == 0)
         {
             remainder = int128_t{0, abs_lhs.low % abs_rhs.low};
@@ -2492,11 +2489,20 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
         else
         {
             int128_t quotient {};
-
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient, remainder);
         }
+
+        return is_neg ? -remainder : remainder;
     }
 
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
+
+    #else
+
+    int128_t remainder {};
+    detail::knuth_div(abs_lhs, abs_rhs, remainder);
     return is_neg ? -remainder : remainder;
 
     #endif
