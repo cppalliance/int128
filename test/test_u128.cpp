@@ -802,9 +802,14 @@ void test_operator_left_shift()
 
         BOOST_TEST(shifted_emulated == shifted_builtin);
 
-        // Test 3: Test with IntType as left operand and int128 variants as right operand
-        auto int_shift_builtin = value << static_cast<unsigned>(builtin_value);
-        auto int_shift_emulated = value << static_cast<unsigned>(emulated_value);
+        // Test 3: int128 variants converted to a builtin shift count. shift_value is
+        // bounded to [0, bit-width), so shifting the 128-bit builtin_value is well-defined.
+        const auto builtin_shift = static_cast<unsigned>(static_cast<builtin_u128>(shift_value));
+        const auto emulated_shift = static_cast<unsigned>(boost::int128::uint128_t{shift_value});
+        BOOST_TEST(emulated_shift == builtin_shift);
+
+        auto int_shift_builtin = builtin_value << builtin_shift;
+        auto int_shift_emulated = builtin_value << emulated_shift;
 
         static_assert(std::is_same<decltype(int_shift_builtin),
                                    decltype(int_shift_emulated)>::value, "Mismatched types");
@@ -870,9 +875,14 @@ void test_operator_right_shift()
 
         BOOST_TEST(shifted_emulated == shifted_builtin);
 
-        // Test 3: Test with IntType as left operand and int128 variants as right operand
-        auto int_shift_builtin = value >> static_cast<unsigned>(builtin_value);
-        auto int_shift_emulated = value >> static_cast<unsigned>(emulated_value);
+        // Test 3: int128 variants converted to a builtin shift count. shift_value is
+        // bounded to [0, bit-width), so shifting the 128-bit builtin_value is well-defined.
+        const auto builtin_shift = static_cast<unsigned>(static_cast<builtin_u128>(shift_value));
+        const auto emulated_shift = static_cast<unsigned>(boost::int128::uint128_t{shift_value});
+        BOOST_TEST(emulated_shift == builtin_shift);
+
+        auto int_shift_builtin = builtin_value >> builtin_shift;
+        auto int_shift_emulated = builtin_value >> emulated_shift;
 
         static_assert(std::is_same<decltype(int_shift_builtin),
                                    decltype(int_shift_emulated)>::value, "Mismatched types");
