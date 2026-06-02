@@ -291,6 +291,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t div3b
             rem_hi = r1 >> s;
         }
     }
+    else
+    {
+        static_cast<void>(rem_hi);
+        static_cast<void>(rem_lo);
+    }
 
     return qhat;
 }
