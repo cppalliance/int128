@@ -44,6 +44,13 @@ project : requirements
     <toolset>clang:<warnings-as-errors>on
     <toolset>gcc:<warnings-as-errors>on
 
+    # The b2 sanitizer features only add -fsanitize flags; define the macros the
+    # tests use to skip checks that intentionally exercise UB (e.g. shift tests).
+    <undefined-sanitizer>on:<define>UBSAN=1
+    <undefined-sanitizer>norecover:<define>UBSAN=1
+    <address-sanitizer>on:<define>ASAN=1
+    <address-sanitizer>norecover:<define>ASAN=1
+
   [ requires cxx14_decltype_auto cxx14_generic_lambdas cxx14_return_type_deduction cxx14_variable_templates cxx14_constexpr ]
   ;
 
