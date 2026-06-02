@@ -523,6 +523,12 @@ constexpr bool mul_overflows_i128_min()
 
 #ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
 
+// MSVC 14.1 warns of integral overflow
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4307)
+#endif
+
 void test_constexpr()
 {
     static_assert(add_overflows_int_max(),  "INT_MAX + 1 overflows int");
@@ -532,6 +538,10 @@ void test_constexpr()
     static_assert(mul_value() == 42,        "6 * 7 == 42");
     static_assert(mul_overflows_i128_min(), "INT128_MIN * -1 overflows int128_t");
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 #endif
 
