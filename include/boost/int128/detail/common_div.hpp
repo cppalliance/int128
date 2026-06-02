@@ -176,10 +176,10 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t udiv_
 // divisor is >= 2^64 the quotient is guaranteed to fit in a single 64-bit word, which is
 // returned. When need_remainder is true the 128-bit remainder is written to (rem_hi:rem_lo).
 //
-// This is one normalized quotient digit (Moller-Granlund / Knuth Algorithm D specialized to a
-// 2-word divisor). After normalization Knuth's Theorem B bounds the clamped estimate to
-// q <= qhat <= q + 1, so a single conditional add-back corrects it. The estimate reuses
-// udiv_2by1, so on x86-64 it lowers to a hardware divq.
+// This is one normalized quotient digit (Knuth Algorithm D specialized to a 2-word divisor).
+// The top-limb estimate qhat (reusing udiv_2by1, a hardware divq on x86-64) is bounded by
+// Knuth Theorem B to q <= qhat <= q + 2; the D3 refinement against d0 tightens it to q <= qhat
+// <= q + 1, and the conditional add-back then corrects the remaining off-by-one.
 template <bool need_remainder>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t div3by2(const std::uint64_t uh, const std::uint64_t ul,
     const std::uint64_t vh, const std::uint64_t vl, std::uint64_t& rem_hi, std::uint64_t& rem_lo) noexcept
@@ -215,22 +215,45 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t div3b
 
     BOOST_INT128_ASSUME(u2 <= d1); // LCOV_EXCL_LINE
 
-    // D.3: estimate the single quotient digit. u2 == d1 saturates to 2^64 - 1 (the clamp in
-    // Knuth Theorem B); otherwise u2 < d1 satisfies the udiv_2by1 precondition.
+    // D.3: estimate the single quotient digit qhat = floor((u2:u1) / d1), clamped to 2^64 - 1.
+    // rhat is the remainder of that estimate.
     std::uint64_t qhat {};
+    std::uint64_t rhat {};
+    bool rhat_overflow {false};
     if (u2 < d1)
     {
-        std::uint64_t rhat {};
         qhat = udiv_2by1(u2, u1, d1, rhat);
     }
     else
     {
+        // u2 == d1: floor((u2:u1)/d1) clamps to 2^64 - 1, leaving rhat == u1 + d1 (may carry).
         qhat = UINT64_MAX;
+        rhat = u1 + d1;
+        rhat_overflow = rhat < u1;
     }
 
-    // D.4: multiply and subtract (u2:u1:u0) - qhat * (d1:d0)
     std::uint64_t qd0_hi {};
-    const auto qd0_lo {umul(qhat, d0, qd0_hi)};
+    auto qd0_lo {umul(qhat, d0, qd0_hi)};
+
+    // Refine qhat against d0 (Knuth D3). The top-limb estimate alone can exceed the true quotient
+    // by up to 2; this brings it down to at most one too large, which the add-back below corrects.
+    // At most two iterations run, and only while the running remainder rhat stays below 2^64.
+    if (!rhat_overflow)
+    {
+        while (qd0_hi > rhat || (qd0_hi == rhat && qd0_lo > u0))
+        {
+            --qhat;
+            rhat += d1;
+            const auto rhat_carry {rhat < d1};
+            qd0_lo = umul(qhat, d0, qd0_hi);
+            if (rhat_carry)
+            {
+                break;
+            }
+        }
+    }
+
+    // D.4: multiply and subtract (u2:u1:u0) - qhat * (d1:d0). qd0 already holds qhat * d0.
     std::uint64_t qd1_hi {};
     const auto qd1_lo {umul(qhat, d1, qd1_hi)};
 
@@ -476,130 +499,6 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T from_words(const 
     return {static_cast<high_word_type>(high), low};
 }
 
-#if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
-
-template <bool needs_mod, typename T>
-BOOST_INT128_HOST_DEVICE constexpr T div_mod_msvc(T dividend, T divisor, T& remainder)
-{
-    using high_word_type = decltype(T{}.high);
-
-    // Skip normalization if divisor is already large enough
-    // use direct division and intrinsic
-    // This is only possible in the unsigned case
-    BOOST_INT128_IF_CONSTEXPR (!std::numeric_limits<T>::is_signed)
-    {
-        constexpr auto divisor_lower_bound{UINT64_MAX >> 1};
-        if (divisor.high >= divisor_lower_bound)
-        {
-            T quotient{};
-
-            quotient.low = static_cast<std::uint64_t>(dividend.high / divisor.high);
-
-            std::uint64_t product0_high{};
-            auto product0_low{_umul128(quotient.low, divisor.low, &product0_high)};
-
-            std::uint64_t product1_high{};
-            auto product1_low{_umul128(quotient.low, static_cast<std::uint64_t>(divisor.high), &product1_high)};
-
-            T product{};
-            product.low = product0_low;
-            auto carry{BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high))};
-            product1_high += static_cast<std::uint64_t>(carry);
-
-            if (product1_high > 0 || product > dividend)
-            {
-                --quotient.low;
-
-                // Recalculate with adjusted quotient
-                product0_low = _umul128(quotient.low, divisor.low, &product0_high);
-                product1_low = _umul128(quotient.low, divisor.high, &product1_high);
-
-                product.low = product0_low;
-                carry = BOOST_INT128_ADD_CARRY(0, product0_high, product1_low, reinterpret_cast<std::uint64_t*>(&product.high));
-                product1_high += static_cast<std::uint64_t>(carry);
-            }
-
-            BOOST_INT128_IF_CONSTEXPR(needs_mod)
-            {
-                auto borrow{BOOST_INT128_SUB_BORROW(0, dividend.low, product.low, &remainder.low)};
-                BOOST_INT128_SUB_BORROW(borrow, dividend.high, product.high, reinterpret_cast<std::uint64_t*>(&remainder.high));
-            }
-
-            return quotient;
-        }
-    }
-
-    const auto shift_amount {countl_zero(static_cast<std::uint64_t>(divisor.high))};
-    divisor <<= shift_amount;
-
-    auto high_digit {static_cast<std::uint64_t>(shift_amount == 0 ? 0 : dividend.high >> (64 - shift_amount))};
-    dividend <<= shift_amount;
-
-    // Initial quotient estimate
-    T quotient {};
-    const bool high_digit_gte_divisor {high_digit >= static_cast<std::uint64_t>(divisor.high)};
-    quotient.high = high_digit_gte_divisor ? 1 : 0;
-    std::uint64_t remainder_estimate {};
-
-    quotient.low = _udiv128(high_digit_gte_divisor ? high_digit - divisor.high : high_digit,
-                            dividend.high, divisor.high, &remainder_estimate);
-
-    // Bounded correction loop with early exit
-    // Typically 2 is the most number of corrections we need since this is only for 2x2 division
-    // Other cases have been filtered out well before we've made it this far
-    int correction_steps {};
-    constexpr int max_corrections {2};
-
-    while (correction_steps < max_corrections)
-    {
-        T product{};
-        product.low = _umul128(quotient.low, divisor.low, reinterpret_cast<std::uint64_t*>(&product.high));
-        if (product <= T{static_cast<high_word_type>(remainder_estimate), dividend.low})
-        {
-            break;
-        }
-
-        --quotient.low;
-        const auto sum {remainder_estimate + divisor.high};
-        if (remainder_estimate > sum)
-        {
-            break;
-        }
-        remainder_estimate = sum;
-
-        correction_steps++;
-    }
-
-    // Final verification and adjustment
-    std::uint64_t product0_high{};
-    auto product_low {_umul128(quotient.low, divisor.low, &product0_high)};
-    auto borrow {BOOST_INT128_SUB_BORROW(0, dividend.low, product_low, &dividend.low)};
-
-    std::uint64_t product1_high{};
-    product_low = _umul128(quotient.low, divisor.high, &product1_high);
-    product1_high += static_cast<std::uint64_t>(BOOST_INT128_ADD_CARRY(0, product_low, product0_high, &product_low));
-
-    borrow = BOOST_INT128_SUB_BORROW(borrow, static_cast<std::uint64_t>(dividend.high), product_low, reinterpret_cast<std::uint64_t*>(&dividend.high));
-    borrow = BOOST_INT128_SUB_BORROW(borrow, high_digit, product1_high, &high_digit);
-    quotient.low -= static_cast<std::uint64_t>(borrow);
-
-    BOOST_INT128_IF_CONSTEXPR (needs_mod)
-    {
-        if (borrow)
-        {
-            auto carry { BOOST_INT128_ADD_CARRY(0, dividend.low, divisor.low, &dividend.low) };
-            BOOST_INT128_ADD_CARRY(carry, static_cast<std::uint64_t>(dividend.high), static_cast<std::uint64_t>(divisor.high), reinterpret_cast<std::uint64_t*>(&dividend.high));
-        }
-
-        dividend >>= shift_amount;
-        remainder = dividend;
-    }
-
-    return quotient;
-}
-
-#endif
-
 } // namespace impl
 
 // We only need to take the time to process the remainder in the modulo case
@@ -664,19 +563,6 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 {
     BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
 
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
-
-    BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
-    {
-        if (!BOOST_INT128_IS_CONSTANT_EVALUATED(dividend))
-        {
-            T remainder{};
-            return impl::div_mod_msvc<false>(dividend, divisor, remainder);
-        }
-    }
-
-    #endif
-
     using high_word_type = decltype(T{}.high);
 
     std::uint64_t rem_hi {};
@@ -692,19 +578,6 @@ template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T& dividend, const T& divisor, T& remainder) noexcept
 {
     BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
-    
-    #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
-
-    BOOST_INT128_IF_CONSTEXPR(!std::numeric_limits<T>::is_signed)
-    {
-        if (!BOOST_INT128_IS_CONSTANT_EVALUATED(dividend))
-        {
-            return impl::div_mod_msvc<true>(dividend, divisor, remainder);
-        }
-    }
-
-
-    #endif
 
     using high_word_type = decltype(T{}.high);
 
