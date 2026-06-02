@@ -72,38 +72,17 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
     const auto negative_quot {(x.high < 0) != (y.high < 0)};
     const auto negative_rem {x.high < 0};
 
-    // Narrow fast path: when the divisor magnitude fits in 64 bits, divide the magnitudes with
-    // the hardware-accelerated one_word_div and reapply the signs (quotient by operand-sign XOR,
-    // remainder by the dividend's sign), beating native signed division for this common case.
-    if (abs_rhs.high == 0)
-    {
-        uint128_t quot {};
-        uint128_t rem {};
-
-        if (abs_lhs.high == 0)
-        {
-            quot = {0, abs_lhs.low / abs_rhs.low};
-            rem = {0, abs_lhs.low % abs_rhs.low};
-        }
-        else
-        {
-            detail::one_word_div(abs_lhs, abs_rhs.low, quot, rem);
-        }
-
-        i128div_t res {static_cast<int128_t>(quot), static_cast<int128_t>(rem)};
-        res.quot = negative_quot ? -res.quot : res.quot;
-        res.rem = negative_rem ? -res.rem : res.rem;
-        return res;
-    }
-
     #if defined(BOOST_INT128_HAS_INT128)
 
-    const auto builtin_x {static_cast<detail::builtin_i128>(x)};
-    const auto builtin_y {static_cast<detail::builtin_i128>(y)};
-    return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
-                     static_cast<int128_t>(builtin_x % builtin_y)};
+    if (abs_rhs.high != 0)
+    {
+        const auto builtin_x {static_cast<detail::builtin_i128>(x)};
+        const auto builtin_y {static_cast<detail::builtin_i128>(y)};
+        return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
+                         static_cast<int128_t>(builtin_x % builtin_y)};
+    }
 
-    #else
+    #endif
 
     const auto unsigned_res {div(abs_lhs, abs_rhs)};
 
@@ -113,8 +92,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
     res.rem = negative_rem ? -res.rem : res.rem;
 
     return res;
-
-    #endif
 }
 
 } // namespace int128
