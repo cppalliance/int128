@@ -2271,11 +2271,9 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
 
     #  endif
 
-    #elif (defined(__s390x__) || defined(__s390x__)) && defined(__GNUC__)
-    #  define BOOST_INT128_HIDE_MUL
-
-        return static_cast<uint128_t>(static_cast<builtin_u128>(lhs) * static_cast<builtin_u128>(rhs));
-
+    // s390x intentionally falls through to the synthetic low_word_mul below. Casting to builtin_u128
+    // makes GCC reconstruct the value through a vector-unit stack round-trip that is several times
+    // slower, and the memcpy path is unsafe for the narrow (scalar rhs) overloads on big-endian.
     #elif ((defined(_M_AMD64) && !defined(__GNUC__)) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
