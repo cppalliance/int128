@@ -394,12 +394,6 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
         ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"],
     ),
 
-    macos_pipeline(
-        "MacOS Xcode 14.3.1",
-        { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
-        xcode_version = "14.3.1", osx_version = "sonoma", arch = "arm64",
-    ),
-
     windows_pipeline(
         "Windows VS2017 msvc-14.1",
         "cppalliance/dronevs2017",
