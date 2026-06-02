@@ -24,9 +24,8 @@ local linux_pipeline(name, image, environment, packages = "", sources = [], arch
         os: "linux",
         arch: arch
     },
-    clone:
-    {
-        retries: 5,
+    "clone": {
+       "retries": 5
     },
     steps:
     [
@@ -38,7 +37,9 @@ local linux_pipeline(name, image, environment, packages = "", sources = [], arch
             commands:
             [
                 'set -e',
-                'wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -',
+                'echo $DRONE_STAGE_MACHINE',
+                'uname -a',
+                'curl -sSL --retry 5 https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/llvm-snapshot.gpg',
             ] +
             (if sources != [] then [ ('apt-add-repository "' + source + '"') for source in sources ] else []) +
             (if packages != "" then [ 'apt-get update', 'apt-get -y install ' + packages ] else []) +
