@@ -122,13 +122,13 @@ bool ref_std_mul_overflow(const A a, const B b, R* r) noexcept
 }
 
 template <typename T1, typename T2, typename T3, typename Ref, typename Ckd>
-void check_op(const T2 a, const T3 b, Ref ref_overflow, Ckd ckd_overflow)
+void check_op(const T2 lhs, const T3 rhs, Ref ref_overflow, Ckd ckd_overflow)
 {
     T1 expected {};
-    const bool expected_overflow {ref_overflow(a, b, &expected)};
+    const bool expected_overflow {ref_overflow(lhs, rhs, &expected)};
 
     T1 got {};
-    const bool got_overflow {ckd_overflow(&got, a, b)};
+    const bool got_overflow {ckd_overflow(&got, lhs, rhs)};
 
     BOOST_TEST_EQ(got_overflow, expected_overflow);
     BOOST_TEST(got == expected);
