@@ -61,15 +61,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
         return i128div_t{0, 0};
     }
 
-    #if defined(BOOST_INT128_HAS_INT128)
-
-    const auto builtin_x {static_cast<detail::builtin_i128>(x)};
-    const auto builtin_y {static_cast<detail::builtin_i128>(y)};
-    return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
-                     static_cast<int128_t>(builtin_x % builtin_y)};
-
-    #else
-
     const auto abs_lhs {static_cast<uint128_t>(abs(x))};
     const auto abs_rhs {static_cast<uint128_t>(abs(y))};
 
@@ -78,10 +69,22 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
         return {0, x};
     }
 
-    const auto unsigned_res {div(abs_lhs, abs_rhs)};
-
     const auto negative_quot {(x.high < 0) != (y.high < 0)};
     const auto negative_rem {x.high < 0};
+
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    if (abs_rhs.high != 0)
+    {
+        const auto builtin_x {static_cast<detail::builtin_i128>(x)};
+        const auto builtin_y {static_cast<detail::builtin_i128>(y)};
+        return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
+                         static_cast<int128_t>(builtin_x % builtin_y)};
+    }
+
+    #endif
+
+    const auto unsigned_res {div(abs_lhs, abs_rhs)};
 
     i128div_t res {static_cast<int128_t>(unsigned_res.quot), static_cast<int128_t>(unsigned_res.rem)};
 
@@ -89,8 +92,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
     res.rem = negative_rem ? -res.rem : res.rem;
 
     return res;
-
-    #endif
 }
 
 } // namespace int128

@@ -122,13 +122,13 @@ bool ref_std_mul_overflow(const A a, const B b, R* r) noexcept
 }
 
 template <typename T1, typename T2, typename T3, typename Ref, typename Ckd>
-void check_op(const T2 a, const T3 b, Ref ref_overflow, Ckd ckd_overflow)
+void check_op(const T2 lhs, const T3 rhs, Ref ref_overflow, Ckd ckd_overflow)
 {
     T1 expected {};
-    const bool expected_overflow {ref_overflow(a, b, &expected)};
+    const bool expected_overflow {ref_overflow(lhs, rhs, &expected)};
 
     T1 got {};
-    const bool got_overflow {ckd_overflow(&got, a, b)};
+    const bool got_overflow {ckd_overflow(&got, lhs, rhs)};
 
     BOOST_TEST_EQ(got_overflow, expected_overflow);
     BOOST_TEST(got == expected);
@@ -479,7 +479,7 @@ void test_mul_edges()
 // constexpr usability for all three operations.
 //
 
-#if defined(__GNUC__) && __GNUC__ == 7 && !defined(__clang__) && !defined(__SIZEOF_INT128__)
+#if defined(__GNUC__) && __GNUC__ <= 7 && !defined(__clang__) && !defined(__SIZEOF_INT128__)
 #  define BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
 #endif
 
@@ -515,12 +515,18 @@ constexpr int mul_value()
     return r;
 }
 
-#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
 constexpr bool mul_overflows_i128_min()
 {
     int128_t r {0};
     return ckd_mul(&r, (std::numeric_limits<int128_t>::min)(), int128_t{-1});
 }
+
+#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
+
+// MSVC 14.1 warns of integral overflow
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4307)
 #endif
 
 void test_constexpr()
@@ -530,10 +536,14 @@ void test_constexpr()
     static_assert(mul_overflows_int_max(),  "INT_MAX * 2 overflows int");
     static_assert(sub_value() == 2,         "5 - 3 == 2");
     static_assert(mul_value() == 42,        "6 * 7 == 42");
-#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
     static_assert(mul_overflows_i128_min(), "INT128_MIN * -1 overflows int128_t");
-#endif
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
+
+#endif
 
 int main()
 {
@@ -542,7 +552,10 @@ int main()
     test_add_edges();
     test_sub_edges();
     test_mul_edges();
+
+    #ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
     test_constexpr();
+    #endif
 
     return boost::report_errors();
 }

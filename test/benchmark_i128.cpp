@@ -319,6 +319,36 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
     std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
 }
 
+// Benchmarks the narrow division overloads (128-bit divided by a 64-bit or 32-bit value),
+// which exercise the hardware-accelerated one_word_div path rather than the full 128/128 divide.
+template <bool HalfWord, typename T>
+BOOST_INT128_NO_INLINE void test_narrow_division(const std::vector<T>& data_vec, const char* operation, const char* type)
+{
+    const auto t1 = std::chrono::steady_clock::now();
+    std::int64_t s = 0; // discard variable
+
+    for (std::size_t k {}; k < K; ++k)
+    {
+        for (std::size_t i {}; i < data_vec.size() - 1U; ++i)
+        {
+            if (HalfWord)
+            {
+                const auto divisor = static_cast<std::uint32_t>(data_vec[i + 1]) | 1U;
+                s += static_cast<std::int64_t>(data_vec[i] / divisor);
+            }
+            else
+            {
+                const auto divisor = static_cast<std::uint64_t>(data_vec[i + 1]) | UINT64_C(1);
+                s += static_cast<std::int64_t>(data_vec[i] / divisor);
+            }
+        }
+    }
+
+    const auto t2 = std::chrono::steady_clock::now();
+
+    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+}
+
 std::vector<int> generate_shift_vector()
 {
     std::random_device rd;
@@ -470,6 +500,32 @@ int main()
 
         #ifdef BOOST_INT128_BENCHMARK_ABSL
         test_two_element_operation(absl_vector, std::modulus<>(), "mod", "absl::i128");
+        #endif
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_narrow_division<false>(builtin_vector, "div64", "Builtin");
+        #endif
+
+        test_narrow_division<false>(library_vector, "div64", "Library");
+        test_narrow_division<false>(mp_vector, "div64", "mp::i128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_narrow_division<false>(absl_vector, "div64", "absl::i128");
+        #endif
+
+        std::cerr << std::endl;
+
+        #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+        test_narrow_division<true>(builtin_vector, "div32", "Builtin");
+        #endif
+
+        test_narrow_division<true>(library_vector, "div32", "Library");
+        test_narrow_division<true>(mp_vector, "div32", "mp::i128");
+
+        #ifdef BOOST_INT128_BENCHMARK_ABSL
+        test_narrow_division<true>(absl_vector, "div32", "absl::i128");
         #endif
 
         std::cerr << std::endl;

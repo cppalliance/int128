@@ -77,7 +77,16 @@ IntType get_root_max()
 template <typename IntType>
 IntType get_root_min()
 {
-    return static_cast<IntType>(std::sqrt(std::numeric_limits<IntType>::min()));
+    // numeric_limits<IntType>::min() is negative for signed IntType, so sqrt() would be
+    // NaN and the cast UB; use the negative of the positive root instead.
+    BOOST_INT128_IF_CONSTEXPR (std::is_signed<IntType>::value)
+    {
+        return static_cast<IntType>(-get_root_max<IntType>());
+    }
+    else
+    {
+        return static_cast<IntType>(0);
+    }
 }
 
 #include <boost/random/uniform_int_distribution.hpp>

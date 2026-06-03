@@ -2271,11 +2271,9 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
 
     #  endif
 
-    #elif (defined(__s390x__) || defined(__s390x__)) && defined(__GNUC__)
-    #  define BOOST_INT128_HIDE_MUL
-
-        return static_cast<uint128_t>(static_cast<builtin_u128>(lhs) * static_cast<builtin_u128>(rhs));
-
+    // s390x intentionally falls through to the synthetic low_word_mul below. Casting to builtin_u128
+    // makes GCC reconstruct the value through a vector-unit stack round-trip that is several times
+    // slower, and the memcpy path is unsafe for the narrow (scalar rhs) overloads on big-endian.
     #elif ((defined(_M_AMD64) && !defined(__GNUC__)) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
@@ -2288,18 +2286,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
     // We need to hide this if we use a non-const eval method above to avoid a litany of cross-platform warnings
     #ifndef BOOST_INT128_HIDE_MUL
 
-    constexpr std::size_t rhs_words_needed {std::is_same<UnsignedInteger, std::uint32_t>::value ? 1 :
-                                            std::is_same<UnsignedInteger, std::uint64_t>::value ? 2 :
-                                            std::is_same<UnsignedInteger, uint128_t>::value ? 4 : 0};
-
-    static_assert(rhs_words_needed != 0, "Must be 32, 64 or 128 bit unsigned integer");
-
-    std::uint32_t lhs_words[4] {};
-    std::uint32_t rhs_words[rhs_words_needed] {};
-    to_words(lhs, lhs_words);
-    to_words(rhs, rhs_words);
-
-    return knuth_multiply<uint128_t>(lhs_words, rhs_words);
+    return low_word_mul<uint128_t>(lhs, rhs);
 
     #else
     #undef BOOST_INT128_HIDE_MUL
@@ -2506,31 +2493,30 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
     {
         return {0, 0};
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
-    else
-    {
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
-    }
-    #else
-    else if (rhs.high != 0U)
-    {
-        return detail::knuth_div(lhs, rhs);
-    }
-    else
+
+    // A divisor that fits in 64 bits is handled by the hardware-accelerated narrow path. This
+    // beats the native 128/128 divide for this common case on every platform (it avoids the
+    // out-of-line __udivti3 call on GCC/Clang and uses divq / _udiv128 directly where present).
+    if (rhs.high == 0U)
     {
         if (lhs.high == 0U)
         {
             return {0, lhs.low / rhs.low};
         }
-        else
-        {
-            uint128_t quotient {};
 
-            detail::one_word_div(lhs, rhs.low, quotient);
-
-            return quotient;
-        }
+        uint128_t quotient {};
+        detail::one_word_div(lhs, rhs.low, quotient);
+        return quotient;
     }
+
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
+
+    #else
+
+    return detail::knuth_div(lhs, rhs);
+
     #endif
 }
 
@@ -2665,38 +2651,36 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
     {
         return {0, 0};
     }
-    else if (rhs > lhs)
+    if (rhs > lhs)
     {
         return lhs;
     }
-    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
-    else
-    {
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
-    }
-    #else
-    else if (rhs.high != 0U)
-    {
-        uint128_t remainder {};
-        detail::knuth_div(lhs, rhs, remainder);
-        return remainder;
-    }
-    else
+
+    // A divisor that fits in 64 bits is handled by the hardware-accelerated narrow path, which
+    // beats the native 128/128 divide for this common case on every platform.
+    if (rhs.high == 0U)
     {
         if (lhs.high == 0U)
         {
             return {0, lhs.low % rhs.low};
         }
-        else
-        {
-            uint128_t quotient {};
-            uint128_t remainder {};
 
-            detail::one_word_div(lhs, rhs.low, quotient, remainder);
-
-            return remainder;
-        }
+        uint128_t quotient {};
+        uint128_t remainder {};
+        detail::one_word_div(lhs, rhs.low, quotient, remainder);
+        return remainder;
     }
+
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
+
+    #else
+
+    uint128_t remainder {};
+    detail::knuth_div(lhs, rhs, remainder);
+    return remainder;
+
     #endif
 }
 

@@ -4,6 +4,12 @@
 
 #include <boost/int128.hpp>
 
+// Only warns on MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable:4307)
+#endif
+
 #if defined(__cpp_consteval) && __cpp_consteval >= 201811L
 #  define BOOST_INT128_CONSTEVAL consteval
 #else

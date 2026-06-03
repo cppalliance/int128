@@ -2012,66 +2012,14 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator-=(const Integer rhs
 
 namespace detail {
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t signed_shift_left_32(const std::uint64_t low) noexcept
-{
-    return {static_cast<std::int64_t>(low >> 32), low << 32};
-}
-
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_mul(const int128_t lhs, const int128_t rhs) noexcept
-{
-    const auto a {lhs.low >> 32U};
-    const auto b {lhs.low & UINT32_MAX};
-    const auto c {rhs.low >> 32U};
-    const auto d {rhs.low & UINT32_MAX};
-
-    int128_t result { static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs.low + lhs.low * static_cast<std::uint64_t>(rhs.high) + a * c), b * d };
-    result += signed_shift_left_32(a * d) + signed_shift_left_32(b * c);
-
-    return result;
-}
-
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
 {
-    const auto low_res{lhs.low * rhs};
-
-    const auto a_lo{lhs.low & UINT32_MAX};
-    const auto a_high{lhs.low >> 32U};
-    const auto b_lo{rhs & UINT32_MAX};
-    const auto b_high{rhs >> 32U};
-
-    const auto lo_lo{a_lo * b_lo};
-    const auto lo_hi{a_lo * b_high};
-    const auto hi_lo{a_high * b_lo};
-    const auto hi_hi{a_high * b_high};
-
-    const auto mid{(lo_lo >> 32U) + (lo_hi & UINT32_MAX) + (hi_lo & UINT32_MAX)};
-
-    const auto carry{hi_hi + (lo_hi >> 32) + (hi_lo >> 32) + (mid >> 32)};
-
-    // Compute the high word in the unsigned domain so that the multiplication
-    // and addition wrap modulo 2^64.
-    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
-
-    return {high_res, low_res};
+    return low_word_mul<int128_t>(lhs, rhs);
 }
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
 {
-    const auto low_res{lhs.low * rhs};
-
-    const auto a_lo{lhs.low & UINT32_MAX};
-    const auto a_hi{lhs.low >> 32U};
-
-    const auto lo_lo{a_lo * rhs};
-    const auto hi_lo{a_hi * rhs};
-
-    const auto mid{(lo_lo >> 32U) + (hi_lo & UINT32_MAX)};
-
-    const auto carry{(hi_lo >> 32U) + (mid >> 32U)};
-
-    const auto high_res{static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs.high) * rhs + carry)};
-
-    return {high_res, low_res};
+    return low_word_mul<int128_t>(lhs, rhs);
 }
 
 #if defined(_M_AMD64) && !defined(__GNUC__)
@@ -2096,7 +2044,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return library_mul(lhs, rhs);
+        return low_word_mul<int128_t>(lhs, rhs);
     }
     else
     {
@@ -2126,7 +2074,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     #  else
 
-    return library_mul(lhs, rhs);
+    return low_word_mul<int128_t>(lhs, rhs);
 
     #  endif
 
@@ -2138,34 +2086,16 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
-        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
+        return low_word_mul<int128_t>(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
         return msvc_amd64_mul(lhs, rhs);
     }
 
-    #elif (defined(_M_IX86) || defined(_M_ARM) || defined(__arm__)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
-
-    if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
-    {
-        return library_mul(lhs, rhs); // LCOV_EXCL_LINE
-    }
-    else
-    {
-        std::uint32_t lhs_words[4] {};
-        std::uint32_t rhs_words[4] {};
-
-        // Since in all likelihood this equates to memcpy we don't need to convert to non-negative integers and back
-        to_words(lhs, lhs_words);
-        to_words(rhs, rhs_words);
-
-        return knuth_multiply<int128_t>(lhs_words, rhs_words);
-    }
-
     #else
 
-    return library_mul(lhs, rhs);
+    return low_word_mul<int128_t>(lhs, rhs);
 
     #endif
 }
@@ -2276,21 +2206,16 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
     {
         return {0,0};
     }
-    #if defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
-
-    #else
-
-    int128_t quotient {};
     const auto negative_res {(lhs.high < 0) != (rhs.high < 0)};
 
-    if (abs_rhs.high != 0)
+    // Narrow fast path: when the divisor magnitude fits in 64 bits, divide the magnitudes with
+    // the hardware-accelerated one_word_div and reapply the sign. This reuses the abs values
+    // computed above and beats native signed division (the out-of-line __divti3) for this case.
+    if (abs_rhs.high == 0)
     {
-        quotient = detail::knuth_div(abs_lhs, abs_rhs);
-    }
-    else
-    {
+        int128_t quotient {};
+
         if (abs_lhs.high == 0)
         {
             quotient = {0, abs_lhs.low / abs_rhs.low};
@@ -2299,9 +2224,19 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
         {
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient);
         }
+
+        return negative_res ? -quotient : quotient;
     }
 
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
+
+    #else
+
+    const auto quotient {detail::knuth_div(abs_lhs, abs_rhs)};
     return negative_res ? -quotient : quotient;
+
     #endif
 }
 
@@ -2538,23 +2473,15 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
     {
         return lhs;
     }
-    #if defined(BOOST_INT128_HAS_INT128)
-    else
-    {
-        return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
-    }
-    #else
 
-    const auto is_neg{lhs < 0};
-    
-    int128_t remainder {};
+    const auto is_neg {lhs < 0};
 
-    if (abs_rhs.high != 0)
+    // Narrow fast path: when the divisor magnitude fits in 64 bits, take the remainder of the
+    // magnitudes with the hardware-accelerated one_word_div and reapply the dividend's sign.
+    if (abs_rhs.high == 0)
     {
-        detail::knuth_div(abs_lhs, abs_rhs, remainder);
-    }
-    else
-    {
+        int128_t remainder {};
+
         if (abs_lhs.high == 0)
         {
             remainder = int128_t{0, abs_lhs.low % abs_rhs.low};
@@ -2562,11 +2489,20 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
         else
         {
             int128_t quotient {};
-
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient, remainder);
         }
+
+        return is_neg ? -remainder : remainder;
     }
 
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
+
+    #else
+
+    int128_t remainder {};
+    detail::knuth_div(abs_lhs, abs_rhs, remainder);
     return is_neg ? -remainder : remainder;
 
     #endif
