@@ -62,11 +62,16 @@ Otherwise, it is left up to the compiler to decide.
 [#i128_operator_behavior]
 == Operator Behavior
 
-For all the following operators use of unsigned overloads will error from `static_assert` by default.
-This is the library's way of enforcing the behavior of `-Wsign-conversion` and `-Wsign-comparison` in a library type.
-If you want to compare with unsigned types you must define `BOOST_INT128_ALLOW_SIGN_COMPARE`,
-and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signedness.
-These will both cast the unsigned integer to a signed integer and then perform the operation.
+All comparison, arithmetic, bitwise, and shift operators are defined between `int128_t` and any built-in integer type, signed or unsigned.
+Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `__int128` operation.
+Specifically:
+
+* For built-in unsigned types of lesser rank (`uint8_t` through `uint64_t`), `int128_t` is the common type and arithmetic / bitwise operations return `int128_t` with signed semantics.
+* For `unsigned __int128` (same rank), the signed `int128_t` is converted to the unsigned counterpart, the operation is performed unsigned, and arithmetic / bitwise operations return `uint128_t` (the library's wrapper for `unsigned __int128`).
+* For shift operators, the result type follows the LHS: `int128_t << T` and `int128_t >> T` always return `int128_t`, regardless of `T`.
+* All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
+
+See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
 [#i128_constructors]
 == Constructors
@@ -87,7 +92,7 @@ struct int128_t
     BOOST_INT128_HOST_DEVICE constexpr int128_t& operator=(const int128_t&) noexcept = default;
     BOOST_INT128_HOST_DEVICE constexpr int128_t& operator=(int128_t&&) noexcept = default;
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr int128_t(const uint128_t& v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128_t(const uint128_t& v) noexcept;
 
     // Construct from integral types
     BOOST_INT128_HOST_DEVICE constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept;
@@ -107,14 +112,21 @@ struct int128_t
     BOOST_INT128_HOST_DEVICE constexpr int128_t(const detail::builtin_u128 v) noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
+
+    // Construct from floating-point types
+    template <BOOST_INT128_FLOATING_POINT_CONCEPT Float>
+    BOOST_INT128_HOST_DEVICE constexpr int128_t(Float f) noexcept;
 };
 
 } // namespace int128
 } // namespace boost
 ----
 
-All constructors are only defined for integers and are subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
-None are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
+None of the constructors are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
+Integer constructors are subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+
+The floating-point constructor truncates toward zero, matching `static_cast<__int128>(f)`.
+Edge cases mirror libgcc's `__fixXfti`: NaN yields zero, values `>= 2^127` saturate to `INT128_MAX`, and values `<= -2^127` saturate to `INT128_MIN`.
 
 [#i128_conversions]
 == Conversions
@@ -129,35 +141,36 @@ struct int128_t
     ...
 
     // Integer conversion operators
-    BOOST_INT128_HOST_DEVICE constexpr operator bool() const noexcept;
+    BOOST_INT128_HOST_DEVICE explicit constexpr operator bool() const noexcept;
 
     template <BOOST_INT128_SIGNED_INTEGER_CONCEPT SignedInteger>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator SignedInteger() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept;
 
     template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT UnsignedInteger>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator UnsignedInteger() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept;
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator detail::builtin_i128() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator detail::builtin_i128() const noexcept;
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator detail::builtin_u128() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator detail::builtin_u128() const noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
 
-    // Conversion to float
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator float() const noexcept;
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator double() const noexcept;
-    explicit constexpr operator long double() const noexcept; // There are no long doubles on device
+    // Conversion to floating point
+    BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
+    constexpr operator long double() const noexcept; // There are no long doubles on device
 };
 
 } // namespace int128
 } // namespace boost
 ----
 
+All conversion operators except `operator bool()` are implicit to match the behavior of built-in integer types.
+`operator bool()` is explicit so that an `int128_t` cannot accidentally bind to a `bool` parameter; contextual conversions (`if (x)`, `!x`, etc.) still work.
 Conversions to unsigned integers are subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
-Conversion to `bool` is not marked explicit to match the behavior of built-in integer types.
-Conversions to floating point types may not be lossless depending on the value of the `int128_t` at time of conversion,
+Conversions to floating-point types may not be lossless depending on the value of the `int128_t` at time of conversion,
 as the number of digits it represents can exceed the precision of the significand in floating point types.
 
 [#i128_comparison_operators]

@@ -72,6 +72,12 @@ https://www.boost.org/LICENSE_1_0.txt
 | https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
 | Numeric limits specialization for `int128_t`
 
+| xref:hash.adoc[`std::hash<uint128_t>`]
+| Hash specialization for `uint128_t`
+
+| xref:hash.adoc[`std::hash<int128_t>`]
+| Hash specialization for `int128_t`
+
 | xref:cstdlib.adoc#div_structs[`u128div_t`]
 | Result type for `div(uint128_t, uint128_t)`
 
@@ -162,6 +168,20 @@ Listed by analogous STL header.
 
 | xref:cstdlib.adoc[`div`]
 | Computes quotient and remainder simultaneously
+|===
+
+[#api_functional]
+=== xref:hash.adoc[`<functional>`]
+
+[cols="1,2", options="header"]
+|===
+| Specialization | Description
+
+| xref:hash.adoc[`std::hash<uint128_t>`]
+| Enables `uint128_t` as a key in unordered associative containers
+
+| xref:hash.adoc[`std::hash<int128_t>`]
+| Enables `int128_t` as a key in unordered associative containers
 |===
 
 [#api_formatting]
@@ -257,6 +277,32 @@ Listed by analogous STL header.
 | `std::string` conversion of base-10 values
 |===
 
+[#api_utilities]
+=== xref:utilities.adoc[Utilities]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:utilities.adoc#powm[`powm`]
+| Modular exponentiation `(base ^ exp) mod m`
+
+| xref:utilities.adoc#ipow[`ipow`]
+| Integer power `base ^ exp` (wraps modulo `2^128`)
+
+| xref:utilities.adoc#isqrt[`isqrt`]
+| Integer square root `floor(sqrt(n))`
+
+| xref:utilities.adoc#checked[`ckd_add`]
+| Checked addition (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#checked[`ckd_sub`]
+| Checked subtraction (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#checked[`ckd_mul`]
+| Checked multiplication (C23 `<stdckdint.h>` contract)
+|===
+
 [#api_macros]
 == Macros
 
@@ -301,12 +347,6 @@ Listed by analogous STL header.
 
 | xref:config.adoc#no_int128[`BOOST_INT128_NO_BUILTIN_INT128`]
 | Disables use of compiler built-in `__int128`
-
-| xref:config.adoc#sign_compare[`BOOST_INT128_ALLOW_SIGN_COMPARE`]
-| Allows comparison between signed and unsigned types
-
-| xref:config.adoc#sign_conversion[`BOOST_INT128_ALLOW_SIGN_CONVERSION`]
-| Allows implicit sign conversion
 
 | xref:config.adoc#disable_exceptions[`BOOST_INT128_DISABLE_EXCEPTIONS`]
 | Disables exception throwing
@@ -362,6 +402,9 @@ Listed by analogous STL header.
 | xref:format.adoc#std_format[`<boost/int128/format.hpp>`]
 | Formatting integration for pass:[C++20] `<format>`
 
+| xref:hash.adoc[`<boost/int128/hash.hpp>`]
+| `std::hash` specializations for `int128_t` and `uint128_t`
+
 | `<boost/int128/int128.hpp>`
 | The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
 
@@ -382,5 +425,8 @@ Listed by analogous STL header.
 
 | `<boost/int128/random.hpp>`
 | Required for usage of Boost.Random
+
+| xref:utilities.adoc[`<boost/int128/utilities.hpp>`]
+| Modular exponentiation and other library-specific utilities
 
 |===

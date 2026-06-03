@@ -5,10 +5,6 @@
 #ifndef BOOST_INT128_DETAIL_CONFIG_HPP
 #define BOOST_INT128_DETAIL_CONFIG_HPP
 
-#if defined(BOOST_INT128_ALLOW_SIGN_CONVERSION) && !defined(BOOST_INT128_ALLOW_SIGN_COMPARE)
-#  define BOOST_INT128_ALLOW_SIGN_COMPARE
-#endif
-
 // Use 128-bit integers
 #if defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER)) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
 
@@ -45,7 +41,11 @@ using builtin_u128 = unsigned __int128;
 
 #define BOOST_INT128_HAS_MSVC_INT128
 
+#if _MSC_VER >= 1945
+#define BOOST_INT128_BUILTIN_CONSTEXPR constexpr
+#else
 #define BOOST_INT128_BUILTIN_CONSTEXPR inline
+#endif
 
 namespace boost {
 namespace int128 {
@@ -168,6 +168,11 @@ using builtin_u128 = std::_Unsigned128;
 #endif
 
 #endif // Platform macros
+
+// Hardware 128-bit by 64-bit unsigned division via the x86-64 DIV instruction
+#if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__)) && !defined(_MSC_VER) && !defined(__CUDA_ARCH__)
+#  define BOOST_INT128_HAS_X86_64_DIVQ
+#endif
 
 // The builtin is only constexpr from clang-7 or GCC-10
 #ifdef __has_builtin

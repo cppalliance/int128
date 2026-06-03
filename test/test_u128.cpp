@@ -2,10 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-#  define BOOST_INT128_ALLOW_SIGN_CONVERSION
-#endif
-
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <boost/mp11.hpp>
@@ -71,7 +67,16 @@ T get_root_max()
 template <typename T>
 T get_root_min()
 {
-    return static_cast<T>(std::sqrt(std::numeric_limits<T>::min()));
+    // numeric_limits<T>::min() is negative for signed T, so sqrt() would be NaN
+    // and the cast UB; use the negative of the positive root instead.
+    BOOST_INT128_IF_CONSTEXPR (std::is_signed<T>::value)
+    {
+        return static_cast<T>(-get_root_max<T>());
+    }
+    else
+    {
+        return static_cast<T>(0);
+    }
 }
 
 #include <boost/random/uniform_int_distribution.hpp>
@@ -1255,7 +1260,6 @@ void test_spot_div(IntType value, IntType value2)
 
     static_assert(sizeof(decltype(value2 / emulated_value)) ==
                   sizeof(decltype(value2 / builtin_value)), "Mismatch Return Types");
-
 
     // The tested values are pulled out unlike the regular test
     // so that it's easier to read the values with GDB

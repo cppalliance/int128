@@ -62,50 +62,17 @@ Otherwise, it is left up to the compiler to decide.
 [#u128_operator_behavior]
 == Operator Behavior
 
-For all the following operators use of signed overloads will error from `static_assert` by default.
-This is the library's way of enforcing the behavior of `-Wsign-conversion` and `-Wsign-comparison` in a library type.
-If you want to compare with signed types you must define `BOOST_INT128_ALLOW_SIGN_COMPARE`,
-and similarly you must define `BOOST_INT128_ALLOW_SIGN_CONVERSION` for other operations with mixed signedness.
-These will both cast the signed integer to an unsigned integer and then perform the operation.
+All comparison, arithmetic, bitwise, and shift operators are defined between `uint128_t` and any built-in integer type, signed or unsigned.
+Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `unsigned __int128` operation.
+Specifically:
 
-=== Sign Compare Behavior Deviation
+* The signed operand (whether a small `intN_t` or `__int128`) is converted to `uint128_t` (sign-extended for negatives), and the operation is performed unsigned with two's-complement wrap-around semantics. Arithmetic and bitwise operations return `uint128_t`.
+* For shift operators, the result type follows the LHS: `uint128_t << T` and `uint128_t >> T` always return `uint128_t`, regardless of `T`.
+* All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
 
-The behavior of `uint128_t` will deviate from the behavior of builtin unsigned integers with mixed sign comparisons in hopefully a less surprising way.
-A built-in sign compare looks something like
+For example, `uint128_t{5} > -1` returns `false` because the signed `-1` converts to a value greater than `5` under unsigned 128-bit arithmetic, exactly as `(unsigned __int128){5} > -1` would.
 
-[source, c++]
-----
-template <typename UnsignedInteger, typename SignedInteger>
-constexpr bool operator>(const UnsignedInteger lhs, const SignedInteger rhs)
-{
-    return lhs > static_cast<UnsignedInteger>(rhs)
-}
-----
-
-If you were to call this function with arguments 5U and -5, you would get the surprising answer of `false`.
-Why?
-The two's complement representation of -5 has its most significant bit set (along with many other high bits).
-When cast to unsigned, this bit pattern is reinterpreted as a huge positive number, far greater than 5.
-
-With `uint128_t` we have checks even in this case like so:
-
-[source, c++]
-----
-template <typename SignedInteger>
-constexpr bool operator>(const uint128_t lhs, const SignedInteger rhs) noexcept
-{
-    if (rhs >= 0)
-    {
-        return lhs > static_cast<uint128_t>(rhs);
-    }
-    else
-    {
-        return true;
-    }
-}
-----
-
-This allows the library to return the correct answer even when mixing signs.
+See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
 [#u128_constructors]
 == Constructors
@@ -126,7 +93,7 @@ struct uint128_t
     BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator=(const uint128_t&) noexcept = default;
     BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator=(uint128_t&&) noexcept = default;
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr uint128_t(const int128_t& v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const int128_t& v) noexcept;
 
     // Construct from integral types
     BOOST_INT128_HOST_DEVICE constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept;
@@ -146,14 +113,21 @@ struct uint128_t
     BOOST_INT128_HOST_DEVICE constexpr uint128_t(const detail::builtin_u128 v) noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
+
+    // Construct from floating-point types
+    template <BOOST_INT128_FLOATING_POINT_CONCEPT Float>
+    BOOST_INT128_HOST_DEVICE constexpr uint128_t(Float f) noexcept;
 };
 
 } // namespace int128
 } // namespace boost
 ----
 
-All constructors are only defined for integers and are subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
-None are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
+None of the constructors are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
+Integer constructors are subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
+
+The floating-point constructor truncates toward zero, matching `static_cast<unsigned __int128>(f)`.
+Edge cases mirror libgcc's `__fixunsXfti`: NaN and negative values yield zero, and values `>= 2^128` (including positive infinity) saturate to `UINT128_MAX`.
 
 [#u128_conversions]
 == Conversions
@@ -168,35 +142,36 @@ struct uint128_t
     ...
 
     // Integer conversion operators
-    BOOST_INT128_HOST_DEVICE constexpr operator bool() const noexcept;
+    BOOST_INT128_HOST_DEVICE explicit constexpr operator bool() const noexcept;
 
     template <BOOST_INT128_SIGNED_INTEGER_CONCEPT SignedInteger>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator SignedInteger() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept;
 
     template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT UnsignedInteger>
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator UnsignedInteger() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept;
 
     #ifdef BOOST_INT128_HAS_INT128
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator detail::builtin_i128() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator detail::builtin_i128() const noexcept;
 
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator detail::builtin_u128() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator detail::builtin_u128() const noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
 
-    // Conversion to float
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator float() const noexcept;
-    BOOST_INT128_HOST_DEVICE explicit constexpr operator double() const noexcept;
-    explicit constexpr operator long double() const noexcept; // There are no long doubles on device
+    // Conversion to floating point
+    BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
+    constexpr operator long double() const noexcept; // There are no long doubles on device
 };
 
 } // namespace int128
 } // namespace boost
 ----
 
+All conversion operators except `operator bool()` are implicit to match the behavior of built-in integer types.
+`operator bool()` is explicit so that a `uint128_t` cannot accidentally bind to a `bool` parameter; contextual conversions (`if (x)`, `!x`, etc.) still work.
 Conversions to signed integers are subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
-Conversion to `bool` is not marked explicit to match the behavior of built-in integer types.
-Conversions to floating point types may not be lossless depending on the value of the `uint128_t` at time of conversion,
+Conversions to floating-point types may not be lossless depending on the value of the `uint128_t` at time of conversion,
 as the number of digits it represents can exceed the precision of the significand in floating point types.
 
 [#u128_comparison_operators]

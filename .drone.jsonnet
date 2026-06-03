@@ -1,8 +1,9 @@
 # Copyright 2022, 2023 Peter Dimov
+# Copyright 2025 - 2026 Matt Borland
 # Distributed under the Boost Software License, Version 1.0.
 # https://www.boost.org/LICENSE_1_0.txt
 
-local library = "decimal";
+local library = "int128";
 
 local triggers =
 {
@@ -23,9 +24,8 @@ local linux_pipeline(name, image, environment, packages = "", sources = [], arch
         os: "linux",
         arch: arch
     },
-    clone:
-    {
-        retries: 5,
+    "clone": {
+       "retries": 5
     },
     steps:
     [
@@ -37,7 +37,9 @@ local linux_pipeline(name, image, environment, packages = "", sources = [], arch
             commands:
             [
                 'set -e',
-                'wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -',
+                'echo $DRONE_STAGE_MACHINE',
+                'uname -a',
+                'curl -sSL --retry 5 https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/llvm-snapshot.gpg',
             ] +
             (if sources != [] then [ ('apt-add-repository "' + source + '"') for source in sources ] else []) +
             (if packages != "" then [ 'apt-get update', 'apt-get -y install ' + packages ] else []) +
@@ -268,6 +270,34 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     ),
 
     linux_pipeline(
+        "Linux 26.04 GCC 15 32",
+        "cppalliance/droneubuntu2604:1",
+        { TOOLSET: 'gcc', COMPILER: 'g++-15', CXXSTD: '03,11,14,17,20,23', ADDRMD: '32', CXXFLAGS: "-fexcess-precision=fast" },
+        "g++-15-multilib",
+    ),
+
+    linux_pipeline(
+        "Linux 26.04 GCC 15 64",
+        "cppalliance/droneubuntu2604:1",
+        { TOOLSET: 'gcc', COMPILER: 'g++-15', CXXSTD: '03,11,14,17,20,23', ADDRMD: '64', CXXFLAGS: "-fexcess-precision=fast" },
+        "g++-15-multilib",
+    ),
+
+    linux_pipeline(
+        "Linux 26.04 GCC 16 32",
+        "cppalliance/droneubuntu2604:1",
+        { TOOLSET: 'gcc', COMPILER: 'g++-16', CXXSTD: '03,11,14,17,20,23', ADDRMD: '32', CXXFLAGS: "-fexcess-precision=fast" },
+        "g++-16-multilib",
+    ),
+
+    linux_pipeline(
+        "Linux 26.04 GCC 16 64",
+        "cppalliance/droneubuntu2604:1",
+        { TOOLSET: 'gcc', COMPILER: 'g++-16', CXXSTD: '03,11,14,17,20,23', ADDRMD: '64', CXXFLAGS: "-fexcess-precision=fast" },
+        "g++-16-multilib libabsl-dev",
+    ),
+
+    linux_pipeline(
         "Linux 18.04 Clang 5.0",
         "cppalliance/droneubuntu1804:1",
         { TOOLSET: 'clang', COMPILER: 'clang++-5.0', CXXSTD: '03,11,14,1z' },
@@ -386,17 +416,27 @@ local windows_pipeline(name, image, environment, arch = "amd64") =
     ),
 
     linux_pipeline(
-        "Linux 24.04 Clang 20 ASAN",
+        "Linux 24.04 Clang 21",
         "cppalliance/droneubuntu2404:1",
-        { TOOLSET: 'clang', COMPILER: 'clang++-20', CXXSTD: '03,11,14,17,20,23,2c' } + asan,
-        "clang-20",
-        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"],
+        { TOOLSET: 'clang', COMPILER: 'clang++-21', CXXSTD: '17,20,2b' },
+        "clang-21",
+        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"],
     ),
 
-    macos_pipeline(
-        "MacOS Xcode 14.3.1",
-        { TOOLSET: 'clang', COMPILER: 'clang++', CXXSTD: '03,11,14,17,20,2b' } + asan,
-        xcode_version = "14.3.1", osx_version = "sonoma", arch = "arm64",
+    linux_pipeline(
+        "Linux 24.04 Clang 21 UBSAN",
+        "cppalliance/droneubuntu2404:1",
+        { TOOLSET: 'clang', COMPILER: 'clang++-21', CXXSTD: '17,20,2b' } + ubsan,
+        "clang-21",
+        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"],
+    ),
+
+    linux_pipeline(
+        "Linux 24.04 Clang 21 ASAN",
+        "cppalliance/droneubuntu2404:1",
+        { TOOLSET: 'clang', COMPILER: 'clang++-21', CXXSTD: '17,20,2b' } + asan,
+        "clang-21",
+        ["deb http://apt.llvm.org/noble/ llvm-toolchain-noble-21 main"],
     ),
 
     windows_pipeline(

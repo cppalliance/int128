@@ -29,12 +29,15 @@ int main()
     std::cout << "  Equals numeric_limits max? " << std::boolalpha
               << (max_value == std::numeric_limits<uint128_t>::max()) << std::endl;
 
-    // 3) From user-defined literals (values > 2^64 without splitting)
+    // 3) From user-defined literals.
+    // The library provides only string-form UDLs
+    // For small values like this a string is still parsed rather than direct construction
+    // Using the constructors for values that fit in (unsigned) long long should be preferred for performance
     using namespace boost::int128::literals;
-    const auto from_literal {"36893488147419103232"_U128};  // 2 * 2^64
-    std::cout << "From literal \"36893488147419103232\"_U128: " << from_literal << std::endl;
+    const auto small_literal {12345_U128};
+    std::cout << "From literal 12345_U128: " << small_literal << std::endl;
 
-    // 4) From macro (like UINT64_C but for 128-bit)
+    // 4) From macro (like UINT64_C but for 128-bit), good for values that exceed unsigned long long
     const auto from_macro {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
     std::cout << "From BOOST_INT128_UINT128_C(max): " << from_macro << std::endl;
 
@@ -57,12 +60,21 @@ int main()
     std::cout << "  Equals numeric_limits min? "
               << (min_value == std::numeric_limits<int128_t>::min()) << std::endl;
 
-    // Signed literals (lowercase and uppercase both work)
-    const auto negative_literal {"-99999999999999999999"_i128};
-    std::cout << "From literal \"-99999999999999999999\"_i128: " << negative_literal << std::endl;
+    // Signed literals. Values that fit in unsigned long long can be written
+    // directly; the leading minus is parsed as a unary operator on the
+    // literal result (lowercase and uppercase suffixes both work):
+    const auto negative_literal {-12345_i128};
+    std::cout << "From literal -12345_i128: " << negative_literal << std::endl;
 
-    const auto positive_literal {"99999999999999999999"_I128};
-    std::cout << "From literal \"99999999999999999999\"_I128: " << positive_literal << std::endl;
+    const auto positive_literal {12345_I128};
+    std::cout << "From literal 12345_I128: " << positive_literal << std::endl;
+
+    // For magnitudes beyond unsigned long long you can use the macro or a string literal
+    const auto large_signed {BOOST_INT128_INT128_C(-99999999999999999999)};
+    std::cout << "From BOOST_INT128_INT128_C(-99999999999999999999): " << large_signed << std::endl;
+
+    const auto large_signed_string {"-99999999999999999999"_i128};
+    std::cout << "From string literal: " << large_signed_string << std::endl;
 
     // Signed macro
     const auto from_signed_macro {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
@@ -71,12 +83,52 @@ int main()
     std::cout << "\n=== Default and Copy Construction ===" << std::endl;
 
     // Default construction (zero-initialized)
-    uint128_t default_constructed {};
+    constexpr uint128_t default_constructed {};
     std::cout << "Default constructed: " << default_constructed << std::endl;
 
     // Copy construction
-    uint128_t copied {from_literal};
+    const uint128_t copied {from_macro};
     std::cout << "Copy constructed: " << copied << std::endl;
+
+    std::cout << "\n=== Floating-Point Construction ===" << std::endl;
+
+    // Floating-point construction truncates toward zero, matching the behavior of
+    // a static_cast from a floating-point type to a built-in integer.
+    constexpr uint128_t from_double {12345.9};
+    std::cout << "uint128_t from 12345.9 (truncated): " << from_double << std::endl;
+
+    constexpr int128_t from_negative_double {-12345.9};
+    std::cout << "int128_t from -12345.9 (truncated toward zero): " << from_negative_double << std::endl;
+
+    // Values that exceed the 64-bit range are routed through the full 128-bit decomposition.
+    const double two_to_the_100 {1.2676506002282294e30};  // 2^100
+    const uint128_t large_from_double {two_to_the_100};
+    std::cout << "uint128_t from 2^100: " << large_from_double << std::endl;
+
+    std::cout << "\n=== Floating-Point Edge Cases ===" << std::endl;
+
+    // NaN yields zero for both signed and unsigned (mirrors libgcc's __fix(uns)Xfti).
+    const double nan_value {std::numeric_limits<double>::quiet_NaN()};
+    const uint128_t unsigned_from_nan {nan_value};
+    const int128_t signed_from_nan {nan_value};
+    std::cout << "uint128_t from NaN: " << unsigned_from_nan << std::endl;
+    std::cout << "int128_t from NaN: " << signed_from_nan << std::endl;
+
+    // Negative values are clamped to zero when constructing uint128_t.
+    const uint128_t unsigned_from_negative {-1.0};
+    std::cout << "uint128_t from -1.0 (clamped to zero): " << unsigned_from_negative << std::endl;
+
+    // Positive overflow saturates: anything >= 2^128 (including +infinity) becomes UINT128_MAX.
+    const double infinity {std::numeric_limits<double>::infinity()};
+    const uint128_t saturated_unsigned {infinity};
+    std::cout << "uint128_t from +infinity (saturates to UINT128_MAX): " << saturated_unsigned << std::endl;
+
+    // For int128_t, values >= 2^127 saturate to INT128_MAX and values <= -2^127 saturate to INT128_MIN.
+    const double huge {1e40};  // Well beyond 2^127 (~ 1.7e38)
+    const int128_t saturated_positive {huge};
+    const int128_t saturated_negative {-huge};
+    std::cout << "int128_t from 1e40 (saturates to INT128_MAX): " << saturated_positive << std::endl;
+    std::cout << "int128_t from -1e40 (saturates to INT128_MIN): " << saturated_negative << std::endl;
 
     return 0;
 }

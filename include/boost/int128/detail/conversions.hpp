@@ -39,20 +39,6 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexc
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
 //=====================================
-// Conversion Operators
-//=====================================
-
-BOOST_INT128_HOST_DEVICE constexpr int128_t::operator uint128_t() const noexcept
-{
-    return uint128_t{static_cast<std::uint64_t>(this->high), static_cast<std::uint64_t>(this->low)};
-}
-
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator int128_t() const noexcept
-{
-    return int128_t{static_cast<std::int64_t>(this->high), static_cast<std::uint64_t>(this->low)};
-}
-
-//=====================================
 // Comparison Operators
 //=====================================
 
@@ -64,205 +50,37 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator int128_t() const noexcept
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return false;
-        }
-
-        return static_cast<uint128_t>(lhs) == rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return false;
-        }
-
-        return lhs == static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) == static_cast<uint128_t>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return true;
-        }
-
-        return static_cast<uint128_t>(lhs) != rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return true;
-        }
-
-        return lhs != static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) != static_cast<uint128_t>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return true;
-        }
-
-        return static_cast<uint128_t>(lhs) < rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return false;
-        }
-
-        return lhs < static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) < static_cast<uint128_t>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return true;
-        }
-
-        return static_cast<uint128_t>(lhs) <= rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return false;
-        }
-
-        return lhs <= static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) <= static_cast<uint128_t>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return false;
-        }
-
-        return static_cast<uint128_t>(lhs) > rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return true;
-        }
-
-        return lhs > static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) > static_cast<uint128_t>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_COMPARE
-
-    static_assert(std::is_same<T, U>::value, "Sign Compare Error, cast one type to the other for this operation");
-    static_cast<void>(lhs);
-    static_cast<void>(rhs);
-    return true;
-
-    #else
-
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<T, int128_t>::value)
-    {
-        if (lhs < T{0})
-        {
-            return false;
-        }
-
-        return static_cast<uint128_t>(lhs) >= rhs;
-    }
-    else
-    {
-        if (rhs < T{0})
-        {
-            return true;
-        }
-
-        return lhs >= static_cast<uint128_t>(rhs);
-    }
-
-    #endif
+    return static_cast<uint128_t>(lhs) >= static_cast<uint128_t>(rhs);
 }
 
 //=====================================
@@ -272,82 +90,237 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noe
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
-    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
-    static_cast<void>(rhs);
-    return static_cast<uint128_t>(lhs);
-
-    #else
-
     return static_cast<uint128_t>(lhs) + static_cast<uint128_t>(rhs);
-
-    #endif
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
-    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
-    static_cast<void>(rhs);
-    return static_cast<uint128_t>(lhs);
-
-    #else
-
     return static_cast<uint128_t>(lhs) - static_cast<uint128_t>(rhs);
-
-    #endif
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
-    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
-    static_cast<void>(rhs);
-    return static_cast<uint128_t>(lhs);
-
-    #else
-
     return static_cast<uint128_t>(lhs) * static_cast<uint128_t>(rhs);
-
-    #endif
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
-    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
-    static_cast<void>(rhs);
-    return static_cast<uint128_t>(lhs);
-
-    #else
-
     return static_cast<uint128_t>(lhs) / static_cast<uint128_t>(rhs);
-
-    #endif
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const T lhs, const U rhs) noexcept
 {
-    #ifndef BOOST_INT128_ALLOW_SIGN_CONVERSION
-
-    static_assert(std::is_same<T, U>::value, "Sign Conversion Error, cast one type to the other for this operation");
-    static_cast<void>(rhs);
-    return static_cast<uint128_t>(lhs);
-
-    #else
-
     return static_cast<uint128_t>(lhs) % static_cast<uint128_t>(rhs);
-
-    #endif
 }
+
+//=====================================
+// Cross-type Bitwise Operators
+//=====================================
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) | static_cast<uint128_t>(rhs);
+}
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) & static_cast<uint128_t>(rhs);
+}
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) ^ static_cast<uint128_t>(rhs);
+}
+
+//=====================================
+// Cross-type Shift Operators
+//=====================================
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const uint128_t rhs) noexcept
+{
+    return lhs << static_cast<int128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const int128_t rhs) noexcept
+{
+    return lhs << static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const uint128_t rhs) noexcept
+{
+    return lhs >> static_cast<int128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const int128_t rhs) noexcept
+{
+    return lhs >> static_cast<uint128_t>(rhs);
+}
+
+//=====================================
+// int128_t with builtin unsigned __int128 comparison operators
+//
+// These live here (not in int128_imp.hpp) 
+// to avoid C++20 rewritten-candidate ambiguity on MSVC
+//=====================================
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) == rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs == static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) != rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs != static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) < rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs < static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) <= rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs <= static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) > rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs > static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) >= rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs >= static_cast<uint128_t>(rhs);
+}
+
+#endif // BOOST_INT128_HAS_INT128
+
+//=====================================
+// int128_t with builtin unsigned __int128 binary operators
+//=====================================
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) | rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs | static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) & rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs & static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) ^ rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs ^ static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) + rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs + static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) - rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs - static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) * rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs * static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) / rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs / static_cast<uint128_t>(rhs);
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+{
+    return static_cast<uint128_t>(lhs) % rhs;
+}
+
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+{
+    return lhs % static_cast<uint128_t>(rhs);
+}
+
+#endif // BOOST_INT128_HAS_INT128
 
 #ifdef _MSC_VER
 #pragma warning(pop)

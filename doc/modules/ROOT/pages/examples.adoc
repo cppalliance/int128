@@ -28,7 +28,7 @@ From builtin (42U): 42
 From parts (1, 0) = 2^64: 18446744073709551616
 From parts (max, max): 340282366920938463463374607431768211455
   Equals numeric_limits max? true
-From literal "36893488147419103232"_U128: 36893488147419103232
+From literal 12345_U128: 12345
 From BOOST_INT128_UINT128_C(max): 340282366920938463463374607431768211455
 From stringstream: 12345678901234567890123456789
 
@@ -36,13 +36,28 @@ From stringstream: 12345678901234567890123456789
 From builtin (-42): -42
 From parts (INT64_MIN, 0): -170141183460469231731687303715884105728
   Equals numeric_limits min? true
-From literal "-99999999999999999999"_i128: -99999999999999999999
-From literal "99999999999999999999"_I128: 99999999999999999999
+From literal -12345_i128: -12345
+From literal 12345_I128: 12345
+From BOOST_INT128_INT128_C(-99999999999999999999): -99999999999999999999
+From string literal: -99999999999999999999
 From BOOST_INT128_INT128_C(min): -170141183460469231731687303715884105728
 
 === Default and Copy Construction ===
 Default constructed: 0
-Copy constructed: 36893488147419103232
+Copy constructed: 340282366920938463463374607431768211455
+
+=== Floating-Point Construction ===
+uint128_t from 12345.9 (truncated): 12345
+int128_t from -12345.9 (truncated toward zero): -12345
+uint128_t from 2^100: 1267650600228229401496703205376
+
+=== Floating-Point Edge Cases ===
+uint128_t from NaN: 0
+int128_t from NaN: 0
+uint128_t from -1.0 (clamped to zero): 0
+uint128_t from +infinity (saturates to UINT128_MAX): 340282366920938463463374607431768211455
+int128_t from 1e40 (saturates to INT128_MAX): 170141183460469231731687303715884105727
+int128_t from -1e40 (saturates to INT128_MIN): -170141183460469231731687303715884105728
 ----
 ====
 
@@ -260,6 +275,38 @@ midpoint(uint128_max, uint128_max - 10) = 34028236692093846346337460743176821145
 --- Signed midpoint ---
 midpoint(-100, 100) = 0
 midpoint(-100, -50) = -75
+----
+====
+
+[#examples_checked]
+== Checked Arithmetic
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
+====
+[source, c++]
+----
+include::example$checked_arithmetic.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Results That Fit ===
+ckd_add(20, 22): overflow=false, result=42
+
+=== Addition Overflow ===
+ckd_add(UINT128_MAX, 1): overflow=true, wrapped=0
+
+=== Subtraction Underflow ===
+ckd_sub(0, 1): overflow=true, wrapped=340282366920938463463374607431768211455
+
+=== Multiplication Overflow ===
+ckd_mul(INT128_MAX, 2): overflow=true, wrapped=-2
+ckd_mul(INT128_MIN, -1): overflow=true, wrapped=-170141183460469231731687303715884105728
+
+=== Mixed Types ===
+ckd_add<int64_t>(uint128_t{5}, int128_t{-3}): overflow=false, result=2
+ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
 ----
 ====
 

@@ -4,7 +4,6 @@
 //
 // See: https://github.com/cppalliance/int128/issues/377
 
-#define BOOST_INT128_ALLOW_SIGN_CONVERSION
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <limits>

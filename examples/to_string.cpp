@@ -34,7 +34,7 @@ int main()
     std::cout << "Match: " << (u_max64_str == u_max64_std) << std::endl;
 
     // Values beyond 64-bit range
-    const auto large_unsigned {"340282366920938463463374607431768211455"_U128};
+    const auto large_unsigned {340282366920938463463374607431768211455_U128};
     std::cout << "\nuint128_t max: " << to_string(large_unsigned) << std::endl;
 
     std::cout << "\n=== to_string with int128_t ===" << std::endl;
@@ -55,10 +55,13 @@ int main()
     std::cout << "Match: " << (s_large_str == s_large_std) << std::endl;
 
     // Values beyond 64-bit range
-    const auto large_negative {"-170141183460469231731687303715884105728"_i128};
-    std::cout << "\nint128_t min: " << to_string(large_negative) << std::endl;
+    const auto large_negative {-170141183460469231731687303715884105728_i128};
+    std::cout << "\nint128_t min with string literal: " << to_string(large_negative) << std::endl;
 
-    const auto large_positive {"170141183460469231731687303715884105727"_I128};
+    const auto large_negative_c {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
+    std::cout << "\nint128_t min with INT128_C macro: " << to_string(large_negative_c) << std::endl;
+
+    const auto large_positive {std::numeric_limits<int128_t>::max()};
     std::cout << "int128_t max: " << to_string(large_positive) << std::endl;
 
     return 0;

@@ -1,0 +1,69 @@
+////
+Copyright 2026 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#hash]
+= Hashing
+:idprefix: hash_
+
+The `<boost/int128/hash.hpp>` header provides specializations of `std::hash` for `uint128_t` and `int128_t`, allowing the library types to be used as keys in `std::unordered_map`, `std::unordered_set`, and any other container that relies on `std::hash`.
+
+[source, c++]
+----
+#include <boost/int128/hash.hpp>
+----
+
+[#hash_specializations]
+== Specializations
+
+[source, c++]
+----
+namespace std {
+
+template <>
+struct hash<boost::int128::int128_t>
+{
+    std::size_t operator()(boost::int128::int128_t v) const noexcept;
+};
+
+template <>
+struct hash<boost::int128::uint128_t>
+{
+    std::size_t operator()(boost::int128::uint128_t v) const noexcept;
+};
+
+} // namespace std
+----
+
+Each 64-bit half of the value is first run through a SplitMix64 finalizer so that every input bit influences the lower bits of the result.
+This is necessary because `std::hash<std::uint64_t>` is permitted to truncate to `std::size_t`, which would lose the upper 32 bits on 32-bit platforms and cause distinct 128-bit values to collide.
+The two finalized halves are then combined with the `boost::hash_combine` mixing formula.
+
+[#hash_guarantees]
+== Guarantees
+
+* Two values comparing equal under `operator==` produce the same hash.
+* For any non-zero `v`, `std::hash<int128_t>{}(v) != std::hash<int128_t>{}(-v)`.
+* The mixing function is asymmetric, so `{high, low}` and `{low, high}` do not collide except by chance.
+* The hash value is implementation-defined and may differ across platforms, compilers, or library versions. Do not persist hash values across runs.
+
+[#hash_example]
+== Example
+
+[source, c++]
+----
+#include <boost/int128/int128.hpp>
+#include <boost/int128/hash.hpp>
+#include <unordered_map>
+
+int main()
+{
+    std::unordered_map<boost::int128::uint128_t, int> counts {};
+    counts[boost::int128::uint128_t{1, 0}] = 1;
+    counts[boost::int128::uint128_t{0, 1}] = 2;
+
+    return 0;
+}
+----

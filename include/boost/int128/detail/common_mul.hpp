@@ -10,7 +10,6 @@
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <cstdint>
-#include <cstring>
 
 #endif
 
@@ -18,85 +17,89 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-// See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
-// Algorithm M: Multiplication of Non-negative integers
-template <typename ReturnType, std::size_t u_size, std::size_t v_size>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType knuth_multiply(const std::uint32_t (&u)[u_size],
-                                                              const std::uint32_t (&v)[v_size]) noexcept
+// High 64 bits of the 64x64 -> 128 product, computed with four 32-bit partial products
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umulh_generic(const std::uint64_t a, const std::uint64_t b) noexcept
+{
+    const std::uint64_t a_lo {a & UINT32_MAX};
+    const std::uint64_t a_hi {a >> 32U};
+    const std::uint64_t b_lo {b & UINT32_MAX};
+    const std::uint64_t b_hi {b >> 32U};
+
+    const std::uint64_t lo_lo {a_lo * b_lo};
+    const std::uint64_t hi_lo {a_hi * b_lo};
+    const std::uint64_t lo_hi {a_lo * b_hi};
+    const std::uint64_t hi_hi {a_hi * b_hi};
+
+    const std::uint64_t cross {(lo_lo >> 32U) + (hi_lo & UINT32_MAX) + (lo_hi & UINT32_MAX)};
+
+    return hi_hi + (hi_lo >> 32U) + (lo_hi >> 32U) + (cross >> 32U);
+}
+
+// Full 64x64 -> 128 product
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umul(const std::uint64_t a, const std::uint64_t b, std::uint64_t& hi) noexcept
+{
+    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+
+    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(a))
+    {
+        #if defined(BOOST_INT128_HAS_INT128)
+
+        const detail::builtin_u128 product {static_cast<detail::builtin_u128>(a) * static_cast<detail::builtin_u128>(b)};
+        hi = static_cast<std::uint64_t>(product >> 64U);
+        return static_cast<std::uint64_t>(product);
+
+        #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__)
+
+        return _umul128(a, b, &hi);
+
+        #elif defined(_M_ARM64) && !defined(__CUDA_ARCH__)
+
+        hi = __umulh(a, b);
+        return a * b;
+
+        #endif
+    }
+
+    #endif
+
+    hi = umulh_generic(a, b);
+    return a * b;
+}
+
+// Low 128 bits of a 128x128 product
+template <typename ReturnType, typename T>
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType low_word_mul(const T& lhs, const T& rhs) noexcept
 {
     using high_word_type = decltype(ReturnType{}.high);
 
-    std::uint32_t w[u_size + v_size] {};
+    std::uint64_t result_high {};
+    const std::uint64_t result_low {umul(lhs.low, rhs.low, result_high)};
 
-    // M.1
-    for (std::size_t j {}; j < v_size; ++j)
-    {
-        // M.2
-        if (v[j] == 0)
-        {
-            w[j + u_size] = 0;
-            continue;
-        }
+    result_high += lhs.low * static_cast<std::uint64_t>(rhs.high);
+    result_high += static_cast<std::uint64_t>(lhs.high) * rhs.low;
 
-        // M.3
-        std::uint64_t t {};
-        for (std::size_t i {}; i < u_size; ++i)
-        {
-            // M.4
-            t += static_cast<std::uint64_t>(u[i]) * v[j] + w[i + j];
-            w[i + j] = static_cast<std::uint32_t>(t);
-            t >>= 32u;
-        }
-
-        // M.5
-        w[j + u_size] = static_cast<std::uint32_t>(t);
-    }
-
-    const auto low {static_cast<std::uint64_t>(w[0]) | (static_cast<std::uint64_t>(w[1]) << 32)};
-    const auto high {static_cast<std::uint64_t>(w[2]) | (static_cast<std::uint64_t>(w[3]) << 32)};
-
-    return {static_cast<high_word_type>(high), low};
+    return ReturnType{static_cast<high_word_type>(result_high), result_low};
 }
 
-template <typename T>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void to_words(const T& x, std::uint32_t (&words)[4]) noexcept
+// Low 128 bits of a 128x64 product
+template <typename ReturnType, typename T>
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType low_word_mul(const T& lhs, const std::uint64_t rhs) noexcept
 {
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
+    using high_word_type = decltype(ReturnType{}.high);
 
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
-    {
-        std::memcpy(&words, &x, sizeof(T));
-        return;
-    }
+    std::uint64_t result_high {};
+    const std::uint64_t result_low {umul(lhs.low, rhs, result_high)};
 
-    #endif
+    result_high += static_cast<std::uint64_t>(lhs.high) * rhs;
 
-    words[0] = static_cast<std::uint32_t>(x.low & UINT32_MAX);                                  // LCOV_EXCL_LINE
-    words[1] = static_cast<std::uint32_t>(x.low >> 32);                                         // LCOV_EXCL_LINE
-    words[2] = static_cast<std::uint32_t>(static_cast<std::uint64_t>(x.high) & UINT32_MAX);     // LCOV_EXCL_LINE
-    words[3] = static_cast<std::uint32_t>(static_cast<std::uint64_t>(x.high) >> 32);            // LCOV_EXCL_LINE
+    return ReturnType{static_cast<high_word_type>(result_high), result_low};
 }
 
-
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint64_t x, std::uint32_t (&words)[2]) noexcept
+// Low 128 bits of a 128x32 product
+template <typename ReturnType, typename T>
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType low_word_mul(const T& lhs, const std::uint32_t rhs) noexcept
 {
-    #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
-
-    if (!BOOST_INT128_IS_CONSTANT_EVALUATED(x))
-    {
-        std::memcpy(&words, &x, sizeof(std::uint64_t));
-        return;
-    }
-
-    #endif
-
-    words[0] = static_cast<std::uint32_t>(x & UINT32_MAX);  // LCOV_EXCL_LINE
-    words[1] = static_cast<std::uint32_t>(x >> 32);         // LCOV_EXCL_LINE
-}
-
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void to_words(const std::uint32_t x, std::uint32_t (&words)[1]) noexcept
-{
-    words[0] = x;
+    return low_word_mul<ReturnType>(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 } // namespace detail

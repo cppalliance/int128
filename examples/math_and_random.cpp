@@ -2,9 +2,6 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-// Allowing sign conversion is a required pre-requisite for Boost.Random
-#define BOOST_INT128_ALLOW_SIGN_CONVERSION
-
 #include <boost/int128.hpp>
 #include <boost/int128/random.hpp> // Not included in the convenience header, but needed for boost.random interop
 
