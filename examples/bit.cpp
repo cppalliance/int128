@@ -11,6 +11,7 @@
 
 // #include <boost/int128.hpp>
 
+// tag::exclude[]
 #ifdef __clang__
 #  pragma clang diagnostic push
 #  pragma clang diagnostic ignored "-Wunused-variable"
@@ -32,6 +33,7 @@ int main()
 
 #else
 
+// end::exclude[]
 int main()
 {
     // The functions from bit are only available for uint128_t
@@ -80,5 +82,7 @@ int main()
 
     return 0;
 }
+// tag::exclude[]
 
 #endif
+// end::exclude[]

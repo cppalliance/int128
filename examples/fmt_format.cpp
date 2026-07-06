@@ -8,12 +8,16 @@
 // For C++20 std::format support, use <boost/int128/format.hpp> instead,
 // which provides the same formatting capabilities with std::format.
 
+// tag::exclude[]
 #define FMT_HEADER_ONLY
+// end::exclude[]
 #include <boost/int128/int128.hpp>
 #include <boost/int128/fmt_format.hpp>
 
+// tag::exclude[]
 #ifdef BOOST_INT128_HAS_FMT_FORMAT
 
+// end::exclude[]
 #include <fmt/format.h>
 #include <iostream>
 
@@ -112,6 +116,7 @@ int main()
 
     return 0;
 }
+// tag::exclude[]
 
 #else
 
@@ -125,3 +130,4 @@ int main()
 }
 
 #endif
+// end::exclude[]

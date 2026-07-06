@@ -5,6 +5,7 @@
 #include <boost/int128.hpp>
 #include <boost/int128/random.hpp> // Not included in the convenience header, but needed for boost.random interop
 
+// tag::exclude[]
 #ifdef __clang__
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wfloat-equal"
@@ -16,6 +17,7 @@
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #endif
 
+// end::exclude[]
 #include <boost/math/statistics/univariate_statistics.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <iostream>
