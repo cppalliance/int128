@@ -74,5 +74,6 @@
 *** xref:i128_benchmarks.adoc#i128_windows[Windows]
 *** xref:i128_benchmarks.adoc#i128_mac[macOS]
 * xref:comp_to_multiprecision.adoc[]
+* xref:design.adoc[]
 * xref:reference.adoc[]
 * xref:copyright.adoc[]
