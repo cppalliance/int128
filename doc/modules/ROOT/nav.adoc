@@ -1,4 +1,5 @@
 * xref:overview.adoc[]
+* xref:getting_started.adoc[]
 * xref:examples.adoc[]
 ** xref:examples.adoc#examples_construction[Basic Construction]
 ** xref:examples.adoc#examples_arithmetic[Basic Arithmetic]
