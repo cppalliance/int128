@@ -54,7 +54,10 @@ int main()
     std::cout << "std::to_string(INT64_MAX):     " << s_large_std << std::endl;
     std::cout << "Match: " << (s_large_str == s_large_std) << std::endl;
 
-    // Values beyond 64-bit range
+    // Values beyond 64-bit range.
+    // The positive magnitude 2^127 exceeds INT128_MAX, so INT128_MIN cannot be
+    // written as a negated _i128 literal; this line therefore yields 0. Use the
+    // INT128_C macro (below) or std::numeric_limits<int128_t>::min() instead.
     const auto large_negative {-170141183460469231731687303715884105728_i128};
     std::cout << "\nint128_t min with string literal: " << to_string(large_negative) << std::endl;
 
