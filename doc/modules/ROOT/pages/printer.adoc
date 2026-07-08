@@ -17,7 +17,7 @@ To use this, add the following line to your `~/.lldbinit` file:
 
 [source]
 ----
-command script import /path/to/int128/extra/int128_printer.py
+command script import /path/to/int128/extra/int128_printer_lldb.py
 ----
 
 If this is successful, you should see the following message in your debugger upon startup:
