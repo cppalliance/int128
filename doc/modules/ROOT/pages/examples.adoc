@@ -136,9 +136,9 @@ include::example$stream.cpp[]
 === Basic Streaming ===
 Signed value: -42
 Unsigned value (dec): 36893488147419103231
-Unsigned value (hex): 0x1ffffffffffffffff
-Unsigned value (oct): 03777777777777777777777
-Upper unsigned value: 0X1FFFFFFFFFFFFFFFF
+Unsigned value (hex): 1ffffffffffffffff
+Unsigned value (oct): 3777777777777777777777
+Upper unsigned value: 1FFFFFFFFFFFFFFFF
 Lower unsigned value: 36893488147419103231
 
 === Large Values (Beyond 64-bit) ===
@@ -427,10 +427,14 @@ int128_t to_string(INT64_MAX): 9223372036854775807
 std::to_string(INT64_MAX):     9223372036854775807
 Match: true
 
-int128_t min: -170141183460469231731687303715884105728
+int128_t min with string literal: 0
+
+int128_t min with INT128_C macro: -170141183460469231731687303715884105728
 int128_t max: 170141183460469231731687303715884105727
 ----
 ====
+
+NOTE: The line `int128_t min with string literal: 0` is expected. The positive magnitude of the minimum `int128_t` value (2^127) is larger than the maximum `int128_t` value, so it cannot be written as a negated `_i128` literal. Construct it with `BOOST_INT128_INT128_C` or `(std::numeric_limits<int128_t>::min)()`, as the example shows.
 
 [#examples_fmt_format]
 == \{fmt} Library Integration
