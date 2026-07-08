@@ -55,7 +55,7 @@ Negative bases are reduced before exponentiation; `(std::numeric_limits<int128_t
 | `0`
 
 | `exp == 0`
-| `1` (including `powm(0, 0, m)`, which follows the conventional definition `0^0 == 1`)
+| `1` for `m > 1` (following the conventional definition `0^0 == 1`); the `m == 0` and `m == 1` rows above take precedence, so `powm(0, 0, 0)` and `powm(0, 0, 1)` return `0`
 
 | `base == 0` and `exp > 0`
 | `0`

@@ -1,0 +1,92 @@
+////
+Copyright 2025 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#getting_started]
+= Getting Started
+:idprefix: gs_
+
+Boost.Int128 is header-only. The core types and functions have no required dependencies, so in most cases it is enough to add the library's `include` directory to your compiler's search path and include the umbrella header:
+
+[source, c++]
+----
+#include <boost/int128.hpp>
+----
+
+The umbrella header pulls in the two types and every feature that has no external dependency. The optional integration headers (xref:charconv.adoc[`charconv.hpp`], `random.hpp`, and the pass:[{fmt}] support in xref:format.adoc[`fmt_format.hpp`]) are not included by the umbrella and must be included explicitly. See xref:file_structure.adoc[File Structure] for the full header list.
+
+== B2
+
+Run the following commands to clone the latest version of Boost, prepare the Boost.Build system, and build with pass:[C++14] as the default standard:
+
+[source, bash]
+----
+git clone https://github.com/boostorg/boost
+cd boost
+git submodule update --init
+./bootstrap
+./b2 cxxstd=14
+----
+
+To install the headers system-wide, run:
+
+[source, bash]
+----
+sudo ./b2 install cxxstd=14
+----
+
+The value of `cxxstd` must be at least 14. https://www.boost.org/doc/libs/release/tools/build/doc/html/index.html[See the b2 documentation] under `cxxstd` for all valid values.
+
+== CMake
+
+Boost.Int128 ships a CMake package and the `Boost::int128` target. When building against a Boost tree that contains this library, request it and link the interface target:
+
+[source, cmake]
+----
+cmake .. -DBOOST_INCLUDE_LIBRARIES="int128"
+----
+
+[source, cmake]
+----
+target_link_libraries(my_target PRIVATE Boost::int128)
+----
+
+The library can also be consumed on its own with `FetchContent`:
+
+[source, cmake]
+----
+include(FetchContent)
+FetchContent_Declare(
+    int128
+    GIT_REPOSITORY https://github.com/boostorg/int128
+    GIT_TAG        develop
+)
+FetchContent_MakeAvailable(int128)
+
+target_link_libraries(my_target PRIVATE Boost::int128)
+----
+
+== pass:[C++20] Module
+
+When compiling with pass:[C++20] or newer, the library can be consumed as a named module instead of via header inclusion:
+
+[source, c++]
+----
+import boost.int128;
+----
+
+Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling `module/int128.cxx` with your toolchain's module support. See xref:config.adoc[Configuration Macros] for details.
+
+== CUDA Support
+
+The library types and many of the functions can run on both host and device under CUDA. Compile with a CUDA-aware toolchain and define `BOOST_INT128_ENABLE_CUDA`. Functions carrying `BOOST_INT128_HOST_DEVICE` in their signature run on both host and device; all others run on host only. See xref:config.adoc[Configuration Macros].
+
+== Dependencies
+
+The core library (everything included by `<boost/int128.hpp>`) has no required dependencies and needs only a conforming pass:[C++14] compiler. The optional integration headers depend on the following, and are only usable when those components are available:
+
+* xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires Boost.Charconv.
+* `<boost/int128/random.hpp>` requires Boost.Random.
+* xref:format.adoc[`<boost/int128/fmt_format.hpp>`] requires the https://github.com/fmtlib/fmt[pass:[{fmt}]] library.

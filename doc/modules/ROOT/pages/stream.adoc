@@ -39,14 +39,17 @@ std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>&
 == Flags
 
 [#ios]
-The following flags from `<ios>` are supported for both streaming directions:
+The following flags from `<ios>` are honored.
+The base flags (`std::oct`, `std::dec`, `std::hex`) affect both input and output; the remaining flags affect output only.
 
-- `std::oct` - Octal Numbers
-- `std::dec` - Decimal Numbers
-- `std::hex` - Hexadecimal Numbers
-- `std::uppercase` - Upper Case Formatting (e.g. FFFF)
-- `std::nouppercase` - Lower Case Formatting (e.g. ffff)
-- `std::showbase` - Adds a leading base for hex or oct numbers (e.g. 0xffff)
-- `std::noshowbase` - Removes the leading base for hex or oct numbers (e.g. ffff)
+- `std::oct` - Octal numbers (input and output)
+- `std::dec` - Decimal numbers (input and output)
+- `std::hex` - Hexadecimal numbers (input and output)
+- `std::uppercase` - Uppercase hexadecimal digits on output (e.g. FFFF)
+- `std::nouppercase` - Lowercase hexadecimal digits on output (e.g. ffff)
+- `std::showbase` - Adds a leading base prefix for hex or oct numbers on output (e.g. 0xffff)
+- `std::noshowbase` - Omits the leading base prefix on output (e.g. ffff)
+
+On extraction (`operator>>`) a leading `0x` or `0` base prefix is accepted and consumed for the active base regardless of `showbase`, and hexadecimal input is parsed case-insensitively.
 
 See the xref:examples.adoc#examples_io[IO streaming example] for usage demonstrations.

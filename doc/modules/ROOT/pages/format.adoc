@@ -51,11 +51,6 @@ There are three allowable signs first in the format string:
 | pass:[` `] (Space)       | Adds a ` ` to positive values, and a `-` to negative values. Preserves alignment
 |===
 
-== Padding
-
-You can then add any number of padding characters to make sure that a formatted value takes up a specified width (5 means minimum width of 5 characters and so on).
-Any integer value is accepted here.
-
 == Prepend Prefix
 
 If you want to prepend the prefix to your number (if applicable) add `#`
@@ -68,6 +63,11 @@ If you want to prepend the prefix to your number (if applicable) add `#`
 | Decimal       | None
 | Hex           | `0x` or `0X`
 |===
+
+== Padding
+
+You can then add any number of padding characters to make sure that a formatted value takes up a specified width (5 means minimum width of 5 characters and so on).
+Any integer value is accepted here.
 
 == Output Base Modifiers
 

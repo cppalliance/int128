@@ -50,14 +50,14 @@ The type provides:
 [#u128_alignment]
 == Alignment
 
-If your platform has a native 128-bit unsigned integer, the struct is defined as so:
+If your platform has a native 128-bit unsigned integer, the struct is over-aligned to match it, except on 32-bit x86 where the native alignment is not forced:
 
 [source, c++]
 ----
 struct alignas(alignof(unsigned __int128)) uint128_t
 ----
 
-Otherwise, it is left up to the compiler to decide.
+Otherwise (including 32-bit x86), the alignment is left up to the compiler to decide.
 
 [#u128_operator_behavior]
 == Operator Behavior
@@ -359,20 +359,24 @@ This operation is subject to mixed sign limitations discussed xref:uint128_t.ado
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr Integer operator<<(const Integer lhs, const uint128_t rhs) noexcept;
-
 template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept;
 
 template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
 
+// When the compiler provides native 128-bit integers, a built-in 128-bit lhs
+// shifted by a uint128_t returns that built-in type.
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept;
+#endif
+
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept;
 ----
 
 Returns the bitwise left shift of `lhs` without exception.
-The return type is dependent on the type of `Integer` when it is the `lhs` value to match the promotion behavior of built-in integer types.
+When a built-in integer is the `lhs` and a `uint128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
 This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
 === Right Shift
@@ -382,25 +386,40 @@ This operation is subject to mixed sign limitations discussed xref:uint128_t.ado
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept;
 
-template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value && (sizeof(Integer) * 8 > 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr Integer operator>>(const Integer lhs, const uint128_t rhs) noexcept;
-
 template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128_t rhs) noexcept;
 
 template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned int operator>>(const UnsignedInteger lhs, const uint128_t rhs) noexcept;
 
+// When the compiler provides native 128-bit integers, a built-in 128-bit lhs
+// shifted by a uint128_t returns that built-in type.
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept;
+#endif
+
 BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept;
 ----
 
 Returns the bitwise right shift of `lhs` without exception.
-The return type is dependent on the type of `Integer` when it is the `lhs` value to match the promotion behavior of built-in integer types.
+When a built-in integer is the `lhs` and a `uint128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
 This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
 
 [#u128_math_operators]
 == Arithmetic Operators
+
+=== Unary Plus and Minus
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t value) noexcept;
+----
+
+Unary `operator+` returns `value` unchanged.
+Unary `operator-` returns the two's-complement negation of `value` (equivalent to `0 - value`), wrapping modulo `2^128`.
 
 === Addition
 

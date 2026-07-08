@@ -27,9 +27,6 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | xref:api_reference.adoc#api_macro_literals[`<boost/int128/climits.hpp>`]
 | C-style limit macros (`BOOST_INT128_INT128_MAX`, etc.)
 
-| xref:config.adoc[`<boost/int128/config.hpp>`]
-| Configuration macros
-
 | xref:cstdlib.adoc[`<boost/int128/cstdlib.hpp>`]
 | Division with quotient and remainder (`div`)
 
@@ -62,4 +59,7 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 
 | xref:string.adoc[`<boost/int128/string.hpp>`]
 | `to_string` overloads
+
+| xref:utilities.adoc[`<boost/int128/utilities.hpp>`]
+| Modular exponentiation, integer power, integer square root, and checked arithmetic
 |===
