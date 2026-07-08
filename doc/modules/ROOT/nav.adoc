@@ -65,6 +65,7 @@
 ** xref:utilities.adoc#ipow[Integer Power]
 ** xref:utilities.adoc#isqrt[Integer Square Root]
 ** xref:utilities.adoc#checked[Checked Arithmetic]
+* xref:random.adoc[]
 * Benchmarks
 ** xref:u128_benchmarks.adoc[]
 *** xref:u128_benchmarks.adoc#u128_linux[Linux]
