@@ -42,8 +42,7 @@ constexpr auto parse_impl(ParseContext& ctx)
     int padding_digits = 0;
     auto sign = sign_option::negative;
     bool prefix = false;
-    bool write_as_character = false;
-    bool character_debug_format = false;
+    bool zero_pad = false;
     char fill_char = ' ';
     auto align = alignment::none;
 
@@ -123,14 +122,14 @@ constexpr auto parse_impl(ParseContext& ctx)
         ++it;
     }
 
-    // Character presentation type
-    if (it != ctx.end() && (*it == '?' || *it == 'c'))
+    // Zero-pad flag (std::format places '0' before the width)
+    if (it != ctx.end() && *it == '0')
     {
-        character_debug_format = *it == '?';
+        zero_pad = true;
         ++it;
     }
 
-    // Check for a padding character
+    // Parse the width
     while (it != ctx.end() && *it >= '0' && *it <= '9')
     {
         padding_digits = padding_digits * 10 + (*it - '0');
@@ -148,10 +147,6 @@ constexpr auto parse_impl(ParseContext& ctx)
             case 'B':
                 base = 2;
                 is_upper = true;
-                break;
-
-            case 'c':
-                write_as_character = true;
                 break;
 
             case 'o':
@@ -180,7 +175,7 @@ constexpr auto parse_impl(ParseContext& ctx)
         BOOST_INT128_THROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
-    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, write_as_character, character_debug_format, fill_char, align, it);
+    return std::make_tuple(base, padding_digits, sign, is_upper, prefix, zero_pad, fill_char, align, it);
 }
 
 template <typename T>
@@ -207,8 +202,7 @@ struct formatter<T>
     boost::int128::detail::sign_option sign;
     bool is_upper;
     bool prefix;
-    bool write_as_character;
-    bool character_debug_format;
+    bool zero_pad;
     char fill_char;
     boost::int128::detail::alignment align;
 
@@ -217,8 +211,7 @@ struct formatter<T>
                             sign {boost::int128::detail::sign_option::negative},
                             is_upper {false},
                             prefix {false},
-                            write_as_character {false},
-                            character_debug_format {false},
+                            zero_pad {false},
                             fill_char {' '},
                             align {boost::int128::detail::alignment::none}
     {}
@@ -232,12 +225,11 @@ struct formatter<T>
         sign = std::get<2>(res);
         is_upper = std::get<3>(res);
         prefix = std::get<4>(res);
-        write_as_character = std::get<5>(res);
-        character_debug_format = std::get<6>(res);
-        fill_char = std::get<7>(res);
-        align = std::get<8>(res);
+        zero_pad = std::get<5>(res);
+        fill_char = std::get<6>(res);
+        align = std::get<7>(res);
 
-        return std::get<9>(res);
+        return std::get<8>(res);
     }
 
     template <typename FormatContext>
@@ -300,9 +292,9 @@ struct formatter<T>
             sign_len = 1;
         }
 
-        // Zero-padding only applies when no explicit alignment is set
-        // Account for prefix and sign in the padding calculation
-        if (align == boost::int128::detail::alignment::none && padding_digits > 0)
+        // Zero-padding applies only with the '0' flag and no explicit alignment.
+        // Account for prefix and sign in the padding calculation.
+        if (zero_pad && align == boost::int128::detail::alignment::none && padding_digits > 0)
         {
             auto target_digit_width {static_cast<std::size_t>(padding_digits)};
             if (target_digit_width > prefix_len + sign_len)
@@ -399,11 +391,17 @@ struct formatter<T>
         s.erase(0, s.find_first_not_of('\0'));
         s.erase(s.find_last_not_of('\0') + 1);
 
-        // Apply alignment if specified
-        if (align != boost::int128::detail::alignment::none && s.size() < static_cast<std::size_t>(padding_digits))
+        // Apply alignment. An explicit alignment uses fill_char; with no explicit
+        // alignment and no zero-padding, integer types default to right alignment
+        // with the fill character (matching std::format).
+        if (s.size() < static_cast<std::size_t>(padding_digits) &&
+            (align != boost::int128::detail::alignment::none || !zero_pad))
         {
             auto fill_count = static_cast<std::size_t>(padding_digits) - s.size();
-            switch (align)
+            const auto effective_align = (align == boost::int128::detail::alignment::none)
+                                             ? boost::int128::detail::alignment::right
+                                             : align;
+            switch (effective_align)
             {
                 case boost::int128::detail::alignment::left:
                     s.append(fill_count, fill_char);

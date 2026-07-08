@@ -8,10 +8,7 @@ https://www.boost.org/LICENSE_1_0.txt
 = Configuration Macros
 :idprefix: config_
 
-[source,c++]
-----
-#include <boost/int128/config.hpp>
-----
+The configuration macros below are defined automatically once any library header (for example `<boost/int128.hpp>`) is included; there is no separate configuration header to include directly.
 
 == User Configurable Macros
 
@@ -28,6 +25,11 @@ Allowed functions have `BOOST_INT128_HOST_DEVICE` as part of their function sign
 - `BOOST_INT128_DISABLE_EXCEPTIONS`: Allows exceptions to be disabled.
 This macro will automatically be defined in the presence of `-fno-exceptions` or similar MSVC flags.
 
+[#build_module]
+- `BOOST_INT128_BUILD_MODULE`: Define this when building the library as a pass:[C++20] named module (consumed via `import boost.int128`).
+It switches the headers into module mode by exporting the public interface and suppressing the includes that the module unit itself provides.
+See xref:getting_started.adoc[Getting Started].
+
 [#automatic_config]
 == Automatic Configuration Macros
 
@@ -37,6 +39,14 @@ This macro will automatically be defined in the presence of `-fno-exceptions` or
 
 - `BOOST_INT128_ENDIAN_BIG_BYTE`: This is defined to `1` when compiling on a big endian architecture, otherwise `0`.
 
+- `BOOST_INT128_HAS_MSVC_INT128`: This is defined when the MSVC standard library provides the simulated 128-bit integer types in `pass:[<__msvc_int128.hpp>]` (MSVC in pass:[C++20] mode). When defined, the library uses those types as its native 128-bit backing.
+
+- `BOOST_INT128_HAS_SPACESHIP_OPERATOR`: This is defined when the compiler and standard library provide pass:[C++20] three-way comparison (`operator<=>` and `<compare>`). When defined, both types provide `operator<=>`.
+
+- `BOOST_INT128_HAS_FORMAT`: This is defined by `<boost/int128/format.hpp>` when pass:[C++20] `<format>` is available. When defined, that header provides `std::formatter` specializations for both types.
+
+- `BOOST_INT128_HAS_FMT_FORMAT`: This is defined by `<boost/int128/fmt_format.hpp>` when the pass:[{fmt}] library is available. When defined, that header provides `fmt::formatter` specializations for both types.
+
 [#host_device]
 - `BOOST_INT128_HOST_DEVICE`: This is defined to `pass:[__host__ __device__]` when compiling with NVCC (`pass:[__NVCC__]` is defined), and to nothing otherwise.
-All public functions, constructors, operators, and conversion operators in the library are annotated with this macro, allowing `int128_t` and `uint128_t` to be used in CUDA device code without modification.
+The core type operations (constructors, conversion operators, and the comparison, bitwise, arithmetic, and shift operators) and most free functions are annotated with this macro, allowing `int128_t` and `uint128_t` to be used in CUDA device code. Host-only integrations that depend on host facilities are not annotated: `std::hash`, the iostream operators, the `std::formatter` / pass:[{fmt}] support, and the `core::string_view` overloads of `from_chars`.

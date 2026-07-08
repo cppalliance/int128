@@ -1,0 +1,40 @@
+////
+Copyright 2026 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#random]
+= Boost.Random Support
+:idprefix: random_
+
+[source, c++]
+----
+#include <boost/int128/random.hpp>
+----
+
+Including this header specializes the traits that Boost.Random uses to reason about integer types, so that `int128_t` and `uint128_t` can be used directly with the Boost.Random engines and distributions (for example `boost::random::uniform_int_distribution`).
+This header requires Boost.Random to be available.
+
+The following specializations are provided in namespace `boost::random::traits` for both `int128_t` and `uint128_t`:
+
+[cols="1,2", options="header"]
+|===
+| Trait | Purpose
+
+| `is_integral`
+| Reports both types as integral.
+
+| `is_signed`
+| Reports `int128_t` as signed and `uint128_t` as unsigned.
+
+| `make_unsigned`, `make_unsigned_imp`
+| Provide the unsigned type mapping Boost.Random uses when generating values.
+
+| `make_unsigned_or_unbounded`, `make_unsigned_or_unbounded_imp`
+| Provide the unsigned-or-unbounded type mapping Boost.Random uses.
+|===
+
+NOTE: These specializations live in `boost::random::traits`, not `boost::int128`.
+
+An example combining Boost.Random with the library types is available xref:examples.adoc#examples_boost_math_random[on the examples page].

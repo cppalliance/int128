@@ -23,6 +23,9 @@ https://www.boost.org/LICENSE_1_0.txt
 
 | xref:charconv.adoc[`boost::charconv`]
 | `to_chars` and `from_chars` overloads for 128-bit integers (requires Boost.Charconv)
+
+| `boost::random::traits`
+| Trait specializations enabling use with Boost.Random (requires Boost.Random)
 |===
 
 [#api_types]
@@ -233,6 +236,12 @@ Listed by analogous STL header.
 
 | xref:stream.adoc#ios[`std::nouppercase`]
 | Lowercase hex digits
+
+| xref:stream.adoc#ios[`std::showbase`]
+| Adds a leading base prefix on output
+
+| xref:stream.adoc#ios[`std::noshowbase`]
+| Omits the leading base prefix on output
 |===
 
 [#api_numeric]
@@ -353,6 +362,9 @@ Listed by analogous STL header.
 
 | xref:config.adoc#enable_cuda[`BOOST_INT128_ENABLE_CUDA`]
 | Enables CUDA support allowing the library types and functions to be run on both host and device
+
+| xref:config.adoc#build_module[`BOOST_INT128_BUILD_MODULE`]
+| Builds the library as a pass:[C++20] named module (`import boost.int128`)
 |===
 
 ==== Automatic Configuration
@@ -369,6 +381,18 @@ Listed by analogous STL header.
 
 | xref:config.adoc#automatic_config[`BOOST_INT128_ENDIAN_BIG_BYTE`]
 | Defined on big-endian systems
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_HAS_MSVC_INT128`]
+| Defined when the MSVC simulated 128-bit integer types are available
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_HAS_SPACESHIP_OPERATOR`]
+| Defined when pass:[C++20] three-way comparison is available
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_HAS_FORMAT`]
+| Defined when pass:[C++20] `<format>` is available
+
+| xref:config.adoc#automatic_config[`BOOST_INT128_HAS_FMT_FORMAT`]
+| Defined when the pass:[{fmt}] library is available
 
 | xref:config.adoc#host_device[`BOOST_INT128_HOST_DEVICE`]
 | Expands to `pass:[__host__ __device__]` under NVCC for CUDA support

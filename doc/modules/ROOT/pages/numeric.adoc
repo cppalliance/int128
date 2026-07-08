@@ -33,7 +33,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) 
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
@@ -47,8 +47,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(int128_t lhs, int128_t rhs) 
 [#saturating_cast]
 == Saturating Cast
 
-This function allows a `LibraryIntegerType` (i.e. `uint128_t` or `int128_t`) to be safely casted to another integer type to include built-in and hardware integer types (`TargetIntegerType`).
-Should the `TargetIntegerType` not be able to represent the value of the `LibraryIntegerType` it will be set to either `std::numeric_limits::max()` or `std::numeric_limits::min()` depending on if the situation is overflow or underflow.
+This function converts a `uint128_t` or `int128_t` to a `TargetType`, saturating rather than wrapping when the value is out of the target's range.
+`TargetType` is constrained (via SFINAE) to the library's set of reduced integer types: the standard signed and unsigned integer types (excluding `bool` and plain `char`), `int128_t`, `uint128_t`, and the compiler's native 128-bit integer types where available.
+Should the `TargetType` not be able to represent the value it is set to either `std::numeric_limits<TargetType>::max()` or `std::numeric_limits<TargetType>::min()` depending on whether the situation is overflow or underflow.
 
 [source, c++]
 ----

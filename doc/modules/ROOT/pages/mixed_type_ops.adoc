@@ -10,7 +10,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Conversions
 
-The ability to convert between the two types via `static_cast` is available as documented in the above class descriptions.
+Conversion between the two types is implicit: each type provides a non-explicit converting constructor from the other, so an `int128_t` converts to a `uint128_t` (and vice versa) wherever the target type is expected, as documented in the above class descriptions.
 
 == Operator Overloads Across Types
 

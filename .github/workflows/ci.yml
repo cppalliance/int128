@@ -527,6 +527,14 @@ jobs:
             cxxstd: "14,17,20,latest"
             addrmd: "64"
             os: windows-latest
+          - toolset: msvc-14.5
+            cxxstd: "14,17,20,latest"
+            addrmd: "32"
+            os: windows-latest
+          - toolset: msvc-14.5
+            cxxstd: "14,17,20,latest"
+            addrmd: "64"
+            os: windows-latest
           - toolset: clang-win
             cxxstd: "14,17,latest"
             addrmd: "32"
