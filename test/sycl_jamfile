@@ -1,0 +1,101 @@
+# Copyright 2026 Matt Borland
+# Distributed under the Boost Software License, Version 1.0.
+# https://www.boost.org/LICENSE_1_0.txt
+
+import testing ;
+import ../../config/checks/config : requires ;
+
+project : requirements
+    [ requires cxx14_decltype_auto cxx14_generic_lambdas cxx14_return_type_deduction cxx14_variable_templates cxx14_constexpr ]
+    ;
+
+run test_unsigned_add_sycl.cpp ;
+run test_signed_add_sycl.cpp ;
+run test_unsigned_sub_sycl.cpp ;
+run test_signed_sub_sycl.cpp ;
+run test_unsigned_mul_sycl.cpp ;
+run test_signed_mul_sycl.cpp ;
+run test_unsigned_div_sycl.cpp ;
+run test_signed_div_sycl.cpp ;
+run test_unsigned_mod_sycl.cpp ;
+run test_signed_mod_sycl.cpp ;
+
+run test_unsigned_or_sycl.cpp ;
+run test_signed_or_sycl.cpp ;
+run test_unsigned_and_sycl.cpp ;
+run test_signed_and_sycl.cpp ;
+run test_unsigned_xor_sycl.cpp ;
+run test_signed_xor_sycl.cpp ;
+run test_unsigned_not_sycl.cpp ;
+run test_signed_not_sycl.cpp ;
+run test_unsigned_left_shift_sycl.cpp ;
+run test_signed_left_shift_sycl.cpp ;
+run test_unsigned_right_shift_sycl.cpp ;
+run test_signed_right_shift_sycl.cpp ;
+
+run test_has_single_bit_sycl.cpp ;
+run test_countl_zero_sycl.cpp ;
+run test_countl_one_sycl.cpp ;
+run test_bit_width_sycl.cpp ;
+run test_bit_ceil_sycl.cpp ;
+run test_bit_floor_sycl.cpp ;
+run test_countr_zero_sycl.cpp ;
+run test_countr_one_sycl.cpp ;
+run test_rotl_sycl.cpp ;
+run test_rotr_sycl.cpp ;
+run test_popcount_sycl.cpp ;
+run test_byteswap_sycl.cpp ;
+
+run test_unsigned_eq_sycl.cpp ;
+run test_signed_eq_sycl.cpp ;
+run test_unsigned_ne_sycl.cpp ;
+run test_signed_ne_sycl.cpp ;
+run test_unsigned_lt_sycl.cpp ;
+run test_signed_lt_sycl.cpp ;
+run test_unsigned_le_sycl.cpp ;
+run test_signed_le_sycl.cpp ;
+run test_unsigned_gt_sycl.cpp ;
+run test_signed_gt_sycl.cpp ;
+run test_unsigned_ge_sycl.cpp ;
+run test_signed_ge_sycl.cpp ;
+
+run test_unsigned_cstdlib_div_sycl.cpp ;
+run test_signed_cstdlib_div_sycl.cpp ;
+
+run test_signed_to_unsigned_conversion_sycl.cpp ;
+run test_unsigned_to_signed_conversion_sycl.cpp ;
+
+run test_unsigned_add_sat_sycl.cpp ;
+run test_signed_add_sat_sycl.cpp ;
+run test_unsigned_sub_sat_sycl.cpp ;
+run test_signed_sub_sat_sycl.cpp ;
+run test_unsigned_mul_sat_sycl.cpp ;
+run test_signed_mul_sat_sycl.cpp ;
+run test_unsigned_div_sat_sycl.cpp ;
+run test_signed_div_sat_sycl.cpp ;
+run test_unsigned_gcd_sycl.cpp ;
+run test_signed_gcd_sycl.cpp ;
+run test_unsigned_lcm_sycl.cpp ;
+run test_signed_lcm_sycl.cpp ;
+run test_unsigned_midpoint_sycl.cpp ;
+# test_signed_midpoint_sycl.cpp is disabled: the signed midpoint kernel triggers an internal
+# compiler error in the Intel oneAPI DPC++ device compiler (2026.1.0) during the loop-unroll
+# pass (and an "Invalid cast" SPIR-V link error with range rounding disabled). The midpoint
+# implementation itself is correct and runs on the host, on CUDA, and via the unsigned overload
+# on SYCL. Re-enable once the toolchain is fixed.
+# run test_signed_midpoint_sycl.cpp ;
+
+run test_unsigned_to_chars_sycl.cpp ;
+run test_signed_to_chars_sycl.cpp ;
+run test_unsigned_from_chars_sycl.cpp ;
+run test_signed_from_chars_sycl.cpp ;
+
+run test_unsigned_to_chars_bases_sycl.cpp ;
+run test_signed_to_chars_bases_sycl.cpp ;
+run test_unsigned_from_chars_bases_sycl.cpp ;
+run test_signed_from_chars_bases_sycl.cpp ;
+
+run test_unsigned_literals_sycl.cpp ;
+run test_signed_literals_sycl.cpp ;
+
+run ../examples/sycl.cpp ;
