@@ -48,11 +48,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umul(
         hi = static_cast<std::uint64_t>(product >> 64U);
         return static_cast<std::uint64_t>(product);
 
-        #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__)
+        #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
 
         return _umul128(a, b, &hi);
 
-        #elif defined(_M_ARM64) && !defined(__CUDA_ARCH__)
+        #elif defined(_M_ARM64) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
 
         hi = __umulh(a, b);
         return a * b;
