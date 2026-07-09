@@ -12,7 +12,11 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+// A 128-bit integer needs up to 128 binary digits (base 2); allow for a leading sign and a
+// null terminator so mini_to_chars is safe for every supported base (2, 8, 10, 16).
+constexpr std::size_t mini_to_chars_buffer_size = 130;
+
+#if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 BOOST_INT128_INLINE_CONSTEXPR char lower_case_digit_table[] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -30,9 +34,9 @@ static_assert(sizeof(upper_case_digit_table) == sizeof(char) * 16, "10 numbers, 
 
 #endif // !__NVCC__
 
-BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], uint128_t v, const int base, const bool uppercase) noexcept
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], uint128_t v, const int base, const bool uppercase) noexcept
 {
-    #if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT)
     constexpr char lower_case_digit_table[] = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
         'a', 'b', 'c', 'd', 'e', 'f'
@@ -44,7 +48,7 @@ BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], uint1
     };
     #endif
 
-    char* last {buffer + 64U};
+    char* last {buffer + sizeof(buffer)};
     *--last = '\0';
 
     if (v == 0U)
@@ -97,7 +101,7 @@ BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], uint1
     return last;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[64], const int128_t v, const int base, const bool uppercase) noexcept
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], const int128_t v, const int base, const bool uppercase) noexcept
 {
     char* p {nullptr};
 
