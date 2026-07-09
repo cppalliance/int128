@@ -16,6 +16,10 @@
 #  define BOOST_CHARCONV_ENABLE_CUDA
 #endif
 
+#if defined(BOOST_INT128_ENABLE_SYCL) && !defined(BOOST_CHARCONV_ENABLE_SYCL)
+#  define BOOST_CHARCONV_ENABLE_SYCL
+#endif
+
 #include <boost/int128/int128.hpp>
 #include <boost/int128/literals.hpp>
 #include <boost/charconv.hpp>
@@ -44,23 +48,23 @@ struct make_signed<int128::uint128_t> { using type = int128::int128_t; };
 template <>
 struct make_signed<int128::int128_t> { using type = int128::int128_t; };
 
-#if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+#if defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 template <>
-__host__ __device__ constexpr int128::uint128_t get_max_value<int128::uint128_t>()
+BOOST_INT128_HOST_DEVICE constexpr int128::uint128_t get_max_value<int128::uint128_t>()
 {
     return std::numeric_limits<int128::uint128_t>::max();
 }
 
 template <>
-__host__ __device__ constexpr int128::int128_t get_max_value<int128::int128_t>()
+BOOST_INT128_HOST_DEVICE constexpr int128::int128_t get_max_value<int128::int128_t>()
 {
     return std::numeric_limits<int128::int128_t>::max();
 }
 
-#endif // __NVCC__
+#endif
 
-#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 BOOST_INT128_INLINE_CONSTEXPR int128::uint128_t int128_pow10[39] =
 {
@@ -109,7 +113,7 @@ BOOST_INT128_INLINE_CONSTEXPR int128::uint128_t int128_pow10[39] =
 
 BOOST_INT128_HOST_DEVICE constexpr int num_digits(const int128::uint128_t& x) noexcept
 {
-    #if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
     constexpr int128::uint128_t int128_pow10[39] =
     {
@@ -187,7 +191,7 @@ BOOST_INT128_HOST_DEVICE constexpr int num_digits(const int128::uint128_t& x) no
 
 BOOST_INT128_HOST_DEVICE BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, const int128::uint128_t value, const int base = 10) noexcept
 {
-    #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
     if (base == 10)
     {
@@ -201,7 +205,7 @@ BOOST_INT128_HOST_DEVICE BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char*
 
 BOOST_INT128_HOST_DEVICE BOOST_CHARCONV_CONSTEXPR to_chars_result to_chars(char* first, char* last, const int128::int128_t value, const int base = 10) noexcept
 {
-    #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
     if (base == 10)
     {
