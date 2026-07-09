@@ -562,3 +562,22 @@ CUDA kernel launch with 196 blocks of 256 threads
 All CPU and GPU computed elements match!
 ----
 ====
+
+[#examples_sycl]
+== SYCL Usage
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/sycl.cpp[example] demonstrates how to use library types and functions inside a SYCL kernel. Define `BOOST_INT128_ENABLE_SYCL` and include `<sycl/sycl.hpp>` before any Boost.int128 header, then compile with `icpx -fsycl`.
+====
+[source, c++]
+----
+include::example$sycl.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+[Vector operation on 50000 elements]
+SYCL device: Intel(R) ...
+All CPU and GPU computed elements match!
+----
+====

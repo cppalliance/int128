@@ -133,8 +133,8 @@ uint128_t
     BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
     BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
 
-    // long doubles do not exist on device
-    #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    // long doubles do not exist on the CUDA or SYCL (spir64) device
+    #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
     constexpr operator long double() const noexcept;
     #endif
 
@@ -302,7 +302,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator double() const noexcept
     return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
 }
 
-#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 constexpr uint128_t::operator long double() const noexcept
 {

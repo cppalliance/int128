@@ -103,7 +103,7 @@ BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibInteg
 auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_ostream<charT, traits>&>
 {
-    char buffer[64U] {};
+    char buffer[detail::mini_to_chars_buffer_size] {};
 
     const auto flags {os.flags()};
     int base {10};

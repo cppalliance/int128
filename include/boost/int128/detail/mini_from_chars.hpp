@@ -23,7 +23,7 @@ namespace detail {
 
 namespace impl {
 
-#if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 BOOST_INT128_INLINE_CONSTEXPR unsigned char uchar_values[] =
      {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
@@ -50,7 +50,7 @@ static_assert(sizeof(uchar_values) == 256, "uchar_values should represent all 25
 // Convert characters for 0-9, A-Z, a-z to 0-35. Anything else is 255
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> unsigned char
 {
-    #if defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
     constexpr unsigned char uchar_values[] =
     {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,

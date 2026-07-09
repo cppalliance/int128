@@ -235,7 +235,7 @@ struct formatter<T>
     template <typename FormatContext>
     auto format(T v, FormatContext& ctx) const
     {
-        char buffer[64];
+        char buffer[boost::int128::detail::mini_to_chars_buffer_size];
         bool isneg {false};
         boost::int128::uint128_t abs_v {};
 
