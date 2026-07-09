@@ -83,6 +83,10 @@ Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling 
 
 The library types and many of the functions can run on both host and device under CUDA. Compile with a CUDA-aware toolchain and define `BOOST_INT128_ENABLE_CUDA`. Functions carrying `BOOST_INT128_HOST_DEVICE` in their signature run on both host and device; all others run on host only. See xref:config.adoc[Configuration Macros].
 
+== SYCL Support
+
+The library types and many of the functions can also run on the device under SYCL (for example Intel oneAPI `icpx -fsycl`). SYCL device support is opt-in: include `<sycl/sycl.hpp>` before any Boost.int128 header and define `BOOST_INT128_ENABLE_SYCL`. Functions carrying `BOOST_INT128_HOST_DEVICE` in their signature run on both host and device; all others run on host only. The `boost::charconv::to_chars` / `from_chars` overloads from `<boost/int128/charconv.hpp>` also run on the SYCL device (Boost.Charconv provides SYCL support, and defining `BOOST_INT128_ENABLE_SYCL` enables it automatically). See xref:config.adoc[Configuration Macros].
+
 == Dependencies
 
 The core library (everything included by `<boost/int128.hpp>`) has no required dependencies and needs only a conforming pass:[C++14] compiler. The optional integration headers depend on the following, and are only usable when those components are available:

@@ -18,6 +18,12 @@ These macros allow customization of library behavior. User-configurable macros s
 - `BOOST_INT128_ENABLE_CUDA`: Defining this macro allows both types and selected functions to be run on both host and device when compiling with NVCC.
 Allowed functions have `BOOST_INT128_HOST_DEVICE` as part of their function signature in their documentation.
 
+[#enable_sycl]
+- `BOOST_INT128_ENABLE_SYCL`: Defining this macro allows both types and selected functions to be run on the device when compiling with a SYCL compiler (for example Intel oneAPI `icpx -fsycl`).
+Unlike CUDA, SYCL device support is opt-in and is not detected automatically, so this macro must be defined and `<sycl/sycl.hpp>` must be included before any Boost.int128 header (so that `SYCL_EXTERNAL` is available).
+Device-enabled functions have `BOOST_INT128_HOST_DEVICE` as part of their function signature in their documentation.
+The `boost::charconv::to_chars` / `from_chars` overloads in `<boost/int128/charconv.hpp>` also run on the SYCL device: defining `BOOST_INT128_ENABLE_SYCL` forwards to `BOOST_CHARCONV_ENABLE_SYCL`, and Boost.Charconv provides matching SYCL device support (as it does for CUDA).
+
 [#no_int128]
 - `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.
 
@@ -41,6 +47,8 @@ See xref:getting_started.adoc[Getting Started].
 
 - `BOOST_INT128_HAS_MSVC_INT128`: This is defined when the MSVC standard library provides the simulated 128-bit integer types in `pass:[<__msvc_int128.hpp>]` (MSVC in pass:[C++20] mode). When defined, the library uses those types as its native 128-bit backing.
 
+- `BOOST_INT128_HAS_GPU_SUPPORT`: This is defined when the library is compiled with device support enabled, that is under either `BOOST_INT128_ENABLE_CUDA` (with NVCC) or `BOOST_INT128_ENABLE_SYCL`. It is the single check for whether a GPU device target is in play. Note that on the SYCL device pass the library falls back to its portable path because the spir64 target has no native `pass:[__int128]`, so `BOOST_INT128_HAS_INT128` is not defined there.
+
 - `BOOST_INT128_HAS_SPACESHIP_OPERATOR`: This is defined when the compiler and standard library provide pass:[C++20] three-way comparison (`operator<=>` and `<compare>`). When defined, both types provide `operator<=>`.
 
 - `BOOST_INT128_HAS_FORMAT`: This is defined by `<boost/int128/format.hpp>` when pass:[C++20] `<format>` is available. When defined, that header provides `std::formatter` specializations for both types.
@@ -48,5 +56,5 @@ See xref:getting_started.adoc[Getting Started].
 - `BOOST_INT128_HAS_FMT_FORMAT`: This is defined by `<boost/int128/fmt_format.hpp>` when the pass:[{fmt}] library is available. When defined, that header provides `fmt::formatter` specializations for both types.
 
 [#host_device]
-- `BOOST_INT128_HOST_DEVICE`: This is defined to `pass:[__host__ __device__]` when compiling with NVCC (`pass:[__NVCC__]` is defined), and to nothing otherwise.
-The core type operations (constructors, conversion operators, and the comparison, bitwise, arithmetic, and shift operators) and most free functions are annotated with this macro, allowing `int128_t` and `uint128_t` to be used in CUDA device code. Host-only integrations that depend on host facilities are not annotated: `std::hash`, the iostream operators, the `std::formatter` / pass:[{fmt}] support, and the `core::string_view` overloads of `from_chars`.
+- `BOOST_INT128_HOST_DEVICE`: This is defined to `pass:[__host__ __device__]` when compiling for CUDA (`pass:[__CUDACC__]` with `BOOST_INT128_ENABLE_CUDA`), to `SYCL_EXTERNAL` when compiling for SYCL (`BOOST_INT128_ENABLE_SYCL`), and to nothing otherwise.
+The core type operations (constructors, conversion operators, and the comparison, bitwise, arithmetic, and shift operators) and most free functions are annotated with this macro, allowing `int128_t` and `uint128_t` to be used in CUDA and SYCL device code. Host-only integrations that depend on host facilities are not annotated: `std::hash`, the iostream operators, the `std::formatter` / pass:[{fmt}] support, and the `core::string_view` overloads of `from_chars`. Under SYCL the `operator long double` conversion is additionally unavailable because the spir64 device target has no `long double`.

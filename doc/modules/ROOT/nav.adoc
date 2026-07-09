@@ -17,6 +17,7 @@
 ** xref:examples.adoc#examples_fmt_format[pass:[{fmt}] Integration]
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]
 ** xref:examples.adoc#examples_cuda[Use of the library in a CUDA kernel]
+** xref:examples.adoc#examples_sycl[Use of the library in a SYCL kernel]
 * xref:api_reference.adoc[]
 ** xref:api_reference.adoc#api_namespaces[Namespaces]
 ** xref:api_reference.adoc#api_types[Types]

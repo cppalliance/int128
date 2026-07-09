@@ -25,7 +25,7 @@ GCC and Clang offer `__int128` as a non-standard extension on 64-bit targets, bu
 Multiprecision libraries can fill the gap, but typically at the cost of a larger `sizeof` and additional overhead (e.g., Boost.Multiprecision always has an extra word).
 Boost.Int128 solves this by providing types that are exactly 128-bits on every platform.
 Operation implementations rely on compiler intrinsics where available for native performance, and optimized software implementations elsewhere.
-The types provided by the library also natively support running on GPUs using CUDA, along with many of the functions.
+The types provided by the library also natively support running on GPUs using CUDA and SYCL, along with many of the functions.
 
 == Use Cases
 
