@@ -72,7 +72,3 @@ The entire library can be conveniently included with `#include <boost/int128.hpp
 # Full Documentation
 
 The complete documentation can be found at: https://develop.int128.cpp.al
-
-## References
-
-[1] Donald E. Knuth, _The_ _Art_ _of_ _Computer_ _Programming_ _Volume_ _2_ _Seminumerical_ _Algorithms_, 3rd edition, 1998
