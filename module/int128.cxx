@@ -4,17 +4,8 @@
 
 module;
 
-#include <limits>
-#include <iostream>
-#include <type_traits>
-#include <iomanip>
-#include <cstring>
-#include <cstdint>
-#include <cassert>
-#include <cerrno>
-#include <cstddef>
-#include <compare>
-
+// The platform intrinsic headers and the MSVC built-in 128-bit header are not
+// part of the standard library module, so they are always brought in here.
 #if __has_include(<__msvc_int128.hpp>) && _MSVC_LANG >= 202002L
 
 #include <__msvc_int128.hpp>
@@ -32,9 +23,47 @@ module;
 #  include <intrin.h>
 #endif
 
+// import std exports declarations but not macros. The headers below provide the
+// feature-test macros and the object-like macros the library uses (assert, errno,
+// UINT64_C, ...) so they are included regardless of whether import std is used.
+#include <version>
+#include <cassert>
+#include <cerrno>
+#include <climits>
+#include <cstdint>
+
+// When the standard library module is available these are provided by import std,
+// otherwise they are supplied here in the global module fragment.
+#ifndef BOOST_INT128_USE_STD_MODULE
+
+#include <compare>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <format>
+#include <functional>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <string>
+#include <tuple>
+#include <type_traits>
+#include <utility>
+
+#endif
+
 #define BOOST_INT128_BUILD_MODULE
 
+// Marks this translation unit as the module interface unit (as opposed to a
+// consumer that imports the module). Some headers key off this to declare
+// entities here that consumers instead receive through the import.
+#define BOOST_INT128_INTERFACE_UNIT
+
 export module boost.int128;
+
+#ifdef BOOST_INT128_USE_STD_MODULE
+import std;
+#endif
 
 export namespace boost::int128 {
 
@@ -68,4 +97,3 @@ class numeric_limits<boost::int128::uint128_t>;
 #elif defined(__clang__)
 #  pragma clang diagnostic pop
 #endif
-
