@@ -5,6 +5,16 @@
 #ifndef BOOST_INT128_DETAIL_CONFIG_HPP
 #define BOOST_INT128_DETAIL_CONFIG_HPP
 
+// A handful of detail-namespace entities are exercised directly by the module
+// test suite. BOOST_INT128_TEST_EXPORT exports them only when the module is built
+// for testing (BOOST_INT128_EXPORT_TESTING), so the normal module API stays limited
+// to the public interface. It expands to nothing in ordinary (header) builds.
+#if defined(BOOST_INT128_BUILD_MODULE) && defined(BOOST_INT128_EXPORT_TESTING)
+#  define BOOST_INT128_TEST_EXPORT export
+#else
+#  define BOOST_INT128_TEST_EXPORT
+#endif
+
 // The SYCL device target (spir64) has no native 128-bit integer, so force the portable
 // code path on the device pass. This mirrors a user-supplied BOOST_INT128_NO_BUILTIN_INT128
 // and keeps host/device selection consistent even though __x86_64__ stays defined on device.
@@ -25,18 +35,25 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
+// A module consumer receives these aliases from the import, so only declare them
+// in ordinary builds and in the module interface unit itself; declaring them again
+// in a consumer would give a second, distinct type and break overload resolution.
+#if !defined(BOOST_INT128_BUILD_MODULE) || defined(BOOST_INT128_INTERFACE_UNIT)
+
 // Avoids pedantic warnings
 #ifdef __GNUC__
 
-__extension__ using builtin_i128 = __int128 ;
-__extension__ using builtin_u128 = unsigned __int128 ;
+BOOST_INT128_TEST_EXPORT __extension__ using builtin_i128 = __int128 ;
+BOOST_INT128_TEST_EXPORT __extension__ using builtin_u128 = unsigned __int128 ;
 
 #else
 
-using builtin_i128 = __int128 ;
-using builtin_u128 = unsigned __int128;
+BOOST_INT128_TEST_EXPORT using builtin_i128 = __int128 ;
+BOOST_INT128_TEST_EXPORT using builtin_u128 = unsigned __int128;
 
 #endif
+
+#endif // declare builtin aliases
 
 } // namespace detail
 } // namespace int128
@@ -60,8 +77,13 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-using builtin_i128 = std::_Signed128;
-using builtin_u128 = std::_Unsigned128;
+// See the note above: skip the re-declaration in a module consumer.
+#if !defined(BOOST_INT128_BUILD_MODULE) || defined(BOOST_INT128_INTERFACE_UNIT)
+
+BOOST_INT128_TEST_EXPORT using builtin_i128 = std::_Signed128;
+BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
+
+#endif
 
 } // namespace detail
 } // namespace int128
