@@ -10,9 +10,12 @@
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/int128.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
 #include <string>
 #include <format>
 #include <tuple>
+#endif
 
 #define BOOST_INT128_HAS_FORMAT
 

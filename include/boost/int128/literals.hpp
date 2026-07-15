@@ -50,7 +50,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128
     return result;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
 {
     int128_t result {};
     detail::from_chars(str, str + detail::strlen(str), result);
@@ -75,8 +75,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128
 } // namespace int128
 } // namespace boost
 
-#define BOOST_INT128_STRINGIFY(x) #x
-#define BOOST_INT128_UINT128_C(x) boost::int128::literals::operator""_u128(BOOST_INT128_STRINGIFY(x))
-#define BOOST_INT128_INT128_C(x) boost::int128::literals::operator""_i128(BOOST_INT128_STRINGIFY(x))
+#include <boost/int128/detail/literal_macros.hpp>
 
 #endif // BOOST_INT128_LITERALS_HPP

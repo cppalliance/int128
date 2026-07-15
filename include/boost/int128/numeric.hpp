@@ -83,7 +83,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(const u
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
 {
     // Detect overflow BEFORE the addition to avoid signed overflow UB.
     // When both are non-negative: overflow iff x > max - y (subtraction safe: max - non_negative >= 0)
@@ -108,7 +108,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const int128_t x, const int1
     return x + y;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
 {
     // Detect overflow BEFORE the subtraction to avoid signed overflow UB.
     // Positive overflow: x >= 0 and y < 0 and x > max + y (safe: max + negative < max)
@@ -247,7 +247,7 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const int128_t value
 
 namespace detail {
 
-BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
 {
     if (x == 0)
     {
@@ -279,7 +279,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uin
 
 } // namespace detail
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
 {
     // Base case
     if (a == 0U)
@@ -316,7 +316,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexc
     return uint128_t{0, g} << shift;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
@@ -326,7 +326,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t
 // but very slow impl that we know works.
 #if !(defined(_M_IX86) && !defined(_NDEBUG))
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
     {
@@ -342,7 +342,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint128_t a, const uint12
 
 #else
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
 {
     if (a == 0U || b == 0U)
     {
@@ -376,12 +376,12 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexc
 
 #endif
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
 {
     return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
 {
     // Bit manipulation formula works for unsigned integers
     auto mid {(a & b) + ((a ^ b) >> 1)};
@@ -395,7 +395,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const uint128_t a, const u
     return mid;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
 {
     // For signed integers, we use a + (b - a) / 2 or a - (a - b) / 2
     // The subtraction is done in unsigned arithmetic to handle overflow correctly

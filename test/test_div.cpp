@@ -11,6 +11,9 @@
 #else
 
 import boost.int128;
+// Internal macros (e.g. BOOST_INT128_UNREACHABLE) are not part of the module
+// interface, so pull them in directly.
+#include <boost/int128/detail/config.hpp>
 
 #endif
 

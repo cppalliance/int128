@@ -36,6 +36,12 @@ if(HAVE_BOOST_TEST)
 
         boost_test_jamfile(FILE sycl_jamfile LINK_LIBRARIES Boost::int128 Boost::charconv sycl COMPILE_DEFINITIONS BOOST_INT128_ENABLE_SYCL=1 COMPILE_OPTIONS -fsycl)
 
+    elseif(BOOST_INT128_BUILD_MODULE)
+
+        message(STATUS "Building Boost.int128 as a C++ module")
+
+        add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../module" module)
+
     else()
 
         boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::random Boost::multiprecision Boost::mp11 Boost::charconv)

@@ -1898,12 +1898,12 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const SignedInteger lhs, c
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
 {
     return detail::default_add(lhs, static_cast<int128_t>(rhs));
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
     return detail::default_add(rhs, static_cast<int128_t>(lhs));
 }
@@ -2631,10 +2631,23 @@ template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_infinity;
 template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_quiet_NaN;
 template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_signaling_NaN;
 
-// These members were deprecated in C++23
-#if ((!defined(_MSC_VER) && (__cplusplus <= 202002L)) || (defined(_MSC_VER) && (_MSVC_LANG <= 202002L)))
+// These members were deprecated in C++23; suppress the deprecation warning rather
+// than dropping the definitions.
+#if defined(__GNUC__) && __cplusplus > 202002L
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable:4996)
+#endif
+
 template <bool b> constexpr std::float_denorm_style numeric_limits_impl_i128<b>::has_denorm;
 template <bool b> constexpr bool numeric_limits_impl_i128<b>::has_denorm_loss;
+
+#if defined(__GNUC__) && __cplusplus > 202002L
+#  pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#  pragma warning(pop)
 #endif
 
 template <bool b> constexpr std::float_round_style numeric_limits_impl_i128<b>::round_style;

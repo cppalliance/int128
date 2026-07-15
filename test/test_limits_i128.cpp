@@ -9,6 +9,9 @@
 #else
 
 import boost.int128;
+// Internal macros (BOOST_INT128_IF_CONSTEXPR, feature detection) are not part of
+// the module interface, so pull them in directly.
+#include <boost/int128/detail/config.hpp>
 
 #endif
 
