@@ -9,6 +9,8 @@
 #else
 
 import boost.int128;
+// The convenience macros are not part of the module interface (macros never are).
+#include <boost/int128/detail/literal_macros.hpp>
 
 #endif
 
