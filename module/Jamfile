@@ -24,15 +24,18 @@ project
       <toolset>clang:<cxxstd>23
     ;
 
-obj int128 : int128.cxx : <toolset>msvc:<cxxflags>-interface ;
+obj int128 : int128.cxx : <define>BOOST_INT128_EXPORT_TESTING <toolset>msvc:<cxxflags>-interface ;
 
 run quick_test.cpp int128 : : : <dependency>int128 ;
 run ../test/test_bit.cpp int128 : : : <dependency>int128 ;
 run ../test/test_div.cpp int128 : : : <dependency>int128 ;
+run ../test/test_from_chars_bases.cpp int128 : : : <dependency>int128 ;
 run ../test/test_gcd_lcm.cpp int128 : : : <dependency>int128 ;
-run ../test/test_i128.cpp int128 : : : <dependency>int128 ;
-run ../test/test_i128_no_sign_conv.cpp int128 : : : <dependency>int128 ;
-run ../test/test_limits_i128.cpp : : : <dependency>int128 ;
-run ../test/test_limits_u128.cpp : : : <dependency>int128 ;
-run ../test/test_literals.cpp : : : <dependency>int128 ;
-run ../test/test_midpoint.cpp : : : <dependency>int128 ;
+run ../test/test_hash.cpp int128 : : : <dependency>int128 ;
+run ../test/test_ipow.cpp int128 : : : <dependency>int128 ;
+run ../test/test_isqrt.cpp int128 : : : <dependency>int128 ;
+run ../test/test_limits_i128.cpp int128 : : : <dependency>int128 ;
+run ../test/test_limits_u128.cpp int128 : : : <dependency>int128 ;
+run ../test/test_literals.cpp int128 : : : <dependency>int128 ;
+run ../test/test_midpoint.cpp int128 : : : <dependency>int128 ;
+run ../test/test_powm.cpp int128 : : : <dependency>int128 ;
