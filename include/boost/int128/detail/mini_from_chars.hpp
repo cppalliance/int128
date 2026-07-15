@@ -219,12 +219,12 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 }
 } // namespace impl
 
-BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
 {
     return impl::from_chars_integer_impl<uint128_t, uint128_t>(first, last, value, base);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
 {
     return impl::from_chars_integer_impl<int128_t, uint128_t>(first, last, value, base);
 }

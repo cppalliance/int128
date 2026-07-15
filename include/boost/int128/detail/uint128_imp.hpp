@@ -2805,10 +2805,23 @@ template <bool b> constexpr bool numeric_limits_impl_u128<b>::has_infinity;
 template <bool b> constexpr bool numeric_limits_impl_u128<b>::has_quiet_NaN;
 template <bool b> constexpr bool numeric_limits_impl_u128<b>::has_signaling_NaN;
 
-// These members were deprecated in C++23
-#if ((!defined(_MSC_VER) && (__cplusplus <= 202002L)) || (defined(_MSC_VER) && (_MSVC_LANG <= 202002L)))
+// These members were deprecated in C++23; suppress the deprecation warning rather
+// than dropping the definitions.
+#if defined(__GNUC__) && __cplusplus > 202002L
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(_MSC_VER)
+#  pragma warning(push)
+#  pragma warning(disable:4996)
+#endif
+
 template <bool b> constexpr std::float_denorm_style numeric_limits_impl_u128<b>::has_denorm;
 template <bool b> constexpr bool numeric_limits_impl_u128<b>::has_denorm_loss;
+
+#if defined(__GNUC__) && __cplusplus > 202002L
+#  pragma GCC diagnostic pop
+#elif defined(_MSC_VER)
+#  pragma warning(pop)
 #endif
 
 template <bool b> constexpr std::float_round_style numeric_limits_impl_u128<b>::round_style;

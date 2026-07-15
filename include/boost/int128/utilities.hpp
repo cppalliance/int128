@@ -36,7 +36,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t addmod(const uint128_t a, const uin
 }
 
 // Modular multiplication via shift-and-add for the full 128-bit modulus case
-BOOST_INT128_HOST_DEVICE constexpr uint128_t mulmod_shift(uint128_t a, uint128_t b, const uint128_t m) noexcept
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mulmod_shift(uint128_t a, uint128_t b, const uint128_t m) noexcept
 {
     uint128_t result {0};
 

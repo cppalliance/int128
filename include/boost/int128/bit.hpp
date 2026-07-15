@@ -76,7 +76,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
 namespace impl {
 
-BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(std::uint64_t x) noexcept
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(std::uint64_t x) noexcept
 {
     x = x - ((x >> 1U) & UINT64_C(0x5555555555555555));
     x = (x & UINT64_C(0x3333333333333333)) + ((x >> 2U) & UINT64_C(0x3333333333333333));
