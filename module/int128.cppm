@@ -65,6 +65,10 @@ export module boost.int128;
 import std;
 #endif
 
+// Wrap the exported declarations in extern "C++" so they attach to the global
+// module (classic mangling), keeping the module and header forms ABI compatible.
+extern "C++" {
+
 export namespace boost::int128 {
 
 struct int128_t;
@@ -97,3 +101,5 @@ class numeric_limits<boost::int128::uint128_t>;
 #elif defined(__clang__)
 #  pragma clang diagnostic pop
 #endif
+
+} // extern "C++"

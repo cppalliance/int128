@@ -77,7 +77,7 @@ When compiling with pass:[C++20] or newer, the library can be consumed as a name
 import boost.int128;
 ----
 
-Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling `module/int128.cxx` with your toolchain's module support. See xref:config.adoc[Configuration Macros] for details.
+Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling `module/int128.cppm` with your toolchain's module support. See xref:config.adoc[Configuration Macros] for details.
 
 == CUDA Support
 
