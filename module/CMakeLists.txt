@@ -16,12 +16,18 @@ endif()
 add_library(boost_int128_module)
 target_sources(boost_int128_module
         PUBLIC
-        FILE_SET int128_module TYPE CXX_MODULES FILES int128.cxx
+        FILE_SET int128_module TYPE CXX_MODULES FILES int128.cppm
 )
 target_link_libraries(boost_int128_module PUBLIC Boost::int128)
 target_compile_features(boost_int128_module PUBLIC cxx_std_23)
 
-# int128.cxx defines BOOST_INT128_BUILD_MODULE itself, but the tests link this
+# The purview includes the library's angled <boost/int128...> headers by design.
+# clang-scan-deps warns on that and ignores -Wno-include-angled-in-module-purview,
+# so -w keeps the dependency-scan output clean (this glue unit's code is fully
+# warned on in the header builds).
+target_compile_options(boost_int128_module PRIVATE $<$<CXX_COMPILER_ID:Clang>:-w>)
+
+# int128.cppm defines BOOST_INT128_BUILD_MODULE itself, but the tests link this
 # target and need the macro too so they import the module instead of including
 # the headers directly.
 target_compile_definitions(boost_int128_module PUBLIC BOOST_INT128_BUILD_MODULE)
@@ -67,6 +73,15 @@ set(BOOST_INT128_MODULE_TESTS
         test_midpoint
         test_powm
 )
+
+# GCC's libstdc++ cannot yet mix the test sources' textual standard library
+# includes with import std in one consumer translation unit, so only the quick
+# test runs there. MSVC is treated the same way until its full consumer suite has
+# been validated. The full list runs under clang/libc++.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(STATUS "Boost.Int128 module: ${CMAKE_CXX_COMPILER_ID} consumer tests limited to module_quick_test")
+    set(BOOST_INT128_MODULE_TESTS)
+endif()
 
 add_executable(module_quick_test "${CMAKE_CURRENT_SOURCE_DIR}/quick_test.cpp")
 target_link_libraries(module_quick_test PRIVATE boost_int128_module)
