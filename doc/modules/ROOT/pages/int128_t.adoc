@@ -503,3 +503,138 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 
 Returns as an `int128_t` the remainder of `lhs` and `rhs` without exception.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+
+[#i128_limits]
+== `<limits>` Support and Values
+
+A full specialization of `std::numeric_limits<int128_t>` is provided.
+It is defined in xref:api_reference.adoc#api_structs[`<boost/int128/limits.hpp>`] and is also included by the umbrella header `<boost/int128.hpp>`.
+The member values match those of a built-in signed 128-bit integer.
+
+[source, c++]
+----
+#include <boost/int128/limits.hpp>
+
+namespace std {
+
+template <>
+class numeric_limits<boost::int128::int128_t>;
+
+} // namespace std
+----
+
+=== Member Functions
+
+Each function is `static constexpr` and returns an `int128_t`.
+
+[cols="1,2", options="header"]
+|===
+| Function | Value
+
+| `(min)()`
+| `-170141183460469231731687303715884105728` (`-2^127`)
+
+| `lowest()`
+| `-170141183460469231731687303715884105728` (`-2^127`)
+
+| `(max)()`
+| `170141183460469231731687303715884105727` (`2^127 - 1`)
+
+| `epsilon()`
+| `0`
+
+| `round_error()`
+| `0`
+
+| `infinity()`
+| `0`
+
+| `quiet_NaN()`
+| `0`
+
+| `signaling_NaN()`
+| `0`
+
+| `denorm_min()`
+| `0`
+|===
+
+NOTE: Wrap `min` and `max` in parentheses at the call site, as `(std::numeric_limits<int128_t>::min)()`, so the call is not intercepted by the `min`/`max` function-like macros that some platform headers define.
+
+=== Member Constants
+
+[cols="1,2", options="header"]
+|===
+| Constant | Value
+
+| `is_specialized`
+| `true`
+
+| `is_signed`
+| `true`
+
+| `is_integer`
+| `true`
+
+| `is_exact`
+| `true`
+
+| `is_bounded`
+| `true`
+
+| `is_modulo`
+| `true`
+
+| `is_iec559`
+| `false`
+
+| `has_infinity`
+| `false`
+
+| `has_quiet_NaN`
+| `false`
+
+| `has_signaling_NaN`
+| `false`
+
+| `has_denorm`
+| `std::denorm_absent`
+
+| `has_denorm_loss`
+| `false`
+
+| `round_style`
+| `std::round_toward_zero`
+
+| `digits`
+| `127`
+
+| `digits10`
+| `38`
+
+| `max_digits10`
+| `0`
+
+| `radix`
+| `2`
+
+| `min_exponent`
+| `0`
+
+| `min_exponent10`
+| `0`
+
+| `max_exponent`
+| `0`
+
+| `max_exponent10`
+| `0`
+
+| `traps`
+| `std::numeric_limits<std::uint64_t>::traps`
+
+| `tinyness_before`
+| `false`
+|===
+
+Equivalent C-style constant macros are available in xref:api_reference.adoc#api_macro_literals[`<boost/int128/climits.hpp>`]: `BOOST_INT128_INT128_MIN` and `BOOST_INT128_INT128_MAX`.
