@@ -63,7 +63,7 @@ For values smaller than 2^64, prefer the constructor:
 [source, c++]
 ----
 constexpr uint128_t small {42U};            // direct conversion from a builtin
-const auto small_literal {42_U128};         // parses "42" via from_chars
+const auto small_literal {42_U128};         // parses "42" and then constructs
 ----
 
 The two produce the same value, but the constructor avoids the parse and should be used in hot paths or in code where many small constants are constructed.
