@@ -24,8 +24,6 @@ https://www.boost.org/LICENSE_1_0.txt
 | xref:charconv.adoc[`boost::charconv`]
 | `to_chars` and `from_chars` overloads for 128-bit integers (requires Boost.Charconv)
 
-| `boost::random::traits`
-| Trait specializations enabling use with Boost.Random (requires Boost.Random)
 |===
 
 [#api_types]
