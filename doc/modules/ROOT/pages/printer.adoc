@@ -11,6 +11,7 @@ https://www.boost.org/LICENSE_1_0.txt
 Pretty printers allow debuggers to display `uint128_t` and `int128_t` values in human-readable format instead of showing the raw struct members.
 The library contains pretty printers for LLDB, GDB, and Visual Studio in the `extra/` folder.
 
+[#printer_lldb]
 == LLDB
 
 To use this, add the following line to your `~/.lldbinit` file:
@@ -24,6 +25,7 @@ If this is successful, you should see the following message in your debugger upo
 
 `"int128_t and uint128_t pretty printers loaded successfully"`
 
+[#printer_gdb]
 == GDB
 
 To load the pretty printer, add the following line to your `.gdbinit`:
@@ -40,6 +42,7 @@ or you can source it manually in GDB.
 (gdb) source /path/to/int128/extra/int128_printer_gdb.py
 ----
 
+[#printer_natvis]
 == Visual Studio (NATVIS)
 
 The `extra/int128.natvis` file provides visualization for the Visual Studio debugger.
