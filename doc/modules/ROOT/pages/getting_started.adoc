@@ -92,5 +92,5 @@ The library types and many of the functions can also run on the device under SYC
 The core library (everything included by `<boost/int128.hpp>`) has no required dependencies and needs only a conforming pass:[C++14] compiler. The optional integration headers depend on the following, and are only usable when those components are available:
 
 * xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires Boost.Charconv.
-* `<boost/int128/random.hpp>` requires Boost.Random.
+* xref:random.adoc[`<boost/int128/random.hpp>`] requires Boost.Random.
 * xref:format.adoc[`<boost/int128/fmt_format.hpp>`] requires the https://github.com/fmtlib/fmt[pass:[{fmt}]] library.
