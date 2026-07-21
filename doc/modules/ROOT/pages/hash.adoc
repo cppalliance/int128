@@ -47,7 +47,6 @@ The two finalized halves are then combined with the `boost::hash_combine` mixing
 * Two values comparing equal under `operator==` produce the same hash.
 * For any non-zero `v`, `std::hash<int128_t>{}(v) != std::hash<int128_t>{}(-v)`.
 * The mixing function is asymmetric, so `{high, low}` and `{low, high}` do not collide except by chance.
-* The hash value is implementation-defined and may differ across platforms, compilers, or library versions. Do not persist hash values across runs.
 
 [#hash_example]
 == Example
