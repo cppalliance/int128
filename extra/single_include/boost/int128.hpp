@@ -3354,17 +3354,29 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const UnsignedInteger lhs,
     return detail::default_add(rhs, lhs);
 }
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146) // Unary minus applied to unsigned type
+#endif
+
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const SignedInteger rhs) noexcept
 {
-    return rhs > 0 ? detail::default_add(lhs, rhs) : detail::default_sub(lhs, -rhs);
+    // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
+    return rhs < 0 ? detail::default_sub(lhs, -static_cast<std::uint64_t>(rhs)) :
+                     detail::default_add(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    return lhs > 0 ? detail::default_add(rhs, lhs) : detail::default_sub(rhs, -lhs);
+    return lhs < 0 ? detail::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
+                     detail::default_add(rhs, static_cast<std::uint64_t>(lhs));
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -3743,11 +3755,21 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const UnsignedInteger lhs,
     else
     {
         auto abs_rhs {abs(rhs)};
+        // rhs == -2^64 has |rhs| greater than any 64-bit lhs, so the quotient is 0 (also avoids /0)
+        if (abs_rhs.high != 0)
+        {
+            return {0, 0};
+        }
         const auto res {static_cast<std::uint64_t>(lhs) / abs_rhs.low};
         const int128_t result {0, res};
         return rhs < 0 ? -result : result;
     }
 }
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4146) // Unary minus applied to unsigned type
+#endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexcept
@@ -3763,7 +3785,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
 
     constexpr int128_t min_val {INT64_MIN, 0};
     const auto negative_res {static_cast<bool>((lhs.high < 0) ^ (rhs < 0))};
-    const auto abs_rhs {rhs < 0 ? -rhs : rhs};
+    // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
+    const auto abs_rhs {rhs < 0 ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
     const auto abs_lhs {abs(lhs)};
 
     if (lhs != min_val && abs_lhs < abs_rhs)
@@ -3771,7 +3794,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
         return {0, 0};
     }
 
-    detail::one_word_div(abs_lhs, static_cast<eval_type>(abs_rhs), quotient);
+    detail::one_word_div(abs_lhs, abs_rhs, quotient);
 
     return negative_res ? -quotient : quotient;
 }
@@ -3792,12 +3815,22 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const SignedInteger lhs, c
     {
         const auto negative_res {static_cast<bool>((rhs.high < 0) ^ (lhs < 0))};
         const auto abs_rhs {abs(rhs)};
-        const auto abs_lhs {lhs < 0 ? -lhs : lhs};
-        const int128_t res {0, static_cast<std::uint64_t>(abs_lhs) / abs_rhs.low};
+        // rhs == -2^64 has |rhs| greater than any 64-bit lhs, so the quotient is 0 (also avoids /0)
+        if (abs_rhs.high != 0)
+        {
+            return {0, 0};
+        }
+        // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
+        const auto abs_lhs {lhs < 0 ? -static_cast<std::uint64_t>(lhs) : static_cast<std::uint64_t>(lhs)};
+        const int128_t res {0, abs_lhs / abs_rhs.low};
 
         return negative_res ? -res : res;
     }
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
