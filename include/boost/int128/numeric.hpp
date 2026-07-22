@@ -150,7 +150,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(const u
     return x * y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t& x, const int128_t& y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
