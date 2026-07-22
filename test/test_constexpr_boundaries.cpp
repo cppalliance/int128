@@ -10,8 +10,10 @@
 #include <boost/int128.hpp>
 #include <cstdint>
 #include <limits>
+
 #ifdef _MSC_VER
 #  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
 #endif
 
 using boost::int128::int128_t;
