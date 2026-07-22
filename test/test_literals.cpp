@@ -42,6 +42,10 @@ void test_u128_digit_separators()
     // Separators are also honored through the convenience macro
     BOOST_TEST(boost::int128::uint128_t{1234} == BOOST_INT128_UINT128_C(1'234));
 
+    // The string form of the literal skips separators as well
+    BOOST_TEST(boost::int128::uint128_t{1234} == "1'234"_u128);
+    BOOST_TEST(boost::int128::uint128_t{1234} == "1'234"_U128);
+
     // Full-width value with a separator between every group of three digits
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     BOOST_TEST(max_val == 340'282'366'920'938'463'463'374'607'431'768'211'455_u128);
@@ -78,6 +82,10 @@ void test_i128_digit_separators()
 
     // Separators are also honored through the convenience macro
     BOOST_TEST(boost::int128::int128_t{9999} == BOOST_INT128_INT128_C(9'999));
+
+    // The string form of the literal skips separators as well
+    BOOST_TEST(boost::int128::int128_t{1234} == "1'234"_i128);
+    BOOST_TEST(boost::int128::int128_t{1234} == "1'234"_I128);
 
     // Full-width value with a separator between every group of three digits
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
