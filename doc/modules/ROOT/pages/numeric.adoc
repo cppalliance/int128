@@ -33,7 +33,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) 
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
 
@@ -82,7 +82,7 @@ namespace int128 {
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(int128_t a, int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -103,7 +103,7 @@ namespace int128 {
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(int128_t a, int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -124,7 +124,7 @@ namespace int128 {
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(int128_t a, int128_t b) noexcept;
 
 } // namespace int128
 } // namespace boost
