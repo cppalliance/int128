@@ -80,7 +80,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_cha
 template <typename Integer, typename Unsigned_Integer, bool is_literal_parse = false>
 BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
 {
-    if (first >= last)
+    if (last - first <= 0)
     {
         return EINVAL;
     }
