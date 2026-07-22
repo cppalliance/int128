@@ -409,6 +409,10 @@ This operation is subject to mixed sign limitations discussed xref:int128_t.adoc
 [#i128_math_operators]
 == Arithmetic Operators
 
+All of the arithmetic operators use two's-complement wrap-around on overflow.
+When a result is not representable in an `int128_t` it silently rolls over modulo `2^128` rather than trapping or invoking undefined behavior, matching `std::numeric_limits<int128_t>::is_modulo`.
+For example, `BOOST_INT128_INT128_MAX + 1` wraps to `BOOST_INT128_INT128_MIN`, and `BOOST_INT128_INT128_MIN - 1` wraps to `BOOST_INT128_INT128_MAX`.
+
 === Unary Plus and Minus
 
 [source, c++]
