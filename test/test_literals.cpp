@@ -32,6 +32,12 @@ void test_u128_literals()
     BOOST_TEST(max_val == macro_val);
 }
 
+// Warning with only MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable: 4307)
+#endif
+
 void test_u128_digit_separators()
 {
     // C++ digit separators (') are ignored inside numeric literals
@@ -94,6 +100,10 @@ void test_i128_digit_separators()
     // Separators must be usable in a constant expression
     static_assert(100'000_i128 == boost::int128::int128_t{100000}, "constexpr separator");
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 int main()
 {
