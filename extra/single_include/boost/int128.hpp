@@ -7773,7 +7773,7 @@ namespace impl {
 BOOST_INT128_INLINE_CONSTEXPR unsigned char uchar_values[] =
      {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
       255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+      255, 255, 255, 255, 255, 255, 255, 254, 255, 255, 255, 255, 255, 255, 255, 255,
         0,   1,   2,   3,   4,   5,   6,   7,   8,   9, 255, 255, 255, 255, 255, 255,
       255,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
        25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35, 255, 255, 255, 255, 255,
@@ -7792,7 +7792,7 @@ static_assert(sizeof(uchar_values) == 256, "uchar_values should represent all 25
 
 #endif // __NVCC__
 
-// Convert characters for 0-9, A-Z, a-z to 0-35. Anything else is 255
+// Convert characters for 0-9, A-Z, a-z to 0-35. The digit separator ' is 254. Anything else is 255
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_char(char val) noexcept -> unsigned char
 {
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT)
@@ -7800,7 +7800,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_cha
     constexpr unsigned char uchar_values[] =
     {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
      255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-     255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+     255, 255, 255, 255, 255, 255, 255, 254, 255, 255, 255, 255, 255, 255, 255, 255,
        0,   1,   2,   3,   4,   5,   6,   7,   8,   9, 255, 255, 255, 255, 255, 255,
      255,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,
       25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35, 255, 255, 255, 255, 255,
@@ -7822,10 +7822,10 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr auto digit_from_cha
     return uchar_values[static_cast<unsigned char>(val)];
 }
 
-template <typename Integer, typename Unsigned_Integer>
+template <typename Integer, typename Unsigned_Integer, bool is_literal_parse = false>
 BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first, const char* last, Integer& value, int base) noexcept
 {
-    if (first >= last)
+    if (last - first <= 0)
     {
         return EINVAL;
     }
@@ -7897,7 +7897,19 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 
     for (; i < fast_limit; ++i)
     {
-        const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
+        const auto raw_digit = digit_from_char(*next);
+
+        // When parsing a user-defined literal skip the digit separator ' (marked as 254)
+        BOOST_INT128_IF_CONSTEXPR (is_literal_parse)
+        {
+            if (raw_digit == 254)
+            {
+                ++next;
+                continue;
+            }
+        }
+
+        const auto current_digit = static_cast<Unsigned_Integer>(raw_digit);
 
         if (current_digit >= unsigned_base)
         {
@@ -7910,7 +7922,19 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 
     for (; i < nc; ++i)
     {
-        const auto current_digit = static_cast<Unsigned_Integer>(digit_from_char(*next));
+        const auto raw_digit = digit_from_char(*next);
+
+        // When parsing a user-defined literal skip the digit separator ' (marked as 254)
+        BOOST_INT128_IF_CONSTEXPR (is_literal_parse)
+        {
+            if (raw_digit == 254)
+            {
+                ++next;
+                continue;
+            }
+        }
+
+        const auto current_digit = static_cast<Unsigned_Integer>(raw_digit);
 
         if (current_digit >= unsigned_base)
         {
@@ -7972,6 +7996,18 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const
 BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
 {
     return impl::from_chars_integer_impl<int128_t, uint128_t>(first, last, value, base);
+}
+
+// Parsing entry points for the user-defined literals. Unlike from_chars these skip the
+// C++ digit separator ' so that literals such as 1'234'567_u128 are accepted.
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+{
+    return impl::from_chars_integer_impl<uint128_t, uint128_t, true>(first, last, value, base);
+}
+
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+{
+    return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
 }
 
 } // namespace detail
@@ -8330,56 +8366,56 @@ namespace literals {
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept
 {
     uint128_t result {};
-    detail::from_chars(str, str + detail::strlen(str), result);
+    detail::from_chars_literal(str, str + detail::strlen(str), result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept
 {
     uint128_t result {};
-    detail::from_chars(str, str + detail::strlen(str), result);
+    detail::from_chars_literal(str, str + detail::strlen(str), result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
 {
     uint128_t result {};
-    detail::from_chars(str, str + len, result);
+    detail::from_chars_literal(str, str + len, result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
 {
     uint128_t result {};
-    detail::from_chars(str, str + len, result);
+    detail::from_chars_literal(str, str + len, result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept
 {
     int128_t result {};
-    detail::from_chars(str, str + detail::strlen(str), result);
+    detail::from_chars_literal(str, str + detail::strlen(str), result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
 {
     int128_t result {};
-    detail::from_chars(str, str + detail::strlen(str), result);
+    detail::from_chars_literal(str, str + detail::strlen(str), result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
 {
     int128_t result {};
-    detail::from_chars(str, str + len, result);
+    detail::from_chars_literal(str, str + len, result);
     return result;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
 {
     int128_t result {};
-    detail::from_chars(str, str + len, result);
+    detail::from_chars_literal(str, str + len, result);
     return result;
 }
 
