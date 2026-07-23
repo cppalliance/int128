@@ -45,7 +45,30 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, st
 
 The macros at the end allow you to write out a 128-bit number like you would with say `UINT64_C` without having to add quotes.
 
-NOTE: The minimum `int128_t` value cannot be written as a negated `_i128` literal, because its positive magnitude (2^127) exceeds the maximum `int128_t` value and so fails to parse (yielding `0`). Use `BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)` or `(std::numeric_limits<int128_t>::min)()` instead.
+== Bases
+
+The literals accept the standard C++ integer base prefixes in addition to plain decimal.
+A `0x` or `0X` prefix selects hexadecimal, `0b` or `0B` selects binary, and a leading `0` selects octal.
+The prefix is stripped and the remaining digits are parsed in the selected base.
+Digit separators (`'`) may be used in any base.
+
+[source, c++]
+----
+0xDEAD'BEEF_u128    // hexadecimal, == 3735928559
+0b1111'0000_u128    // binary,      == 240
+0777_u128           // octal,       == 511
+255_u128            // decimal,     == 255
+-0xFF_i128          // == -255 (the unary minus is applied after parsing)
+"-0b1010"_i128      // == -10 (the string form may embed the sign)
+----
+
+== Error Handling
+
+An invalid literal is rejected at compile time rather than being silently accepted.
+This includes a value that overflows the target type, a digit that is not valid for the selected base (for example `0b2` or `09`), and an empty magnitude such as `0x`.
+When such a literal is used in a constant expression the parse reaches `BOOST_INT128_UNREACHABLE`, which is not a constant expression and therefore is a hard compile error.
+
+NOTE: The minimum `int128_t` value cannot be written as a negated `_i128` literal, because its positive magnitude (2^127) exceeds the maximum `int128_t` value and so fails to parse (a hard compile error in a constant expression). Use `BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)`, the string form `"-170141183460469231731687303715884105728"_i128`, or `(std::numeric_limits<int128_t>::min)()` instead.
 
 See the xref:examples.adoc#examples_construction[construction examples] for usage demonstrations of both literals and macros.
 
