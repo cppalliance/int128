@@ -279,7 +279,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     #endif
 }
 
-// Rejects an invlaid literal
+// Rejects an invalid literal
 [[noreturn]] BOOST_INT128_HOST_DEVICE inline void parse_invalid_literal()
 {
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
@@ -288,6 +288,14 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
     #endif
 }
+
+// GCC before 6 rejects a constexpr function that contains a throw-expression or a
+// call to a non-constexpr function anywhere in its body so we need to use unreachable in that case
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 6
+#  define BOOST_INT128_REJECT_LITERAL(reporter) BOOST_INT128_UNREACHABLE
+#else
+#  define BOOST_INT128_REJECT_LITERAL(reporter) reporter()
+#endif
 
 // Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
 // A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
@@ -338,11 +346,11 @@ BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, cons
         const auto status = from_chars_literal(first, last, value);
         if (status == EDOM)
         {
-            parse_literal_out_of_range();
+            BOOST_INT128_REJECT_LITERAL(parse_literal_out_of_range);
         }
         else if (status != first - last)
         {
-            parse_invalid_literal();
+            BOOST_INT128_REJECT_LITERAL(parse_invalid_literal);
         }
 
         return value;
@@ -352,11 +360,11 @@ BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, cons
     const auto status = from_chars_literal(next, last, value, base);
     if (status == EDOM)
     {
-        parse_literal_out_of_range();
+        BOOST_INT128_REJECT_LITERAL(parse_literal_out_of_range);
     }
     else if (status != next - last)
     {
-        parse_invalid_literal();
+        BOOST_INT128_REJECT_LITERAL(parse_invalid_literal);
     }
 
     if (negative)
@@ -377,5 +385,7 @@ BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, cons
 } // namespace detail
 } // namespace int128
 } // namespace boost
+
+#undef BOOST_INT128_REJECT_LITERAL
 
 #endif //MINI_FROM_CHARS_HPP
