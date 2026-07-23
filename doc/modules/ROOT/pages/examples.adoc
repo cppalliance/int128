@@ -394,6 +394,39 @@ Parsed hex "DEADBEEFCAFEBABE12345678"
 ----
 ====
 
+[#examples_boost_container_hash]
+== Boost.ContainerHash Integration
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/container_hash.cpp[example] demonstrates using the library types with Boost.ContainerHash: the boost::hash functor, boost::hash_combine for composite keys, and the boost::unordered containers that default to boost::hash
+====
+[source, c++]
+----
+include::example$container_hash.cpp[tags=**;!exclude]
+----
+
+.Expected Output
+[listing]
+----
+=== boost::hash on 128-bit types ===
+boost::hash matches std::hash (uint128_t): true
+boost::hash matches std::hash (int128_t):  true
+
+=== boost::unordered_map<uint128_t, ...> ===
+Entries: 3
+Label at 2^64: two to the sixty-fourth
+Contains 42: true
+
+=== hash_combine for a composite key ===
+Cities stored: 2
+Population at (10, 20): 5000000
+Same coordinate hashes equal: true
+
+=== boost::unordered_flat_map<int128_t, ...> ===
+Flat map size: 3
+counts[-1] = 1
+----
+====
+
 [#examples_to_string]
 == String Conversion (to_string)
 
