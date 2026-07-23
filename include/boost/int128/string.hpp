@@ -25,6 +25,14 @@ auto to_string(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::v
     return std::string{last, buffer + sizeof(buffer) - 1};
 }
 
+template <typename T>
+auto to_wstring(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value), std::wstring>
+{
+    char buffer[detail::mini_to_chars_buffer_size];
+    const auto last {detail::mini_to_chars(buffer, value, 10, false)};
+    return std::wstring{last, buffer + sizeof(buffer) - 1};
+}
+
 } // namespace int128
 } // namespace boost
 
