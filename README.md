@@ -14,7 +14,7 @@ int128 is under active development and is not an official boost library.
 
 # How To Use The Library
 
-This library is header only. It contains no other dependencies.
+This library is header only and requires C++14 or newer. It contains no other dependencies.
 Simply `#include` it and use it.
 With C++20 and greater you can instead `import boost.int128`.
 
