@@ -282,6 +282,9 @@ Listed by analogous STL header.
 
 | xref:string.adoc[`to_string`]
 | `std::string` conversion of base-10 values
+
+| xref:string.adoc[`to_wstring`]
+| `std::wstring` conversion of base-10 values
 |===
 
 [#api_utilities]
