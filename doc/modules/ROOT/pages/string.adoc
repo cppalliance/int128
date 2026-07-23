@@ -27,11 +27,16 @@ template <typename T>
 std::enable_if_t<std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value, std::string>
 to_string(const T& value);
 
+// Constrained to T being int128_t or uint128_t.
+template <typename T>
+std::enable_if_t<std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value, std::wstring>
+to_wstring(const T& value);
+
 } // namespace int128
 } // namespace boost
 ----
 
-Returns a `std::string` containing the decimal(base-10) representation of `value`.
-These functions may throw `std::bad_alloc` from the constructor of `std::string`.
+`to_string` returns a `std::string`, and `to_wstring` returns a `std::wstring`, containing the decimal(base-10) representation of `value`.
+These functions may throw `std::bad_alloc` from the constructor of the returned string.
 
 An example of how to use these functions is available xref:examples.adoc#examples_to_string[on the examples page.]
