@@ -265,6 +265,20 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
 }
 
+// Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
+template <typename Integer>
+BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, const char* last) noexcept
+{
+    Integer value {};
+
+    if (from_chars_literal(first, last, value) != first - last)
+    {
+        BOOST_INT128_UNREACHABLE;
+    }
+
+    return value;
+}
+
 } // namespace detail
 } // namespace int128
 } // namespace boost
