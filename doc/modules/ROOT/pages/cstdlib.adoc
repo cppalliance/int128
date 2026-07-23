@@ -59,4 +59,6 @@ BOOST_INT128_HOST_DEVICE constexpr i128div_t div(int128_t lhs, int128_t rhs) noe
 } // namespace boost
 ----
 
-The result of `quot` and `rem` from this function, including the sign, are the same as if you performed division and modulo separately.
+For any non-zero divisor the `quot` and `rem` values, including their sign, are the same as if you performed division and modulo separately.
+
+Division by zero is handled differently from the `operator/` and `operator%` operators. Those operators leave a zero divisor undefined (matching the built-in `__int128` types), whereas `div` detects a zero divisor and returns a zero-initialized result (`quot == 0` and `rem == 0`) instead. A zero numerator with a non-zero divisor likewise returns `{0, 0}`.

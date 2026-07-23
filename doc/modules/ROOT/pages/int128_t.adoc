@@ -71,6 +71,8 @@ Specifically:
 * For shift operators, the result type follows the LHS: `int128_t << T` and `int128_t >> T` always return `int128_t`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
 
+NOTE: Division and remainder match `__int128` for every input except the two the built-in leaves undefined. Division or remainder by zero is likewise undefined behavior: the library adds no zero-divisor check, so it behaves like the built-in (a hardware trap on platforms that fault on integer division by zero) and is a hard compile-time error in a constant expression. The signed overflow `INT128_MIN / -1`, whose true quotient is not representable, is the one case the library defines rather than leaving undefined: it wraps to `INT128_MIN` (and `INT128_MIN % -1` is `0`), matching the two's-complement wrap the library applies to other overflowing signed operations such as `INT128_MIN * -1`. See xref:int128_t.adoc#i128_math_operators[Division] and Modulo below.
+
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
 [#i128_constructors]
@@ -490,6 +492,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
 ----
 
 Returns as an `int128_t` the quotient of `lhs` and `rhs` without exception.
+The quotient truncates toward zero, and for any `rhs` other than `0` (and other than the overflow noted below) the result is identical to the built-in `__int128` division.
+Division by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
+The signed overflow `INT128_MIN / -1` is defined to wrap to `INT128_MIN` rather than being left undefined as it is for the built-in.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
 
 === Modulo
@@ -506,6 +511,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 ----
 
 Returns as an `int128_t` the remainder of `lhs` and `rhs` without exception.
+The remainder takes the sign of the dividend `lhs`, and for any `rhs` other than `0` the result is identical to the built-in `__int128` remainder, so that `(lhs / rhs) * rhs + lhs % rhs == lhs`.
+Remainder by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
+The signed overflow `INT128_MIN % -1` is defined to be `0` rather than being left undefined as it is for the built-in.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
 
 [#i128_abs]

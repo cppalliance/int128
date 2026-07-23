@@ -2449,7 +2449,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
 
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (lhs < rhs)
@@ -2471,7 +2472,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const UnsignedInteger lhs
 
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (lhs < rhs)
@@ -2486,7 +2488,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (lhs < rhs)
@@ -2610,7 +2613,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (lhs.high != 0)
@@ -2635,7 +2639,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const UnsignedInteger lhs
 
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
     else if (rhs > lhs)
     {
@@ -2649,7 +2654,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
-        return {0, 0};
+        // Division or remainder by zero is undefined behavior for the builtin __int128 types (a hardware trap). We match that: marking it unreachable keeps codegen branch-free and vectorizable.
+        BOOST_INT128_UNREACHABLE;
     }
     if (rhs > lhs)
     {
