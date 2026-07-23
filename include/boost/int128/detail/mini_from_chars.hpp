@@ -266,14 +266,74 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
 }
 
 // Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
+// A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
+// the digits parsed in that base, otherwise handled as base 10
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, const char* last) noexcept
 {
     Integer value {};
 
-    if (from_chars_literal(first, last, value) != first - last)
+    // A leading sign stays with the digits; a base prefix, if present, follows it.
+    auto next = first;
+    const bool negative {next != last && *next == '-'};
+    if (negative)
+    {
+        ++next;
+    }
+
+    int base {10};
+    bool prefixed {false};
+
+    if (last - next >= 2 && *next == '0')
+    {
+        const char marker {next[1]};
+        if (marker == 'x' || marker == 'X')
+        {
+            base = 16;
+            next += 2;
+            prefixed = true;
+        }
+        else if (marker == 'b' || marker == 'B')
+        {
+            base = 2;
+            next += 2;
+            prefixed = true;
+        }
+        else
+        {
+            base = 8;
+            next += 1;
+            prefixed = true;
+        }
+    }
+
+    // With no prefix, from_chars_literal handles the sign and the full decimal range
+    if (!prefixed)
+    {
+        if (from_chars_literal(first, last, value) != first - last)
+        {
+            BOOST_INT128_UNREACHABLE;
+        }
+
+        return value;
+    }
+
+    // Prefixed: parse the magnitude in the detected base, then reapply the sign.
+    if (from_chars_literal(next, last, value, base) != next - last)
     {
         BOOST_INT128_UNREACHABLE;
+    }
+
+    if (negative)
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
+        {
+            value = static_cast<Integer>(-value);
+        }
+        else
+        {
+            BOOST_INT128_UNREACHABLE;
+        }
     }
 
     return value;
