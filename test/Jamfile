@@ -103,6 +103,7 @@ run test_to_string.cpp ;
 
 # Warnings about padding propagate out of <utility>
 run test_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+run test_container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 
 run test_boundaries.cpp ;
 run test_constexpr_boundaries.cpp ;
@@ -117,6 +118,7 @@ run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
 run ../examples/math_and_random.cpp ;
 run ../examples/charconv.cpp ;
+run ../examples/container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 run ../examples/fmt_format.cpp ;
 run ../examples/cstdlib.cpp ;
 run ../examples/numeric_algorithms.cpp ;
