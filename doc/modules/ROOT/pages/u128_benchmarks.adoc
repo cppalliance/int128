@@ -14,6 +14,7 @@ The benchmarks below represent the time in microseconds it takes to perform 20'0
 On most platforms we use the builtin `unsigned \__int128` as the reference benchmark.
 When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::uint128_t` (abbreviated as `boost::mp::uint128_t`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
+Lastly, when available, the benchmarks are also run with `absl::uint128` which is the 128-bit unsigned integer from the https://abseil.io[Abseil Libraries].
 
 [#u128_linux]
 == Linux
