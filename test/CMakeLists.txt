@@ -44,7 +44,7 @@ if(HAVE_BOOST_TEST)
 
     else()
 
-        boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::random Boost::multiprecision Boost::mp11 Boost::charconv)
+        boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::random Boost::multiprecision Boost::mp11 Boost::charconv Boost::container_hash Boost::unordered)
 
     endif()
 
