@@ -151,8 +151,10 @@ void test_i128_base_prefixes()
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
     BOOST_TEST(max_val == 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF_i128);
 
-    // Prefixes must be usable in a constant expression
+    // MSVC 14.1 ICE
+    #if !defined(_MSC_VER) || _MSC_VER >= 1920
     static_assert(-0x10_i128 == boost::int128::int128_t{-16}, "constexpr signed hex");
+    #endif
 }
 
 #ifdef _MSC_VER
