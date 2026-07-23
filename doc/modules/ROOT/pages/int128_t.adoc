@@ -508,6 +508,21 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 Returns as an `int128_t` the remainder of `lhs` and `rhs` without exception.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
 
+[#i128_abs]
+=== Absolute Value
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t value) noexcept;
+----
+
+Returns the absolute value of `value` as an `int128_t`.
+For negative inputs the result is computed by negation, so the range of the return value is the same asymmetric range as the type itself.
+The magnitude of `BOOST_INT128_INT128_MIN` is one greater than `BOOST_INT128_INT128_MAX` and is therefore not representable as a positive `int128_t`.
+In that single case `abs` rolls over and returns `BOOST_INT128_INT128_MIN` unchanged, so the result remains negative.
+This is consistent with the two's-complement wrap-around of unary `operator-` described above.
+Note that calling `std::abs` on a built-in signed integer holding its minimum value is undefined behavior, whereas this overload is well-defined for every input and never traps or throws.
+
 [#i128_limits]
 == `<limits>` Support and Values
 

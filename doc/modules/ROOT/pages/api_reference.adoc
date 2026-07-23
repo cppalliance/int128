@@ -156,7 +156,7 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| xref:int128_t.adoc#i128_math_operators[`abs`]
+| xref:int128_t.adoc#i128_abs[`abs`]
 | Absolute value
 |===
 
