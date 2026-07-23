@@ -7793,6 +7793,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
 #include <limits>
 #include <cstddef>
 
+#if !(defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS))
+#include <stdexcept>
+#endif
+
 #endif
 
 namespace boost {
@@ -8043,9 +8047,124 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
 }
 
+// Rejects an out of range literal
+[[noreturn]] BOOST_INT128_HOST_DEVICE inline void parse_literal_out_of_range()
+{
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
+    BOOST_INT128_UNREACHABLE;
+    #else
+    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    #endif
+}
+
+// Rejects an invalid literal
+[[noreturn]] BOOST_INT128_HOST_DEVICE inline void parse_invalid_literal()
+{
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
+    BOOST_INT128_UNREACHABLE;
+    #else
+    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    #endif
+}
+
+// GCC before 6 rejects a constexpr function that contains a throw-expression or a
+// call to a non-constexpr function anywhere in its body so we need to use unreachable in that case
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 6
+#  define BOOST_INT128_REJECT_LITERAL(reporter) BOOST_INT128_UNREACHABLE
+#else
+#  define BOOST_INT128_REJECT_LITERAL(reporter) reporter()
+#endif
+
+// Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
+// A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
+// the digits parsed in that base, otherwise handled as base 10
+template <typename Integer>
+BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, const char* last) noexcept
+{
+    Integer value {};
+
+    // A leading sign stays with the digits; a base prefix, if present, follows it.
+    auto next = first;
+    const bool negative {next != last && *next == '-'};
+    if (negative)
+    {
+        ++next;
+    }
+
+    int base {10};
+    bool prefixed {false};
+
+    if (last - next >= 2 && *next == '0')
+    {
+        const char marker {next[1]};
+        if (marker == 'x' || marker == 'X')
+        {
+            base = 16;
+            next += 2;
+            prefixed = true;
+        }
+        else if (marker == 'b' || marker == 'B')
+        {
+            base = 2;
+            next += 2;
+            prefixed = true;
+        }
+        else
+        {
+            base = 8;
+            next += 1;
+            prefixed = true;
+        }
+    }
+
+    // With no prefix, from_chars_literal handles the sign and the full decimal range.
+    // Overflow is reported as EDOM; anything else short of full consumption is malformed.
+    if (!prefixed)
+    {
+        const auto status = from_chars_literal(first, last, value);
+        if (status == EDOM)
+        {
+            BOOST_INT128_REJECT_LITERAL(parse_literal_out_of_range);
+        }
+        else if (status != first - last)
+        {
+            BOOST_INT128_REJECT_LITERAL(parse_invalid_literal);
+        }
+
+        return value;
+    }
+
+    // Prefixed: parse the magnitude in the detected base, then reapply the sign.
+    const auto status = from_chars_literal(next, last, value, base);
+    if (status == EDOM)
+    {
+        BOOST_INT128_REJECT_LITERAL(parse_literal_out_of_range);
+    }
+    else if (status != next - last)
+    {
+        BOOST_INT128_REJECT_LITERAL(parse_invalid_literal);
+    }
+
+    if (negative)
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
+        {
+            value = static_cast<Integer>(-value);
+        }
+        else
+        {
+            BOOST_INT128_UNREACHABLE;
+        }
+    }
+
+    return value;
+}
+
 } // namespace detail
 } // namespace int128
 } // namespace boost
+
+#undef BOOST_INT128_REJECT_LITERAL
 
 #endif //MINI_FROM_CHARS_HPP
 // ===== END boost/int128/detail/mini_from_chars.hpp =====
@@ -8398,58 +8517,42 @@ namespace literals {
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept
 {
-    uint128_t result {};
-    detail::from_chars_literal(str, str + detail::strlen(str), result);
-    return result;
+    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept
 {
-    uint128_t result {};
-    detail::from_chars_literal(str, str + detail::strlen(str), result);
-    return result;
+    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
 {
-    uint128_t result {};
-    detail::from_chars_literal(str, str + len, result);
-    return result;
+    return detail::parse_literal<uint128_t>(str, str + len);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
 {
-    uint128_t result {};
-    detail::from_chars_literal(str, str + len, result);
-    return result;
+    return detail::parse_literal<uint128_t>(str, str + len);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept
 {
-    int128_t result {};
-    detail::from_chars_literal(str, str + detail::strlen(str), result);
-    return result;
+    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
 {
-    int128_t result {};
-    detail::from_chars_literal(str, str + detail::strlen(str), result);
-    return result;
+    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
 {
-    int128_t result {};
-    detail::from_chars_literal(str, str + len, result);
-    return result;
+    return detail::parse_literal<int128_t>(str, str + len);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
 {
-    int128_t result {};
-    detail::from_chars_literal(str, str + len, result);
-    return result;
+    return detail::parse_literal<int128_t>(str, str + len);
 }
 
 } // namespace literals
