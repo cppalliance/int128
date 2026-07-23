@@ -1133,9 +1133,7 @@ void test_operator_div()
             const boost::int128::uint128_t check_2_value {value2};
             BOOST_TEST(check_1_value == (emulated_value / check_2_value));
 
-            // Shouldn't crash
-            BOOST_TEST(check_2_value / IntType(0) == 0);
-            BOOST_TEST(value / static_cast<boost::int128::uint128_t>(0) == 0);
+            // Division by zero is undefined behavior (matching the builtin __int128 types), so it is not tested.
 
             // Always 0
             BOOST_TEST(small_emulated_value / emulated_value == 0);
@@ -1235,10 +1233,7 @@ void test_operator_mod()
             const boost::int128::uint128_t check_2_value {value2};
             BOOST_TEST(check_1_value == (emulated_value % check_2_value));
 
-            // Shouldn't crash
-            BOOST_TEST(check_2_value % IntType(0) == 0);
-            BOOST_TEST(value % static_cast<boost::int128::uint128_t>(0) == 0);
-            BOOST_TEST(small_emulated_value % static_cast<boost::int128::uint128_t>(0) == 0);
+            // Remainder by zero is undefined behavior (matching the builtin __int128 types), so it is not tested.
 
             BOOST_TEST(small_emulated_value % emulated_value == small_emulated_value);
             BOOST_TEST(small_emulated_value % small_emulated_value == 0);
