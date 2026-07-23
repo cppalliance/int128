@@ -15,6 +15,10 @@
 #include <limits>
 #include <cstddef>
 
+#if !(defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS))
+#include <stdexcept>
+#endif
+
 #endif
 
 namespace boost {
@@ -265,6 +269,26 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
 }
 
+// Rejects an out of range literal
+[[noreturn]] BOOST_INT128_HOST_DEVICE inline void parse_literal_out_of_range()
+{
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
+    BOOST_INT128_UNREACHABLE;
+    #else
+    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    #endif
+}
+
+// Rejects an invlaid literal
+[[noreturn]] BOOST_INT128_HOST_DEVICE inline void parse_invalid_literal()
+{
+    #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
+    BOOST_INT128_UNREACHABLE;
+    #else
+    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    #endif
+}
+
 // Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
 // A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
 // the digits parsed in that base, otherwise handled as base 10
@@ -307,21 +331,32 @@ BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, cons
         }
     }
 
-    // With no prefix, from_chars_literal handles the sign and the full decimal range
+    // With no prefix, from_chars_literal handles the sign and the full decimal range.
+    // Overflow is reported as EDOM; anything else short of full consumption is malformed.
     if (!prefixed)
     {
-        if (from_chars_literal(first, last, value) != first - last)
+        const auto status = from_chars_literal(first, last, value);
+        if (status == EDOM)
         {
-            BOOST_INT128_UNREACHABLE;
+            parse_literal_out_of_range();
+        }
+        else if (status != first - last)
+        {
+            parse_invalid_literal();
         }
 
         return value;
     }
 
     // Prefixed: parse the magnitude in the detected base, then reapply the sign.
-    if (from_chars_literal(next, last, value, base) != next - last)
+    const auto status = from_chars_literal(next, last, value, base);
+    if (status == EDOM)
     {
-        BOOST_INT128_UNREACHABLE;
+        parse_literal_out_of_range();
+    }
+    else if (status != next - last)
+    {
+        parse_invalid_literal();
     }
 
     if (negative)
