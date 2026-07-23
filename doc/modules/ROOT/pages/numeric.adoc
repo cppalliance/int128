@@ -71,7 +71,7 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(int128_t value) noex
 [#gcd]
 == Greatest Common Divisor (GCD)
 
-Computes the greatest common divisor of `a` and `b`.
+Computes the greatest common divisor of the magnitudes of `a` and `b`.
 
 [source, c++]
 ----
@@ -89,10 +89,20 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(int128_t a, int128_t b) noexcept
 
 ----
 
+Returns `0` when both `a` and `b` are `0`; otherwise returns the greatest common divisor of `abs(a)` and `abs(b)`, which is non-negative.
+In particular, `gcd(a, 0)` returns `abs(a)` and `gcd(0, b)` returns `abs(b)`.
+This matches the results of https://eel.is/c++draft/numeric.ops#gcd[`std::gcd`] for every operand whose magnitude is representable in the result type.
+Both overloads are `noexcept` and usable in a constant expression.
+
+NOTE: `std::gcd` leaves the behavior undefined when `abs(a)` or `abs(b)` is not representable in the result type; this library defines that case instead.
+The only such operand is `BOOST_INT128_INT128_MIN`, whose magnitude `2^127` is one greater than `BOOST_INT128_INT128_MAX`.
+The magnitude is still computed correctly, because the two's-complement bit pattern of `BOOST_INT128_INT128_MIN` reinterpreted as unsigned is exactly `2^127`, so the divisor returned is always arithmetically correct (for example, `gcd(BOOST_INT128_INT128_MIN, 6) == 2`).
+The single exception is when the divisor is itself `2^127`, which occurs only for `gcd(BOOST_INT128_INT128_MIN, 0)` and `gcd(BOOST_INT128_INT128_MIN, BOOST_INT128_INT128_MIN)`: because `2^127` is not representable as a positive `int128_t`, it is returned as the negative value `BOOST_INT128_INT128_MIN`.
+
 [#lcm]
 == Least Common Multiple (LCM)
 
-Computes the least common multiple of `a` and `b`.
+Computes the least common multiple of the magnitudes of `a` and `b`.
 
 [source, c++]
 ----
@@ -109,6 +119,14 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(int128_t a, int128_t b) noexcept
 } // namespace boost
 
 ----
+
+Returns `0` when either `a` or `b` is `0`; otherwise returns the least common multiple of `abs(a)` and `abs(b)`.
+This matches the results of https://eel.is/c++draft/numeric.ops#lcm[`std::lcm`] for every operand whose magnitude, and whose least common multiple, is representable in the result type.
+Both overloads are `noexcept` and usable in a constant expression.
+
+NOTE: `std::lcm` leaves the behavior undefined when `abs(a)` or `abs(b)` is not representable in the result type, or when the least common multiple itself is not representable; this library defines those cases instead of trapping or throwing.
+The result is the true least common multiple of the two magnitudes reduced modulo `2^128`, consistent with the two's-complement wrap-around of the xref:int128_t.adoc#i128_math_operators[arithmetic operators].
+For the signed overload that reduced value is then interpreted as a two's-complement `int128_t` and may therefore be negative; a `BOOST_INT128_INT128_MIN` operand contributes the magnitude `2^127`, computed correctly as described for `gcd` above.
 
 [#midpoint]
 == Midpoint
