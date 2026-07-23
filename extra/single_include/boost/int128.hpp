@@ -10036,6 +10036,22 @@ struct hash<boost::int128::uint128_t>
 
 } // namespace std
 
+namespace boost {
+namespace int128 {
+
+inline std::size_t hash_value(const uint128_t v) noexcept
+{
+    return std::hash<uint128_t>{}(v);
+}
+
+inline std::size_t hash_value(const int128_t v) noexcept
+{
+    return std::hash<int128_t>{}(v);
+}
+
+} // namespace int128
+} // namespace boost
+
 #endif // BOOST_INT128_HASH_HPP
 // ===== END boost/int128/hash.hpp =====
 
