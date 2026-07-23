@@ -60,6 +60,35 @@ void test_u128_digit_separators()
     static_assert(100'000_u128 == boost::int128::uint128_t{100000}, "constexpr separator");
 }
 
+void test_u128_base_prefixes()
+{
+    // A C++ base prefix is recognized and the digits parsed in that base
+
+    // Hexadecimal (0x / 0X)
+    BOOST_TEST(boost::int128::uint128_t{255} == 0xFF_u128);
+    BOOST_TEST(boost::int128::uint128_t{255} == 0XfF_U128);
+    BOOST_TEST(boost::int128::uint128_t{255} == "0xff"_u128);
+    BOOST_TEST(boost::int128::uint128_t{0xDEADBEEFULL} == 0xDEAD'BEEF_u128);
+
+    // Binary (0b / 0B)
+    BOOST_TEST(boost::int128::uint128_t{10} == 0b1010_u128);
+    BOOST_TEST(boost::int128::uint128_t{240} == 0B1111'0000_U128);
+
+    // Octal (leading 0)
+    BOOST_TEST(boost::int128::uint128_t{511} == 0777_u128);
+    BOOST_TEST(boost::int128::uint128_t{8} == 010_u128);
+    BOOST_TEST(boost::int128::uint128_t{0} == 00_u128);
+
+    // A full-width value written in hexadecimal is the maximum
+    const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
+    BOOST_TEST(max_val == 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF_u128);
+
+    // Prefixes must be usable in a constant expression
+    static_assert(0x10_u128 == boost::int128::uint128_t{16}, "constexpr hex");
+    static_assert(0b100_u128 == boost::int128::uint128_t{4}, "constexpr binary");
+    static_assert(010_u128 == boost::int128::uint128_t{8}, "constexpr octal");
+}
+
 void test_i128_literals()
 {
     BOOST_TEST(boost::int128::int128_t{0} == 0_i128);
@@ -101,6 +130,31 @@ void test_i128_digit_separators()
     static_assert(100'000_i128 == boost::int128::int128_t{100000}, "constexpr separator");
 }
 
+void test_i128_base_prefixes()
+{
+    // Hexadecimal, binary and octal prefixes are recognized for the signed type too
+    BOOST_TEST(boost::int128::int128_t{127} == 0x7F_i128);
+    BOOST_TEST(boost::int128::int128_t{255} == "0xFF"_I128);
+    BOOST_TEST(boost::int128::int128_t{10} == 0b1010_i128);
+    BOOST_TEST(boost::int128::int128_t{511} == 0777_i128);
+
+    // A leading unary minus is applied after the (prefixed) literal is parsed
+    BOOST_TEST(boost::int128::int128_t{-255} == -0xFF_i128);
+    BOOST_TEST(boost::int128::int128_t{-511} == -0777_i128);
+
+    // The string form may embed the sign ahead of the prefix
+    BOOST_TEST(boost::int128::int128_t{-255} == "-0xFF"_i128);
+    BOOST_TEST(boost::int128::int128_t{-10} == "-0b1010"_I128);
+    BOOST_TEST(boost::int128::int128_t{-511} == "-0777"_i128);
+
+    // A full-width positive value written in hexadecimal is the maximum
+    const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
+    BOOST_TEST(max_val == 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF_i128);
+
+    // Prefixes must be usable in a constant expression
+    static_assert(-0x10_i128 == boost::int128::int128_t{-16}, "constexpr signed hex");
+}
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
@@ -109,8 +163,10 @@ int main()
 {
     test_u128_literals();
     test_u128_digit_separators();
+    test_u128_base_prefixes();
     test_i128_literals();
     test_i128_digit_separators();
+    test_i128_base_prefixes();
 
     return boost::report_errors();
 }
