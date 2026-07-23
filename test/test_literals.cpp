@@ -56,8 +56,11 @@ void test_u128_digit_separators()
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     BOOST_TEST(max_val == 340'282'366'920'938'463'463'374'607'431'768'211'455_u128);
 
+    // MSVC 14.1 ICE
+    #if !defined(_MSC_VER) || _MSC_VER >= 1920
     // Separators must be usable in a constant expression
     static_assert(100'000_u128 == boost::int128::uint128_t{100000}, "constexpr separator");
+    #endif
 }
 
 void test_u128_base_prefixes()
@@ -83,10 +86,13 @@ void test_u128_base_prefixes()
     const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
     BOOST_TEST(max_val == 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF_u128);
 
+    // MSVC 14.1 ICE
+    #if !defined(_MSC_VER) || _MSC_VER >= 1920
     // Prefixes must be usable in a constant expression
     static_assert(0x10_u128 == boost::int128::uint128_t{16}, "constexpr hex");
     static_assert(0b100_u128 == boost::int128::uint128_t{4}, "constexpr binary");
     static_assert(010_u128 == boost::int128::uint128_t{8}, "constexpr octal");
+    #endif
 }
 
 void test_i128_literals()
@@ -126,8 +132,11 @@ void test_i128_digit_separators()
     const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
     BOOST_TEST(max_val == 170'141'183'460'469'231'731'687'303'715'884'105'727_i128);
 
+    // MSVC 14.1 ICE
+    #if !defined(_MSC_VER) || _MSC_VER >= 1920
     // Separators must be usable in a constant expression
     static_assert(100'000_i128 == boost::int128::int128_t{100000}, "constexpr separator");
+    #endif
 }
 
 void test_i128_base_prefixes()
