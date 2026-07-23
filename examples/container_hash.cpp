@@ -11,12 +11,14 @@
 #include <boost/int128/int128.hpp>
 #include <boost/int128/hash.hpp>
 // tag::exclude[]
-// The Boost.ContainerHash and Boost.Unordered headers use old-style casts that
-// trip the strict -Wold-style-cast the test build enables; silence them for
-// these third-party headers only. This is not needed in normal use.
+// The Boost.ContainerHash and Boost.Unordered headers trip strict warnings the
+// test build enables (old-style casts, and a float-to-double promotion in
+// std::ceil on older clang); silence them for these third-party headers only.
+// This is not needed in normal use.
 #if defined(__GNUC__) || defined(__clang__)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wold-style-cast"
+#  pragma GCC diagnostic ignored "-Wdouble-promotion"
 #endif
 // end::exclude[]
 #include <boost/container_hash/hash.hpp>
