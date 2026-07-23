@@ -29,7 +29,7 @@
   <Type Name="boost::int128::int128_t">
     <DisplayString Condition="high == 0">{low,u}</DisplayString>
     <DisplayString Condition="high == -1 &amp;&amp; low != 0">-{~low + 1,u}</DisplayString>
-    <DisplayString>0x{(unsigned __int64)high>>60&amp;0xF,X}{(unsigned __int64)high>>56&amp;0xF,X}{(unsigned __int64)high>>52&amp;0xF,X}{(unsigned __int64)high>>48&amp;0xF,X}{(unsigned __int64)high>>44&amp;0xF,X}{(unsigned __int64)high>>40&amp;0xF,X}{(unsigned __int64)high>>36&amp;0xF,X}{(unsigned __int64)high>>32&amp;0xF,X}{(unsigned __int64)high>>28&amp;0xF,X}{(unsigned __int64)high>>24&amp;0xF,X}{(unsigned __int64)high>>20&amp;0xF,X}{(unsigned __int64)high>>16&amp;0xF,X}{(unsigned __int64)high>>12&amp;0xF,X}{(unsigned __int64)high>>8&amp;0xF,X}{(unsigned __int64)high>>4&amp;0xF,X}{(unsigned __int64)high&amp;0xF,X}'{low>>60&amp;0xF,X}{low>>56&amp;0xF,X}{low>>52&amp;0xF,X}{low>>48&amp;0xF,X}{low>>44&amp;0xF,X}{low>>40&amp;0xF,X}{low>>36&amp;0xF,X}{low>>32&amp;0xF,X}{low>>28&amp;0xF,X}{low>>24&amp;0xF,X}{low>>20&amp;0xF,X}{low>>16&amp;0xF,X}{low>>12&amp;0xF,X}{low>>8&amp;0xF,X}{low>>4&amp;0xF,X}{low&amp;0xF,X}</DisplayString>
+    <DisplayString>0x{((unsigned long long)(high)),nvohb}{low,nvohb}</DisplayString>
     <Expand>
       <Item Name="high">high</Item>
       <Item Name="low">low</Item>
