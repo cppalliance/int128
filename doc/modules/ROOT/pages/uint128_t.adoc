@@ -72,6 +72,8 @@ Specifically:
 
 For example, `uint128_t{5} > -1` returns `false` because the signed `-1` converts to a value greater than `5` under unsigned 128-bit arithmetic, exactly as `(unsigned __int128){5} > -1` would.
 
+NOTE: The results match `unsigned __int128` for every input with a non-zero divisor. Division or remainder by zero is the one exception, and it is handled exactly as the built-in type handles it: as undefined behavior. The library performs no zero-divisor check, so a `uint128_t` divided or taken modulo by zero behaves like the built-in operation (a hardware trap on platforms that fault on integer division by zero), and in a constant expression it is a hard compile-time error just as `1u / 0u` is. See xref:uint128_t.adoc#u128_math_operators[Division] and Modulo below.
+
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
 [#u128_constructors]
@@ -486,6 +488,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
 ----
 
 Returns as a `uint128_t` the quotient of `lhs` and `rhs` without exception.
+For any non-zero `rhs` the result is identical to the built-in `unsigned __int128` division.
+Division by zero is undefined behavior, exactly as for `unsigned __int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
 === Modulo
@@ -502,6 +506,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 ----
 
 Returns as a `uint128_t` the remainder of `lhs` and `rhs` without exception.
+For any non-zero `rhs` the result is identical to the built-in `unsigned __int128` remainder.
+Remainder by zero is undefined behavior, exactly as for `unsigned __int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
 [#u128_limits]
