@@ -4,9 +4,23 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/int128/hash.hpp>
+
+// The Boost.ContainerHash and Boost.Unordered headers use old-style casts that
+// trip the -Wold-style-cast enabled by the test build; silence them for these
+// third-party headers only.
+#if defined(__GNUC__) || defined(__clang__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#endif
+
 #include <boost/container_hash/hash.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/unordered/unordered_set.hpp>
+
+#if defined(__GNUC__) || defined(__clang__)
+#  pragma GCC diagnostic pop
+#endif
+
 #include <boost/core/lightweight_test.hpp>
 
 #include <cstddef>
