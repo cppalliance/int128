@@ -158,3 +158,4 @@ compile compile_tests/utilities_compile.cpp ;
 compile-fail compile_tests/literals_overflow_fail.cpp ;
 compile-fail compile_tests/literals_base_prefix_fail.cpp ;
 compile-fail compile_tests/literals_invalid_fail.cpp ;
+compile-fail compile_tests/utilities_comparison_fail.cpp ;
