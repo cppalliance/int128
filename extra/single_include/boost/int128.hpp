@@ -519,7 +519,7 @@ namespace detail {
 BOOST_INT128_INLINE_CONSTEXPR std::uint64_t low_word_mask {(std::numeric_limits<std::uint64_t>::max)()};
 
 template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR T offset_value_v = static_cast<T>((std::numeric_limits<std::uint64_t>::max)());
+BOOST_INT128_INLINE_CONSTEXPR T offset_value_v = static_cast<T>(18446744073709551616.0); // UINT64_MAX as double
 
 } // namespace detail
 } // namespace int128
@@ -1483,6 +1483,59 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 
 #endif // BOOST_INT128_DETAIL_COMMON_DIV_HPP
 // ===== END boost/int128/detail/common_div.hpp =====
+// ===== BEGIN boost/int128/detail/float_conversion.hpp =====
+// Copyright 2026 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+#ifndef BOOST_INT128_DETAIL_FLOAT_CONVERSION_HPP
+#define BOOST_INT128_DETAIL_FLOAT_CONVERSION_HPP
+
+// [amalgamate] skipped duplicate include of boost/int128/detail/config.hpp
+// [amalgamate] skipped duplicate include of boost/int128/detail/constants.hpp
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
+#include <cstdint>
+
+#endif
+
+namespace boost {
+namespace int128 {
+namespace detail {
+
+// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
+// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
+// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
+// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr T unsigned_words_to_float(const std::uint64_t high, const std::uint64_t low) noexcept
+{
+    return static_cast<T>(high) * offset_value_v<T> + static_cast<T>(low);
+}
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr T signed_words_to_float(const std::int64_t high, const std::uint64_t low) noexcept
+{
+    if (high < 0)
+    {
+        // Two's complement magnitude of the full 128-bit value.
+        // INT128_MIN needs no special case since it yields high = 2^63, low = 0
+        const auto abs_low {~low + UINT64_C(1)};
+        const auto abs_high {~static_cast<std::uint64_t>(high) + (abs_low == UINT64_C(0) ? UINT64_C(1) : UINT64_C(0))};
+
+        return -unsigned_words_to_float<T>(abs_high, abs_low);
+    }
+
+    return unsigned_words_to_float<T>(static_cast<std::uint64_t>(high), low);
+}
+
+} // namespace detail
+} // namespace int128
+} // namespace boost
+
+#endif // BOOST_INT128_DETAIL_FLOAT_CONVERSION_HPP
+// ===== END boost/int128/detail/float_conversion.hpp =====
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -1588,8 +1641,9 @@ int128_t
     #endif // BOOST_INT128_HAS_INT128
 
     // Conversion to float
-    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
-    // but can be constexpr at C++11 instead of C++26
+    // Uses the builtin 128-bit conversion where one exists, and otherwise converts
+    // the unsigned magnitude as high * 2^64 + low before applying the sign.
+    // See detail/float_conversion.hpp for why the sign handling is required
     BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
     BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
 
@@ -1756,26 +1810,50 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t val
 // Float Conversion Operators
 //=====================================
 
-// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
-// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
-// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
-// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+// When the builtin 128-bit type exists we convert through it since the compiler
+// runtime (__floattisf and friends) is correctly rounded. The portable fallback
+// converts the unsigned magnitude and applies the sign; see detail/float_conversion.hpp
+// for why the raw words can not be composed directly for negative values
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t::operator float() const noexcept
 {
-    return static_cast<float>(high) * detail::offset_value_v<float> + static_cast<float>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<float>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<float>(high, low);
+
+    #endif
 }
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t::operator double() const noexcept
 {
-    return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<double>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<double>(high, low);
+
+    #endif
 }
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 constexpr int128_t::operator long double() const noexcept
 {
-    return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<long double>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<long double>(high, low);
+
+    #endif
 }
 
 #endif
@@ -2665,21 +2743,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t default_ls_impl(const int128_t lhs, 
 {
     static_assert(std::is_integral<Integer>::value, "Only builtin types allowed");
 
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (rhs < 0 || rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators. In a
+    // constant expression the compiler diagnoses it; at runtime it is unspecified.
     if (rhs == 0)
     {
         return lhs;
@@ -2708,21 +2774,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t default_ls_impl(const int128_t lhs, 
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128))
-        {
-            return {0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators; delegate
+    // straight to the native type so we produce identical results.
     #ifdef BOOST_INT128_HAS_INT128
 
     // Left-shifting a negative builtin_i128 is UB pre-C++20
@@ -2819,11 +2873,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const int128_t rhs) noexcept
 {
-    if (rhs.high != 0 || rhs.low >= 128)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts (negative, >= 128, or with the high word set) are
+    // undefined, matching the built-in operators; forward to the scalar overload.
     return lhs << rhs.low;
 }
 
@@ -2831,25 +2882,13 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-    
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
@@ -2858,26 +2897,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(SignedInteger) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) << rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(UnsignedInteger) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) << rhs.low;
 }
 
@@ -2923,21 +2950,9 @@ namespace detail {
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE constexpr int128_t default_rs_impl(const int128_t lhs, const Integer rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (rhs >= 128 || rhs < 0)
-        {
-            return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
-        }
-    }
-    else
-    {
-        if (rhs >= 128)
-        {
-            return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators. In a
+    // constant expression the compiler diagnoses it; at runtime it is unspecified.
     if (rhs == 0)
     {
         return lhs;
@@ -2962,21 +2977,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t default_rs_impl(const int128_t lhs, 
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE int128_t intrinsic_rs_impl(const int128_t lhs, const Integer rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (rhs >= 128 || rhs < 0)
-        {
-            return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
-        }
-    }
-    else
-    {
-        if (rhs >= 128)
-        {
-            return lhs.high < 0 ? int128_t{-1, UINT64_MAX} : int128_t{0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators; delegate
+    // straight to the native type so we produce identical results.
     #ifdef BOOST_INT128_HAS_INT128
 
     #  if defined(__aarch64__)
@@ -3069,11 +3072,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const int128_t rhs) noexcept
 {
-    if (rhs.high != 0 || rhs.low >= 128)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts (negative, >= 128, or with the high word set) are
+    // undefined, matching the built-in operators; forward to the scalar overload.
     return lhs >> rhs.low;
 }
 
@@ -3081,25 +3081,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_i128) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
@@ -3108,26 +3096,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(SignedInteger) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) >> rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs, const int128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(UnsignedInteger) * 8};
-
-    if (rhs.high != 0 || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) >> rhs.low;
 }
 
@@ -4218,6 +4194,7 @@ class numeric_limits<boost::int128::int128_t> :
 // [amalgamate] skipped duplicate include of boost/int128/detail/clz.hpp
 // [amalgamate] skipped duplicate include of boost/int128/detail/common_mul.hpp
 // [amalgamate] skipped duplicate include of boost/int128/detail/common_div.hpp
+// [amalgamate] skipped duplicate include of boost/int128/detail/float_conversion.hpp
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -4334,8 +4311,9 @@ uint128_t
     #endif // BOOST_INT128_HAS_INT128
 
     // Conversion to float
-    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
-    // but can be constexpr at C++11 instead of C++26
+    // Uses the builtin 128-bit conversion where one exists, and otherwise composes
+    // the words as high * 2^64 + low with an exact 2^64 constant, which is the value
+    // ldexp(static_cast<T>(high), 64) + static_cast<T>(low) computes
     BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
     BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
 
@@ -4493,29 +4471,52 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t abs(const uint1
 // Float Conversion Operators
 //=====================================
 
-// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
-// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
-// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
-// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+// When the builtin 128-bit type exists we convert through it since the compiler
+// runtime (__floatuntisf and friends) is correctly rounded. The portable fallback
+// composes the words as high * 2^64 + low; see detail/float_conversion.hpp
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator float() const noexcept
 {
-    return static_cast<float>(high) * detail::offset_value_v<float> + static_cast<float>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<float>(static_cast<detail::builtin_u128>(*this));
+
+    #else
+
+    return detail::unsigned_words_to_float<float>(high, low);
+
+    #endif
 }
 
 BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator double() const noexcept
 {
-    return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<double>(static_cast<detail::builtin_u128>(*this));
+
+    #else
+
+    return detail::unsigned_words_to_float<double>(high, low);
+
+    #endif
 }
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 constexpr uint128_t::operator long double() const noexcept
 {
-    return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<long double>(static_cast<detail::builtin_u128>(*this));
+
+    #else
+
+    return detail::unsigned_words_to_float<long double>(high, low);
+
+    #endif
 }
 
-#endif // __NVCC__
+#endif // BOOST_INT128_HAS_GPU_SUPPORT
 
 //=====================================
 // Float Construction
@@ -5598,21 +5599,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t default_ls_impl(const uint128_t lhs
 {
     static_assert(std::is_integral<Integer>::value, "Needs to be a builtin type");
 
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (rhs < 0 || rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators. In a
+    // constant expression the compiler diagnoses it; at runtime it is unspecified.
     if (rhs == 0)
     {
         return lhs;
@@ -5637,26 +5626,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t default_ls_impl(const uint128_t lhs
 template <typename T>
 BOOST_INT128_HOST_DEVICE uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<T>::is_signed)
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128))
-        {
-            return {0, 0};
-        }
-    }
-
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
-    {
-        return lhs;
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators; delegate
+    // straight to the native type so we produce identical results.
     #ifdef BOOST_INT128_HAS_INT128
 
     #  if defined(__aarch64__)
@@ -5685,6 +5657,11 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_ls_impl(const uint128_t lhs, const 
     #  endif
 
     #else
+
+    if (rhs == 0)
+    {
+        return lhs;
+    }
 
     if (rhs == 64)
     {
@@ -5731,11 +5708,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, con
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs.high > UINT64_C(0) || rhs.low >= UINT64_C(128))
-    {
-        return uint128_t{0};
-    }
-
+    // Out-of-range counts (>= 128 or with the high word set) are undefined,
+    // matching the built-in operators; forward the count to the scalar overload.
     return lhs << rhs.low;
 }
 
@@ -5743,24 +5717,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(cons
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_u128 ) * 8};
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(detail::builtin_u128) * 8};
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
@@ -5769,26 +5732,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(SignedInteger) * 8};
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) << rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width {sizeof(UnsignedInteger) * 8};
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned int>(lhs) << rhs.low;
 }
 
@@ -5825,21 +5776,9 @@ namespace detail {
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE constexpr uint128_t default_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (rhs < 0 || rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (rhs >= 128)
-        {
-            return {0, 0};
-        }
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators. In a
+    // constant expression the compiler diagnoses it; at runtime it is unspecified.
     if (rhs == 0)
     {
         return lhs;
@@ -5864,26 +5803,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t default_rs_impl(const uint128_t lhs
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128 || rhs < 0))
-        {
-            return {0, 0};
-        }
-    }
-    else
-    {
-        if (BOOST_INT128_UNLIKELY(rhs >= 128))
-        {
-            return {0, 0};
-        }
-    }
-
-    if (BOOST_INT128_UNLIKELY(rhs == 0))
-    {
-        return lhs;
-    }
-
+    // A shift by a negative amount or by an amount >= 128 (the operand width) is
+    // undefined behavior, exactly as for the built-in shift operators; delegate
+    // straight to the native type so we produce identical results.
     #ifdef BOOST_INT128_HAS_INT128
 
     #  ifdef __aarch64__
@@ -5910,6 +5832,11 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_rs_impl(const uint128_t lhs, const 
     #  endif
 
     #else
+
+    if (rhs == 0)
+    {
+        return lhs;
+    }
 
     if (rhs == 64)
     {
@@ -5953,11 +5880,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept
 {
-    if (rhs.high > UINT64_C(0) || rhs.low >= UINT64_C(128))
-    {
-        return uint128_t{0};
-    }
-
+    // Out-of-range counts (>= 128 or with the high word set) are undefined,
+    // matching the built-in operators; forward the count to the scalar overload.
     return lhs >> rhs.low;
 }
 
@@ -5965,25 +5889,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(cons
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width = sizeof(detail::builtin_u128) * 8;
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width = sizeof(detail::builtin_i128) * 8;
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
@@ -5992,26 +5904,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width = sizeof(SignedInteger) * 8;
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) >> rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(UnsignedInteger lhs, const uint128_t rhs) noexcept
 {
-    constexpr auto bit_width = sizeof(UnsignedInteger) * 8;
-
-    if (rhs.high > UINT64_C(0) || rhs.low >= bit_width)
-    {
-        return 0;
-    }
-
+    // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) >> rhs.low;
 }
 
