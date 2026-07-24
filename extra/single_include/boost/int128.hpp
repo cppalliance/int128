@@ -8651,7 +8651,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<Intege
 
 } // namespace detail
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_add(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x + y};
 
@@ -8663,7 +8663,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(const u
     return z;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_sub(const uint128_t x, const uint128_t y) noexcept
 {
     const auto z {x - y};
 
@@ -8681,7 +8681,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(const u
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_add(const int128_t x, const int128_t y) noexcept
 {
     // Detect overflow BEFORE the addition to avoid signed overflow UB.
     // When both are non-negative: overflow iff x > max - y (subtraction safe: max - non_negative >= 0)
@@ -8706,7 +8706,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(const in
     return x + y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(const int128_t x, const int128_t y) noexcept
 {
     // Detect overflow BEFORE the subtraction to avoid signed overflow UB.
     // Positive overflow: x >= 0 and y < 0 and x > max + y (safe: max + negative < max)
@@ -8735,7 +8735,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(const in
 #  pragma warning(pop)
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_mul(const uint128_t x, const uint128_t y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
@@ -8748,7 +8748,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(const u
     return x * y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_mul(const int128_t x, const int128_t y) noexcept
 {
     const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
     const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
@@ -8769,12 +8769,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const in
     return res;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_div(const uint128_t x, const uint128_t y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_div(const int128_t x, const int128_t y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
     {
@@ -8791,7 +8791,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(const in
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const uint128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const uint128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
     {
@@ -8813,7 +8813,7 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const uint128_t valu
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(const int128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const int128_t value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
     {
