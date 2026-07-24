@@ -3473,12 +3473,20 @@ namespace detail {
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
 {
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    
+    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
+
+    #else
+
     return low_word_mul<int128_t>(lhs, rhs);
+
+    #endif
 }
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
 {
-    return low_word_mul<int128_t>(lhs, rhs);
+    return default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 #if defined(_M_AMD64) && !defined(__GNUC__)
@@ -3551,6 +3559,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
     {
         return msvc_amd64_mul(lhs, rhs);
     }
+
+    #elif defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+
+    // Multiply in the unsigned domain to avoid signed-overflow UB, then reinterpret the bits.
+    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #else
 
@@ -5996,6 +6009,10 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_a
 
     return res;
 
+    #elif (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_MSC_VER) && defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs));
+
     #else
 
     uint128_t temp {lhs.high + rhs.high, lhs.low + rhs.low};
@@ -6386,6 +6403,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
     {
         return msvc_mul(lhs, rhs);
     }
+
+    #elif defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
+    #  define BOOST_INT128_HIDE_MUL
+
+    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
 
     #endif
 
