@@ -9556,6 +9556,7 @@ auto to_wstring(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -9975,6 +9976,160 @@ BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, const T2 a, const T3
     const bool product_negative {op_a.negative != op_b.negative};
 
     return detail::ckd_overflows<T1>(product_magnitude, product_negative, exceeds_width);
+}
+
+namespace detail {
+
+// See: https://eel.is/c++draft/utility.intcmp
+// [Note 1: These function templates cannot be used to compare byte, char, char8_t, char16_t, char32_t, wchar_t, and bool. end note]
+template <typename T>
+struct valid_comparison_type
+{
+    static constexpr bool value = std::is_integral<T>::value &&
+                                  !std::is_same<T, char>::value &&
+                                      !std::is_same<T, char16_t>::value &&
+                                          !std::is_same<T, char32_t>::value &&
+                                              !std::is_same<T, wchar_t>::value &&
+                                                  !std::is_same<T, bool>::value
+                                                    #if defined(__cpp_char8_t)
+                                                    && !std::is_same<T, char8_t>::value
+                                                    #endif
+                                                    #if defined(__cpp_lib_byte) && __cpp_lib_byte >= 201603L
+                                                    && !std::is_same<T, std::byte>::value
+                                                    #endif
+    ;
+};
+
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_type_v = valid_comparison_type<T>::value;
+
+// Allow the builtins to be used when available
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128_t>::value ||
+                                                      std::is_same<T, uint128_t>::value
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+                                                      || std::is_same<T, builtin_i128>::value
+                                                      || std::is_same<T, builtin_u128>::value
+    #endif
+                                                      ;
+
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_operand_v = is_valid_comparison_type_v<T> ||
+                                                                   is_int128_type_v<T>;
+
+// Maps the builtin 128-bit types onto the library equivalents
+template <typename T>
+struct comparison_canonical
+{
+    using type = T;
+};
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+template <>
+struct comparison_canonical<builtin_i128>
+{
+    using type = int128_t;
+};
+
+template <>
+struct comparison_canonical<builtin_u128>
+{
+    using type = uint128_t;
+};
+
+#endif
+
+template <typename T>
+using comparison_canonical_t = typename comparison_canonical<T>::type;
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr comparison_canonical_t<T> canonical_comparison_operand(const T value) noexcept
+{
+    return static_cast<comparison_canonical_t<T>>(value);
+}
+
+// Mathematical equality of two integers regardless of their signedness, via the
+// same (sign, magnitude) decomposition.
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal_impl(const T lhs, const U rhs) noexcept
+{
+    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
+    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
+
+    return (a.negative == b.negative) && (a.magnitude == b.magnitude);
+}
+
+// Mathematical less-than of two integers regardless of their signedness, via the
+// same (sign, magnitude) decomposition.
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_impl(const T lhs, const U rhs) noexcept
+{
+    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
+    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
+
+    if (a.negative != b.negative)
+    {
+        return a.negative;
+    }
+
+    return a.negative ? (a.magnitude > b.magnitude) : (a.magnitude < b.magnitude);
+}
+
+template <typename T, typename U>
+BOOST_INT128_INLINE_CONSTEXPR bool enable_comparison_v = is_valid_comparison_operand_v<T> &&
+                                                        is_valid_comparison_operand_v<U> &&
+                                                        (is_int128_type_v<T> || is_int128_type_v<U>);
+
+} // namespace detail
+
+// C++26 integer comparison functions (https://eel.is/c++draft/utility.intcmp)
+// extended to the library and builtin 128-bit types and available from C++14.
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_equal_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_not_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_equal_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_less_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_less_impl(rhs, lhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_less_impl(rhs, lhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_less_impl(lhs, rhs);
+}
+
+// Whether t is representable in the target type R.
+BOOST_INT128_EXPORT template <typename R, typename T, std::enable_if_t<detail::enable_comparison_v<R, T>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool in_range(const T t) noexcept
+{
+    using limits = std::numeric_limits<detail::comparison_canonical_t<R>>;
+
+    return !detail::cmp_less_impl(t, (limits::min)()) &&
+           !detail::cmp_less_impl((limits::max)(), t);
 }
 
 } // namespace int128
