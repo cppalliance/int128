@@ -825,27 +825,22 @@ void test_operator_left_shift()
         BOOST_TEST(shifted_emulated == shift_value_consteval);
     }
 
-    // Edge cases
+    // Edge cases. A shift by a negative amount or by an amount >= 128 is
+    // undefined behavior, exactly as for the built-in shift operators (see the
+    // documentation), so only the well-defined in-range counts are exercised.
+    // The scalar, uint128_t-count, and consteval paths must all agree.
     const boost::int128::uint128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0);
-    auto res {val << static_cast<boost::int128::uint128_t>(128)};
-    BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
-    BOOST_TEST((val << -5) == 0);
-    res = (val << static_cast<boost::int128::uint128_t>(0));
-    BOOST_TEST(res == val);
+    BOOST_TEST((val << 0) == val);
+    BOOST_TEST((val << static_cast<boost::int128::uint128_t>(0)) == val);
+    for (unsigned s {}; s < 128U; ++s)
+    {
+        BOOST_TEST(boost::int128::detail::default_ls_impl(val, s) == (val << s));
+        BOOST_TEST((val << static_cast<boost::int128::uint128_t>(s)) == (val << s));
+    }
 
-    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 130) == 0);
-    BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
-    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 0) == val);
-
-    auto builtin_value {static_cast<builtin_u128>(dist(rng))};
-    boost::int128::uint128_t small_shift {1u};
-    boost::int128::uint128_t big_shift {180u};
-    boost::int128::uint128_t biggest_shift {1u, 180u};
-
+    const auto builtin_value {static_cast<builtin_u128>(dist(rng))};
+    const boost::int128::uint128_t small_shift {1u};
     BOOST_TEST((builtin_value << small_shift) == (builtin_value << 1u));
-    BOOST_TEST((builtin_value << big_shift) == 0u);
-    BOOST_TEST((builtin_value << biggest_shift) == 0u);
 }
 
 template <typename IntType>
@@ -893,27 +888,22 @@ void test_operator_right_shift()
         BOOST_TEST(shifted_emulated == shift_value_consteval);
     }
 
-    // Edge cases
+    // Edge cases. A shift by a negative amount or by an amount >= 128 is
+    // undefined behavior, exactly as for the built-in shift operators (see the
+    // documentation), so only the well-defined in-range counts are exercised.
+    // The scalar, uint128_t-count, and consteval paths must all agree.
     const boost::int128::uint128_t val {UINT64_MAX};
-    BOOST_TEST((val >> 130) == 0);
-    BOOST_TEST((val >> -5) == 0);
-    auto res {val >> static_cast<boost::int128::uint128_t>(128)};
-    BOOST_TEST(res == static_cast<boost::int128::uint128_t>(0U));
-    res = (val >> static_cast<boost::int128::uint128_t>(0));
-    BOOST_TEST(res == val);
+    BOOST_TEST((val >> 0) == val);
+    BOOST_TEST((val >> static_cast<boost::int128::uint128_t>(0)) == val);
+    for (unsigned s {}; s < 128U; ++s)
+    {
+        BOOST_TEST(boost::int128::detail::default_rs_impl(val, s) == (val >> s));
+        BOOST_TEST((val >> static_cast<boost::int128::uint128_t>(s)) == (val >> s));
+    }
 
-    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 130) == 0);
-    BOOST_TEST(boost::int128::detail::default_rs_impl(val, -5) == 0);
-    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 0) == val);
-
-    auto builtin_value {static_cast<builtin_u128>(dist(rng))};
-    boost::int128::uint128_t small_shift {1u};
-    boost::int128::uint128_t big_shift {180u};
-    boost::int128::uint128_t biggest_shift {1u, 180u};
-
+    const auto builtin_value {static_cast<builtin_u128>(dist(rng))};
+    const boost::int128::uint128_t small_shift {1u};
     BOOST_TEST((builtin_value >> small_shift) == (builtin_value >> 1u));
-    BOOST_TEST((builtin_value >> big_shift) == 0u);
-    BOOST_TEST((builtin_value >> biggest_shift) == 0u);
 }
 
 void test_increment_operator()

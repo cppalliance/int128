@@ -673,13 +673,17 @@ void test_operator_left_shift()
         BOOST_TEST(consteval_result == shifted_emulated);
     }
 
-    // Edge cases
+    // Edge cases. A shift by a negative amount or by an amount >= 128 is
+    // undefined behavior, exactly as for the built-in shift operators (see the
+    // documentation), so only the well-defined in-range counts are exercised.
+    // The constant-evaluated (default_ls_impl) path must agree with the runtime
+    // path for every in-range count.
     const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0);
-    BOOST_TEST((val << -5) == 0);
-
-    BOOST_TEST(boost::int128::detail::default_ls_impl(val, 130) == 0);
-    BOOST_TEST(boost::int128::detail::default_ls_impl(val, -5) == 0);
+    BOOST_TEST((val << 0) == val);
+    for (unsigned s {}; s < 128U; ++s)
+    {
+        BOOST_TEST(boost::int128::detail::default_ls_impl(val, s) == (val << s));
+    }
 }
 
 template <typename IntType>
@@ -726,13 +730,19 @@ void test_operator_right_shift()
         BOOST_TEST(consteval_result == shifted_emulated);
     }
 
-    // Edge cases
+    // Edge cases. A shift by a negative amount or by an amount >= 128 is
+    // undefined behavior, exactly as for the built-in shift operators (see the
+    // documentation), so only the well-defined in-range counts are exercised.
+    // Both a positive and a negative value are checked so the arithmetic
+    // (sign-extending) right shift is covered for every in-range count.
     const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val >> 130) == 0);
-    BOOST_TEST((val >> -5) == 0);
-
-    BOOST_TEST(boost::int128::detail::default_rs_impl(val, 130) == 0);
-    BOOST_TEST(boost::int128::detail::default_rs_impl(val, -5) == 0);
+    const boost::int128::int128_t neg {-(boost::int128::int128_t{1} << 96)};
+    BOOST_TEST((val >> 0) == val);
+    for (unsigned s {}; s < 128U; ++s)
+    {
+        BOOST_TEST(boost::int128::detail::default_rs_impl(val, s) == (val >> s));
+        BOOST_TEST(boost::int128::detail::default_rs_impl(neg, s) == (neg >> s));
+    }
 }
 
 void test_increment_operator()
