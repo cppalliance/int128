@@ -16,6 +16,7 @@ Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit i
 Importantly, on all platforms, the `sizeof` the types provided in this library are exactly 128-bits.
 
 The library is header-only, has no dependencies, and requires only pass:[C++14].
+The library is also available as a single header https://github.com/cppalliance/int128/blob/develop/extra/single_include/boost/int128.hpp[here].
 When using pass:[C++20] or newer, the library can be consumed as a module `import boost.int128`.
 
 == Motivation
