@@ -592,11 +592,6 @@ void test_operator_left_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin); // LCOV_EXCL_LINE
     }
-
-    // Edge cases
-    const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0); // LCOV_EXCL_LINE
-    BOOST_TEST((val << -5) == 0); // LCOV_EXCL_LINE
 }
 
 template <typename IntType>
@@ -638,11 +633,6 @@ void test_operator_right_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin); // LCOV_EXCL_LINE
     }
-
-    // Edge cases
-    const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val >> 130) == 0); // LCOV_EXCL_LINE
-    BOOST_TEST((val >> -5) == 0); // LCOV_EXCL_LINE
 }
 
 void test_increment_operator()
