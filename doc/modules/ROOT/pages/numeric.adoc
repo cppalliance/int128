@@ -23,29 +23,29 @@ The following functions are provided for saturating arithmetic, and they *do not
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_add(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_add(int128_t lhs, int128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_sub(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(int128_t lhs, int128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_mul(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_mul(int128_t lhs, int128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_div(uint128_t lhs, uint128_t rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_div(int128_t lhs, int128_t rhs) noexcept;
 
 } // namespace int128
 } // namespace boost
 
 ----
 
-For `div_sat` the only value that can overflow is the signed `INT128_MIN / -1`, which saturates to `INT128_MAX`; every other non-zero divisor gives the same result as the plain `operator/`.
-Division by zero is a precondition violation and therefore undefined behavior (the divisor must be non-zero), exactly as for the built-in `__int128` types and the plain division operator; `div_sat` adds no zero-divisor check.
+For `saturating_div` the only value that can overflow is the signed `INT128_MIN / -1`, which saturates to `INT128_MAX`; every other non-zero divisor gives the same result as the plain `operator/`.
+Division by zero is a precondition violation and therefore undefined behavior (the divisor must be non-zero), exactly as for the built-in `__int128` types and the plain division operator; `saturating_div` adds no zero-divisor check.
 
 [#saturating_cast]
 == Saturating Cast
@@ -62,10 +62,10 @@ namespace boost {
 namespace int128 {
 
 template <typename TargetType>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(uint128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(uint128_t value) noexcept;
 
 template <typename TargetType>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(int128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(int128_t value) noexcept;
 
 } // namespace int128
 } // namespace boost

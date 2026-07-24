@@ -24,7 +24,7 @@ __global__ void cuda_test(const test_type *in, const test_type *in2, test_type *
 
     if (i < numElements)
     {
-        out[i] = boost::int128::add_sat(in[i], in2[i]);
+        out[i] = boost::int128::saturating_div(in[i], in2[i]);
     }
 }
 
@@ -45,7 +45,10 @@ int main(void)
     for (std::size_t i = 0; i < numElements; ++i)
     {
         input_vector[i] = dist(rng);
-        input_vector2[i] = dist(rng);
+        do
+        {
+            input_vector2[i] = dist(rng);
+        } while (input_vector2[i] == 0);
     }
 
     int threadsPerBlock = 256;
@@ -71,30 +74,17 @@ int main(void)
     w.reset();
     for (int i = 0; i < numElements; ++i)
     {
-        results.push_back(boost::int128::add_sat(input_vector[i], input_vector2[i]));
+        results.push_back(boost::int128::saturating_div(input_vector[i], input_vector2[i]));
     }
     double t = w.elapsed();
 
-    int fail_count = 0;
     for (int i = 0; i < numElements; ++i)
     {
         if (output_vector[i] != results[i])
         {
-            if (fail_count < 5)
-            {
-                std::cerr << "Result verification failed at element " << i << std::endl;
-                std::cerr << "  input1 high: " << input_vector[i].high << " low: " << input_vector[i].low << std::endl;
-                std::cerr << "  input2 high: " << input_vector2[i].high << " low: " << input_vector2[i].low << std::endl;
-                std::cerr << "  GPU    high: " << output_vector[i].high << " low: " << output_vector[i].low << std::endl;
-                std::cerr << "  CPU    high: " << results[i].high << " low: " << results[i].low << std::endl;
-            }
-            ++fail_count;
+            std::cerr << "Result verification failed at element " << i << "!" << std::endl;
+            return EXIT_FAILURE;
         }
-    }
-    if (fail_count > 0)
-    {
-        std::cerr << "Total failures: " << fail_count << " out of " << numElements << std::endl;
-        return EXIT_FAILURE;
     }
 
     std::cout << "Test PASSED, normal calculation time: " << t << "s" << std::endl;

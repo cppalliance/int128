@@ -16,7 +16,7 @@
 
 #include <cuda_runtime.h>
 
-using test_type = boost::int128::uint128_t;
+using test_type = boost::int128::int128_t;
 
 __global__ void cuda_test(const test_type *in, const test_type *in2, test_type *out, int numElements)
 {
@@ -24,7 +24,7 @@ __global__ void cuda_test(const test_type *in, const test_type *in2, test_type *
 
     if (i < numElements)
     {
-        out[i] = boost::int128::mul_sat(in[i], in2[i]);
+        out[i] = boost::int128::saturating_add(in[i], in2[i]);
     }
 }
 
@@ -41,7 +41,7 @@ int main(void)
     cuda_managed_ptr<test_type> input_vector2(numElements);
     cuda_managed_ptr<test_type> output_vector(numElements);
 
-    boost::random::uniform_int_distribution<test_type> dist {test_type{0U}, (std::numeric_limits<test_type>::max)()};
+    boost::random::uniform_int_distribution<test_type> dist {(std::numeric_limits<test_type>::min)(), (std::numeric_limits<test_type>::max)()};
     for (std::size_t i = 0; i < numElements; ++i)
     {
         input_vector[i] = dist(rng);
@@ -71,17 +71,30 @@ int main(void)
     w.reset();
     for (int i = 0; i < numElements; ++i)
     {
-        results.push_back(boost::int128::mul_sat(input_vector[i], input_vector2[i]));
+        results.push_back(boost::int128::saturating_add(input_vector[i], input_vector2[i]));
     }
     double t = w.elapsed();
 
+    int fail_count = 0;
     for (int i = 0; i < numElements; ++i)
     {
         if (output_vector[i] != results[i])
         {
-            std::cerr << "Result verification failed at element " << i << "!" << std::endl;
-            return EXIT_FAILURE;
+            if (fail_count < 5)
+            {
+                std::cerr << "Result verification failed at element " << i << std::endl;
+                std::cerr << "  input1 high: " << input_vector[i].high << " low: " << input_vector[i].low << std::endl;
+                std::cerr << "  input2 high: " << input_vector2[i].high << " low: " << input_vector2[i].low << std::endl;
+                std::cerr << "  GPU    high: " << output_vector[i].high << " low: " << output_vector[i].low << std::endl;
+                std::cerr << "  CPU    high: " << results[i].high << " low: " << results[i].low << std::endl;
+            }
+            ++fail_count;
         }
+    }
+    if (fail_count > 0)
+    {
+        std::cerr << "Total failures: " << fail_count << " out of " << numElements << std::endl;
+        return EXIT_FAILURE;
     }
 
     std::cout << "Test PASSED, normal calculation time: " << t << "s" << std::endl;
