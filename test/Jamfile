@@ -134,6 +134,7 @@ run github_issue_210.cpp ;
 run github_issue_221.cpp ;
 run github_issue_272.cpp ;
 run github_issue_377.cpp ;
+run github_issue_432.cpp ;
 
 # Compilation of individual headers
 compile compile_tests/int128_master_header_compile.cpp ;

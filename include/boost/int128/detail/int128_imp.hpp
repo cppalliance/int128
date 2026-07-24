@@ -12,6 +12,7 @@
 #include <boost/int128/detail/clz.hpp>
 #include <boost/int128/detail/common_mul.hpp>
 #include <boost/int128/detail/common_div.hpp>
+#include <boost/int128/detail/float_conversion.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -117,8 +118,9 @@ int128_t
     #endif // BOOST_INT128_HAS_INT128
 
     // Conversion to float
-    // This is basically the same as ldexp(static_cast<T>(high), 64) + static_cast<T>(low),
-    // but can be constexpr at C++11 instead of C++26
+    // Uses the builtin 128-bit conversion where one exists, and otherwise converts
+    // the unsigned magnitude as high * 2^64 + low before applying the sign.
+    // See detail/float_conversion.hpp for why the sign handling is required
     BOOST_INT128_HOST_DEVICE constexpr operator float() const noexcept;
     BOOST_INT128_HOST_DEVICE constexpr operator double() const noexcept;
 
@@ -285,26 +287,50 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t val
 // Float Conversion Operators
 //=====================================
 
-// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
-// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
-// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
-// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+// When the builtin 128-bit type exists we convert through it since the compiler
+// runtime (__floattisf and friends) is correctly rounded. The portable fallback
+// converts the unsigned magnitude and applies the sign; see detail/float_conversion.hpp
+// for why the raw words can not be composed directly for negative values
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t::operator float() const noexcept
 {
-    return static_cast<float>(high) * detail::offset_value_v<float> + static_cast<float>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<float>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<float>(high, low);
+
+    #endif
 }
 
 BOOST_INT128_HOST_DEVICE constexpr int128_t::operator double() const noexcept
 {
-    return static_cast<double>(high) * detail::offset_value_v<double> + static_cast<double>(low);
+    #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
+
+    return static_cast<double>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<double>(high, low);
+
+    #endif
 }
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
 constexpr int128_t::operator long double() const noexcept
 {
-    return static_cast<long double>(high) * detail::offset_value_v<long double> + static_cast<long double>(low);
+    #if defined(BOOST_INT128_HAS_INT128)
+
+    return static_cast<long double>(static_cast<detail::builtin_i128>(*this));
+
+    #else
+
+    return detail::signed_words_to_float<long double>(high, low);
+
+    #endif
 }
 
 #endif
