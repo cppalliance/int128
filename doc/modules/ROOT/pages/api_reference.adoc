@@ -311,6 +311,27 @@ Listed by analogous STL header.
 
 | xref:utilities.adoc#checked[`ckd_mul`]
 | Checked multiplication (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#comparison[`cmp_equal`]
+| Signedness-safe equality (C++26 `<utility>` contract)
+
+| xref:utilities.adoc#comparison[`cmp_not_equal`]
+| Signedness-safe inequality
+
+| xref:utilities.adoc#comparison[`cmp_less`]
+| Signedness-safe less-than
+
+| xref:utilities.adoc#comparison[`cmp_greater`]
+| Signedness-safe greater-than
+
+| xref:utilities.adoc#comparison[`cmp_less_equal`]
+| Signedness-safe less-than-or-equal
+
+| xref:utilities.adoc#comparison[`cmp_greater_equal`]
+| Signedness-safe greater-than-or-equal
+
+| xref:utilities.adoc#in_range[`in_range`]
+| Whether a value is representable in a target integer type
 |===
 
 [#api_macros]

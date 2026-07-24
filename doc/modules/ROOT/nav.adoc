@@ -16,6 +16,7 @@
 ** xref:examples.adoc#examples_mixed_sign[Mixed Signedness Arithmetic]
 ** xref:examples.adoc#examples_boost_math_random[Boost Math and Random Integration]
 ** xref:examples.adoc#examples_boost_charconv[Boost.Charconv Integration]
+** xref:examples.adoc#examples_boost_container_hash[Boost.ContainerHash and Boost.Unordered Integration]
 ** xref:examples.adoc#examples_to_string[String Conversion (to_string)]
 ** xref:examples.adoc#examples_fmt_format[pass:[{fmt}] Integration]
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]
