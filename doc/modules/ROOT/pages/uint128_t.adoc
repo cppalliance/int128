@@ -378,6 +378,14 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, con
 ----
 
 Returns the bitwise left shift of `lhs` without exception.
+The shift count is the integer value of the right operand.
+When the count is in the range `[0, 128)` the low bits vacated by the shift are filled with zero, bits shifted past bit 127 are discarded (the value wraps modulo 2^128), and the result is identical to the one the native `unsigned __int128` shift would produce.
+
+[WARNING]
+====
+Shifting by a count that is negative or greater than or equal to `128` (the operand width in bits) is *undefined behavior*, exactly as for the built-in shift operators and the native `__int128` and `unsigned __int128` types (`[expr.shift]` in the C++ standard). No result is guaranteed, not even zero, and inside a constant expression the program is ill-formed. Delegating straight to the native shift this way keeps the in-range operation branchless and bit-for-bit compatible with the built-in types.
+====
+
 When a built-in integer is the `lhs` and a `uint128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
 This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 
@@ -405,6 +413,14 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
 ----
 
 Returns the bitwise right shift of `lhs` without exception.
+The shift count is the integer value of the right operand.
+When the count is in the range `[0, 128)` the shift is logical: the high bits vacated by the shift are filled with zero, so the result is identical to the one the native `unsigned __int128` shift would produce.
+
+[WARNING]
+====
+Shifting by a count that is negative or greater than or equal to `128` (the operand width in bits) is *undefined behavior*, exactly as for the built-in shift operators and the native `__int128` and `unsigned __int128` types (`[expr.shift]` in the C++ standard). No result is guaranteed, not even zero, and inside a constant expression the program is ill-formed. Delegating straight to the native shift this way keeps the in-range operation branchless and bit-for-bit compatible with the built-in types.
+====
+
 When a built-in integer is the `lhs` and a `uint128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
 This operation is subject to mixed sign limitations discussed xref:uint128_t.adoc#u128_operator_behavior[above].
 

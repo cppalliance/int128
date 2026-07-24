@@ -49,6 +49,7 @@ The behavior and return type of every mixed-sign overload follow the C++ usual a
 |===
 
 For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type regardless of the RHS, matching the built-in shift rules.
+A shift count that is negative or greater than or equal to `128` (the width of the shifted operand) is undefined behavior, exactly as for the built-in shift operators; see the xref:int128_t.adoc#i128_bitwise_operators[shift operator] reference for the precise rules.
 
 For comparison operators (`pass:[==]`, `pass:[!=]`, `pass:[<]`, `pass:[<=]`, `pass:[>]`, `pass:[>=]`), the return type is always `bool` and the comparison is performed on the operands after they have been converted to the common type above.
 
