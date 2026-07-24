@@ -19,6 +19,13 @@
 
 #define BOOST_INT128_HAS_FORMAT
 
+#if defined(__cpp_lib_constexpr_format) && __cpp_lib_constexpr_format >= 202511L
+#  define BOOST_INT128_HAS_CONSTEXPR_FORMAT
+#  define BOOST_INT128_CONSTEXPR_FORMAT constexpr
+#else
+#  define BOOST_INT128_CONSTEXPR_FORMAT
+#endif
+
 namespace boost::int128::detail {
 
 enum class sign_option
@@ -236,7 +243,7 @@ struct formatter<T>
     }
 
     template <typename FormatContext>
-    auto format(T v, FormatContext& ctx) const
+    BOOST_INT128_CONSTEXPR_FORMAT auto format(T v, FormatContext& ctx) const
     {
         char buffer[boost::int128::detail::mini_to_chars_buffer_size];
         bool isneg {false};

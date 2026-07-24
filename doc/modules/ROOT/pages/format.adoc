@@ -101,6 +101,7 @@ See the xref:examples.adoc#examples_fmt_format[formatting example] for a complet
 
 To use `std::format`, include `<boost/int128/format.hpp>` and `<format>`.
 The format specifiers described above work with `std::format`.
+If you are using `std::format` with pass:[C++26] or newer, `constexpr std::format` is supported.
 
 The xref:examples.adoc#examples_fmt_format[formatting example] can be trivially modified by including `<format>`,
 and replacing all instances of `fmt::` with `std::`
