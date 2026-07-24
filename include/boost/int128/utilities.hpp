@@ -583,8 +583,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool in_range(const T t) noexcept
 {
     using limits = std::numeric_limits<detail::comparison_canonical_t<R>>;
 
-    return cmp_greater_equal(t, (limits::min)()) &&
-           cmp_less_equal(t, (limits::max)());
+    return !detail::cmp_less_impl(t, (limits::min)()) &&
+           !detail::cmp_less_impl((limits::max)(), t);
 }
 
 } // namespace int128

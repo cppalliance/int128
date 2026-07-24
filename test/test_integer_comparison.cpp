@@ -196,6 +196,13 @@ void test_constexpr()
 // unsigned 128-bit compares, which are an independent ground truth for the
 // (sign, magnitude) decomposition the library performs internally.
 //
+// Every call below this point is qualified. MSVC's builtin 128-bit types are
+// classes in namespace std rather than fundamental types, so an unqualified call
+// with one of them as an operand also finds the C++20 std::cmp_* and std::in_range
+// by ADL and is ambiguous. __int128 is a fundamental type and has no associated
+// namespace, so the qualification only matters on MSVC, but it is what pins the
+// call to the library implementation under test on every platform.
+//
 using boost::int128::detail::builtin_i128;
 using boost::int128::detail::builtin_u128;
 
@@ -262,12 +269,12 @@ static void check_pair(A a, B b)
     const bool a_lt_b {truth_less(na, ma, nb, mb)};
     const bool b_lt_a {truth_less(nb, mb, na, ma)};
 
-    BOOST_TEST_EQ(cmp_equal(a, b), eq);
-    BOOST_TEST_EQ(cmp_not_equal(a, b), !eq);
-    BOOST_TEST_EQ(cmp_less(a, b), a_lt_b);
-    BOOST_TEST_EQ(cmp_greater(a, b), b_lt_a);
-    BOOST_TEST_EQ(cmp_less_equal(a, b), !b_lt_a);
-    BOOST_TEST_EQ(cmp_greater_equal(a, b), !a_lt_b);
+    BOOST_TEST_EQ(boost::int128::cmp_equal(a, b), eq);
+    BOOST_TEST_EQ(boost::int128::cmp_not_equal(a, b), !eq);
+    BOOST_TEST_EQ(boost::int128::cmp_less(a, b), a_lt_b);
+    BOOST_TEST_EQ(boost::int128::cmp_greater(a, b), b_lt_a);
+    BOOST_TEST_EQ(boost::int128::cmp_less_equal(a, b), !b_lt_a);
+    BOOST_TEST_EQ(boost::int128::cmp_greater_equal(a, b), !a_lt_b);
 }
 
 void test_random_oracle()
@@ -344,33 +351,33 @@ void test_builtin_128()
     static_assert(boost::int128::detail::is_valid_comparison_operand_v<builtin_u128>, "builtin unsigned is an operand");
 
     // library 128-bit vs builtin 128-bit
-    BOOST_TEST(!cmp_equal(u_max, bi_neg1));
-    BOOST_TEST(!cmp_equal(bu_max, int128_t{-1}));
-    BOOST_TEST(cmp_less(bi_neg1, uint128_t{0}));
-    BOOST_TEST(cmp_greater(uint128_t{0}, bi_neg1));
-    BOOST_TEST(cmp_equal(uint128_t{bu_max}, bu_max));
+    BOOST_TEST(!boost::int128::cmp_equal(u_max, bi_neg1));
+    BOOST_TEST(!boost::int128::cmp_equal(bu_max, int128_t{-1}));
+    BOOST_TEST(boost::int128::cmp_less(bi_neg1, uint128_t{0}));
+    BOOST_TEST(boost::int128::cmp_greater(uint128_t{0}, bi_neg1));
+    BOOST_TEST(boost::int128::cmp_equal(uint128_t{bu_max}, bu_max));
 
     // builtin 128-bit vs builtin 128-bit, cross signedness
-    BOOST_TEST(!cmp_equal(bu_max, bi_neg1));
-    BOOST_TEST(cmp_less(bi_neg1, bu_max));
-    BOOST_TEST(cmp_greater(bu_max, bi_neg1));
-    BOOST_TEST(cmp_equal(bi_5, bu_5));
-    BOOST_TEST(cmp_not_equal(bi_neg1, bu_5));
+    BOOST_TEST(!boost::int128::cmp_equal(bu_max, bi_neg1));
+    BOOST_TEST(boost::int128::cmp_less(bi_neg1, bu_max));
+    BOOST_TEST(boost::int128::cmp_greater(bu_max, bi_neg1));
+    BOOST_TEST(boost::int128::cmp_equal(bi_5, bu_5));
+    BOOST_TEST(boost::int128::cmp_not_equal(bi_neg1, bu_5));
 
     // builtin 128-bit vs standard integer
-    BOOST_TEST(cmp_less(bi_neg1, 5U));
-    BOOST_TEST(cmp_equal(bi_5, 5));
-    BOOST_TEST(cmp_equal(bu_5, 5));
-    BOOST_TEST(cmp_greater(5, bi_neg1));
-    BOOST_TEST(cmp_less_equal(bi_neg1, 0U));
+    BOOST_TEST(boost::int128::cmp_less(bi_neg1, 5U));
+    BOOST_TEST(boost::int128::cmp_equal(bi_5, 5));
+    BOOST_TEST(boost::int128::cmp_equal(bu_5, 5));
+    BOOST_TEST(boost::int128::cmp_greater(5, bi_neg1));
+    BOOST_TEST(boost::int128::cmp_less_equal(bi_neg1, 0U));
 
     // in_range with a builtin 128-bit target and/or value
-    BOOST_TEST(!in_range<builtin_i128>(u_max));
-    BOOST_TEST(!in_range<builtin_u128>(int128_t{-1}));
-    BOOST_TEST(!in_range<std::uint8_t>(bu_max));
-    BOOST_TEST(in_range<std::int8_t>(bi_neg1));
-    BOOST_TEST(in_range<builtin_u128>(bi_5));
-    BOOST_TEST(in_range<builtin_i128>(i_max));
+    BOOST_TEST(!boost::int128::in_range<builtin_i128>(u_max));
+    BOOST_TEST(!boost::int128::in_range<builtin_u128>(int128_t{-1}));
+    BOOST_TEST(!boost::int128::in_range<std::uint8_t>(bu_max));
+    BOOST_TEST(boost::int128::in_range<std::int8_t>(bi_neg1));
+    BOOST_TEST(boost::int128::in_range<builtin_u128>(bi_5));
+    BOOST_TEST(boost::int128::in_range<builtin_i128>(i_max));
 }
 
 #endif // builtin 128-bit types
