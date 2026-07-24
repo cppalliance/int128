@@ -20,6 +20,7 @@
 #define BOOST_INT128_HAS_FORMAT
 
 #if defined(__cpp_lib_constexpr_format) && __cpp_lib_constexpr_format >= 202511L
+#  define BOOST_INT128_HAS_CONSTEXPR_FORMAT
 #  define BOOST_INT128_CONSTEXPR_FORMAT constexpr
 #else
 #  define BOOST_INT128_CONSTEXPR_FORMAT

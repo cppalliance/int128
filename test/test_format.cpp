@@ -4,6 +4,7 @@
 
 #include <boost/int128.hpp>
 #include <boost/int128/format.hpp>
+#include <boost/int128/literals.hpp>
 #include <boost/core/lightweight_test.hpp>
 
 #ifdef BOOST_INT128_HAS_FORMAT
@@ -182,6 +183,14 @@ void test_alignment_negative()
     BOOST_TEST_CSTR_EQ(std::format("{:*<6d}", T{-42}).c_str(), "-42***");
     BOOST_TEST_CSTR_EQ(std::format("{:*^7d}", T{-42}).c_str(), "**-42**");
 }
+
+#ifdef BOOST_INT128_HAS_CONSTEXPR_FORMAT
+
+using namespace boost::int128::literals;
+static_assert(std::format("num: {}", 1234_i128) == "num: 1234");
+static_assert(std::format("num: {}", 1234_u128) == "num: 1234");
+
+#endif
 
 int main()
 {
