@@ -9,5 +9,5 @@ using boost::int128::int128_t;
 int main()
 {
     return int128_sycl_test::run<int128_t, int128_t>(
-        [](int128_t a, int128_t b, int) { return boost::int128::mul_sat(a, b); });
+        [](int128_t a, int128_t b, int) { return boost::int128::saturating_div(a, int128_sycl_test::safe_divisor(a, b)); });
 }

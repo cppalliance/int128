@@ -4,10 +4,10 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::int128_t;
+using boost::int128::uint128_t;
 
 int main()
 {
-    return int128_sycl_test::run<int128_t, int128_t>(
-        [](int128_t a, int128_t b, int) { return boost::int128::add_sat(a, b); });
+    return int128_sycl_test::run<uint128_t, uint128_t>(
+        [](uint128_t a, uint128_t b, int) { return boost::int128::saturating_sub(a, b); });
 }

@@ -249,19 +249,19 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| xref:numeric.adoc#sat_arith[`add_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_add`]
 | Saturating addition
 
-| xref:numeric.adoc#sat_arith[`sub_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_sub`]
 | Saturating subtraction
 
-| xref:numeric.adoc#sat_arith[`mul_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_mul`]
 | Saturating multiplication
 
-| xref:numeric.adoc#sat_arith[`div_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_div`]
 | Saturating division
 
-| xref:numeric.adoc#saturating_cast[`saturate_cast`]
+| xref:numeric.adoc#saturating_cast[`saturating_cast`]
 | Saturating type cast
 
 | xref:numeric.adoc#gcd[`gcd`]

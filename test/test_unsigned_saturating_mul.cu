@@ -24,7 +24,7 @@ __global__ void cuda_test(const test_type *in, const test_type *in2, test_type *
 
     if (i < numElements)
     {
-        out[i] = boost::int128::div_sat(in[i], in2[i]);
+        out[i] = boost::int128::saturating_mul(in[i], in2[i]);
     }
 }
 
@@ -41,7 +41,7 @@ int main(void)
     cuda_managed_ptr<test_type> input_vector2(numElements);
     cuda_managed_ptr<test_type> output_vector(numElements);
 
-    boost::random::uniform_int_distribution<test_type> dist {test_type{1U}, (std::numeric_limits<test_type>::max)()};
+    boost::random::uniform_int_distribution<test_type> dist {test_type{0U}, (std::numeric_limits<test_type>::max)()};
     for (std::size_t i = 0; i < numElements; ++i)
     {
         input_vector[i] = dist(rng);
@@ -71,7 +71,7 @@ int main(void)
     w.reset();
     for (int i = 0; i < numElements; ++i)
     {
-        results.push_back(boost::int128::div_sat(input_vector[i], input_vector2[i]));
+        results.push_back(boost::int128::saturating_mul(input_vector[i], input_vector2[i]));
     }
     double t = w.elapsed();
 
