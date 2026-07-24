@@ -114,6 +114,7 @@ run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
 run ../examples/checked_arithmetic.cpp ;
+run ../examples/integer_comparison.cpp ;
 run ../examples/mixed_type_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
