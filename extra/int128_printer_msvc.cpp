@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
+#include <cassert>
 
 #include <boost/int128.hpp>
 
@@ -70,8 +71,8 @@ typedef struct DEBUGHELPER_s DEBUGHELPER_t;
 typedef HRESULT(WINAPI*customviewer_t)(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
 
 
-template<typename t>
-static inline HRESULT formatter_128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
+template<typename t, int numeric_base>
+static inline HRESULT formatter_128(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
 	DWORDLONG addr2;
 	HRESULT hr;
@@ -80,6 +81,8 @@ static inline HRESULT formatter_128_dec(DWORD const address, DEBUGHELPER_t* cons
 	char* chr;
 	char txt_n[boost::int128::detail::mini_to_chars_buffer_size];
 	size_t len;
+	size_t rem;
+	size_t off;
 	size_t n;
 	size_t i;
 
@@ -106,7 +109,7 @@ static inline HRESULT formatter_128_dec(DWORD const address, DEBUGHELPER_t* cons
 	{
 		return E_FAIL;
 	}
-	chr = boost::int128::detail::mini_to_chars(txt_n, integer, 10, false);
+	chr = boost::int128::detail::mini_to_chars(txt_n, integer, numeric_base, false);
 	if(!(chr >= &txt_n[0] && chr < &txt_n[0] + boost::int128::detail::mini_to_chars_buffer_size))
 	{
 		return E_FAIL;
@@ -118,18 +121,42 @@ static inline HRESULT formatter_128_dec(DWORD const address, DEBUGHELPER_t* cons
 	len = ((size_t)((&txt_n[0] + boost::int128::detail::mini_to_chars_buffer_size) - chr));
 	if(unicode)
 	{
-		n = my_min(len, maximum);
+		rem = maximum;
+		off = 0;
+		if(numeric_base == 16)
+		{
+			off = 2;
+			if(rem >= off)
+			{
+				((wchar_t*)(result))[0] = L'0';
+				((wchar_t*)(result))[1] = L'x';
+				rem -= off;
+			}
+		}
+		n = my_min(len, rem);
 		for(i = 0; i != n; ++i)
 		{
-			((wchar_t*)(result))[i] = ((wchar_t)(chr[i]));
+			((wchar_t*)(result))[off + i] = ((wchar_t)(chr[i]));
 		}
 	}
 	else
 	{
-		n = my_min(len, maximum);
+		rem = maximum;
+		off = 0;
+		if(numeric_base == 16)
+		{
+			off = 2;
+			if(rem >= off)
+			{
+				result[0] = '0';
+				result[1] = 'x';
+				rem -= off;
+			}
+		}
+		n = my_min(len, rem);
 		for(i = 0; i != n; ++i)
 		{
-			result[i] = chr[i];
+			result[off + i] = chr[i];
 		}
 	}
 	return S_OK;
@@ -137,15 +164,29 @@ static inline HRESULT formatter_128_dec(DWORD const address, DEBUGHELPER_t* cons
 
 
 extern "C" __declspec(dllexport) HRESULT __stdcall formatter_u128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
+extern "C" __declspec(dllexport) HRESULT __stdcall formatter_u128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
+extern "C" __declspec(dllexport) HRESULT __stdcall formatter_s128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
+extern "C" __declspec(dllexport) HRESULT __stdcall formatter_s128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
+
+
 __declspec(dllexport) HRESULT __stdcall formatter_u128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128_dec<boost::int128::uint128_t>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::uint128_t, 10>(address, helper, base, unicode, result, maximum, reserved);
 }
 
-extern "C" __declspec(dllexport) HRESULT __stdcall formatter_s128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved);
+__declspec(dllexport) HRESULT __stdcall formatter_u128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
+{
+	return formatter_128<boost::int128::uint128_t, 16>(address, helper, base, unicode, result, maximum, reserved);
+}
+
 __declspec(dllexport) HRESULT __stdcall formatter_s128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128_dec<boost::int128::int128_t>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::int128_t, 10>(address, helper, base, unicode, result, maximum, reserved);
+}
+
+__declspec(dllexport) HRESULT __stdcall formatter_s128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
+{
+	return formatter_128<boost::int128::int128_t, 16>(address, helper, base, unicode, result, maximum, reserved);
 }
 
 BOOL APIENTRY DllMain(HMODULE const hmodule, DWORD  const reason, LPVOID const reserved)
