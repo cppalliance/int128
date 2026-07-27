@@ -1039,7 +1039,24 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator~(const 
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const int128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return {lhs.high | rhs.high, lhs.low | rhs.low};
+    }
+    else
+    {
+        const auto l {detail::to_bitwise_words(lhs)};
+        const auto r {detail::to_bitwise_words(rhs)};
+        return detail::from_bitwise_words({l.first | r.first, l.second | r.second});
+    }
+
+    #else
+
     return {lhs.high | rhs.high, lhs.low | rhs.low};
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
@@ -1115,7 +1132,24 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator|=(const Integer rhs
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const int128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return {lhs.high & rhs.high, lhs.low & rhs.low};
+    }
+    else
+    {
+        const auto l {detail::to_bitwise_words(lhs)};
+        const auto r {detail::to_bitwise_words(rhs)};
+        return detail::from_bitwise_words({l.first & r.first, l.second & r.second});
+    }
+
+    #else
+
     return {lhs.high & rhs.high, lhs.low & rhs.low};
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
@@ -1191,7 +1225,24 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator&=(const int128_t
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const int128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
+    {
+        return {lhs.high ^ rhs.high, lhs.low ^ rhs.low};
+    }
+    else
+    {
+        const auto l {detail::to_bitwise_words(lhs)};
+        const auto r {detail::to_bitwise_words(rhs)};
+        return detail::from_bitwise_words({l.first ^ r.first, l.second ^ r.second});
+    }
+
+    #else
+
     return {lhs.high ^ rhs.high, lhs.low ^ rhs.low};
+
+    #endif
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
