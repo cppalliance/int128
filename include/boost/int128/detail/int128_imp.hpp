@@ -973,12 +973,64 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Unsign
 #endif
 
 //=====================================
+// Bitwise Operator Helpers
+//=====================================
+
+#if !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+#define BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+namespace detail {
+
+struct bitwise_words
+{
+    std::uint64_t first;
+    std::uint64_t second;
+};
+
+// These must be force inlined. Clang leaves the plain inline form out of line for some of
+// the operators, and the call boundary is enough to stop the loop vectorizer.
+BOOST_INT128_FORCE_INLINE bitwise_words to_bitwise_words(const int128_t& value) noexcept
+{
+    bitwise_words words {};
+    std::memcpy(&words, &value, sizeof(words));
+    return words;
+}
+
+BOOST_INT128_FORCE_INLINE int128_t from_bitwise_words(const bitwise_words words) noexcept
+{
+    int128_t value {};
+    std::memcpy(&value, &words, sizeof(value));
+    return value;
+}
+
+} // namespace detail
+
+#endif // BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+//=====================================
 // Not Operator
 //=====================================
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator~(const int128_t rhs) noexcept
 {
+    #ifdef BOOST_INT128_HAS_BITWISE_WORD_PATH
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
+    {
+        return {~rhs.high, ~rhs.low};
+    }
+    else
+    {
+        const auto words {detail::to_bitwise_words(rhs)};
+        return detail::from_bitwise_words({~words.first, ~words.second});
+    }
+
+    #else
+
     return {~rhs.high, ~rhs.low};
+
+    #endif
 }
 
 //=====================================
