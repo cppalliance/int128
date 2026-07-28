@@ -92,5 +92,6 @@
 *** xref:i128_benchmarks.adoc#i128_mac[macOS]
 * xref:comp_to_multiprecision.adoc[]
 * xref:design.adoc[]
+* xref:release_notes.adoc[]
 * xref:reference.adoc[]
 * xref:copyright.adoc[]

@@ -1,0 +1,65 @@
+////
+Copyright 2026 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#release_notes]
+= Release Notes
+:idprefix: release_notes_
+
+== Unreleased
+
+=== Breaking: `int128_t::high` is now `std::uint64_t`
+
+`int128_t` previously stored `std::uint64_t low` and `std::int64_t high`.
+Both words are now `std::uint64_t`; the value is still interpreted as two's complement across the pair, and no bit of the representation moved.
+
+The reason is codegen.
+When the two halves of the struct have different types, a compiler's data-reference analysis cannot merge them into a single wide access, so loops over `int128_t` are emitted with shuffles or scalarized outright.
+Measured with GCC 14 at `-O3 -march=znver3` on `r[i] = x[i] | y[i]` over an `std::array<int128_t, 128>`:
+
+[cols="1,1,1",options="header"]
+|===
+| | before | after
+| `\|`, `&`, `^` | 96 instructions, 14 shuffles | 24 instructions, 0 shuffles
+| `~`            | 74 instructions, 10 shuffles | 20 instructions, 0 shuffles
+|===
+
+Those are now exactly the numbers `uint128_t` has always produced, since it already had uniform word types.
+Scalar code is unaffected or better: `a + b` drops from 20 instructions to 10, `a << n` from 17 to 12, and `a >> n` from 18 to 13.
+
+==== What still works
+
+* The two-word constructor is unchanged and still takes its high word as `std::int64_t`, so `int128_t{-1, 0}` and `int128_t{INT64_MIN, 0}` compile and mean exactly what they did.
+* `sizeof`, `alignof`, and the in-memory byte order are unchanged. The type remains trivially copyable and standard layout, so anything that `memcpy`s an `int128_t` is unaffected.
+* Every operator produces bit-identical results. Conversions to and from `uint128_t` and the native `pass:[__int128]` are unchanged.
+
+==== What to change
+
+Code that reads the `high` member and depends on its signedness.
+The member is unsigned now, so a sign test on it silently becomes false:
+
+[source, c++]
+----
+// Before: true for negative values. Now always false.
+if (value.high < 0) { ... }
+
+// Use the accessor
+if (value.signed_high() < 0) { ... }
+
+// Or, usually clearer, compare the value
+if (value < 0) { ... }
+----
+
+`signed_high()` is a new public member:
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr std::int64_t signed_high() const noexcept;
+----
+
+It is a pure reinterpretation of the stored bits, `constexpr` everywhere, and available on device.
+Passing `high` to something expecting a `std::int64_t` also needs it, since the conversion is now the other direction.
+
+See xref:int128_t.adoc#i128_storage[Storage and signed_high] for details.
