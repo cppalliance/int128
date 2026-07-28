@@ -21,6 +21,18 @@
 # element count lands in the data set and is printed in the documentation, so the
 # tables stay honest about what was measured.
 
+#
+# Every pull request gets a full set of runs: the step summary of each job
+# compares the fresh numbers against the ones committed under
+# doc/modules/ROOT/data, so a regression is visible without downloading
+# anything, and the artifacts of that same run are what you unpack to publish
+# the new numbers. The comparison never fails a job; these are shared runners
+# and a few percent either way is noise.
+#
+# workflow_dispatch only shows up in the Actions tab once this file is on the
+# default branch. Until then, use a pull request (which runs the version of the
+# workflow on the branch) or push to a benchmarks/** branch.
+
 name: Run Benchmarks
 
 on:
@@ -35,13 +47,17 @@ on:
       repetitions:
         description: Passes over each vector
         default: '5'
+  pull_request:
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - benchmarks
       - benchmarks/**
 
+# Keyed on the branch rather than the ref so that a new push to a pull request
+# cancels the runs still going for the previous one.
 concurrency:
-  group: ${{ format('{0}:{1}:benchmarks', github.repository, github.ref) }}
+  group: ${{ format('{0}:{1}:benchmarks', github.repository, github.head_ref || github.ref) }}
   cancel-in-progress: true
 
 env:
@@ -105,6 +121,8 @@ jobs:
             --elements "$COUNT" \
             --repetitions "$REPETITIONS" \
             --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
       - name: Upload results
         uses: actions/upload-artifact@v6
         with:
@@ -135,6 +153,8 @@ jobs:
             --elements "$ELEMENTS" \
             --repetitions "$REPETITIONS" \
             --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
       - name: Upload results
         uses: actions/upload-artifact@v6
         with:
@@ -184,6 +204,8 @@ jobs:
             --elements "$COUNT" \
             --repetitions "$REPETITIONS" \
             --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
       - name: Upload results
         uses: actions/upload-artifact@v6
         with:
@@ -237,6 +259,8 @@ jobs:
               /scripts/run_benchmarks.sh --compiler g++ --ldflags '${{ matrix.ldflags }}' \
                 --elements $EMULATED_ELEMENTS --repetitions $REPETITIONS --out /out
             "
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
       - name: Upload results
         uses: actions/upload-artifact@v6
         with:

@@ -39,6 +39,7 @@ Timings are printed to stderr as they are measured, so a run is readable without
 From the root of a Boost tree, `.github/scripts/run_benchmarks.sh --compiler g++ --out <dir>` builds and runs both drivers exactly as CI does and leaves a complete data set folder behind. It takes its include path from the checked out libraries, so it needs no staged headers.
 
 The `benchmarks.yml` workflow runs both drivers on every platform documented here and uploads one `benchmarks-<os>-<arch>` artifact per platform.
+It runs on every pull request, and each job's summary compares its fresh numbers against the published ones, so a regression is visible without downloading anything.
 To refresh this page, unpack those artifacts into `doc/modules/ROOT/data` and run `doc/render_benchmarks.py`, which rewrites every table and plot below from the data sets.
 
 // BENCHMARK-RESULTS-GENERATED

@@ -27,6 +27,7 @@ number, label, or file name is ever transcribed by hand.
 
     render_benchmarks.py                 # rewrite the pages and the plots
     render_benchmarks.py --check         # fail if the pages are out of date
+    render_benchmarks.py --compare <dir> # report <dir> against the published numbers
 """
 
 import argparse
@@ -77,6 +78,10 @@ CXXSTD_LABELS = {201103: '11', 201402: '14', 201703: '17', 202002: '20', 202302:
 RANK_COLORS = {1: '#90EE90', 2: '#FFFFE0'}
 SLOW_COLOR = '#FFB6C1'
 
+# How much slower a run has to be before --compare calls it out. The runners are
+# shared, so anything tighter than this is noise.
+REGRESSION_THRESHOLD = 5.0
+
 # Fallback when a data set names a baseline that it did not measure; first match wins.
 BASELINE_PRIORITY = {
     'u128': ['unsigned __int128', 'std::_Unsigned128', 'boost::mp::uint128_t'],
@@ -90,6 +95,7 @@ class data_set:
     def __init__(self, doc, path):
         self.path = path
         self.sign = doc['sign']
+        self.type = doc.get('type', doc['sign'])
         self.os = doc['os']
         self.arch = doc['arch']
         self.compiler = doc.get('compiler', '')
@@ -151,7 +157,7 @@ def first_seen(results):
     return order
 
 
-def load_data_sets(data_dir):
+def load_data_sets(data_dir, require_both=True):
     if not os.path.isdir(data_dir):
         sys.exit(f'error: no data directory {data_dir}')
 
@@ -179,9 +185,12 @@ def load_data_sets(data_dir):
 
             by_sign[entry.sign][platform] = entry
 
-    for sign, found in by_sign.items():
-        if not found:
-            sys.exit(f'error: no {sign} data sets under {data_dir}')
+    if require_both:
+        for sign, found in by_sign.items():
+            if not found:
+                sys.exit(f'error: no {sign} data sets under {data_dir}')
+    elif not any(by_sign.values()):
+        sys.exit(f'error: no data sets under {data_dir}')
 
     return {sign: sorted(found.values(), key=data_set.key) for sign, found in by_sign.items()}
 
@@ -271,6 +280,86 @@ def update_page(path, body, check):
         handle.write(updated)
 
     return True
+
+
+# --------------------------------- comparison ---------------------------------
+
+# Nanoseconds per element pair, so that data sets measured with different element
+# counts remain comparable. The comparison row covers six operators, so it is
+# roughly six times an arithmetic row either side.
+def ns_per_op(entry, operation, implementation):
+    total = entry.elements * entry.repetitions
+    return entry.value(operation, implementation) * 1000.0 / total
+
+
+def change_percent(before, after):
+    return (after - before) / before * 100.0
+
+
+# Mean absolute change of one implementation, used as the noise floor of the run.
+def mean_change(before, after, implementation):
+    changes = [abs(change_percent(ns_per_op(before, op, implementation),
+                                  ns_per_op(after, op, implementation)))
+               for op, _ in OPERATIONS]
+    return sum(changes) / len(changes)
+
+
+def comparable(entry, implementation):
+    return implementation in entry.implementations and entry.elements and entry.repetitions
+
+
+# One markdown section per platform: the library type row by row, plus the
+# reference type as a control for how much the runner itself moved.
+def render_comparison(published, measured):
+    lines = ['## Benchmark comparison', '',
+             'Times are nanoseconds per element pair, so runs of different lengths still line up.',
+             'Published numbers are the ones committed under `doc/modules/ROOT/data`.', '']
+
+    for sign, platforms in sorted(measured.items()):
+        by_platform = {(entry.os, entry.arch): entry for entry in published.get(sign, [])}
+
+        for entry in platforms:
+            before = by_platform.get((entry.os, entry.arch))
+            lines.append(f'### `{entry.type}` on {entry.os}/{entry.arch}')
+            lines.append('')
+
+            if before is None:
+                lines.append(f'Nothing published for {entry.os}/{entry.arch} yet, so there is nothing to '
+                             f'compare against. Publish this run to create the baseline.')
+                lines.append('')
+                continue
+
+            if not (comparable(before, entry.type) and comparable(entry, entry.type)):
+                lines.append(f'One of the two data sets has no usable `{entry.type}` timings.')
+                lines.append('')
+                continue
+
+            if before.compiler != entry.compiler or before.elements != entry.elements:
+                lines.append(f'NOTE: published with {before.compiler or "an unknown compiler"} over '
+                             f'{before.elements:,} elements, this run with {entry.compiler} over '
+                             f'{entry.elements:,}. Part of any difference is the toolchain, not the code.')
+                lines.append('')
+
+            lines.append('| Operation | published | this run | change | |')
+            lines.append('|---|---:|---:|---:|---|')
+
+            for op, label in OPERATIONS:
+                was = ns_per_op(before, op, entry.type)
+                now = ns_per_op(entry, op, entry.type)
+                delta = change_percent(was, now)
+                flag = 'REGRESSION' if delta > REGRESSION_THRESHOLD else ''
+                lines.append(f'| {label} | {was:.2f} | {now:.2f} | {delta:+.1f}% | {flag} |')
+
+            lines.append('')
+
+            reference = entry.baseline
+            if reference != entry.type and comparable(before, reference) and comparable(entry, reference):
+                noise = mean_change(before, entry, reference)
+                lines.append(f'`{reference}` moved by {noise:.1f}% on average across the same rows, '
+                             f'which is the noise floor for this pair of runs.')
+                lines.append('')
+
+    return '\n'.join(lines) + '\n'
 
 
 # ----------------------------------- plots -----------------------------------
@@ -467,7 +556,21 @@ def main():
                         help='documentation pages tree')
     parser.add_argument('--check', action='store_true',
                         help='write nothing; exit 1 if a page is not what the data sets say it should be')
+    parser.add_argument('--compare',
+                        help='directory of fresh data sets to report against the published ones')
+    parser.add_argument('--summary',
+                        help='file to append the comparison to, e.g. $GITHUB_STEP_SUMMARY (default stdout)')
     args = parser.parse_args()
+
+    if args.compare:
+        report = render_comparison(load_data_sets(args.data),
+                                   load_data_sets(args.compare, require_both=False))
+        if args.summary:
+            with open(args.summary, 'a') as handle:
+                handle.write(report)
+
+        sys.stdout.write(report)
+        return 0
 
     data_sets = load_data_sets(args.data)
     stale = []
