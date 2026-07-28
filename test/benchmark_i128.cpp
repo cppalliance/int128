@@ -99,7 +99,7 @@ T from_int128(const boost::int128::int128_t value)
 template <>
 mp_i128 from_int128(const boost::int128::int128_t value)
 {
-    return static_cast<mp_i128>(value.high) << 64 | value.low;
+    return static_cast<mp_i128>(static_cast<std::int64_t>(value.high)) << 64 | value.low;
 }
 
 #ifdef BOOST_INT128_HAS_MSVC_INTERNAL_I128
@@ -107,7 +107,7 @@ mp_i128 from_int128(const boost::int128::int128_t value)
 template <>
 std::_Signed128 from_int128(const boost::int128::int128_t value)
 {
-    return static_cast<std::_Signed128>(value.high) << static_cast<std::_Signed128>(64) | static_cast<std::_Signed128>(value.low);
+    return static_cast<std::_Signed128>(static_cast<std::int64_t>(value.high)) << static_cast<std::_Signed128>(64) | static_cast<std::_Signed128>(value.low);
 }
 
 #endif
@@ -117,7 +117,7 @@ std::_Signed128 from_int128(const boost::int128::int128_t value)
 template <>
 absl::int128 from_int128(const boost::int128::int128_t value)
 {
-    return static_cast<absl::int128>(value.high) << 64 | static_cast<absl::int128>(value.low);
+    return static_cast<absl::int128>(static_cast<std::int64_t>(value.high)) << 64 | static_cast<absl::int128>(value.low);
 }
 
 #endif

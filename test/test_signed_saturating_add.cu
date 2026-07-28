@@ -83,10 +83,10 @@ int main(void)
             if (fail_count < 5)
             {
                 std::cerr << "Result verification failed at element " << i << std::endl;
-                std::cerr << "  input1 high: " << input_vector[i].high << " low: " << input_vector[i].low << std::endl;
-                std::cerr << "  input2 high: " << input_vector2[i].high << " low: " << input_vector2[i].low << std::endl;
-                std::cerr << "  GPU    high: " << output_vector[i].high << " low: " << output_vector[i].low << std::endl;
-                std::cerr << "  CPU    high: " << results[i].high << " low: " << results[i].low << std::endl;
+                std::cerr << "  input1 high: " << input_vector[i].signed_high() << " low: " << input_vector[i].low << std::endl;
+                std::cerr << "  input2 high: " << input_vector2[i].signed_high() << " low: " << input_vector2[i].low << std::endl;
+                std::cerr << "  GPU    high: " << output_vector[i].signed_high() << " low: " << output_vector[i].low << std::endl;
+                std::cerr << "  CPU    high: " << results[i].signed_high() << " low: " << results[i].low << std::endl;
             }
             ++fail_count;
         }

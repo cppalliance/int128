@@ -9,6 +9,7 @@
 #include <boost/int128.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <cstdint>
+#include <cstring>
 #include <random>
 
 #ifdef BOOST_INT128_HAS_INT128
@@ -323,6 +324,149 @@ void test_int128_vs_builtin_u128()
     }
 }
 
+// =========================================================================
+// Signed boundary values
+//
+// The random sweeps above rarely land on the values where sign handling is
+// easiest to get wrong. Every sign-dependent codepath (ordering, arithmetic
+// right shift, division, abs, saturation, float conversion) is checked here
+// against the builtin over an exhaustive cross product of boundary values.
+// =========================================================================
+
+template <typename Float>
+static bool same_bits(const Float lhs, const Float rhs) noexcept
+{
+    unsigned char l[sizeof(Float)] {};
+    unsigned char r[sizeof(Float)] {};
+    std::memcpy(l, &lhs, sizeof(Float));
+    std::memcpy(r, &rhs, sizeof(Float));
+    return std::memcmp(l, r, sizeof(Float)) == 0;
+}
+
+void test_signed_boundaries()
+{
+    const builtin_i128 one {1};
+    const builtin_u128 top_bit {static_cast<builtin_u128>(1) << 127};
+
+    const builtin_i128 values[] {
+        0,
+        1,
+        -1,
+        2,
+        -2,
+        static_cast<builtin_i128>(top_bit),                      // INT128_MIN
+        static_cast<builtin_i128>(top_bit) + 1,                  // INT128_MIN + 1
+        static_cast<builtin_i128>(~top_bit),                     // INT128_MAX
+        static_cast<builtin_i128>(~top_bit) - 1,
+        static_cast<builtin_i128>(static_cast<builtin_u128>(UINT64_MAX)),
+        -static_cast<builtin_i128>(static_cast<builtin_u128>(UINT64_MAX)),
+        static_cast<builtin_i128>(one << 64),
+        -static_cast<builtin_i128>(one << 64),
+        static_cast<builtin_i128>(one << 63),
+        -static_cast<builtin_i128>(one << 63),
+        static_cast<builtin_i128>(static_cast<builtin_u128>(INT64_MIN) << 64)
+    };
+
+    constexpr std::size_t count {sizeof(values) / sizeof(values[0])};
+
+    for (std::size_t i {0}; i < count; ++i)
+    {
+        const auto raw_a {values[i]};
+        const int128_t a {raw_a};
+
+        // Unary and conversion.
+        BOOST_TEST_EQ(-a, int128_t{static_cast<builtin_i128>(0U - static_cast<builtin_u128>(raw_a))});
+        BOOST_TEST_EQ(~a, int128_t{static_cast<builtin_i128>(~static_cast<builtin_u128>(raw_a))});
+        BOOST_TEST_EQ(int128_t{static_cast<builtin_i128>(a)}, int128_t{raw_a});
+        BOOST_TEST_EQ(a.signed_high(), static_cast<std::int64_t>(static_cast<builtin_u128>(raw_a) >> 64));
+
+        // abs(INT128_MIN) has no representable result; it wraps, like the builtin.
+        BOOST_TEST_EQ(boost::int128::abs(a),
+                      int128_t{static_cast<builtin_i128>(raw_a < 0 ? 0U - static_cast<builtin_u128>(raw_a)
+                                                                   : static_cast<builtin_u128>(raw_a))});
+
+        // Float conversion is the other place the sign is applied by hand. Compared
+        // as bit patterns: both sides round identically, and this test builds with
+        // -Wfloat-equal, which a pragma here could not suppress inside BOOST_TEST_EQ.
+        BOOST_TEST(same_bits(static_cast<double>(a), static_cast<double>(raw_a)));
+        BOOST_TEST(same_bits(static_cast<float>(a), static_cast<float>(raw_a)));
+
+        // Arithmetic right shift fills with the sign bit at every distance.
+        for (unsigned shift {0}; shift < 128U; ++shift)
+        {
+            BOOST_TEST_EQ(a >> shift, int128_t{raw_a >> shift});
+            BOOST_TEST_EQ(a << shift,
+                          int128_t{static_cast<builtin_i128>(static_cast<builtin_u128>(raw_a) << shift)});
+        }
+
+        for (std::size_t j {0}; j < count; ++j)
+        {
+            const auto raw_b {values[j]};
+            const int128_t b {raw_b};
+
+            BOOST_TEST_EQ(a == b, raw_a == raw_b);
+            BOOST_TEST_EQ(a != b, raw_a != raw_b);
+            BOOST_TEST_EQ(a <  b, raw_a <  raw_b);
+            BOOST_TEST_EQ(a <= b, raw_a <= raw_b);
+            BOOST_TEST_EQ(a >  b, raw_a >  raw_b);
+            BOOST_TEST_EQ(a >= b, raw_a >= raw_b);
+
+            // Computed through the unsigned domain: signed overflow is UB for the oracle.
+            const builtin_u128 ua {static_cast<builtin_u128>(raw_a)};
+            const builtin_u128 ub {static_cast<builtin_u128>(raw_b)};
+            BOOST_TEST_EQ(a + b, int128_t{static_cast<builtin_i128>(ua + ub)});
+            BOOST_TEST_EQ(a - b, int128_t{static_cast<builtin_i128>(ua - ub)});
+            BOOST_TEST_EQ(a * b, int128_t{static_cast<builtin_i128>(ua * ub)});
+
+            // INT128_MIN / -1 overflows; the builtin traps on it, so skip that pair.
+            const bool overflowing_div {raw_b == -1 && raw_a == static_cast<builtin_i128>(top_bit)};
+            if (raw_b != 0 && !overflowing_div)
+            {
+                BOOST_TEST_EQ(a / b, int128_t{raw_a / raw_b});
+                BOOST_TEST_EQ(a % b, int128_t{raw_a % raw_b});
+
+                const auto qr {boost::int128::div(a, b)};
+                BOOST_TEST_EQ(qr.quot, int128_t{raw_a / raw_b});
+                BOOST_TEST_EQ(qr.rem, int128_t{raw_a % raw_b});
+            }
+
+            BOOST_TEST_EQ(a | b, int128_t{static_cast<builtin_i128>(ua | ub)});
+            BOOST_TEST_EQ(a & b, int128_t{static_cast<builtin_i128>(ua & ub)});
+            BOOST_TEST_EQ(a ^ b, int128_t{static_cast<builtin_i128>(ua ^ ub)});
+
+            // Saturating arithmetic clamps instead of wrapping.
+            const builtin_i128 sum {static_cast<builtin_i128>(ua + ub)};
+            const bool add_overflowed {(raw_a < 0) == (raw_b < 0) && (sum < 0) != (raw_a < 0)};
+            const builtin_i128 expected_add {add_overflowed
+                ? (raw_a < 0 ? static_cast<builtin_i128>(top_bit) : static_cast<builtin_i128>(~top_bit))
+                : sum};
+            BOOST_TEST_EQ(boost::int128::saturating_add(a, b), int128_t{expected_add});
+
+            const builtin_i128 diff {static_cast<builtin_i128>(ua - ub)};
+            const bool sub_overflowed {(raw_a < 0) != (raw_b < 0) && (diff < 0) != (raw_a < 0)};
+            const builtin_i128 expected_sub {sub_overflowed
+                ? (raw_a < 0 ? static_cast<builtin_i128>(top_bit) : static_cast<builtin_i128>(~top_bit))
+                : diff};
+            BOOST_TEST_EQ(boost::int128::saturating_sub(a, b), int128_t{expected_sub});
+
+            // midpoint rounds toward the first argument. Neither expression below can
+            // overflow: b - a is representable when the signs agree, and a + b is
+            // representable when they differ.
+            builtin_i128 mid {};
+            if ((raw_a < 0) == (raw_b < 0))
+            {
+                mid = raw_a + (raw_b - raw_a) / 2;
+            }
+            else
+            {
+                const builtin_i128 straddling_sum {raw_a + raw_b};
+                mid = (straddling_sum >> 1) + ((straddling_sum & 1) != 0 && raw_a > raw_b ? 1 : 0);
+            }
+            BOOST_TEST_EQ(boost::int128::midpoint(a, b), int128_t{mid});
+        }
+    }
+}
+
 #endif // BOOST_INT128_HAS_INT128
 
 int main()
@@ -342,6 +486,7 @@ int main()
     test_cross_type();
     test_uint128_vs_builtin_i128();
     test_int128_vs_builtin_u128();
+    test_signed_boundaries();
 
     #endif
 
