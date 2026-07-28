@@ -69,8 +69,8 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
         return {0, x};
     }
 
-    const auto negative_quot {(x.high < 0) != (y.high < 0)};
-    const auto negative_rem {x.high < 0};
+    const auto negative_quot {(x.signed_high() < 0) != (y.signed_high() < 0)};
+    const auto negative_rem {x.signed_high() < 0};
 
     #if defined(BOOST_INT128_HAS_INT128)
 
