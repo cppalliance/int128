@@ -56,7 +56,7 @@ void test_small_negative_values()
 
         // The portable fallback must also be correct on platforms
         // where the operator uses the builtin conversion instead
-        BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(value.high, value.low), static_cast<T>(v));
+        BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(value.signed_high(), value.low), static_cast<T>(v));
     }
 }
 
@@ -70,7 +70,7 @@ void test_signed_powers_of_two()
         const T expected {-std::ldexp(static_cast<T>(1), k)};
 
         BOOST_TEST_EQ(static_cast<T>(value), expected);
-        BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(value.high, value.low), expected);
+        BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(value.signed_high(), value.low), expected);
     }
 
     // INT128_MIN itself: the magnitude 2^127 does not fit in int128_t,
@@ -79,7 +79,7 @@ void test_signed_powers_of_two()
     const T expected_min {-std::ldexp(static_cast<T>(1), 127)};
 
     BOOST_TEST_EQ(static_cast<T>(min_value), expected_min);
-    BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(min_value.high, min_value.low), expected_min);
+    BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(min_value.signed_high(), min_value.low), expected_min);
 
     // This fails with 32-bit ASAN but passes on the same compiler without ASAN
     // libs/int128/test/github_issue_432.cpp(86): test 'static_cast<T>(min_value + 1) == expected_min' ('-1.70141e+38' == '-1.70141e+38') failed in function 'void test_signed_powers_of_two() [with T = float]'
@@ -162,13 +162,13 @@ void test_vs_builtin()
         // negative values, which this catches with a huge margin
         BOOST_TEST(within_one_ulp(boost::int128::detail::unsigned_words_to_float<T>(hi, lo),
                                   static_cast<T>(builtin_u)));
-        BOOST_TEST(within_one_ulp(boost::int128::detail::signed_words_to_float<T>(s.high, s.low),
+        BOOST_TEST(within_one_ulp(boost::int128::detail::signed_words_to_float<T>(s.signed_high(), s.low),
                                   static_cast<T>(builtin_s)));
 
         // The fallback must never lose the sign the way the cancellation defect did
         if (builtin_s != 0)
         {
-            BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(s.high, s.low) < 0, builtin_s < 0);
+            BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(s.signed_high(), s.low) < 0, builtin_s < 0);
         }
     }
 }

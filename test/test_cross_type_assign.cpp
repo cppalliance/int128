@@ -77,18 +77,18 @@ void test_uint_to_int_construction()
     // Copy construction with braces
     const int128_t a {u};
     BOOST_TEST_EQ(a.low, u.low);
-    BOOST_TEST_EQ(static_cast<std::uint64_t>(a.high), u.high);
+    BOOST_TEST_EQ(a.high, u.high);
 
     // Copy-initialization (implicit conversion)
     const int128_t b = u;
     BOOST_TEST_EQ(b.low, u.low);
-    BOOST_TEST_EQ(static_cast<std::uint64_t>(b.high), u.high);
+    BOOST_TEST_EQ(b.high, u.high);
 
     // Move construction
     uint128_t u_movable {1U, 42U};
     const int128_t c {std::move(u_movable)};
     BOOST_TEST_EQ(c.low, 42U);
-    BOOST_TEST_EQ(c.high, 1);
+    BOOST_TEST_EQ(c.high, UINT64_C(1));
 }
 
 void test_int_to_uint_construction()
@@ -97,11 +97,11 @@ void test_int_to_uint_construction()
 
     const uint128_t a {i};
     BOOST_TEST_EQ(a.low, i.low);
-    BOOST_TEST_EQ(a.high, static_cast<std::uint64_t>(i.high));
+    BOOST_TEST_EQ(a.high, i.high);
 
     const uint128_t b = i;
     BOOST_TEST_EQ(b.low, i.low);
-    BOOST_TEST_EQ(b.high, static_cast<std::uint64_t>(i.high));
+    BOOST_TEST_EQ(b.high, i.high);
 
     int128_t i_movable {-1, 0xFFFFFFFFFFFFFFFFULL};
     const uint128_t c {std::move(i_movable)};
@@ -200,10 +200,10 @@ void test_int_from_float()
 {
     // Basic positive and negative
     BOOST_TEST_EQ(int128_t{Float{0}}.low, 0U);
-    BOOST_TEST_EQ(int128_t{Float{0}}.high, 0);
+    BOOST_TEST_EQ(int128_t{Float{0}}.signed_high(), INT64_C(0));
     BOOST_TEST_EQ(int128_t{Float{42}}.low, 42U);
     BOOST_TEST_EQ(int128_t{Float{-42}}.low, static_cast<std::uint64_t>(-42));
-    BOOST_TEST_EQ(int128_t{Float{-42}}.high, -1);
+    BOOST_TEST_EQ(int128_t{Float{-42}}.signed_high(), INT64_C(-1));
 
     // Truncation toward zero (see note in test_uint_from_float on the literal style).
     BOOST_TEST_EQ((int128_t{Float{37} / Float{10}}.low), 3U);                                 // ~3.7 -> 3
@@ -212,18 +212,18 @@ void test_int_from_float()
     // NaN -> 0
     const Float nan {std::numeric_limits<Float>::quiet_NaN()};
     BOOST_TEST_EQ(int128_t{nan}.low, 0U);
-    BOOST_TEST_EQ(int128_t{nan}.high, 0);
+    BOOST_TEST_EQ(int128_t{nan}.signed_high(), INT64_C(0));
 
     // Positive saturation: f >= 2^127 -> INT128_MAX
     const Float two_64 {static_cast<Float>(UINT64_C(1) << 32) * static_cast<Float>(UINT64_C(1) << 32)};
     const Float two_127 {two_64 * static_cast<Float>(UINT64_C(1) << 63)};
     const int128_t pos_sat {two_127};
-    BOOST_TEST_EQ(pos_sat.high, (std::numeric_limits<std::int64_t>::max)());
+    BOOST_TEST_EQ(pos_sat.signed_high(), (std::numeric_limits<std::int64_t>::max)());
     BOOST_TEST_EQ(pos_sat.low, UINT64_MAX);
 
     // Negative saturation: f <= -2^127 -> INT128_MIN
     const int128_t neg_sat {-two_127};
-    BOOST_TEST_EQ(neg_sat.high, (std::numeric_limits<std::int64_t>::min)());
+    BOOST_TEST_EQ(neg_sat.signed_high(), (std::numeric_limits<std::int64_t>::min)());
     BOOST_TEST_EQ(neg_sat.low, 0U);
 
     // Just below the positive boundary should not saturate.
@@ -234,7 +234,7 @@ void test_int_from_float()
     // Round-trip a negative power of two through the two's-complement path
     const int128_t neg_round_trip {-two_64};  // -2^64
     BOOST_TEST_EQ(neg_round_trip.low, 0U);
-    BOOST_TEST_EQ(neg_round_trip.high, -1);
+    BOOST_TEST_EQ(neg_round_trip.signed_high(), INT64_C(-1));
 }
 
 void test_constexpr_float_construction()
@@ -243,7 +243,7 @@ void test_constexpr_float_construction()
     static_assert(u.low == 42U, "constexpr uint from double");
 
     constexpr int128_t i {-7.9};
-    static_assert(i.high == -1, "constexpr int from double sign");
+    static_assert(i.signed_high() == -1, "constexpr int from double sign");
 
     // NaN -> 0 is exercised at runtime in test_uint_from_float / test_int_from_float.
     // It cannot be constant-evaluated on GCC 9, which rejects NaN comparisons in

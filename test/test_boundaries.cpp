@@ -26,7 +26,7 @@ std::uint64_t opaque(std::uint64_t v)
 
 int128_t opaque(int128_t v)
 {
-    return int128_t{opaque(static_cast<std::int64_t>(v.high)), opaque(static_cast<std::uint64_t>(v.low))};
+    return int128_t{opaque(v.signed_high()), opaque(v.low)};
 }
 
 } // namespace

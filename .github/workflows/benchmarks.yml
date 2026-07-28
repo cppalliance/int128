@@ -1,0 +1,269 @@
+# ------------------------------------------------------------------------------
+#  Copyright Matt Borland 2026.
+#  Distributed under the Boost Software License,
+#  Version 1.0. (See accompanying file LICENSE_1_0.txt
+#  or copy at http://www.boost.org/LICENSE_1_0.txt)
+# ------------------------------------------------------------------------------
+#
+# Builds and runs test/benchmark_u128.cpp and test/benchmark_i128.cpp in release
+# mode across the platforms documented on the two benchmark pages, and uploads
+# one benchmarks-<os>-<arch> artifact per platform holding u128.json and
+# i128.json.
+#
+# To refresh the documentation: download the artifacts, unpack the
+# benchmarks-<os>-<arch> folders into doc/modules/ROOT/data, and run
+# doc/render_benchmarks.py. It rewrites every table and plot from the data sets,
+# taking the platform, compiler, and element count out of the data itself.
+#
+# The emulated jobs (s390x, ppc64le, ARM32) and the 32-bit jobs measure a smaller
+# vector: QEMU is roughly an order of magnitude slower than native, and four
+# 128-bit vectors of the default length do not fit in a 32-bit address space. The
+# element count lands in the data set and is printed in the documentation, so the
+# tables stay honest about what was measured.
+
+#
+# Every pull request gets a full set of runs: the step summary of each job
+# compares the fresh numbers against the ones committed under
+# doc/modules/ROOT/data, so a regression is visible without downloading
+# anything, and the artifacts of that same run are what you unpack to publish
+# the new numbers. The comparison never fails a job; these are shared runners
+# and a few percent either way is noise.
+#
+# workflow_dispatch only shows up in the Actions tab once this file is on the
+# default branch. Until then, use a pull request (which runs the version of the
+# workflow on the branch) or push to a benchmarks/** branch.
+
+name: Run Benchmarks
+
+on:
+  workflow_dispatch:
+    inputs:
+      elements:
+        description: Values per vector on the native 64-bit runners
+        default: '20000000'
+      emulated_elements:
+        description: Values per vector on the emulated runners
+        default: '2000000'
+      repetitions:
+        description: Passes over each vector
+        default: '5'
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - benchmarks
+      - benchmarks/**
+
+# Keyed on the branch rather than the ref so that a new push to a pull request
+# cancels the runs still going for the previous one.
+concurrency:
+  group: ${{ format('{0}:{1}:benchmarks', github.repository, github.head_ref || github.ref) }}
+  cancel-in-progress: true
+
+env:
+  GIT_FETCH_JOBS: 8
+  ELEMENTS: ${{ inputs.elements || '20000000' }}
+  EMULATED_ELEMENTS: ${{ inputs.emulated_elements || '2000000' }}
+  REPETITIONS: ${{ inputs.repetitions || '5' }}
+
+jobs:
+  linux:
+    name: ${{ matrix.title }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - title: Linux x64
+            os: ubuntu-latest
+            arch: x64
+            compiler: g++-14
+            packages: g++-14 libabsl-dev
+            cxxflags: ''
+            ldflags: '-labsl_int128 -labsl_base'
+            elements: ''
+          - title: Linux x86 (32-bit)
+            os: ubuntu-latest
+            arch: x86
+            compiler: g++-14
+            packages: g++-14 g++-14-multilib
+            cxxflags: '-m32'
+            ldflags: ''
+            elements: '10000000'
+          - title: Linux ARM64
+            os: ubuntu-24.04-arm
+            arch: arm64
+            compiler: g++-14
+            packages: g++-14 libabsl-dev
+            cxxflags: ''
+            ldflags: '-labsl_int128 -labsl_base'
+            elements: ''
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install packages
+        run: |
+          sudo apt-get -o Acquire::Retries=5 update
+          sudo apt-get -o Acquire::Retries=5 install -y ${{ matrix.packages }}
+      - name: Setup Boost
+        run: .github/scripts/setup_benchmarks.sh
+      - name: Build and run
+        run: |
+          cd "$BOOST_ROOT"
+          COUNT="${{ matrix.elements }}"
+          : "${COUNT:=$ELEMENTS}"
+          "$GITHUB_WORKSPACE/.github/scripts/run_benchmarks.sh" \
+            --compiler '${{ matrix.compiler }}' \
+            --cxxflags '${{ matrix.cxxflags }}' \
+            --ldflags '${{ matrix.ldflags }}' \
+            --elements "$COUNT" \
+            --repetitions "$REPETITIONS" \
+            --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
+      - name: Upload results
+        uses: actions/upload-artifact@v6
+        with:
+          name: benchmarks-linux-${{ matrix.arch }}
+          path: bench-results
+          if-no-files-found: error
+
+  macos:
+    name: macOS ARM64
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install packages
+        run: brew install abseil
+      - name: Setup Boost
+        run: .github/scripts/setup_benchmarks.sh
+      - name: Build and run
+        run: |
+          cd "$BOOST_ROOT"
+          PREFIX="$(brew --prefix)"
+          "$GITHUB_WORKSPACE/.github/scripts/run_benchmarks.sh" \
+            --compiler clang++ \
+            --cxxflags "-I$PREFIX/include" \
+            --ldflags "-L$PREFIX/lib -labsl_int128 -labsl_base" \
+            --elements "$ELEMENTS" \
+            --repetitions "$REPETITIONS" \
+            --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
+      - name: Upload results
+        uses: actions/upload-artifact@v6
+        with:
+          name: benchmarks-macos-arm64
+          path: bench-results
+          if-no-files-found: error
+
+  windows:
+    name: ${{ matrix.title }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - title: Windows x64
+            os: windows-latest
+            arch: x64
+            msvc_arch: x64
+            elements: ''
+          - title: Windows x86 (32-bit)
+            os: windows-latest
+            arch: x86
+            msvc_arch: x86
+            elements: '10000000'
+          - title: Windows ARM64
+            os: windows-11-arm
+            arch: arm64
+            msvc_arch: arm64
+            elements: ''
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Boost
+        run: .github/scripts/setup_benchmarks.sh
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        with:
+          arch: ${{ matrix.msvc_arch }}
+      - name: Build and run
+        run: |
+          cd "$BOOST_ROOT"
+          COUNT="${{ matrix.elements }}"
+          : "${COUNT:=$ELEMENTS}"
+          "$GITHUB_WORKSPACE/.github/scripts/run_benchmarks.sh" \
+            --msvc \
+            --elements "$COUNT" \
+            --repetitions "$REPETITIONS" \
+            --out "$GITHUB_WORKSPACE/bench-results"
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
+      - name: Upload results
+        uses: actions/upload-artifact@v6
+        with:
+          name: benchmarks-windows-${{ matrix.arch }}
+          path: bench-results
+          if-no-files-found: error
+
+  emulated:
+    name: ${{ matrix.title }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - title: Linux s390x (emulated)
+            arch: s390x
+            platform: linux/s390x
+            packages: g++ libabsl-dev
+            ldflags: '-labsl_int128 -labsl_base'
+          - title: Linux ppc64le (emulated)
+            arch: ppc64le
+            platform: linux/ppc64le
+            packages: g++
+            ldflags: ''
+          - title: Linux ARM32 (emulated)
+            arch: arm32
+            platform: linux/arm/v7
+            packages: g++
+            ldflags: ''
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup Boost
+        run: .github/scripts/setup_benchmarks.sh
+      - uses: docker/setup-qemu-action@v4
+      - name: Build and run
+        run: |
+          # Create the output directory first so that docker does not, as root.
+          mkdir -p "$GITHUB_WORKSPACE/bench-results"
+          docker run --rm --platform ${{ matrix.platform }} \
+            -v "$BOOST_ROOT":/boost-root \
+            -v "$GITHUB_WORKSPACE/.github/scripts":/scripts:ro \
+            -v "$GITHUB_WORKSPACE/bench-results":/out \
+            -e DEBIAN_FRONTEND=noninteractive \
+            -w /boost-root debian:bookworm bash -c "
+              apt-get -o Acquire::Retries=5 update
+              apt-get -o Acquire::Retries=5 install -y ${{ matrix.packages }}
+              /scripts/run_benchmarks.sh --compiler g++ --ldflags '${{ matrix.ldflags }}' \
+                --elements $EMULATED_ELEMENTS --repetitions $REPETITIONS --out /out
+            "
+      - name: Compare with the published numbers
+        run: .github/scripts/compare_benchmarks.sh bench-results
+      - name: Upload results
+        uses: actions/upload-artifact@v6
+        with:
+          name: benchmarks-linux-${{ matrix.arch }}
+          path: bench-results
+          if-no-files-found: error

@@ -32,6 +32,7 @@
 #endif
 
 #include <boost/int128/numeric.hpp>
+#include "benchmark_results.hpp"
 #include <chrono>
 #include <random>
 #include <vector>
@@ -47,8 +48,10 @@
 #  define BOOST_INT128_BENCHMARK_BUILTIN_GCD
 #endif
 
-constexpr unsigned N = 20'000'000;
-constexpr unsigned K = 5;
+// Element and repetition counts. They start at the defaults of the shared
+// options and main() refreshes them from --elements and --repetitions.
+std::size_t N {bench::config().elements};
+unsigned K {bench::config().repetitions};
 
 using namespace std::chrono_literals;
 
@@ -90,6 +93,61 @@ using namespace std::chrono_literals;
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 using mp_u128 = boost::multiprecision::uint128_t;
+
+// Names of the implementations under test. The generated documentation tables and
+// the plot legends use these labels verbatim, so each one spells the type the way
+// a user would write it.
+template <typename T>
+const char* impl_label() noexcept;
+
+template <>
+const char* impl_label<boost::int128::uint128_t>() noexcept
+{
+    return "uint128_t";
+}
+
+template <>
+const char* impl_label<mp_u128>() noexcept
+{
+    return "boost::mp::uint128_t";
+}
+
+#if defined(BOOST_INT128_HAS_INT128)
+
+template <>
+const char* impl_label<boost::int128::detail::builtin_u128>() noexcept
+{
+    return "unsigned __int128";
+}
+
+using baseline_type = boost::int128::detail::builtin_u128;
+
+#elif defined(BOOST_INT128_HAS_MSVC_INTERNAL_I128)
+
+template <>
+const char* impl_label<std::_Unsigned128>() noexcept
+{
+    return "std::_Unsigned128";
+}
+
+using baseline_type = std::_Unsigned128;
+
+#else
+
+// No hardware type on this platform, so Boost.Multiprecision is the reference.
+using baseline_type = mp_u128;
+
+#endif
+
+#ifdef BOOST_INT128_BENCHMARK_ABSL
+
+template <>
+const char* impl_label<absl::uint128>() noexcept
+{
+    return "absl::uint128";
+}
+
+#endif
 
 // 0 = 2 words
 // 1 = 1 word
@@ -225,8 +283,10 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
     }
 
     auto t2 = std::chrono::steady_clock::now();
+    auto us = bench::elapsed_us(t1, t2);
+    bench::record("eq", impl_label<T>(), us);
 
-    std::cerr << "EQ <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << "EQ <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -243,7 +303,10 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cerr << "NE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    us = bench::elapsed_us(t1, t2);
+    bench::record("ne", impl_label<T>(), us);
+
+    std::cerr << "NE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -260,7 +323,10 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cerr << "LT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    us = bench::elapsed_us(t1, t2);
+    bench::record("lt", impl_label<T>(), us);
+
+    std::cerr << "LT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -277,7 +343,10 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cerr << "LE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    us = bench::elapsed_us(t1, t2);
+    bench::record("le", impl_label<T>(), us);
+
+    std::cerr << "LE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -294,7 +363,10 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cerr << "GT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    us = bench::elapsed_us(t1, t2);
+    bench::record("gt", impl_label<T>(), us);
+
+    std::cerr << "GT <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 
     t1 = std::chrono::steady_clock::now();
     s = 0;
@@ -311,9 +383,17 @@ BOOST_INT128_NO_INLINE void test_comparisons(const std::vector<T>& data_vec, con
 
     t2 = std::chrono::steady_clock::now();
 
-    std::cerr << "GE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    us = bench::elapsed_us(t1, t2);
+    bench::record("ge", impl_label<T>(), us);
 
-    std::cerr << "SUM<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << ( t2 - t_total ) / 1us << " us (s=" << s << ")\n\n";
+    std::cerr << "GE <" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
+
+    // The comparison row of the documentation tables is this total: every
+    // relational operator over the whole vector.
+    const auto total_us = bench::elapsed_us(t_total, t2);
+    bench::record("comparisons", impl_label<T>(), total_us);
+
+    std::cerr << "SUM<" << std::left << std::setw(11) << label << ">: " << std::setw( 10 ) << total_us << " us (s=" << s << ")\n\n";
 }
 
 template <typename T, typename Func>
@@ -333,8 +413,10 @@ BOOST_INT128_NO_INLINE void test_two_element_operation(const std::vector<T>& dat
     }
 
     const auto t2 = std::chrono::steady_clock::now();
+    const auto us = bench::elapsed_us(t1, t2);
+    bench::record(operation, impl_label<T>(), us);
 
-    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 }
 
 // Benchmarks the narrow division overloads (128-bit divided by a 64-bit or 32-bit value),
@@ -363,8 +445,10 @@ BOOST_INT128_NO_INLINE void test_narrow_division(const std::vector<T>& data_vec,
     }
 
     const auto t2 = std::chrono::steady_clock::now();
+    const auto us = bench::elapsed_us(t1, t2);
+    bench::record(operation, impl_label<T>(), us);
 
-    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << operation << "<" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 }
 
 template <typename T>
@@ -404,7 +488,7 @@ std::vector<int> generate_shift_vector()
 
     std::vector<int> data_vec;
     data_vec.reserve(N);
-    for (std::size_t i {}; i < data_vec.size(); ++i)
+    for (std::size_t i {}; i < N; ++i)
     {
         data_vec.emplace_back(dist(gen));
     }
@@ -427,8 +511,11 @@ BOOST_INT128_NO_INLINE void test_right_shift(const std::vector<T>& data_vec, con
     }
 
     const auto t2 = std::chrono::steady_clock::now();
+    const auto us = bench::elapsed_us(t1, t2);
 
-    std::cerr << "rs" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    bench::record("shr", impl_label<T>(), us);
+
+    std::cerr << "rs" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 }
 
 template <typename T>
@@ -446,8 +533,11 @@ BOOST_INT128_NO_INLINE void test_left_shift(const std::vector<T>& data_vec, cons
     }
 
     const auto t2 = std::chrono::steady_clock::now();
+    const auto us = bench::elapsed_us(t1, t2);
 
-    std::cerr << "ls" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    bench::record("shl", impl_label<T>(), us);
+
+    std::cerr << "ls" << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 }
 
 enum class bitwise_operation
@@ -456,6 +546,22 @@ enum class bitwise_operation
     b_or,
     b_xor
 };
+
+// Name of one bitwise operation in the data set.
+const char* bitwise_key(const bitwise_operation op) noexcept
+{
+    switch (op)
+    {
+        case bitwise_operation::b_and:
+            return "and";
+        case bitwise_operation::b_or:
+            return "or";
+        case bitwise_operation::b_xor:
+            return "xor";
+    }
+
+    return "unknown";
+}
 
 template <typename T>
 BOOST_INT128_NO_INLINE void test_operator_bitwise(const std::vector<T>& data_vec, const bitwise_operation op, const char* type)
@@ -495,6 +601,8 @@ BOOST_INT128_NO_INLINE void test_operator_bitwise(const std::vector<T>& data_vec
     }
 
     const auto t2 = std::chrono::steady_clock::now();
+    const auto us = bench::elapsed_us(t1, t2);
+    bench::record(bitwise_key(op), impl_label<T>(), us);
 
     switch (op)
     {
@@ -509,17 +617,23 @@ BOOST_INT128_NO_INLINE void test_operator_bitwise(const std::vector<T>& data_vec
             break;
     }
 
-    std::cerr << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << ( t2 - t1 ) / 1us << " us (s=" << s << ")\n";
+    std::cerr << " <" << std::left << std::setw(11) << type << ">: " << std::setw( 10 ) << us << " us (s=" << s << ")\n";
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     using namespace boost::int128::detail;
+
+    bench::parse_options(argc, argv);
+    N = bench::config().elements;
+    K = bench::config().repetitions;
 
     const auto shift_vector = generate_shift_vector();
 
     // Two word operations
     {
+        bench::set_group("two_word");
+
         std::cerr << "\n---------------------------\n";
         std::cerr << "Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
@@ -653,6 +767,8 @@ int main()
     }
     // Single word operations
     {
+        bench::set_group("one_word");
+
         std::cerr << "\n---------------------------\n";
         std::cerr << "One Word Operations\n";
         std::cerr << "---------------------------\n\n";
@@ -752,6 +868,8 @@ int main()
     {
         // Two word and one word operations Even = 2, odd = 1
 
+        bench::set_group("two_one_word");
+
         std::cerr << "\n---------------------------\n";
         std::cerr << "Two-One Word Operations\n";
         std::cerr << "---------------------------\n\n";
@@ -849,6 +967,8 @@ int main()
     {
         // Two word and one word operations Even = 1, odd = 2
 
+        bench::set_group("one_two_word");
+
         std::cerr << "\n---------------------------\n";
         std::cerr << "One-Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
@@ -944,6 +1064,8 @@ int main()
     }
     {
         // Two word and one word operations Even = 1, odd = 2
+
+        bench::set_group("random_width");
 
         std::cerr << "\n---------------------------\n";
         std::cerr << "Random Width Operations\n";
@@ -1108,6 +1230,9 @@ int main()
 
     }
 
+    bench::write_json(bench::metadata{"uint128_t", "u128", impl_label<baseline_type>()});
+
+    // The Jamfile declares this target with run-fail, so a successful run reports 1.
     return 1;
 }
 

@@ -496,12 +496,10 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::size_t to_word
 template <typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T from_words(const std::uint32_t (&words)[4]) noexcept
 {
-    using high_word_type = decltype(T{}.high);
-
     const auto low {static_cast<std::uint64_t>(words[0]) | (static_cast<std::uint64_t>(words[1]) << 32)};
     const auto high {static_cast<std::uint64_t>(words[2]) | (static_cast<std::uint64_t>(words[3]) << 32)};
 
-    return {static_cast<high_word_type>(high), low};
+    return {static_cast<ctor_high_word_t<T>>(high), low};
 }
 
 } // namespace impl
@@ -568,15 +566,13 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 {
     BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
 
-    using high_word_type = decltype(T{}.high);
-
     std::uint64_t rem_hi {};
     std::uint64_t rem_lo {};
 
     const auto q {div3by2<false>(static_cast<std::uint64_t>(dividend.high), dividend.low,
                                  static_cast<std::uint64_t>(divisor.high), divisor.low, rem_hi, rem_lo)};
 
-    return T{static_cast<high_word_type>(0), q};
+    return T{static_cast<ctor_high_word_t<T>>(0), q};
 }
 
 template <typename T>
@@ -584,17 +580,15 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 {
     BOOST_INT128_ASSUME(divisor != static_cast<T>(0));
 
-    using high_word_type = decltype(T{}.high);
-
     std::uint64_t rem_hi {};
     std::uint64_t rem_lo {};
 
     const auto q {div3by2<true>(static_cast<std::uint64_t>(dividend.high), dividend.low,
                                 static_cast<std::uint64_t>(divisor.high), divisor.low, rem_hi, rem_lo)};
 
-    remainder = T{static_cast<high_word_type>(rem_hi), rem_lo};
+    remainder = T{static_cast<ctor_high_word_t<T>>(rem_hi), rem_lo};
 
-    return T{static_cast<high_word_type>(0), q};
+    return T{static_cast<ctor_high_word_t<T>>(0), q};
 }
 
 #ifdef _MSC_VER

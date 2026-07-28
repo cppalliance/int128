@@ -54,7 +54,7 @@ struct hash<boost::int128::int128_t>
     auto operator()(const boost::int128::int128_t v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
-        const std::size_t high_hash {boost::int128::detail::hash_finalize_64(static_cast<std::uint64_t>(v.high))};
+        const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
 
         // boost::hash_combine style mixing of the two finalized halves
         return low_hash ^ (high_hash + static_cast<std::size_t>(0x9e3779b9) + (low_hash << 6) + (low_hash >> 2));

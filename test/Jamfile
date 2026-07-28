@@ -108,6 +108,7 @@ run test_container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 
 run test_boundaries.cpp ;
 run test_constexpr_boundaries.cpp ;
+run test_layout.cpp ;
 
 # Make sure we run the examples as well
 run ../examples/construction.cpp ;

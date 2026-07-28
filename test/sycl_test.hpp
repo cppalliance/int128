@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <type_traits>
 
 namespace int128_sycl_test {
 
@@ -32,7 +33,10 @@ constexpr int buf_size {static_cast<int>(boost::int128::detail::mini_to_chars_bu
 template <typename T>
 T random_value(std::mt19937_64& rng)
 {
-    using high_type = decltype(T{}.high);
+    // Both types store the high word unsigned, but the signed type's two word
+    // constructor still takes it signed, so this is not decltype(T{}.high).
+    using high_type = typename std::conditional<std::numeric_limits<T>::is_signed,
+                                                std::int64_t, std::uint64_t>::type;
     return T{static_cast<high_type>(rng()), static_cast<std::uint64_t>(rng())};
 }
 

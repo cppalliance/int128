@@ -4,9 +4,10 @@
 #
 # Struct definitions:
 #   struct uint128_t { std::uint64_t low; std::uint64_t high; };
-#   struct int128_t  { std::uint64_t low; std::int64_t high;  };
+#   struct int128_t  { std::uint64_t low; std::uint64_t high; };
 #
-# On big endian machines the word order is reversed
+# Both words of both types are unsigned; int128_t reads the pair as two's
+# complement. On big endian machines the word order is reversed.
 #
 # Usage: source int128_printer.py
 
@@ -46,9 +47,8 @@ class Int128Printer:
 
     def to_string(self):
         try:
-            # high is std::int64_t (signed)
-            high = int(self.val["high"])
-            # Ensure high is treated as signed 64-bit
+            # high is std::uint64_t; fold the two's complement sign in by hand
+            high = int(self.val["high"]) & 0xFFFFFFFFFFFFFFFF
             if high >= 0x8000000000000000:
                 high -= 0x10000000000000000
 

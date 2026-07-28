@@ -23,11 +23,13 @@ struct int128_t {
 
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
     std::uint64_t low {};
-    std::int64_t high {};
+    std::uint64_t high {};
     #else
-    std::int64_t high {};
+    std::uint64_t high {};
     std::uint64_t low {};
     #endif
+
+    BOOST_INT128_HOST_DEVICE constexpr std::int64_t signed_high() const noexcept;
 
     // Constructors, conversion operators, and member operators
     // documented in detail below...
@@ -46,6 +48,34 @@ The type provides:
 * Arithmetic operators (`+`, `-`, `*`, `/`, `%`)
 * Compound assignment variants of all binary operators
 * Increment and decrement operators (`++`, `--`)
+
+[#i128_storage]
+== Storage and `signed_high`
+
+Both words are `std::uint64_t`, and the value is interpreted as two's complement across the pair.
+The two halves deliberately have the *same* type: when they differ, a compiler's data-reference analysis cannot merge them into one wide access, and loops over `int128_t` come out with shuffles or fully scalarized.
+Giving both words the same type makes the signed type generate the same code as `uint128_t`, which has always had uniform words.
+
+To read the high word as a signed quantity, use `signed_high()`:
+
+[source, c++]
+----
+BOOST_INT128_HOST_DEVICE constexpr std::int64_t signed_high() const noexcept;
+----
+
+It is a pure reinterpretation of the stored bits and is `constexpr` on all platforms:
+
+[source, c++]
+----
+const boost::int128::int128_t v {-1};
+
+v.high;             // 0xFFFFFFFFFFFFFFFF, a std::uint64_t
+v.signed_high();    // -1, a std::int64_t
+----
+
+The two-word constructor still takes its high word as `std::int64_t`, so `int128_t{-1, 0}` and `int128_t{INT64_MIN, 0}` are unchanged.
+
+CAUTION: Code that reads `high` directly and depends on its signedness, such as `value.high < 0`, changes meaning: the comparison is now unsigned and always false. Replace those reads with `value.signed_high() < 0`, or simply compare the value itself (`value < 0`).
 
 [#i128_alignment]
 == Alignment
