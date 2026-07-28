@@ -54,7 +54,8 @@ int main()
     constexpr int128_t signed_builtin {-42};
     std::cout << "From builtin (-42): " << signed_builtin << std::endl;
 
-    // Signed from parts (high is signed, low is unsigned)
+    // Signed from parts. Both words are stored unsigned, but the constructor takes
+    // the high word signed; read it back with signed_high().
     constexpr int128_t min_value {INT64_MIN, 0};
     std::cout << "From parts (INT64_MIN, 0): " << min_value << std::endl;
     std::cout << "  Equals numeric_limits min? "

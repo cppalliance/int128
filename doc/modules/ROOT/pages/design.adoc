@@ -39,7 +39,9 @@ See xref:mixed_type_ops.adoc[Mixed Type Operations] for the complete result-type
 == Layout and Alignment
 
 Each type is a struct of two 64-bit words, `low` and `high`, whose declaration order depends on the endianness of the target so that the in-memory representation matches a native 128-bit integer.
-For `int128_t` the `high` word is signed.
+Both words are `std::uint64_t` in both types; `int128_t` interprets the pair as two's complement and exposes `signed_high()` for the sign.
+Keeping the two halves the same type is what lets a compiler treat the pair as one wide access, so loops over `int128_t` vectorize instead of being scalarized.
+See xref:int128_t.adoc#i128_storage[Storage and signed_high].
 When a native 128-bit type is available the struct is over-aligned to match it, except on 32-bit x86 where the native alignment is not forced.
 
 == GPU Support
