@@ -296,24 +296,33 @@ def change_percent(before, after):
     return (after - before) / before * 100.0
 
 
-# Mean absolute change of one implementation, used as the noise floor of the run.
-def mean_change(before, after, implementation):
-    changes = [abs(change_percent(ns_per_op(before, op, implementation),
-                                  ns_per_op(after, op, implementation)))
+# Cost of the library type as a multiple of the platform's reference type. Both
+# are measured in the same process on the same machine, so this ratio survives a
+# comparison between runs on different hardware, which the raw times do not.
+def ratio_to_reference(entry, operation, reference):
+    return ns_per_op(entry, operation, entry.type) / ns_per_op(entry, operation, reference)
+
+
+# How much faster the machine itself got, taken from the reference type. Anything
+# far from 1.0 means the two runs are not on comparable hardware or toolchains.
+def machine_scale(before, after, reference):
+    factors = [ns_per_op(before, op, reference) / ns_per_op(after, op, reference)
                for op, _ in OPERATIONS]
-    return sum(changes) / len(changes)
+    return sum(factors) / len(factors)
 
 
 def comparable(entry, implementation):
     return implementation in entry.implementations and entry.elements and entry.repetitions
 
 
-# One markdown section per platform: the library type row by row, plus the
-# reference type as a control for how much the runner itself moved.
+# One markdown section per platform. The ratio columns carry the verdict; the
+# absolute times are there because they are what gets published.
 def render_comparison(published, measured):
     lines = ['## Benchmark comparison', '',
-             'Times are nanoseconds per element pair, so runs of different lengths still line up.',
-             'Published numbers are the ones committed under `doc/modules/ROOT/data`.', '']
+             'Published numbers are the ones committed under `doc/modules/ROOT/data`.',
+             'Absolute times are nanoseconds per element pair. The verdict comes from the',
+             'ratio against the reference type, which is measured in the same process and so',
+             'cancels out the machine the run happened on.', '']
 
     for sign, platforms in sorted(measured.items()):
         by_platform = {(entry.os, entry.arch): entry for entry in published.get(sign, [])}
@@ -334,30 +343,46 @@ def render_comparison(published, measured):
                 lines.append('')
                 continue
 
-            if before.compiler != entry.compiler or before.elements != entry.elements:
-                lines.append(f'NOTE: published with {before.compiler or "an unknown compiler"} over '
-                             f'{before.elements:,} elements, this run with {entry.compiler} over '
-                             f'{entry.elements:,}. Part of any difference is the toolchain, not the code.')
-                lines.append('')
+            reference = entry.baseline
+            paired = (reference != entry.type
+                      and comparable(before, reference) and comparable(entry, reference))
 
-            lines.append('| Operation | published | this run | change | |')
-            lines.append('|---|---:|---:|---:|---|')
+            if paired:
+                scale = machine_scale(before, entry, reference)
+                lines.append(f'Reference type: `{reference}`. This run is {scale:.2f}x the published '
+                             f'speed on it, so read the ratio columns, not the absolute ones, whenever '
+                             f'that number is far from 1.')
+            else:
+                lines.append(f'No `{reference}` timings on both sides, so only the absolute times can be '
+                             f'compared here. They are only meaningful if both runs are on the same machine.')
+
+            if before.compiler != entry.compiler or before.elements != entry.elements:
+                lines.append('')
+                lines.append(f'Published with {before.compiler or "an unknown compiler"} over '
+                             f'{before.elements:,} elements, this run with {entry.compiler} over '
+                             f'{entry.elements:,}.')
+
+            lines.append('')
+            lines.append('| Operation | published vs ref | this run vs ref | change | published ns | this run ns | |')
+            lines.append('|---|---:|---:|---:|---:|---:|---|')
 
             for op, label in OPERATIONS:
                 was = ns_per_op(before, op, entry.type)
                 now = ns_per_op(entry, op, entry.type)
-                delta = change_percent(was, now)
+
+                if paired:
+                    was_ratio = ratio_to_reference(before, op, reference)
+                    now_ratio = ratio_to_reference(entry, op, reference)
+                    delta = change_percent(was_ratio, now_ratio)
+                    ratios = f'{was_ratio:.2f}x | {now_ratio:.2f}x'
+                else:
+                    delta = change_percent(was, now)
+                    ratios = 'n/a | n/a'
+
                 flag = 'REGRESSION' if delta > REGRESSION_THRESHOLD else ''
-                lines.append(f'| {label} | {was:.2f} | {now:.2f} | {delta:+.1f}% | {flag} |')
+                lines.append(f'| {label} | {ratios} | {delta:+.1f}% | {was:.2f} | {now:.2f} | {flag} |')
 
             lines.append('')
-
-            reference = entry.baseline
-            if reference != entry.type and comparable(before, reference) and comparable(entry, reference):
-                noise = mean_change(before, entry, reference)
-                lines.append(f'`{reference}` moved by {noise:.1f}% on average across the same rows, '
-                             f'which is the noise floor for this pair of runs.')
-                lines.append('')
 
     return '\n'.join(lines) + '\n'
 
