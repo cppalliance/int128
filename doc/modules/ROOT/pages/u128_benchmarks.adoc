@@ -49,72 +49,72 @@ To refresh this page, unpack those artifacts into `doc/modules/ROOT/data` and ru
 
 === x86_64
 
-Measured with GCC 16: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 14.2 (pass:[C++]20): 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
 
 [cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 2,555,576 | 2,404,372 | 3,576,079 | 2,099,066
-| Addition | 242,772 | 241,336 | 328,546 | 301,186
-| Subtraction | 372,481 | 260,064 | 287,267 | 282,908
-| Multiplication | 356,366 | 312,736 | 326,328 | 277,284
-| Division | 4,481,403 | 4,498,211 | 4,602,586 | 4,290,212
-| Modulo | 3,965,562 | 4,506,879 | 4,487,023 | 4,247,367
+| Comparisons | 538,116 | 545,110 | 1,100,158 | 504,183
+| Addition | 66,230 | 60,477 | 65,991 | 60,608
+| Subtraction | 65,810 | 71,192 | 65,943 | 64,127
+| Multiplication | 86,476 | 74,446 | 86,230 | 74,626
+| Division | 908,484 | 761,299 | 940,478 | 928,884
+| Modulo | 837,475 | 697,322 | 858,246 | 856,182
 |===
 
 image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === ARM64
 
-Measured with GCC 13: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 14.2 (pass:[C++]20): 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
 
 [cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 4,077,924 | 2,335,044 | 5,360,167 | 4,184,235
-| Addition | 137,276 | 151,553 | 184,406 | 151,276
-| Subtraction | 155,498 | 133,470 | 186,793 | 149,111
-| Multiplication | 218,009 | 233,811 | 324,341 | 293,431
-| Division | 2,254,781 | 1,819,447 | 2,211,225 | 2,152,312
-| Modulo | 2,274,294 | 1,743,274 | 2,324,356 | 2,381,378
+| Comparisons | 1,551,148 | 954,612 | 2,090,864 | 1,559,081
+| Addition | 88,531 | 87,204 | 87,303 | 87,544
+| Subtraction | 89,194 | 90,112 | 90,873 | 87,986
+| Multiplication | 86,854 | 87,632 | 88,376 | 91,189
+| Division | 732,287 | 652,951 | 766,334 | 722,710
+| Modulo | 768,287 | 662,783 | 801,508 | 758,006
 |===
 
 image::u128_graphs/linux/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === S390x
 
-Measured with GCC 13: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10,000,000 operations per cell).
 
 [cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 7,293,935 | 6,198,402 | 8,182,815 | 13,820,009
-| Addition | 636,224 | 707,436 | 611,849 | 1,530,136
-| Subtraction | 572,225 | 350,035 | 595,266 | 1,211,168
-| Multiplication | 1,040,424 | 741,789 | 899,957 | 1,843,000
-| Division | 4,191,637 | 2,593,472 | 4,106,663 | 4,883,553
-| Modulo | 4,156,643 | 2,133,029 | 4,398,856 | 5,011,442
+| Comparisons | 609,693 | 539,203 | 1,218,003 | 1,178,669
+| Addition | 50,814 | 44,087 | 50,939 | 50,573
+| Subtraction | 50,584 | 41,277 | 50,738 | 53,373
+| Multiplication | 53,604 | 36,614 | 50,442 | 106,646
+| Division | 782,276 | 608,192 | 813,958 | 830,929
+| Modulo | 812,511 | 607,793 | 840,997 | 874,632
 |===
 
 image::u128_graphs/linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
 
 === PPC64LE
 
-Measured with GCC 14: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10,000,000 operations per cell).
 
 [cols="1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 5,242,604 | 4,450,958 | 5,704,848
-| Addition | 221,776 | 193,063 | 847,504
-| Subtraction | 222,894 | 175,259 | 786,659
-| Multiplication | 194,494 | 192,929 | 795,187
-| Division | 4,821,119 | 4,896,360 | 5,344,637
-| Modulo | 4,955,570 | 4,273,487 | 5,407,877
+| Comparisons | 415,221 | 453,245 | 690,480
+| Addition | 25,106 | 16,257 | 24,998
+| Subtraction | 25,044 | 14,548 | 24,982
+| Multiplication | 17,000 | 16,304 | 16,310
+| Division | 581,682 | 489,550 | 589,757
+| Modulo | 581,990 | 490,872 | 590,958
 |===
 
 image::u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
@@ -123,18 +123,18 @@ image::u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Perfo
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
-Measured with GCC 16: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 14.2 (pass:[C++]20): 5 passes over 10,000,000 element pairs (50,000,000 operations per cell).
 
 [cols="1,>1,>1"]
 |===
 | Operation | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 9,545,542 | 8,582,001
-| Addition | 686,648 | 7,261,481
-| Subtraction | 618,456 | 7,968,678
-| Multiplication | 859,253 | 6,746,697
-| Division | 8,271,920 | 15,931,092
-| Modulo | 9,932,867 | 10,242,720
+| Comparisons | 2,112,319 | 1,568,536
+| Addition | 143,659 | 1,144,222
+| Subtraction | 156,320 | 1,382,478
+| Multiplication | 203,481 | 1,221,882
+| Division | 1,558,822 | 2,170,543
+| Modulo | 1,526,280 | 1,873,501
 |===
 
 image::u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
@@ -143,18 +143,18 @@ image::u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, 
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
-Measured with GCC 14: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10,000,000 operations per cell).
 
 [cols="1,>1,>1"]
 |===
 | Operation | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 5,286,033 | 4,538,707
-| Addition | 454,715 | 5,543,856
-| Subtraction | 487,190 | 6,465,126
-| Multiplication | 1,471,479 | 8,246,098
-| Division | 19,868,087 | 32,820,805
-| Modulo | 20,332,627 | 27,238,658
+| Comparisons | 1,148,095 | 738,322
+| Addition | 85,164 | 970,287
+| Subtraction | 83,783 | 1,257,721
+| Multiplication | 128,178 | 1,306,808
+| Division | 3,858,870 | 6,092,878
+| Modulo | 4,059,654 | 5,190,052
 |===
 
 image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
@@ -164,54 +164,54 @@ image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performan
 
 === x86_64
 
-Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with MSVC 14.51 (pass:[C++]20): 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
 
 [cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 2,055,229 | 1,714,007 | 2,490,543
-| Addition | 152,603 | 116,444 | 2,596,037
-| Subtraction | 150,576 | 116,367 | 2,901,567
-| Multiplication | 131,223 | 123,694 | 3,300,491
-| Division | 1,476,783 | 1,489,919 | 4,898,388
-| Modulo | 1,421,066 | 1,411,521 | 3,793,762
+| Comparisons | 1,313,048 | 1,251,724 | 1,970,110
+| Addition | 106,229 | 98,075 | 2,153,287
+| Subtraction | 115,275 | 97,252 | 2,318,242
+| Multiplication | 115,091 | 112,082 | 2,428,936
+| Division | 1,127,057 | 1,086,078 | 3,340,168
+| Modulo | 1,249,176 | 1,144,617 | 2,721,519
 |===
 
 image::u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === ARM64
 
-Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with MSVC 14.44 (pass:[C++]20): 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
 
 [cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 945,196 | 405,891 | 1,306,884
-| Addition | 37,403 | 40,039 | 1,351,728
-| Subtraction | 33,927 | 38,887 | 1,594,845
-| Multiplication | 74,384 | 46,406 | 1,281,286
-| Division | 992,963 | 790,846 | 2,035,065
-| Modulo | 1,087,702 | 861,121 | 1,702,396
+| Comparisons | 1,262,216 | 753,322 | 1,757,122
+| Addition | 86,038 | 84,791 | 1,535,904
+| Subtraction | 86,521 | 87,885 | 1,712,929
+| Multiplication | 458,107 | 82,947 | 1,780,541
+| Division | 1,334,323 | 920,483 | 2,843,970
+| Modulo | 1,491,426 | 915,935 | 2,420,312
 |===
 
 image::u128_graphs/windows/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_32
 
-Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with MSVC 14.51 (pass:[C++]20): 5 passes over 10,000,000 element pairs (50,000,000 operations per cell).
 
 [cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 4,806,287 | 3,940,703 | 2,624,013
-| Addition | 254,275 | 202,421 | 2,961,566
-| Subtraction | 1,322,877 | 207,351 | 3,703,369
-| Multiplication | 2,327,500 | 2,312,040 | 4,375,417
-| Division | 5,596,877 | 5,629,510 | 6,756,883
-| Modulo | 4,616,488 | 5,696,116 | 6,409,969
+| Comparisons | 2,519,936 | 2,006,459 | 1,516,713
+| Addition | 132,021 | 129,303 | 1,184,928
+| Subtraction | 505,196 | 127,036 | 1,526,177
+| Multiplication | 765,417 | 960,622 | 1,459,692
+| Division | 2,510,903 | 2,217,091 | 2,816,842
+| Modulo | 1,985,290 | 2,271,454 | 2,458,916
 |===
 
 image::u128_graphs/windows/x86_relative_performance.png[x86 Relative Performance, width=100%]
@@ -221,18 +221,18 @@ image::u128_graphs/windows/x86_relative_performance.png[x86 Relative Performance
 
 === ARM64 (Apple Silicon)
 
-Measured with Clang 22: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+Measured with Apple Clang 21.0 (pass:[C++]20): 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
 
 [cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 134,425 | 134,742 | 133,107 | 135,182
-| Addition | 20,754 | 18,389 | 20,653 | 20,929
-| Subtraction | 20,552 | 18,573 | 20,590 | 20,439
-| Multiplication | 20,264 | 20,150 | 20,181 | 20,228
-| Division | 685,358 | 740,877 | 913,877 | 718,985
-| Modulo | 733,080 | 699,666 | 951,657 | 719,500
+| Comparisons | 363,881 | 351,327 | 403,043 | 373,414
+| Addition | 67,797 | 58,792 | 64,948 | 53,003
+| Subtraction | 49,226 | 45,231 | 63,076 | 67,021
+| Multiplication | 68,952 | 54,470 | 64,614 | 59,419
+| Division | 1,400,576 | 1,477,954 | 1,752,490 | 1,315,311
+| Modulo | 1,376,647 | 1,462,446 | 2,062,026 | 1,672,512
 |===
 
 image::u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
