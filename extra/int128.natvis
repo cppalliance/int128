@@ -25,11 +25,13 @@
     </Expand>
   </Type>
 
-  <!-- int128_t: signed 128-bit integer -->
+  <!-- int128_t: signed 128-bit integer. Both words are unsigned; the pair is
+       read as two's complement, so the negative fast path tests the all-ones
+       high word rather than a signed -1. -->
   <Type Name="boost::int128::int128_t">
     <DisplayString Condition="high == 0">{low,u}</DisplayString>
-    <DisplayString Condition="high == -1 &amp;&amp; low != 0">-{~low + 1,u}</DisplayString>
-    <DisplayString>0x{((unsigned long long)(high)),nvohb}{low,nvohb}</DisplayString>
+    <DisplayString Condition="high == 0xFFFFFFFFFFFFFFFFull &amp;&amp; low != 0">-{~low + 1,u}</DisplayString>
+    <DisplayString>0x{high,nvohb}{low,nvohb}</DisplayString>
     <Expand>
       <Item Name="high">high</Item>
       <Item Name="low">low</Item>

@@ -4,9 +4,10 @@
 #
 # Struct definitions:
 #   struct uint128_t { std::uint64_t low; std::uint64_t high; };
-#   struct int128_t  { std::uint64_t low; std::int64_t high;  };
+#   struct int128_t  { std::uint64_t low; std::uint64_t high; };
 #
-# On big endian machines the word order is reversed
+# Both words of both types are unsigned; int128_t reads the pair as two's
+# complement. On big endian machines the word order is reversed.
 
 import lldb
 
@@ -32,12 +33,15 @@ def int128_summary(valobj, internal_dict):
     """
     try:
         val = valobj.GetNonSyntheticValue()
-        # high is std::int64_t, so use GetValueAsSigned()
-        high = val.GetChildMemberWithName("high").GetValueAsSigned()
-        # low is std::uint64_t, so use GetValueAsUnsigned()
+        # Both words are std::uint64_t, so read them unsigned and fold the
+        # two's complement sign in by hand.
+        high = val.GetChildMemberWithName("high").GetValueAsUnsigned()
         low  = val.GetChildMemberWithName("low").GetValueAsUnsigned()
 
-        value = (high << 64) + low
+        value = (high << 64) | low
+        if value >= (1 << 127):
+            value -= (1 << 128)
+
         return f"{value:,}"
     except Exception as e:
         return f"<invalid int128_t: {e}>"
