@@ -90,14 +90,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_add(c
     // When both are negative: overflow iff x < min - y (subtraction safe: min - negative > min)
     // Mixed signs: overflow is impossible.
 
-    if (x.high >= 0 && y.high >= 0)
+    if (x.signed_high() >= 0 && y.signed_high() >= 0)
     {
         if (x > (std::numeric_limits<int128_t>::max)() - y)
         {
             return (std::numeric_limits<int128_t>::max)();
         }
     }
-    else if (x.high < 0 && y.high < 0)
+    else if (x.signed_high() < 0 && y.signed_high() < 0)
     {
         if (x < (std::numeric_limits<int128_t>::min)() - y)
         {
@@ -115,14 +115,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(c
     // Negative overflow: x < 0 and y >= 0 and x < min + y (safe: min + non_negative > min)
     // Same signs: overflow is impossible.
 
-    if (x.high >= 0 && y.high < 0)
+    if (x.signed_high() >= 0 && y.signed_high() < 0)
     {
         if (x > (std::numeric_limits<int128_t>::max)() + y)
         {
             return (std::numeric_limits<int128_t>::max)();
         }
     }
-    else if (x.high < 0 && y.high >= 0)
+    else if (x.signed_high() < 0 && y.signed_high() >= 0)
     {
         if (x < (std::numeric_limits<int128_t>::min)() + y)
         {
@@ -405,10 +405,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const i
     // comparison to avoid NVCC host compiler issues with operator<= and
     // static_cast on int128_t for large-magnitude values
 
-    const uint128_t ua {static_cast<std::uint64_t>(a.high), a.low};
-    const uint128_t ub {static_cast<std::uint64_t>(b.high), b.low};
+    const uint128_t ua {a.high, a.low};
+    const uint128_t ub {b.high, b.low};
 
-    const bool a_le_b {a.high == b.high ? a.low <= b.low : a.high < b.high};
+    const bool a_le_b {a.high == b.high ? a.low <= b.low : a.signed_high() < b.signed_high()};
 
     if (a_le_b)
     {
