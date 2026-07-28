@@ -1,0 +1,27 @@
+{
+  "schema": "boost.int128.benchmarks/1",
+  "type": "uint128_t",
+  "sign": "u128",
+  "os": "linux",
+  "arch": "ARM32",
+  "compiler": "GCC 14",
+  "elements": 20000000,
+  "repetitions": 5,
+  "baseline": "boost::mp::uint128_t",
+  "implementations": ["uint128_t", "boost::mp::uint128_t"],
+  "note": "Migrated from the hardcoded tables of doc/plots.py, so it carries only the published random width rows and no language standard.",
+  "results": [
+    {"group": "random_width", "operation": "comparisons", "implementation": "uint128_t", "microseconds": 5286033},
+    {"group": "random_width", "operation": "comparisons", "implementation": "boost::mp::uint128_t", "microseconds": 4538707},
+    {"group": "random_width", "operation": "add", "implementation": "uint128_t", "microseconds": 454715},
+    {"group": "random_width", "operation": "add", "implementation": "boost::mp::uint128_t", "microseconds": 5543856},
+    {"group": "random_width", "operation": "sub", "implementation": "uint128_t", "microseconds": 487190},
+    {"group": "random_width", "operation": "sub", "implementation": "boost::mp::uint128_t", "microseconds": 6465126},
+    {"group": "random_width", "operation": "mul", "implementation": "uint128_t", "microseconds": 1471479},
+    {"group": "random_width", "operation": "mul", "implementation": "boost::mp::uint128_t", "microseconds": 8246098},
+    {"group": "random_width", "operation": "div", "implementation": "uint128_t", "microseconds": 19868087},
+    {"group": "random_width", "operation": "div", "implementation": "boost::mp::uint128_t", "microseconds": 32820805},
+    {"group": "random_width", "operation": "mod", "implementation": "uint128_t", "microseconds": 20332627},
+    {"group": "random_width", "operation": "mod", "implementation": "boost::mp::uint128_t", "microseconds": 27238658}
+  ]
+}

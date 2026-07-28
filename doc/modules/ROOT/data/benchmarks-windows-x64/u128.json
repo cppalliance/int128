@@ -1,0 +1,33 @@
+{
+  "schema": "boost.int128.benchmarks/1",
+  "type": "uint128_t",
+  "sign": "u128",
+  "os": "windows",
+  "arch": "x64",
+  "compiler": "MSVC 14.5",
+  "elements": 20000000,
+  "repetitions": 5,
+  "baseline": "std::_Unsigned128",
+  "implementations": ["std::_Unsigned128", "uint128_t", "boost::mp::uint128_t"],
+  "note": "Migrated from the hardcoded tables of doc/plots.py, so it carries only the published random width rows and no language standard.",
+  "results": [
+    {"group": "random_width", "operation": "comparisons", "implementation": "std::_Unsigned128", "microseconds": 2055229},
+    {"group": "random_width", "operation": "comparisons", "implementation": "uint128_t", "microseconds": 1714007},
+    {"group": "random_width", "operation": "comparisons", "implementation": "boost::mp::uint128_t", "microseconds": 2490543},
+    {"group": "random_width", "operation": "add", "implementation": "std::_Unsigned128", "microseconds": 152603},
+    {"group": "random_width", "operation": "add", "implementation": "uint128_t", "microseconds": 116444},
+    {"group": "random_width", "operation": "add", "implementation": "boost::mp::uint128_t", "microseconds": 2596037},
+    {"group": "random_width", "operation": "sub", "implementation": "std::_Unsigned128", "microseconds": 150576},
+    {"group": "random_width", "operation": "sub", "implementation": "uint128_t", "microseconds": 116367},
+    {"group": "random_width", "operation": "sub", "implementation": "boost::mp::uint128_t", "microseconds": 2901567},
+    {"group": "random_width", "operation": "mul", "implementation": "std::_Unsigned128", "microseconds": 131223},
+    {"group": "random_width", "operation": "mul", "implementation": "uint128_t", "microseconds": 123694},
+    {"group": "random_width", "operation": "mul", "implementation": "boost::mp::uint128_t", "microseconds": 3300491},
+    {"group": "random_width", "operation": "div", "implementation": "std::_Unsigned128", "microseconds": 1476783},
+    {"group": "random_width", "operation": "div", "implementation": "uint128_t", "microseconds": 1489919},
+    {"group": "random_width", "operation": "div", "implementation": "boost::mp::uint128_t", "microseconds": 4898388},
+    {"group": "random_width", "operation": "mod", "implementation": "std::_Unsigned128", "microseconds": 1421066},
+    {"group": "random_width", "operation": "mod", "implementation": "uint128_t", "microseconds": 1411521},
+    {"group": "random_width", "operation": "mod", "implementation": "boost::mp::uint128_t", "microseconds": 3793762}
+  ]
+}

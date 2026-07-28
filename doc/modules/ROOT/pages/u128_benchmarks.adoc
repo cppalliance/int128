@@ -10,75 +10,110 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Methodology
 
-The benchmarks below represent the time in microseconds it takes to perform 20'000'000 operations between two values of random width (e.g. 2x1 words, 1x2 words, etc.).
+Every cell below is the total time in microseconds that one operation takes over a whole vector of random values, so lower is better.
+The vector holds operands of random width (32, 64, 96, or 128 bits, e.g. 2x1 words, 1x2 words), each operation is evaluated as `op(vec[i], vec[i + 1])` across the vector, and the whole vector is walked several times.
+Each platform states its element count and pass count, and therefore how many operations a cell covers.
+The `Comparisons` row is the total of all six relational operators (`==`, `!=`, `<`, `<=`, `>`, `>=`) over that same vector, which is why it costs roughly six arithmetic rows.
+
 On most platforms we use the builtin `unsigned \__int128` as the reference benchmark.
 When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::uint128_t` (abbreviated as `boost::mp::uint128_t`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Unsigned128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
 Lastly, when available, the benchmarks are also run with `absl::uint128` which is the 128-bit unsigned integer from the https://abseil.io[Abseil Libraries].
+
+NOTE: Each platform reports a single run, several of them from shared CI runners, so treat small differences as noise.
+
+[#u128_benchmarks_running]
+== Running the Benchmarks
+
+The driver is `test/benchmark_u128.cpp`. From a Boost tree with its headers staged (`b2 headers`), build it in release mode and pass `--json` to have it write out a data set:
+
+[source, shell]
+----
+g++ -std=c++20 -O2 -DNDEBUG -I . libs/int128/test/benchmark_u128.cpp -o benchmark_u128
+./benchmark_u128 --json u128.json
+----
+
+Timings are printed to stderr as they are measured, so a run is readable without the data set.
+`--elements` and `--repetitions` shrink the run, which is what the emulated platforms use.
+
+From the root of a Boost tree, `.github/scripts/run_benchmarks.sh --compiler g++ --out <dir>` builds and runs both drivers exactly as CI does and leaves a complete data set folder behind. It takes its include path from the checked out libraries, so it needs no staged headers.
+
+The `benchmarks.yml` workflow runs both drivers on every platform documented here and uploads one `benchmarks-<os>-<arch>` artifact per platform.
+To refresh this page, unpack those artifacts into `doc/modules/ROOT/data` and run `doc/render_benchmarks.py`, which rewrites every table and plot below from the data sets.
+
+// BENCHMARK-RESULTS-GENERATED
 
 [#u128_linux]
 == Linux
 
 === x86_64
 
-[cols="1,1,1,1,1"]
+Measured with GCC 16: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 2555576 | 2404372 | 3576079 | 2099066
-| Addition | 242772 | 241336 | 328546 | 301186
-| Subtraction | 372481 | 260064 | 287267 | 282908
-| Multiplication | 356366 | 312736 | 326328 | 277284
-| Division | 4481403 | 4498211 | 4602586 | 4290212
-| Modulo | 3965562 | 4506879 | 4487023 | 4247367
+| Comparisons | 2,555,576 | 2,404,372 | 3,576,079 | 2,099,066
+| Addition | 242,772 | 241,336 | 328,546 | 301,186
+| Subtraction | 372,481 | 260,064 | 287,267 | 282,908
+| Multiplication | 356,366 | 312,736 | 326,328 | 277,284
+| Division | 4,481,403 | 4,498,211 | 4,602,586 | 4,290,212
+| Modulo | 3,965,562 | 4,506,879 | 4,487,023 | 4,247,367
 |===
 
 image::u128_graphs/linux/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === ARM64
 
-[cols="1,1,1,1,1"]
+Measured with GCC 13: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 4077924 | 2335044 | 5360167 | 4184235
-| Addition | 137276 | 151553 | 184406 | 151276
-| Subtraction | 155498 | 133470 | 186793 | 149111
-| Multiplication | 218009 | 233811 | 324341 | 293431
-| Division | 2254781 | 1819447 | 2211225 | 2152312
-| Modulo | 2274294 | 1743274 | 2324356 | 2381378
+| Comparisons | 4,077,924 | 2,335,044 | 5,360,167 | 4,184,235
+| Addition | 137,276 | 151,553 | 184,406 | 151,276
+| Subtraction | 155,498 | 133,470 | 186,793 | 149,111
+| Multiplication | 218,009 | 233,811 | 324,341 | 293,431
+| Division | 2,254,781 | 1,819,447 | 2,211,225 | 2,152,312
+| Modulo | 2,274,294 | 1,743,274 | 2,324,356 | 2,381,378
 |===
 
 image::u128_graphs/linux/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === S390x
 
-[cols="1,1,1,1,1"]
+Measured with GCC 13: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 7293935 | 6198402 | 8182815 | 13820009
-| Addition | 636224 | 707436 | 611849 | 1530136
-| Subtraction | 572225 | 350035 | 595266 | 1211168
-| Multiplication | 1040424 | 741789 | 899957 | 1843000
-| Division | 4191637 | 2593472 | 4106663 | 4883553
-| Modulo | 4156643 | 2133029 | 4398856 | 5011442
+| Comparisons | 7,293,935 | 6,198,402 | 8,182,815 | 13,820,009
+| Addition | 636,224 | 707,436 | 611,849 | 1,530,136
+| Subtraction | 572,225 | 350,035 | 595,266 | 1,211,168
+| Multiplication | 1,040,424 | 741,789 | 899,957 | 1,843,000
+| Division | 4,191,637 | 2,593,472 | 4,106,663 | 4,883,553
+| Modulo | 4,156,643 | 2,133,029 | 4,398,856 | 5,011,442
 |===
 
 image::u128_graphs/linux/s390x_relative_performance.png[s390x Relative Performance, width=100%]
 
 === PPC64LE
 
-[cols="1,1,1,1"]
+Measured with GCC 14: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 5242604 | 4450958 | 5704848
-| Addition | 221776 | 193063 | 847504
-| Subtraction | 222894 | 175259 | 786659
-| Multiplication | 194494 | 192929 | 795187
-| Division | 4821119 | 4896360 | 5344637
-| Modulo | 4955570 | 4273487 | 5407877
+| Comparisons | 5,242,604 | 4,450,958 | 5,704,848
+| Addition | 221,776 | 193,063 | 847,504
+| Subtraction | 222,894 | 175,259 | 786,659
+| Multiplication | 194,494 | 192,929 | 795,187
+| Division | 4,821,119 | 4,896,360 | 5,344,637
+| Modulo | 4,955,570 | 4,273,487 | 5,407,877
 |===
 
 image::u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Performance, width=100%]
@@ -87,16 +122,18 @@ image::u128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Perfo
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
-[cols="1,1,1"]
+Measured with GCC 16: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1"]
 |===
 | Operation | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 9545542 | 8582001
-| Addition | 686648 | 7261481
-| Subtraction  | 618456 | 7968678
-| Multiplication  | 859253 | 6746697
-| Division  | 8271920 | 15931092
-| Modulo | 9932867 | 10242720
+| Comparisons | 9,545,542 | 8,582,001
+| Addition | 686,648 | 7,261,481
+| Subtraction | 618,456 | 7,968,678
+| Multiplication | 859,253 | 6,746,697
+| Division | 8,271,920 | 15,931,092
+| Modulo | 9,932,867 | 10,242,720
 |===
 
 image::u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, width=100%]
@@ -105,16 +142,18 @@ image::u128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, 
 
 NOTE: This platform has no hardware type so we compare relative to `boost::mp::uint128_t`
 
-[cols="1,1,1"]
+Measured with GCC 14: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1"]
 |===
 | Operation | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 5286033 | 4538707
-| Addition | 454715 | 5543856
-| Subtraction  | 487190 | 6465126
-| Multiplication  | 1471479 | 8246098
-| Division  | 19868087 | 32820805
-| Modulo | 20332627 | 27238658
+| Comparisons | 5,286,033 | 4,538,707
+| Addition | 454,715 | 5,543,856
+| Subtraction | 487,190 | 6,465,126
+| Multiplication | 1,471,479 | 8,246,098
+| Division | 19,868,087 | 32,820,805
+| Modulo | 20,332,627 | 27,238,658
 |===
 
 image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performance, width=100%]
@@ -124,67 +163,75 @@ image::u128_graphs/linux/ARM32_relative_performance.png[ARM32 Relative Performan
 
 === x86_64
 
-[cols="1,1,1,1"]
+Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 2055229 | 1714007 | 2490543
-| Addition | 152603 | 116444 | 2596037
-| Subtraction | 150576 | 116367 | 2901567
-| Multiplication | 131223 | 123694 | 3300491
-| Division | 1476783 | 1489919 | 4898388
-| Modulo | 1421066 | 1411521 | 3793762
+| Comparisons | 2,055,229 | 1,714,007 | 2,490,543
+| Addition | 152,603 | 116,444 | 2,596,037
+| Subtraction | 150,576 | 116,367 | 2,901,567
+| Multiplication | 131,223 | 123,694 | 3,300,491
+| Division | 1,476,783 | 1,489,919 | 4,898,388
+| Modulo | 1,421,066 | 1,411,521 | 3,793,762
 |===
 
 image::u128_graphs/windows/x64_relative_performance.png[x64 Relative Performance, width=100%]
 
 === ARM64
 
-[cols="1,1,1,1"]
+Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 945196 | 405891 | 1306884
-| Addition | 37403 | 40039 | 1351728
-| Subtraction | 33927 | 38887 | 1594845
-| Multiplication | 74384 | 46406 | 1281286
-| Division | 992963 | 790846 | 2035065
-| Modulo | 1087702 | 861121 | 1702396
+| Comparisons | 945,196 | 405,891 | 1,306,884
+| Addition | 37,403 | 40,039 | 1,351,728
+| Subtraction | 33,927 | 38,887 | 1,594,845
+| Multiplication | 74,384 | 46,406 | 1,281,286
+| Division | 992,963 | 790,846 | 2,035,065
+| Modulo | 1,087,702 | 861,121 | 1,702,396
 |===
 
 image::u128_graphs/windows/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
 
 === x86_32
 
-[cols="1,1,1,1"]
+Measured with MSVC 14.5: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1"]
 |===
 | Operation | `std::_Unsigned128` | `uint128_t` | `boost::mp::uint128_t`
 
-| Comparisons | 4806287 | 3940703 | 2624013
-| Addition | 254275 | 202421 | 2961566
-| Subtraction | 1322877 | 207351 | 3703369
-| Multiplication | 2327500 | 2312040 | 4375417
-| Division | 5596877 | 5629510 | 6756883
-| Modulo | 4616488 | 5696116 | 6409969
+| Comparisons | 4,806,287 | 3,940,703 | 2,624,013
+| Addition | 254,275 | 202,421 | 2,961,566
+| Subtraction | 1,322,877 | 207,351 | 3,703,369
+| Multiplication | 2,327,500 | 2,312,040 | 4,375,417
+| Division | 5,596,877 | 5,629,510 | 6,756,883
+| Modulo | 4,616,488 | 5,696,116 | 6,409,969
 |===
 
-image::u128_graphs/windows/x86_relative_performance.png[x86_32 Relative Performance, width=100%]
+image::u128_graphs/windows/x86_relative_performance.png[x86 Relative Performance, width=100%]
 
 [#u128_mac]
 == macOS
 
 === ARM64 (Apple Silicon)
 
-[cols="1,1,1,1,1"]
+Measured with Clang 22: 5 passes over 20,000,000 element pairs (100,000,000 operations per cell).
+
+[cols="1,>1,>1,>1,>1"]
 |===
 | Operation | `unsigned __int128` | `uint128_t` | `boost::mp::uint128_t` | `absl::uint128`
 
-| Comparisons | 134425 | 134742 | 133107 | 135182
-| Addition | 20754 | 18389 | 20653 | 20929
-| Subtraction | 20552 | 18573 | 20590 | 20439
-| Multiplication | 20264 | 20150 | 20181 | 20228
-| Division | 685358 | 740877 | 913877 | 718985
-| Modulo | 733080 | 699666 | 951657 | 719500
+| Comparisons | 134,425 | 134,742 | 133,107 | 135,182
+| Addition | 20,754 | 18,389 | 20,653 | 20,929
+| Subtraction | 20,552 | 18,573 | 20,590 | 20,439
+| Multiplication | 20,264 | 20,150 | 20,181 | 20,228
+| Division | 685,358 | 740,877 | 913,877 | 718,985
+| Modulo | 733,080 | 699,666 | 951,657 | 719,500
 |===
 
 image::u128_graphs/macos/ARM64_relative_performance.png[ARM64 Relative Performance, width=100%]
