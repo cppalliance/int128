@@ -26,15 +26,15 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_valid_overload_v = valid_overload<T>::valu
 
 #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {static_cast<std::int64_t>(v.high)} {}
+BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {v.high} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : low {v.low}, high {static_cast<std::uint64_t>(v.high)} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : low {v.low}, high {v.high} {}
 
 #else
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : high {static_cast<std::int64_t>(v.high)}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : high {v.high}, low {v.low} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {static_cast<std::uint64_t>(v.high)}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {v.high}, low {v.low} {}
 
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
