@@ -13,7 +13,7 @@ https://www.boost.org/LICENSE_1_0.txt
 #include <boost/int128/random.hpp>
 ----
 
-Including this header specializes the traits that Boost.Random uses to reason about integer types, so that `int128_t` and `uint128_t` can be used directly with the Boost.Random engines and distributions (for example `boost::random::uniform_int_distribution`).
+Including this header specializes the traits that https://www.boost.org/doc/libs/release/libs/random/[Boost.Random] uses to reason about integer types, so that `int128_t` and `uint128_t` can be used directly with the Boost.Random engines and distributions such as `boost::random::uniform_int_distribution`.
 This header requires Boost.Random to be available.
 
 The following specializations are provided in namespace `boost::random::traits` for both `int128_t` and `uint128_t`:
