@@ -31,7 +31,8 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uin
         return impl::countl_zero_impl(x);
     }
 
-    return __builtin_clzg(static_cast<detail::builtin_u128>(x));
+    // The second argument is the result for x == 0, which is undefined without it
+    return __builtin_clzg(static_cast<detail::builtin_u128>(x), 128);
 
     #else
 
@@ -80,7 +81,8 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uin
         return impl::countr_zero_impl(x);
     }
 
-    return __builtin_ctzg(static_cast<detail::builtin_u128>(x));
+    // The second argument is the result for x == 0, which is undefined without it
+    return __builtin_ctzg(static_cast<detail::builtin_u128>(x), 128);
 
     #else
 
