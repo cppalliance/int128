@@ -12,18 +12,24 @@ Matt Borland
 
 == Description
 
-Boost.Int128 is a portable implementation of a signed, and an unsigned 128-bit integer and related functionality (i.e. `<bit>`, `<iostream>`, etc).
-Importantly, on all platforms, the `sizeof` the types provided in this library are exactly 128-bits.
+Boost.Int128 is a fully portable implementation of signed and unsigned 128-bit integers.
+The library supports a robust range of related functionality such as `<bit>`, `<iostream>`, `<charconv>`, and `<format>`.
+On all platforms the types provided are exactly 128 bits wide.
 
-The library is header-only, has no dependencies, and requires only pass:[C++14].
-The library is also available as a single header https://github.com/cppalliance/int128/blob/develop/extra/single_include/boost/int128.hpp[here].
-When using pass:[C++20] or newer, the library can be consumed as a module `import boost.int128`.
+For comparison, the maximum value of a 64-bit unsigned integer is 18,446,744,073,709,551,615.
+The maximum value of a 128-bit unsigned integer is 340,282,366,920,938,463,463,374,607,431,768,211,455, and for the signed type it is half as large at 170,141,183,460,469,231,731,687,303,715,884,105,727.
+Numbers of this magnitude arise in scientific and financial computing, though 128-bit values are perhaps used more often to hold identifiers, addresses, and bit masks.
+
+The library is header-only, has no dependencies, and requires pass:[C++14] or later.
+When using pass:[C++20] or later, the library can optionally be imported as a module: `import boost.int128`.
+
+Boost.Int128 is also available as a https://github.com/cppalliance/int128/blob/develop/extra/single_include/boost/int128.hpp[single header].
 
 == Motivation
 
 128-bit integers are useful across many domains, but pass:[C++] provides no portable way to use them.
 GCC and Clang offer `__int128` as a non-standard extension on 64-bit targets, but it lacks `std::numeric_limits` specializations, `<iostream>` support, and is absent entirely on MSVC.
-Multiprecision libraries can fill the gap, but typically at the cost of a larger `sizeof` and additional overhead (e.g., Boost.Multiprecision always has an extra word).
+Multiprecision libraries can fill the gap, but typically at the cost of a larger `sizeof` and additional overhead; https://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/index.html[Boost.Multiprecision], for instance, always carries an extra word.
 Boost.Int128 solves this by providing types that are exactly 128-bits on every platform.
 Operation implementations rely on compiler intrinsics where available for native performance, and optimized software implementations elsewhere.
 The types provided by the library also natively support running on GPUs using CUDA and SYCL, along with many of the functions.
