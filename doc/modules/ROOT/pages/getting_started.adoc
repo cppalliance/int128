@@ -91,6 +91,41 @@ The library types and many of the functions can also run on the device under SYC
 
 The core library (everything included by `<boost/int128.hpp>`) has no required dependencies and needs only a conforming pass:[C++14] compiler. The optional integration headers depend on the following, and are only usable when those components are available:
 
-* xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires Boost.Charconv.
-* xref:random.adoc[`<boost/int128/random.hpp>`] requires Boost.Random.
+* xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires https://www.boost.org/doc/libs/release/libs/charconv/doc/html/charconv.html[Boost.Charconv].
+* xref:random.adoc[`<boost/int128/random.hpp>`] requires https://www.boost.org/doc/libs/release/libs/random/[Boost.Random].
 * xref:format.adoc[`<boost/int128/fmt_format.hpp>`] requires the https://github.com/fmtlib/fmt[pass:[{fmt}]] library.
+
+== Hello World
+
+Nothing beyond the include path is required to start using the types. This program adds two values whose sum does not fit in 64 bits, and prints the result:
+
+[source, c++]
+----
+include::example$hello_world.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+18446744073709551616 + 42 = 18446744073709551658
+----
+
+Because the library is header-only, a single command compiles and runs it. Substitute the path to your Boost installation for `/path/to/boost`:
+
+.Linux
+[source, bash]
+----
+g++ -std=c++14 -I /path/to/boost hello_world.cpp -o hello_world && ./hello_world
+----
+
+.macOS
+[source, bash]
+----
+clang++ -std=c++14 -I /path/to/boost hello_world.cpp -o hello_world && ./hello_world
+----
+
+.Windows
+[source, batch]
+----
+cl /EHsc /std:c++14 /I C:\path\to\boost hello_world.cpp && hello_world.exe
+----

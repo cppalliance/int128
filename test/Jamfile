@@ -111,6 +111,7 @@ run test_constexpr_boundaries.cpp ;
 run test_layout.cpp ;
 
 # Make sure we run the examples as well
+run ../examples/hello_world.cpp ;
 run ../examples/construction.cpp ;
 run ../examples/bit.cpp ;
 run ../examples/saturating_arithmetic.cpp ;
