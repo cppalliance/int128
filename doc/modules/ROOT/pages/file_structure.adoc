@@ -15,7 +15,7 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 |===
 | Header | Description
 
-| `<boost/int128.hpp>`
+| xref:getting_started.adoc[`<boost/int128.hpp>`]
 | Convenience header (includes most headers below; does not include `charconv.hpp`, `fmt_format.hpp`, or `random.hpp`)
 
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
@@ -39,8 +39,8 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | xref:hash.adoc[`<boost/int128/hash.hpp>`]
 | `std::hash` specializations for `int128_t` and `uint128_t`
 
-| `<boost/int128/int128.hpp>`
-| Core type definitions (`uint128_t`, `int128_t`)
+| xref:api_reference.adoc#api_types[`<boost/int128/int128.hpp>`]
+| Core type definitions (xref:uint128_t.adoc[`uint128_t`], xref:int128_t.adoc[`int128_t`])
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
 | Stream insertion/extraction operators
@@ -54,7 +54,7 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
 | Numeric functions (`gcd`, `lcm`, saturating arithmetic)
 
-| `<boost/int128/random.hpp>`
+| xref:random.adoc[`<boost/int128/random.hpp>`]
 | Traits for usage with Boost.Random
 
 | xref:string.adoc[`<boost/int128/string.hpp>`]
