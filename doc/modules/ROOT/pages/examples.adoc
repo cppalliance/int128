@@ -303,6 +303,63 @@ midpoint(-100, -50) = -75
 ----
 ====
 
+[#examples_integer_division]
+== Integer Division (<numeric>)
+
+The xref:numeric.adoc#int_div[`div_*` family] divides with every rounding mode other than the truncation `operator/` performs.
+Two sections repay a close look: `rem_euclid` is the only remainder that is never negative, which is what makes it usable for wrapping an offset into a range, and `div_to_pos_inf` computes a ceiling without the `(length + block - 1) / block` idiom that wraps near the top of the range.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/integer_division.cpp[example] demonstrates the rounding modes, tie breaking, and the combined quotient and remainder functions
+====
+[source, c++]
+----
+include::example$integer_division.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Every rounding mode on -12 / 5 ===
+div_to_zero        = -2
+div_away_zero      = -3
+div_to_pos_inf     = -2
+div_to_neg_inf     = -3
+div_euclid         = -3
+div_ties_to_zero   = -2
+
+=== Tie breaking on -7 / 2 ===
+div_ties_to_zero     = -3
+div_ties_away_zero   = -4
+div_ties_to_pos_inf  = -3
+div_ties_to_neg_inf  = -4
+div_ties_to_odd      = -3
+div_ties_to_even     = -4
+
+=== Quotient and remainder from one division ===
+div_rem_to_neg_inf(-12, 5): quotient = -3, remainder = 3
+div_rem_to_zero(-12, 5):    quotient = -2, remainder = -2
+quotient * y + remainder = -12
+
+=== Euclidean remainder is never negative ===
+-9 % 7 = -2, rem_euclid(-9, 7) = 5
+-8 % 7 = -1, rem_euclid(-8, 7) = 6
+-7 % 7 = 0, rem_euclid(-7, 7) = 0
+-6 % 7 = -6, rem_euclid(-6, 7) = 1
+
+=== Ceiling division without overflow ===
+length = 340282366920938463463374607431768211455
+div_to_pos_inf(length, 1000) = 340282366920938463463374607431768212
+div_to_zero(length, 1000)    = 340282366920938463463374607431768211
+(length + 999) / 1000        = 0 (wrapped)
+
+=== Unbiased rounding of a scaled value ===
+1500 / 1000: ties_to_even = 2, ties_away_zero = 2
+2500 / 1000: ties_to_even = 2, ties_away_zero = 3
+3500 / 1000: ties_to_even = 4, ties_away_zero = 4
+-1500 / 1000: ties_to_even = -2, ties_away_zero = -2
+----
+====
+
 [#examples_checked]
 == Checked Arithmetic
 

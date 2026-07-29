@@ -151,3 +151,161 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(int128_t a, int128_t b) noe
 } // namespace boost
 
 ----
+
+[#int_div]
+== Integer Division
+
+`operator/` only ever rounds towards zero.
+These functions divide with each of the other rounding modes, and are the 128-bit counterparts of the `std::div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)].
+They *do not* require C++26, and every one of them is `constexpr` and available on device.
+
+[#div_result]
+=== `div_result`
+
+Both halves of a division, mirroring `std::div_result<T>` from the paper.
+It is an aggregate, so `div_result<int128_t>{q, r}` and structured bindings both work.
+Equality is always available; the ordering operators are available whenever the compiler supports `operator<=>`, and compare the quotient before the remainder.
+
+[source, c++]
+----
+#include <boost/int128/numeric.hpp>
+
+namespace boost {
+namespace int128 {
+
+template <typename T>
+struct div_result
+{
+    T quotient;
+    T remainder;
+};
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+// Only when BOOST_INT128_HAS_SPACESHIP_OPERATOR is defined
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#div_rounding_modes]
+=== Rounding Modes
+
+Each mode comes in three forms: `div_<mode>` returns the quotient, `div_rem_<mode>` returns the quotient and the matching remainder, and for Euclidean division `rem_euclid` returns the remainder alone.
+
+[source, c++]
+----
+#include <boost/int128/numeric.hpp>
+
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t div_<mode>(uint128_t x, uint128_t y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t div_<mode>(int128_t x, int128_t y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_<mode>(uint128_t x, uint128_t y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_<mode>(int128_t x, int128_t y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr uint128_t rem_euclid(uint128_t x, uint128_t y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128_t rem_euclid(int128_t x, int128_t y) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+`<mode>` is one of the eleven names below.
+The last two columns give the quotient for a dividend that does not divide evenly, and for one that lands exactly halfway between two integers.
+
+[cols="1,2,1,1", options="header"]
+|===
+| `<mode>` | Rounds | `-12 / 5` (exactly `-2.4`) | `-7 / 2` (exactly `-3.5`)
+
+| `to_zero`
+| Towards zero, which is what `operator/` does
+| `-2`
+| `-3`
+
+| `away_zero`
+| Away from zero
+| `-3`
+| `-4`
+
+| `to_pos_inf`
+| Towards positive infinity (ceiling)
+| `-2`
+| `-3`
+
+| `to_neg_inf`
+| Towards negative infinity (floor)
+| `-3`
+| `-4`
+
+| `euclid`
+| So that the remainder is non-negative
+| `-3`
+| `-4`
+
+| `ties_to_zero`
+| To nearest, an exact tie towards zero
+| `-2`
+| `-3`
+
+| `ties_away_zero`
+| To nearest, an exact tie away from zero
+| `-2`
+| `-4`
+
+| `ties_to_pos_inf`
+| To nearest, an exact tie towards positive infinity
+| `-2`
+| `-3`
+
+| `ties_to_neg_inf`
+| To nearest, an exact tie towards negative infinity
+| `-2`
+| `-4`
+
+| `ties_to_odd`
+| To nearest, an exact tie to the odd quotient
+| `-2`
+| `-3`
+
+| `ties_to_even`
+| To nearest, an exact tie to the even quotient
+| `-2`
+| `-4`
+|===
+
+An exact tie is only possible when the divisor is even, so the six `ties_` modes differ from each other only there; everywhere else they all return the nearest integer.
+
+[#div_semantics]
+=== Semantics
+
+The remainder returned by `div_rem_<mode>` is the one that matches the quotient: `x == quotient * y + remainder` for the signed overloads.
+For the unsigned overloads the same identity holds modulo 2^128^, because a quotient rounded up leaves a negative remainder that has to wrap; `div_rem_away_zero(uint128_t{7}, uint128_t{2})` therefore returns a quotient of `4` and a remainder of `BOOST_INT128_UINT128_MAX`, since `7 - 4 * 2` is `-1`.
+The quotient itself never overflows: rounding only moves the quotient when the division is inexact, and an inexact division has a divisor whose magnitude is at least two.
+
+The unsigned overloads exist for every mode, but a non-negative quotient collapses several of them together.
+`div_to_zero`, `div_to_neg_inf`, and `div_euclid` are all plain truncation, `div_away_zero` and `div_to_pos_inf` are the same rounding up, `div_ties_to_neg_inf` matches `div_ties_to_zero`, and `div_ties_to_pos_inf` matches `div_ties_away_zero`.
+The full set is still provided so that generic code can name a rounding mode without also having to know the signedness of the operands.
+
+`rem_euclid` returns a value in `[0, abs(y))`, which makes it the function to reach for when wrapping a possibly negative offset into a range; `operator%` instead takes its sign from the dividend.
+The signed overload is correct for `y == BOOST_INT128_INT128_MIN` even though `abs(y)` is not representable as a positive `int128_t`, because the correction is applied in unsigned arithmetic.
+`div_euclid` agrees with `div_to_neg_inf` when the divisor is positive, and with `div_to_pos_inf` when it is negative.
+
+Each `div_rem_<mode>` performs exactly one division, so it is the cheaper way to obtain both halves; computing `x / y` and `x % y` separately costs two divisions, since neither the compiler nor the library can share the work across the two operators.
+
+A zero divisor is a precondition violation and therefore undefined behavior, exactly as for `operator/` and xref:numeric.adoc#sat_arith[`saturating_div`]; no zero-divisor check is performed.
+The signed overloads are likewise undefined for `BOOST_INT128_INT128_MIN / -1`, whose quotient is not representable.
+
+NOTE: The paper leaves these functions non-`noexcept` because a precondition violation is undefined behavior.
+This library marks them `noexcept` for consistency with the rest of its interface, which does the same.

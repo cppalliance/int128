@@ -65,6 +65,7 @@ set(BOOST_INT128_MODULE_TESTS
         test_from_chars_bases
         test_gcd_lcm
         test_hash
+        test_int_div
         test_ipow
         test_isqrt
         test_limits_i128
