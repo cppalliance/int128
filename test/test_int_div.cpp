@@ -530,6 +530,13 @@ static void test_div_result()
     #endif
 }
 
+// Only present with MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+
 static void test_constexpr()
 {
     static_assert(div_to_zero(int128_t{-7}, int128_t{2}) == -3, "div_to_zero");
@@ -554,6 +561,10 @@ static void test_constexpr()
     static_assert(rem_euclid(uint128_t{7}, uint128_t{2}) == 1U, "unsigned rem_euclid");
     static_assert(div_rem_ties_to_even(uint128_t{7}, uint128_t{2}).quotient == 4U, "unsigned ties_to_even");
 }
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 int main()
 {
