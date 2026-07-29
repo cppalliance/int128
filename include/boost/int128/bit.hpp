@@ -13,14 +13,31 @@
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
+namespace impl {
+
+BOOST_INT128_HOST_DEVICE constexpr int countl_zero_impl(const uint128_t x) noexcept
 {
-    return x && !(x & (x - 1U));
+    return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
 }
+
+} // namespace impl
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uint128_t x) noexcept
 {
-    return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_clzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::countl_zero_impl(x);
+    }
+
+    return __builtin_clzg(static_cast<detail::builtin_u128>(x));
+
+    #else
+
+    return impl::countl_zero_impl(x);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_one(const uint128_t x) noexcept
@@ -194,7 +211,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
     return impl::byteswap_impl(x);
 }
 
-#endif
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
+{
+    return popcount(x) == 1;
+}
 
 } // namespace int128
 } // namespace boost
