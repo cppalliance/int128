@@ -6,6 +6,7 @@
 #define BOOST_INT128_NUMERIC_HPP
 
 #include <boost/int128/bit.hpp>
+#include <boost/int128/cstdlib.hpp>
 #include <boost/int128/detail/traits.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
@@ -422,6 +423,403 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const i
         const auto diff {ua - ub};
         return a - static_cast<int128_t>(diff / 2U);
     }
+}
+
+// Quotient and remainder of a single division, following the div_result<T> proposed for the
+// standard library by P3724 (Integer division)
+BOOST_INT128_EXPORT template <typename T>
+struct div_result
+{
+    T quotient;
+    T remainder;
+};
+
+BOOST_INT128_EXPORT template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const div_result<T>& lhs, const div_result<T>& rhs) noexcept
+{
+    return lhs.quotient == rhs.quotient && lhs.remainder == rhs.remainder;
+}
+
+BOOST_INT128_EXPORT template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const div_result<T>& lhs, const div_result<T>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+BOOST_INT128_EXPORT template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const div_result<T>& lhs, const div_result<T>& rhs) noexcept
+{
+    const auto quotient_order {lhs.quotient <=> rhs.quotient};
+    return quotient_order != std::strong_ordering::equal ? quotient_order : lhs.remainder <=> rhs.remainder;
+}
+
+#endif // BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+namespace detail {
+
+// -1 when the exact quotient of x / y is negative, and 1 otherwise
+BOOST_INT128_HOST_DEVICE constexpr int quotient_sign(const int128_t x, const int128_t y) noexcept
+{
+    return (x < 0) != (y < 0) ? -1 : 1;
+}
+
+// Applies the quotient offset d (-1, 0, or 1) to a truncated division result, and returns the
+// remainder matching the adjusted quotient. The remainder is evaluated in unsigned arithmetic
+// so that the d * y term cannot overflow when y is INT128_MIN.
+BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> offset_quotient(const i128div_t truncated, const int128_t y, const int d) noexcept
+{
+    const uint128_t unsigned_rem {truncated.rem.high, truncated.rem.low};
+    const uint128_t unsigned_y {y.high, y.low};
+
+    uint128_t rem {unsigned_rem};
+
+    if (d > 0)
+    {
+        rem = unsigned_rem - unsigned_y;
+    }
+    else if (d < 0)
+    {
+        rem = unsigned_rem + unsigned_y;
+    }
+
+    return div_result<int128_t>{truncated.quot + d, static_cast<int128_t>(rem)};
+}
+
+// An unsigned quotient is never rounded down, so the only offsets are 0 and 1. The remainder
+// of an incremented quotient is negative, and is returned reduced modulo 2^128.
+BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> offset_quotient(const u128div_t truncated, const uint128_t y, const bool increment) noexcept
+{
+    return div_result<uint128_t>{increment ? truncated.quot + 1U : truncated.quot,
+                                 increment ? truncated.rem - y : truncated.rem};
+}
+
+// Round-to-nearest comparison shared by the ties functions: the truncated quotient grows in
+// magnitude when the remainder is more than half the divisor. truncate_ties selects the strict
+// form, which both breaks an exact tie towards zero and recovers the bit that abs(y) / 2 drops
+// when y is odd.
+BOOST_INT128_HOST_DEVICE constexpr bool nearest_increment(const uint128_t abs_rem, const uint128_t abs_half_y, const bool truncate_ties) noexcept
+{
+    return truncate_ties ? abs_rem > abs_half_y : abs_rem >= abs_half_y;
+}
+
+// Magnitude of the remainder of a truncated signed division. The magnitude is always less
+// than abs(y), so it is representable for every valid divisor.
+BOOST_INT128_HOST_DEVICE constexpr uint128_t abs_remainder(const i128div_t truncated) noexcept
+{
+    return static_cast<uint128_t>(abs(truncated.rem));
+}
+
+// floor(abs(y) / 2), exact for every y including INT128_MIN
+BOOST_INT128_HOST_DEVICE constexpr uint128_t abs_half_divisor(const int128_t y) noexcept
+{
+    return static_cast<uint128_t>(abs(y)) >> 1U;
+}
+
+// An odd divisor cannot produce an exact tie, so every ties function truncates on it
+BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const int128_t x) noexcept
+{
+    return (x.low & 1U) != 0U;
+}
+
+BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const uint128_t x) noexcept
+{
+    return (x.low & 1U) != 0U;
+}
+
+} // namespace detail
+
+// Rounds towards zero, which is what operator/ already does
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return div_result<uint128_t>{truncated.quot, truncated.rem};
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_zero(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return div_result<int128_t>{truncated.quot, truncated.rem};
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    return x / y;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_zero(const int128_t x, const int128_t y) noexcept
+{
+    return x / y;
+}
+
+// Rounds away from zero, so the quotient grows in magnitude unless the division is exact
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_away_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, truncated.rem != 0U);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_away_zero(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, truncated.rem != 0 ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_away_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_away_zero(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_away_zero(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_away_zero(x, y).quotient;
+}
+
+// Rounds towards positive infinity, which for an unsigned quotient is away from zero
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, truncated.rem != 0U);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_pos_inf(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto adjust {truncated.rem != 0 && detail::quotient_sign(x, y) > 0};
+    return detail::offset_quotient(truncated, y, adjust ? 1 : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_to_pos_inf(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_pos_inf(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_to_pos_inf(x, y).quotient;
+}
+
+// Rounds towards negative infinity, which for an unsigned quotient is truncation
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return div_result<uint128_t>{truncated.quot, truncated.rem};
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_neg_inf(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto adjust {truncated.rem != 0 && detail::quotient_sign(x, y) < 0};
+    return detail::offset_quotient(truncated, y, adjust ? -1 : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    return x / y;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_neg_inf(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_to_neg_inf(x, y).quotient;
+}
+
+// Euclidean division, whose remainder is always in [0, abs(y)). Only a negative remainder
+// needs fixing, and growing the quotient magnitude by one makes the remainder positive.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_euclid(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return div_result<uint128_t>{truncated.quot, truncated.rem};
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_euclid(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, truncated.rem < 0 ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_euclid(const uint128_t x, const uint128_t y) noexcept
+{
+    return x / y;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_euclid(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_euclid(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie towards zero
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, true));
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_zero(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), true)};
+    return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_to_zero(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_zero(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_to_zero(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie away from zero
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_away_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y)));
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_away_zero(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), detail::is_odd(y))};
+    return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_away_zero(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_away_zero(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_away_zero(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_away_zero(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie towards positive infinity. A tie only grows the
+// magnitude when the quotient is positive.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y)));
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_pos_inf(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto sign {detail::quotient_sign(x, y)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), detail::is_odd(y) || sign < 0)};
+    return detail::offset_quotient(truncated, y, increment ? sign : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_to_pos_inf(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_pos_inf(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_to_pos_inf(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie towards negative infinity. A tie only grows the
+// magnitude when the quotient is negative, so an unsigned tie always truncates.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, true));
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_neg_inf(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto sign {detail::quotient_sign(x, y)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), detail::is_odd(y) || sign > 0)};
+    return detail::offset_quotient(truncated, y, increment ? sign : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_to_neg_inf(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_neg_inf(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_to_neg_inf(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie to the odd quotient, so a tie only grows the
+// magnitude when truncation would have produced an even quotient
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_odd(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto increment {detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y) || detail::is_odd(truncated.quot))};
+    return detail::offset_quotient(truncated, y, increment);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_odd(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto truncate_ties {detail::is_odd(y) || detail::is_odd(truncated.quot)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), truncate_ties)};
+    return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_odd(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_to_odd(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_odd(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_to_odd(x, y).quotient;
+}
+
+// Rounds to nearest, breaking an exact tie to the even quotient, so a tie only grows the
+// magnitude when truncation would have produced an odd quotient
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_even(const uint128_t x, const uint128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto increment {detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y) || !detail::is_odd(truncated.quot))};
+    return detail::offset_quotient(truncated, y, increment);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_even(const int128_t x, const int128_t y) noexcept
+{
+    const auto truncated {div(x, y)};
+    const auto truncate_ties {detail::is_odd(y) || !detail::is_odd(truncated.quot)};
+    const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), truncate_ties)};
+    return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_even(const uint128_t x, const uint128_t y) noexcept
+{
+    return div_rem_ties_to_even(x, y).quotient;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_even(const int128_t x, const int128_t y) noexcept
+{
+    return div_rem_ties_to_even(x, y).quotient;
+}
+
+// The Euclidean remainder, which is always in [0, abs(y)). Only a negative remainder needs
+// fixing, and abs(y) is added in unsigned arithmetic so that INT128_MIN is handled.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rem_euclid(const uint128_t x, const uint128_t y) noexcept
+{
+    return x % y;
+}
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t rem_euclid(const int128_t x, const int128_t y) noexcept
+{
+    const auto rem {x % y};
+
+    if (rem < 0)
+    {
+        const uint128_t unsigned_rem {rem.high, rem.low};
+        return static_cast<int128_t>(unsigned_rem + static_cast<uint128_t>(abs(y)));
+    }
+
+    return rem;
 }
 
 } // namespace int128
