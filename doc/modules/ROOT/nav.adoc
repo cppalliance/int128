@@ -22,6 +22,8 @@
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]
 ** xref:examples.adoc#examples_cuda[Use of the library in a CUDA kernel]
 ** xref:examples.adoc#examples_sycl[Use of the library in a SYCL kernel]
+** xref:examples.adoc#examples_cuda_primality[CUDA: Primality Testing with 128-bit Intermediates]
+** xref:examples.adoc#examples_sycl_accumulate[SYCL: Exact and Reproducible Reductions]
 * xref:api_reference.adoc[]
 ** xref:api_reference.adoc#api_namespaces[Namespaces]
 ** xref:api_reference.adoc#api_types[Types]

@@ -614,3 +614,76 @@ SYCL device: Intel(R) ...
 All CPU and GPU computed elements match!
 ----
 ====
+
+[#examples_cuda_primality]
+== CUDA: Primality Testing with 128-bit Intermediates
+
+A GPU is a natural fit for primality testing because every candidate is independent, but
+the arithmetic is not expressible in 64 bits. Miller-Rabin repeatedly reduces a product of
+two residues modulo `n`; when `n` is a 64-bit value both operands can approach `2^64`, so
+the product needs a full 128 bits before it can be reduced. `uint128_t` supplies that
+intermediate in device code, where `unsigned __int128` is not portably available.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/cuda_primality.cu[example] runs a deterministic Miller-Rabin test over the largest odd values representable in 64 bits, one candidate per thread, using xref:utilities.adoc#powm[`powm`] and the 128-bit product for the modular squarings.
+====
+[source, c++]
+----
+include::example$cuda_primality.cu[]
+----
+
+.Expected Output
+[listing]
+----
+Full 128-bit product a * b: 159945956516994065446882290339781513595
+  (a * b) % n, 64-bit math: 17693923505768731003  <- the product wrapped
+  (a * b) % n via uint128_t: 12755662373092413040
+
+[Miller-Rabin on 65536 odd candidates from 18446744073709420545 to 18446744073709551615]
+CUDA kernel launch with 256 blocks of 256 threads
+Primes found on device: 2879
+Largest prime below 2^64: 18446744073709551557
+All CPU and GPU computed elements match!
+----
+====
+
+[#examples_sycl_accumulate]
+== SYCL: Exact and Reproducible Reductions
+
+Reductions are the other common reason to reach for a wider integer on a GPU. A dot product
+of 64-bit integers overflows a 64-bit accumulator, and widening to `double` only trades a
+wrong answer for a lossy one. Floating point also makes the result depend on the order of
+summation, which a parallel reduction does not control: the partitioning of the work becomes
+part of the answer. Integer addition is associative, so a `uint128_t` accumulator is both
+exact and independent of how the reduction is split across the device.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/sycl_accumulate.cpp[example] computes an exact dot product on the device as 1024 strided partial sums, then shows that it is bit-for-bit equal to the host result summed in either direction, while a 64-bit accumulator wraps and a `double` cannot represent even a single product.
+====
+[source, c++]
+----
+include::example$sycl_accumulate.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+[Exact dot product of 1048576 pairs of 40-bit integers]
+SYCL device: Intel(R) ...
+
+uint128_t accumulator, exact and 99 bits wide
+  device, 1024 strided partials : 317117374481213326859021202374
+  host, ascending order         : 317117374481213326859021202374
+  host, descending order        : 317117374481213326859021202374
+  all three agree, so the partitioning of the reduction does not matter
+
+uint64_t accumulator, silently wrong
+  result                        : 5008986077640668102
+  times it wrapped past 2^64    : 17190967317
+
+double, too few significand bits for even one product
+  lhs[0] * rhs[0] as uint128_t  : 583389027108597783863934 (79 bits)
+  lhs[0] * rhs[0] as double     : 5.8338902710859781e+23
+  rounding error                : 23584130
+
+All CPU and GPU computed elements match!
+----
+====

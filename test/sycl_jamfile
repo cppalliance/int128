@@ -99,3 +99,4 @@ run test_unsigned_literals_sycl.cpp ;
 run test_signed_literals_sycl.cpp ;
 
 run ../examples/sycl.cpp ;
+run ../examples/sycl_accumulate.cpp ;
