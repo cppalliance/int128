@@ -215,9 +215,17 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap_impl(c
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
 {
+    // The whole-width builtins are deliberately ranked below the paired 64-bit form.
+    // Measured today (7/29/2026) they are a regression: the 128-bit value blocks the loop vectorization
+    // the paired __builtin_bswap64 receives, costing up to 1.5x on arm64, and on x86-64 both
+    // forms emit identical code. Revisit if the codegen improves.
+    #if BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
+
     // __builtin_bswapg is clang-only (LLVM 22.1) and __builtin_bswap128 is GCC-only (GCC 11),
     // so at most one of the two whole-width branches is ever live
-    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswapg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswapg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
@@ -234,10 +242,6 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
     }
 
     return static_cast<uint128_t>(__builtin_bswap128(static_cast<detail::builtin_u128>(x)));
-
-    #elif BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
 
     #elif defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
