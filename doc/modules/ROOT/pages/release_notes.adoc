@@ -10,6 +10,23 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Unreleased
 
+=== New: integer division with every rounding mode
+
+`<boost/int128/numeric.hpp>` now provides the `div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)], for both `uint128_t` and `int128_t`.
+`operator/` only rounds towards zero; these functions round away from zero, towards either infinity, and to nearest under each of the six tie-breaking rules, along with Euclidean division and its always non-negative remainder.
+
+[source, c++]
+----
+div_to_neg_inf(int128_t{-7}, int128_t{2});   // -4, where -7 / 2 is -3
+div_ties_to_even(int128_t{-7}, int128_t{2}); // -4, breaking the tie at -3.5
+rem_euclid(int128_t{-7}, int128_t{2});       // 1, where -7 % 2 is -1
+
+const auto res = div_rem_to_pos_inf(x, y);   // res.quotient and res.remainder, one division
+----
+
+Each mode also has a `div_rem_` form returning a `div_result<T>` with both halves from a single division, and there is a standalone `rem_euclid`.
+See xref:numeric.adoc#int_div[Integer Division] for the full list.
+
 === Breaking: `int128_t::high` is now `std::uint64_t`
 
 `int128_t` previously stored `std::uint64_t low` and `std::int64_t high`.

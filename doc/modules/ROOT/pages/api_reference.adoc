@@ -84,6 +84,9 @@ https://www.boost.org/LICENSE_1_0.txt
 
 | xref:cstdlib.adoc#div_structs[`i128div_t`]
 | Result type for `div(int128_t, int128_t)`
+
+| xref:numeric.adoc#div_result[`div_result<T>`]
+| Result type for the `div_rem_*` functions
 |===
 
 [#api_functions]
@@ -272,6 +275,42 @@ Listed by analogous STL header.
 
 | xref:numeric.adoc#midpoint[`midpoint`]
 | Midpoint between two values
+
+| xref:numeric.adoc#int_div[`div_to_zero`, `div_rem_to_zero`]
+| Division rounding towards zero
+
+| xref:numeric.adoc#int_div[`div_away_zero`, `div_rem_away_zero`]
+| Division rounding away from zero
+
+| xref:numeric.adoc#int_div[`div_to_pos_inf`, `div_rem_to_pos_inf`]
+| Division rounding towards positive infinity
+
+| xref:numeric.adoc#int_div[`div_to_neg_inf`, `div_rem_to_neg_inf`]
+| Division rounding towards negative infinity
+
+| xref:numeric.adoc#int_div[`div_euclid`, `div_rem_euclid`]
+| Euclidean division
+
+| xref:numeric.adoc#int_div[`div_ties_to_zero`, `div_rem_ties_to_zero`]
+| Division rounding to nearest, ties towards zero
+
+| xref:numeric.adoc#int_div[`div_ties_away_zero`, `div_rem_ties_away_zero`]
+| Division rounding to nearest, ties away from zero
+
+| xref:numeric.adoc#int_div[`div_ties_to_pos_inf`, `div_rem_ties_to_pos_inf`]
+| Division rounding to nearest, ties towards positive infinity
+
+| xref:numeric.adoc#int_div[`div_ties_to_neg_inf`, `div_rem_ties_to_neg_inf`]
+| Division rounding to nearest, ties towards negative infinity
+
+| xref:numeric.adoc#int_div[`div_ties_to_odd`, `div_rem_ties_to_odd`]
+| Division rounding to nearest, ties to the odd quotient
+
+| xref:numeric.adoc#int_div[`div_ties_to_even`, `div_rem_ties_to_even`]
+| Division rounding to nearest, ties to the even quotient
+
+| xref:numeric.adoc#int_div[`rem_euclid`]
+| Euclidean remainder, always in `[0, abs(y))`
 |===
 
 [#api_string]
@@ -464,7 +503,7 @@ Listed by analogous STL header.
 | User-defined literals for `int128_t` and `uint128_t`
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
-| Numeric algorithms (gcd, lcm, midpoint)
+| Numeric algorithms (gcd, lcm, midpoint, integer division)
 
 | xref:string.adoc[`<boost/int128/string.hpp>`]
 | `to_string` overloads

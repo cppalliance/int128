@@ -52,7 +52,7 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | User-defined literals (`_u128`, `_i128`)
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
-| Numeric functions (`gcd`, `lcm`, saturating arithmetic)
+| Numeric functions (`gcd`, `lcm`, saturating arithmetic, integer division)
 
 | xref:random.adoc[`<boost/int128/random.hpp>`]
 | Traits for usage with Boost.Random
