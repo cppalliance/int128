@@ -94,3 +94,4 @@ run test_unsigned_literals.cu ;
 run test_signed_literals.cu ;
 
 run ../examples/cuda.cu ;
+run ../examples/cuda_primality.cu ;
