@@ -192,16 +192,8 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
     return impl::popcount_impl(x);
 
-#endif
-
-#if BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
-{
-    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
+    #endif
 }
-
-#endif
 
 namespace impl {
 
@@ -219,10 +211,34 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap_impl(c
 
 } // namespace impl
 
-#if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
-
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
 {
+    // __builtin_bswapg is clang-only (LLVM 22.1) and __builtin_bswap128 is GCC-only (GCC 11),
+    // so at most one of the two whole-width branches is ever live
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswapg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::byteswap_impl(x);
+    }
+
+    return static_cast<uint128_t>(__builtin_bswapg(static_cast<detail::builtin_u128>(x)));
+
+    #elif defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswap128) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::byteswap_impl(x);
+    }
+
+    return static_cast<uint128_t>(__builtin_bswap128(static_cast<detail::builtin_u128>(x)));
+
+    #elif BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
+
+    #elif defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
         return impl::byteswap_impl(x); // LCOV_EXCL_LINE
@@ -231,13 +247,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
     {
         return {_byteswap_uint64(x.low), _byteswap_uint64(x.high)};
     }
-}
 
-#elif !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) || (defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    #else
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
-{
     return impl::byteswap_impl(x);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
