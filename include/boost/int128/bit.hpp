@@ -52,12 +52,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int bit_width(const uint1
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_ceil(const uint128_t x) noexcept
 {
-    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(1) << bit_width(x - 1U);
+    // __builtin_stdc_bit_ceil not available, but this is equivalent
+    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(2) << (127 - countl_zero(x - 1));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_floor(const uint128_t x) noexcept
 {
-    return x > 0U ? static_cast<uint128_t>(1) << (bit_width(x) - 1U) : static_cast<uint128_t>(0);
+    // __builtin_stdc_bit_floor not available, but this is equivalent
+    return x == 0U ? static_cast<uint128_t>(0) : static_cast<uint128_t>(1) << (127 - countl_zero(x));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128_t x) noexcept
