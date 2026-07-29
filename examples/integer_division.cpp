@@ -8,6 +8,15 @@
 #include <iostream>
 #include <limits>
 
+// tag::exclude[]
+// Only present with MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+// end::exclude[]
+
 int main()
 {
     using boost::int128::uint128_t;
