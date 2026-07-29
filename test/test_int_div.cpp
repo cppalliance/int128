@@ -14,6 +14,13 @@ import boost.int128;
 
 #endif
 
+// Only present with MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+
 #include <boost/core/lightweight_test.hpp>
 #include <iostream>
 #include <limits>
@@ -529,13 +536,6 @@ static void test_div_result()
 
     #endif
 }
-
-// Only present with MSVC 14.1
-#ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable : 4307) // integral constant overflow
-#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
-#endif
 
 static void test_constexpr()
 {
