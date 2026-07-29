@@ -62,9 +62,31 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_floor(const
     return x == 0U ? static_cast<uint128_t>(0) : static_cast<uint128_t>(1) << (127 - countl_zero(x));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128_t x) noexcept
+namespace impl {
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero_impl(const uint128_t x) noexcept
 {
     return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
+}
+
+} // namespace impl
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128_t x) noexcept
+{
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_clzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::countr_zero_impl(x);
+    }
+
+    return __builtin_ctzg(static_cast<detail::builtin_u128>(x));
+
+    #else
+
+    return impl::countr_zero_impl(x);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint128_t x) noexcept
