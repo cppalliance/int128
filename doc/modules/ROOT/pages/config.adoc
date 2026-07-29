@@ -17,15 +17,44 @@ These macros allow customization of library behavior. User-configurable macros s
 [#enable_cuda]
 - `BOOST_INT128_ENABLE_CUDA`: Defining this macro allows both types and selected functions to be run on both host and device when compiling with NVCC.
 Allowed functions have `BOOST_INT128_HOST_DEVICE` as part of their function signature in their documentation.
++
+[source, bash]
+----
+nvcc -std=c++14 --expt-relaxed-constexpr -DBOOST_INT128_ENABLE_CUDA=1 my_kernel.cu
+----
++
+See the xref:examples.adoc#examples_cuda_primality[CUDA example] for a complete kernel.
 
 [#enable_sycl]
 - `BOOST_INT128_ENABLE_SYCL`: Defining this macro allows both types and selected functions to be run on the device when compiling with a SYCL compiler (for example Intel oneAPI `icpx -fsycl`).
 Unlike CUDA, SYCL device support is opt-in and is not detected automatically, so this macro must be defined and `<sycl/sycl.hpp>` must be included before any Boost.int128 header (so that `SYCL_EXTERNAL` is available).
 Device-enabled functions have `BOOST_INT128_HOST_DEVICE` as part of their function signature in their documentation.
 The `boost::charconv::to_chars` / `from_chars` overloads in `<boost/int128/charconv.hpp>` also run on the SYCL device: defining `BOOST_INT128_ENABLE_SYCL` forwards to `BOOST_CHARCONV_ENABLE_SYCL`, and Boost.Charconv provides matching SYCL device support (as it does for CUDA).
++
+The include order matters, so it is worth writing out:
++
+[source, c++]
+----
+#include <sycl/sycl.hpp>   // must precede any Boost.Int128 header
+#include <boost/int128.hpp>
+----
++
+[source, bash]
+----
+icpx -fsycl -std=c++17 -DBOOST_INT128_ENABLE_SYCL=1 my_program.cpp
+----
++
+See the xref:examples.adoc#examples_sycl_accumulate[SYCL example] for a complete kernel.
 
 [#no_int128]
 - `BOOST_INT128_NO_BUILTIN_INT128`: The user may define this when they do not want the internal implementations to rely on builtin `pass:[__int128]` or `pass:[unsigned __int128]` types.
+The definition must precede the first library header, otherwise the builtin path will already have been selected:
++
+[source, c++]
+----
+#define BOOST_INT128_NO_BUILTIN_INT128
+#include <boost/int128.hpp>   // uses only the portable two-word implementation
+----
 
 [#disable_exceptions]
 - `BOOST_INT128_DISABLE_EXCEPTIONS`: Allows exceptions to be disabled.
@@ -34,10 +63,35 @@ This macro will automatically be defined in the presence of `-fno-exceptions` or
 [#build_module]
 - `BOOST_INT128_BUILD_MODULE`: Define this when building the library as a pass:[C++20] named module (consumed via `import boost.int128`).
 It switches the headers into module mode by exporting the public interface and suppressing the includes that the module unit itself provides.
-See xref:getting_started.adoc[Getting Started].
++
+`module/int128.cppm` defines the macro itself, so importing the built module needs nothing further:
++
+[source, c++]
+----
+import boost.int128;   // consumers need no macro of their own
+----
++
+Define it directly only in a translation unit that has to switch between including the headers and importing the module.
+See xref:getting_started.adoc[Getting Started] for how to build the interface unit.
 
 [#automatic_config]
 == Automatic Configuration Macros
+
+These macros are defined by the library itself and are intended to be tested, not set.
+They are most useful for writing code that has to adapt to what the platform provides:
+
+[source, c++]
+----
+#include <boost/int128.hpp>
+
+#ifdef BOOST_INT128_HAS_INT128
+// A builtin 128-bit type exists and is being used as the backing representation
+#endif
+
+#if BOOST_INT128_ENDIAN_BIG_BYTE
+// The two 64-bit words are laid out high first
+#endif
+----
 
 - `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `pass:[__int128]` or `pass:[unsigned __int128]` types (e.g. `pass:[__x86_64__]`).
 

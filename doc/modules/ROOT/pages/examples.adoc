@@ -13,6 +13,10 @@ All the following examples can be found in the examples/ folder of the library.
 [#examples_construction]
 == Basic Construction
 
+pass:[C++] has no 128-bit literal, so the first practical question about a 128-bit type is how to get a value into one.
+This example covers every route: from a built-in integer, from an explicit pair of high and low 64-bit words, from the `_u128` and `_i128` user-defined literals, from the `BOOST_INT128_UINT128_C` and `BOOST_INT128_INT128_C` macros, from a string through a stream, and from floating point.
+The floating-point cases at the end are worth reading closely, because the conversion is total: NaN yields zero and out-of-range values saturate to the nearest limit rather than invoking undefined behavior.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/construction.cpp[example] demonstrates the various ways to construct uint128_t and int128_t values
 ====
 [source, c++]
@@ -63,6 +67,9 @@ int128_t from -1e40 (saturates to INT128_MIN): -17014118346046923173168730371588
 
 [#examples_arithmetic]
 == Basic Arithmetic
+
+The operators are designed so that the types can be dropped into code written for the built-in integers, including the compound assignments and the increment and decrement operators.
+Note the multiplication in the middle of the output, which is the case that motivates a 128-bit type in the first place: the product of two values near 10^12 has no 64-bit representation.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/basic_arithmetic.cpp[example] demonstrates arithmetic operations with 128-bit integers
 ====
@@ -123,6 +130,9 @@ counter = 12
 [#examples_io]
 == IO Streaming
 
+Neither the built-in `pass:[__int128]` nor the MSVC simulated types have stream support, so printing a 128-bit value on those normally means writing a digit loop by hand.
+This example shows the insertion and extraction operators, the standard base and case manipulators applying exactly as they do to built-in integers, and a round trip through `std::stringstream`.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/stream.cpp[example] demonstrates iostream support and string conversions
 ====
 [source, c++]
@@ -163,6 +173,10 @@ Match: true
 [#examples_rollover]
 == Rollover Behavior
 
+Overflow is defined for both types.
+`uint128_t` wraps modulo 2^128 as any unsigned integer does, and `int128_t` wraps using two's complement rather than invoking the undefined behavior that built-in signed overflow does; both types report `is_modulo` through `std::numeric_limits`.
+This example steps over each of the four boundaries in turn.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/rollover.cpp[example] demonstrates the rollover behavior of both the unsigned and signed type
 ====
 [source, c++]
@@ -192,6 +206,10 @@ Min - 1: 170141183460469231731687303715884105727
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
+The `<bit>` functions are provided for `uint128_t`, and every one of them is `constexpr`.
+This example takes advantage of that by asserting all of its results with `static_assert`, so the whole thing is checked at compile time: if it builds, it passes.
+It also shows that `bit.hpp` can be included on its own, without pulling in the umbrella header.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/bit.cpp[example] demonstrates bitwise operations from the <bit> header
 ====
 [source, c++]
@@ -202,6 +220,10 @@ include::example$bit.cpp[tags=**;!exclude]
 
 [#examples_numeric]
 == Saturating Arithmetic (<numeric>)
+
+Saturating operations clamp at the representable boundary instead of wrapping, which is what signal processing, counters, and accumulators generally want: a value pinned at the maximum is far less damaging than one that has silently wrapped to near zero.
+This example covers addition, subtraction, multiplication, and division, along with `saturating_cast` for narrowing to a smaller type.
+The division case is the subtle one, since `int_min / -1` is the only signed division whose true result is not representable.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/saturating_arithmetic.cpp[example] demonstrates saturating arithmetic operations that clamp to min/max instead of overflowing
 ====
@@ -238,6 +260,9 @@ saturating_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
 
 [#examples_numeric_algorithms]
 == Numeric Algorithms (<numeric>)
+
+`gcd`, `lcm`, and `midpoint` mirror their `<numeric>` counterparts for the 128-bit types.
+The `midpoint` section repays a close look: the result is computed without ever forming `a + b`, so it stays correct for operands near the maximum where the obvious `(a + b) / 2` would overflow.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/numeric_algorithms.cpp[example] demonstrates gcd, lcm, and midpoint algorithms
 ====
@@ -281,6 +306,9 @@ midpoint(-100, -50) = -75
 [#examples_checked]
 == Checked Arithmetic
 
+`ckd_add`, `ckd_sub`, and `ckd_mul` follow the C23 checked-integer contract: each returns `true` when the operation overflowed, and always stores the wrapped result through the out pointer, so a caller can branch on the flag and still inspect what the wrap produced.
+The mixed-type section at the end is the part worth studying, because it is the requested result type rather than the operand types that determines whether an operation overflowed.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
 ====
 [source, c++]
@@ -313,6 +341,10 @@ ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
 [#examples_mixed_sign]
 == Mixed Signedness Arithmetic
 
+128-bit values rarely appear on their own; in practice they get added to loop counters and compared against small constants.
+Every arithmetic, bitwise, comparison, and shift operator is therefore defined between the 128-bit types and any built-in integer type, signed or unsigned, following the usual arithmetic conversions.
+See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of conversion rules that this example exercises.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/mixed_type_arithmetic.cpp[example] demonstrates arithmetic between 128-bit and built-in integer types
 ====
 [source, c++]
@@ -344,6 +376,10 @@ signed_value / 4U = 0
 [#examples_boost_math_random]
 == Boost.Math and Boost.Random Integration
 
+Because the types report the traits that generic code expects of an integer, they can serve as the value type of other libraries instead of only appearing in hand-written arithmetic.
+This example draws 128-bit values from a https://www.boost.org/doc/libs/release/libs/random/[Boost.Random] distribution and passes them through https://www.boost.org/doc/libs/release/libs/math/doc/html/index.html[Boost.Math] statistical functions.
+The printed values differ from run to run, so the block below is illustrative rather than an exact expectation.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/math_and_random.cpp[example] demonstrates integration with Boost.Math and Boost.Random libraries
 ====
 [source, c++]
@@ -365,6 +401,10 @@ Random int128_t: 45422201008201503618595888886744218664
 
 [#examples_boost_charconv]
 == Boost.Charconv Integration
+
+`to_chars` and `from_chars` are the fastest conversion route the library offers, and the only one that is entirely locale-independent, which makes them the right choice for serialization formats and wire protocols.
+Including `<boost/int128/charconv.hpp>` is all that is needed: the overloads are injected into https://www.boost.org/doc/libs/release/libs/charconv/doc/html/charconv.html[Boost.Charconv] itself.
+This example round-trips the extreme value of each type and shows base 16 and base 8 conversion.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/charconv.cpp[example] demonstrates fast string-to-number and number-to-string conversions using Boost.Charconv
 ====
@@ -396,6 +436,9 @@ Parsed hex "DEADBEEFCAFEBABE12345678"
 
 [#examples_boost_container_hash]
 == Boost.ContainerHash Integration
+
+One of the most common uses of a 128-bit integer is as a key, whether a UUID, an IPv6 address, or a content hash, so hashing the types well matters.
+This example confirms that `boost::hash` and `std::hash` agree for both types, builds a composite key from a pair of 128-bit coordinates with `boost::hash_combine`, and uses the types as keys in both `boost::unordered_map` and the open-addressing `boost::unordered_flat_map`.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/container_hash.cpp[example] demonstrates using the library types with Boost.ContainerHash: the boost::hash functor, boost::hash_combine for composite keys, and the boost::unordered containers that default to boost::hash
 ====
@@ -429,6 +472,11 @@ counts[-1] = 1
 
 [#examples_to_string]
 == String Conversion (to_string)
+
+`to_string` is the convenience route to a `std::string`, mirroring `std::to_string` for the built-in integers.
+This example checks that agreement directly for values inside the 64-bit range and then continues past it.
+The last case is a deliberate trap: the magnitude of the most negative `int128_t` is larger than the maximum `int128_t`, so it cannot be written as a negated literal.
+The `NOTE` following the output explains what to use instead.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/to_string.cpp[example] demonstrates to_string for 128-bit integers, comparing results against std::to_string for values that fit in 64 bits
 ====
@@ -471,6 +519,10 @@ NOTE: The line `int128_t min with string literal: 0` is expected. The positive m
 
 [#examples_fmt_format]
 == \{fmt} Library Integration
+
+The formatter implements the full standard format specification for the 128-bit types: fill and alignment, the three sign options, the `#` alternate form, zero padding, width, and all four bases in either case.
+This example is the exhaustive demonstration of those specifiers.
+Because the specifier handling is shared between the two backends, everything shown here applies unchanged to `std::format` after including `<boost/int128/format.hpp>` and replacing `fmt::` with `std::`.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/fmt_format.cpp[example] demonstrates formatting with the \{fmt} library including alignment specifiers
 ====
@@ -543,6 +595,10 @@ Signed with plus, padded: -00123456789012345678
 [#examples_cstdlib]
 == Division with Remainder (<cstdlib>)
 
+Division is by far the most expensive 128-bit operation, and it naturally produces the quotient and the remainder together, so writing `a / b` and `a % b` separately can cost close to twice what it needs to.
+`div` returns both from a single operation, as its `<cstdlib>` counterpart does.
+The example also tabulates all four sign combinations, which is worth checking against your expectations: division truncates toward zero, so the remainder takes the sign of the dividend.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/cstdlib.cpp[example] demonstrates the div() function that returns both quotient and remainder
 ====
 [source, c++]
@@ -580,6 +636,9 @@ Verification: 142857142857142857 * 7 + 1 = 1000000000000000000
 [#examples_cuda]
 == CUDA Usage
 
+The types and most of the free functions are annotated to run on the device, so a kernel can use them the same way host code does.
+This example is the minimal shape of a device workload and a good starting template: allocate managed memory so one array serves both host and device, compute one `gcd` per thread, then recompute on the host and compare every element.
+
 .This https://github.com/cppalliance/int128/blob/develop/examples/cuda.cu[example] demonstrates how to use library types and functions inside a CUDA kernel.
 ====
 [source, c++]
@@ -598,6 +657,9 @@ All CPU and GPU computed elements match!
 
 [#examples_sycl]
 == SYCL Usage
+
+The same workload as the CUDA example above, expressed in SYCL with unified shared memory in place of managed allocations.
+The one difference in setup is that SYCL device support is opt-in rather than detected, so both the include order and the macro noted below are required.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/sycl.cpp[example] demonstrates how to use library types and functions inside a SYCL kernel. Define `BOOST_INT128_ENABLE_SYCL` and include `<sycl/sycl.hpp>` before any Boost.int128 header, then compile with `icpx -fsycl`.
 ====

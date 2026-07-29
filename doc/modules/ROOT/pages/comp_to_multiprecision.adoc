@@ -7,7 +7,7 @@ https://www.boost.org/LICENSE_1_0.txt
 [#mp]
 = Comparison to Boost.Multiprecision
 
-An easy question to ask is why this is a separate library from Boost.Multiprecision.
+An easy question to ask is why this is a separate library from https://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/index.html[Boost.Multiprecision].
 There are several reasons why:
 
 - The goal is for this library to be extremely lightweight.
