@@ -96,24 +96,17 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotl(const uint128_t x, const int s) noexcept
 {
+    // __builtin_stdc_rotate_left not available
     constexpr auto mask {127U};
     return x << (static_cast<unsigned>(s) & mask) | x >> (static_cast<unsigned>(-s) & mask);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotr(const uint128_t x, const int s) noexcept
 {
+    // __builtin_stdc_rotate_right not available
     constexpr auto mask {127U};
     return x >> (static_cast<unsigned>(s) & mask) | x << (static_cast<unsigned>(-s) & mask);
 }
-
-#if BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
-    return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
-}
-
-#endif
 
 namespace impl {
 
@@ -126,15 +119,34 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(st
     return static_cast<int>((x * UINT64_C(0x0101010101010101)) >> 56U);
 }
 
-} // namespace impl
+// The exact-match overload above is selected for the 64-bit halves
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(const uint128_t x) noexcept
+{
+    return popcount_impl(x.high) + popcount_impl(x.low);
+}
 
-#if defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+} // namespace impl
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
 {
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_popcountg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
+        return impl::popcount_impl(x);
+    }
+
+    return __builtin_popcountg(static_cast<detail::builtin_u128>(x));
+
+    #elif BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+    return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
+
+    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::popcount_impl(x); // LCOV_EXCL_LINE
     }
     else
     {
@@ -148,15 +160,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
         #endif
     }
-}
 
-#elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+    #elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
+        return impl::popcount_impl(x); // LCOV_EXCL_LINE
     }
     else
     {
@@ -178,14 +187,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
         #endif
     }
-}
 
-#elif !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) || (defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    #else
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
-    return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
-}
+    return impl::popcount_impl(x);
 
 #endif
 
