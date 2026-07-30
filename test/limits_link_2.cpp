@@ -16,6 +16,6 @@ template<typename T> void test()                        // LCOV_EXCL_LINE
 
 void f2()
 {
-    test<boost::int128::int128_t>();
-    test<boost::int128::uint128_t>();
+    test<boost::int128::int128>();
+    test<boost::int128::uint128>();
 }

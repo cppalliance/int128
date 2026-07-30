@@ -40,13 +40,13 @@
 #define BOOST_INT128_DETAIL_CONFIG_HPP
 
 // A handful of detail-namespace entities are exercised directly by the module
-// test suite. BOOST_INT128_TEST_EXPORT exports them only when the module is built
+// test suite. BOOST_int128EST_EXPORT exports them only when the module is built
 // for testing (BOOST_INT128_EXPORT_TESTING), so the normal module API stays limited
 // to the public interface. It expands to nothing in ordinary (header) builds.
 #if defined(BOOST_INT128_BUILD_MODULE) && defined(BOOST_INT128_EXPORT_TESTING)
-#  define BOOST_INT128_TEST_EXPORT export
+#  define BOOST_int128EST_EXPORT export
 #else
-#  define BOOST_INT128_TEST_EXPORT
+#  define BOOST_int128EST_EXPORT
 #endif
 
 // The SYCL device target (spir64) has no native 128-bit integer, so force the portable
@@ -77,13 +77,13 @@ namespace detail {
 // Avoids pedantic warnings
 #ifdef __GNUC__
 
-BOOST_INT128_TEST_EXPORT __extension__ using builtin_i128 = __int128 ;
-BOOST_INT128_TEST_EXPORT __extension__ using builtin_u128 = unsigned __int128 ;
+BOOST_int128EST_EXPORT __extension__ using builtin_i128 = __int128 ;
+BOOST_int128EST_EXPORT __extension__ using builtin_u128 = unsigned __int128 ;
 
 #else
 
-BOOST_INT128_TEST_EXPORT using builtin_i128 = __int128 ;
-BOOST_INT128_TEST_EXPORT using builtin_u128 = unsigned __int128;
+BOOST_int128EST_EXPORT using builtin_i128 = __int128 ;
+BOOST_int128EST_EXPORT using builtin_u128 = unsigned __int128;
 
 #endif
 
@@ -114,8 +114,8 @@ namespace detail {
 // See the note above: skip the re-declaration in a module consumer.
 #if !defined(BOOST_INT128_BUILD_MODULE) || defined(BOOST_INT128_INTERFACE_UNIT)
 
-BOOST_INT128_TEST_EXPORT using builtin_i128 = std::_Signed128;
-BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
+BOOST_int128EST_EXPORT using builtin_i128 = std::_Signed128;
+BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #endif
 
@@ -327,22 +327,22 @@ BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #ifdef BOOST_INT128_DISABLE_EXCEPTIONS
 
-#  define BOOST_INT128_THROW_EXCEPTION(expr)
+#  define BOOST_int128HROW_EXCEPTION(expr)
 
 #else
 
 #  ifdef _MSC_VER
 #    ifdef _CPPUNWIND
-#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_int128HROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #  else
 #    ifdef __EXCEPTIONS
-#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_int128HROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #endif
@@ -384,8 +384,8 @@ BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT struct uint128_t;
-BOOST_INT128_EXPORT struct int128_t;
+BOOST_INT128_EXPORT struct uint128;
+BOOST_INT128_EXPORT struct int128;
 
 } // namespace int128
 } // namespace boost
@@ -551,7 +551,7 @@ namespace detail {
 // The whole impl namespace is exported when building the module for testing so
 // the low-level bit helpers can be exercised directly; it is an ordinary
 // namespace in every other build.
-BOOST_INT128_TEST_EXPORT namespace impl {
+BOOST_int128EST_EXPORT namespace impl {
 
 #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 
@@ -785,7 +785,7 @@ struct ctor_high_word
 };
 
 template <>
-struct ctor_high_word<int128_t>
+struct ctor_high_word<int128>
 {
     using type = std::int64_t;
 };
@@ -1557,7 +1557,7 @@ struct
     #if (defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)) && !defined(_M_IX86)
     alignas(alignof(detail::builtin_i128))
     #endif
-int128_t
+int128
 {
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
     std::uint64_t low {};
@@ -1579,47 +1579,47 @@ int128_t
     #endif
 
     // Defaulted basic construction
-    constexpr int128_t() noexcept = default;
-    constexpr int128_t(const int128_t&) noexcept = default;
-    constexpr int128_t(int128_t&&) noexcept = default;
-    constexpr int128_t& operator=(const int128_t&) noexcept = default;
-    constexpr int128_t& operator=(int128_t&&) noexcept = default;
+    constexpr int128() noexcept = default;
+    constexpr int128(const int128&) noexcept = default;
+    constexpr int128(int128&&) noexcept = default;
+    constexpr int128& operator=(const int128&) noexcept = default;
+    constexpr int128& operator=(int128&&) noexcept = default;
 
     // Requires a conversion file to be implemented
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const uint128_t& v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const uint128& v) noexcept;
 
     // Construct from integral types
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept : low{lo}, high{static_cast<std::uint64_t>(hi)} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const std::int64_t hi, const std::uint64_t lo) noexcept : low{lo}, high{static_cast<std::uint64_t>(hi)} {}
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? ~UINT64_C(0) : UINT64_C(0)} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? ~UINT64_C(0) : UINT64_C(0)} {}
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_i128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_i128>(detail::low_word_mask))}, high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_i128>(64U))} {}
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_u128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_u128>(detail::low_word_mask))}, high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_u128>(64U))} {}
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128(const detail::builtin_i128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_i128>(detail::low_word_mask))}, high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_i128>(64U))} {}
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128(const detail::builtin_u128 v) noexcept : low {static_cast<std::uint64_t>(v & static_cast<detail::builtin_u128>(detail::low_word_mask))}, high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_u128>(64U))} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
     #else // Big endian
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept : high{static_cast<std::uint64_t>(hi)}, low{lo} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const std::int64_t hi, const std::uint64_t lo) noexcept : high{static_cast<std::uint64_t>(hi)}, low{lo} {}
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const SignedInteger v) noexcept : high{v < 0 ? ~UINT64_C(0) : UINT64_C(0)}, low{static_cast<std::uint64_t>(v)} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const SignedInteger v) noexcept : high{v < 0 ? ~UINT64_C(0) : UINT64_C(0)}, low{static_cast<std::uint64_t>(v)} {}
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
+    BOOST_INT128_HOST_DEVICE constexpr int128(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_i128 v) noexcept : high {static_cast<std::uint64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t(const detail::builtin_u128 v) noexcept : high {static_cast<std::uint64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128(const detail::builtin_i128 v) noexcept : high {static_cast<std::uint64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128(const detail::builtin_u128 v) noexcept : high {static_cast<std::uint64_t>(v >> 64U)}, low {static_cast<std::uint64_t>(v & detail::low_word_mask)} {}
 
     #endif // BOOST_INT128_HAS_INT128
 
@@ -1627,7 +1627,7 @@ int128_t
 
     // Construct from floating-point types
     template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(Float f) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(Float f) noexcept;
 
     // The high word read as a signed value.
     // Every operation whose meaning depends on the sign of the value goes through
@@ -1665,150 +1665,150 @@ int128_t
 
     // Compound Or
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator|=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator|=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator|=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator|=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator|=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator|=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound And
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator&=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator&=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator&=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator&=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator&=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator&=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound XOR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator^=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator^=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator^=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator^=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator^=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator^=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Left Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator<<=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator<<=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator<<=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator<<=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator<<=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator<<=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Right Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator>>=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator>>=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator>>=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator>>=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator>>=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator>>=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Prefix and postfix increment
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator++() noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t operator++(int) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator++() noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128 operator++(int) noexcept;
 
     // Prefix and postfix decrment
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator--() noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t operator--(int) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator--() noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128 operator--(int) noexcept;
 
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator+=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator+=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator+=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator+=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator+=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator+=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Subtraction
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator-=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator-=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator-=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator-=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator-=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator-=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Multiplication
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator*=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator*=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator*=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator*=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator*=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator*=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Division
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator/=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator/=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator/=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator/=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator/=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator/=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Modulo
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator%=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator%=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator%=(int128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator%=(int128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline int128_t& operator%=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline int128& operator%=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 };
 
 namespace detail {
 
-// Builds an int128_t from the raw two's complement words
+// Builds an int128 from the raw two's complement words
 // Enables vectorization
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t from_bits(const std::uint64_t hi, const std::uint64_t lo) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 from_bits(const std::uint64_t hi, const std::uint64_t lo) noexcept
 {
-    int128_t result {};
+    int128 result {};
     result.high = hi;
     result.low = lo;
     return result;
@@ -1820,7 +1820,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t from_bits(
 // Absolute Value function
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 abs(int128 value) noexcept
 {
     if (value.signed_high() < 0)
     {
@@ -1840,7 +1840,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t val
 // converts the unsigned magnitude and applies the sign; see detail/float_conversion.hpp
 // for why the raw words can not be composed directly for negative values
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::operator float() const noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128::operator float() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
@@ -1853,7 +1853,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t::operator float() const noexcept
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::operator double() const noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128::operator double() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
@@ -1868,7 +1868,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t::operator double() const noexcept
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
-constexpr int128_t::operator long double() const noexcept
+constexpr int128::operator long double() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128)
 
@@ -1892,7 +1892,7 @@ constexpr int128_t::operator long double() const noexcept
 // f >= 2^127 -> INT128_MAX;
 // f < -2^127 -> INT128_MIN.
 template <BOOST_INT128_FLOATING_POINT_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(Float f) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128::int128(Float f) noexcept
 {
     constexpr Float two_32 {static_cast<Float>(UINT64_C(1) << 32)};
     constexpr Float two_64 {two_32 * two_32};
@@ -1943,29 +1943,29 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(Float f) noexcept
 // Unary Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 value) noexcept
 {
     return value;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 value) noexcept
 {
     // Spelled with the constructor rather than from_bits: clang folds the low word
     // of the low == 0 arm away here, and loses that if the members are written.
-    return (value.low == 0) ? int128_t{static_cast<std::int64_t>(UINT64_C(0) - value.high), 0} :
-                              int128_t{static_cast<std::int64_t>(~value.high), ~value.low + 1};
+    return (value.low == 0) ? int128{static_cast<std::int64_t>(UINT64_C(0) - value.high), 0} :
+                              int128{static_cast<std::int64_t>(~value.high), ~value.low + 1};
 }
 
 //=====================================
 // Equality Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const bool rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const bool rhs) noexcept
 {
     return lhs.high == 0 && lhs.low == static_cast<std::uint64_t>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const bool lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const bool lhs, const int128 rhs) noexcept
 {
     return rhs.high == 0 && rhs.low == static_cast<std::uint64_t>(lhs);
 }
@@ -1980,7 +1980,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const boo
 #  pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const int128 rhs) noexcept
 {
     // x64 and ARM64 like the values in opposite directions
 
@@ -1996,39 +1996,39 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return lhs.high == (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)) && lhs.low == static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.high == (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)) && rhs.low == static_cast<std::uint64_t>(lhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high == 0 && lhs.low == static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.high == 0 && rhs.low == static_cast<std::uint64_t>(lhs);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs == static_cast<int128_t>(rhs);
+    return lhs == static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) == rhs;
+    return static_cast<int128>(lhs) == rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2037,7 +2037,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Inequality Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const int128 rhs) noexcept
 {
     // x64 and ARM64 like the values in opposite directions
 
@@ -2069,50 +2069,50 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const bool rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const bool rhs) noexcept
 {
     return lhs.high != 0 || lhs.low != static_cast<std::uint64_t>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const bool lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const bool lhs, const int128 rhs) noexcept
 {
     return rhs.high != 0 || rhs.low != static_cast<std::uint64_t>(lhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return lhs.high != (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)) || lhs.low != static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.high != (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)) || rhs.low != static_cast<std::uint64_t>(lhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high != 0 || lhs.low != static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.high != 0 || rhs.low != static_cast<std::uint64_t>(lhs);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs != static_cast<int128_t>(rhs);
+    return lhs != static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) != rhs;
+    return static_cast<int128>(lhs) != rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2121,7 +2121,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Less than Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const int128 rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -2153,23 +2153,23 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int1
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.signed_high() < 0 || (lhs.high == 0 && lhs.low < static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.signed_high() > 0 || (rhs.high == 0 && static_cast<std::uint64_t>(lhs) < rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const SignedInteger rhs) noexcept
 {
     if (lhs.signed_high() < 0)
     {
-        return rhs >= 0 ? true : lhs < static_cast<int128_t>(rhs);
+        return rhs >= 0 ? true : lhs < static_cast<int128>(rhs);
     }
 
     if (lhs.signed_high() > 0 || rhs < 0)
@@ -2181,11 +2181,11 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const Sign
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const int128 rhs) noexcept
 {
     if (rhs.signed_high() < 0)
     {
-        return lhs >= 0 ? false : static_cast<int128_t>(lhs) < rhs;
+        return lhs >= 0 ? false : static_cast<int128>(lhs) < rhs;
     }
 
     // rhs is positive
@@ -2199,14 +2199,14 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs < static_cast<int128_t>(rhs);
+    return lhs < static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) < rhs;
+    return static_cast<int128>(lhs) < rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2215,7 +2215,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Greater than Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const int128 rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -2247,39 +2247,39 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int1
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return !(lhs < rhs) && !(lhs == rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return !(lhs < rhs) && !(lhs == rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.signed_high() > 0 || (lhs.high == 0 && lhs.low > static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.signed_high() < 0 || (rhs.high == 0 && static_cast<std::uint64_t>(lhs) > rhs.low);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs > static_cast<int128_t>(rhs);
+    return lhs > static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) > rhs;
+    return static_cast<int128>(lhs) > rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2288,7 +2288,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Less Equal Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const int128 rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -2320,39 +2320,39 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return !(lhs > rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return !(lhs > rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.signed_high() < 0 || (lhs.high == 0 && lhs.low <= static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.signed_high() > 0 || (rhs.high == 0 && static_cast<std::uint64_t>(lhs) <= rhs.low);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs <= static_cast<int128_t>(rhs);
+    return lhs <= static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) <= rhs;
+    return static_cast<int128>(lhs) <= rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2361,7 +2361,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Greater Equal Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const int128 rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to __int128 uniformly better (and seemingly cost free)
     #if defined(__aarch64__) && defined(__APPLE__) && defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -2393,39 +2393,39 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return !(lhs < rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return !(lhs < rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.signed_high() > 0 || (lhs.high == 0 && lhs.low >= static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return rhs.signed_high() < 0 || (rhs.high == 0 && static_cast<std::uint64_t>(lhs) >= rhs.low);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs >= static_cast<int128_t>(rhs);
+    return lhs >= static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) >= rhs;
+    return static_cast<int128>(lhs) >= rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -2436,7 +2436,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 
 #ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128 lhs, const int128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -2453,7 +2453,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering oper
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128 lhs, const SignedInteger rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -2470,7 +2470,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const SignedInteger lhs, const int128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -2487,7 +2487,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Signed
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -2504,7 +2504,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -2526,7 +2526,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Unsign
 // Not Operator
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator~(const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator~(const int128 rhs) noexcept
 {
     return detail::from_bits(~rhs.high, ~rhs.low);
 }
@@ -2535,45 +2535,45 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator~(const 
 // Or Operator
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(lhs.high | rhs.high, lhs.low | rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return detail::from_bits(lhs.high | (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low | static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(rhs.high | (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), static_cast<std::uint64_t>(lhs) | rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return detail::from_bits(lhs.high, lhs.low | static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(rhs.high, static_cast<std::uint64_t>(lhs) | rhs.low);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator|(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator|(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs | static_cast<int128_t>(rhs);
+    return lhs | static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator|(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator|(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) | rhs;
+    return static_cast<int128>(lhs) | rhs;
 }
 
 
@@ -2584,13 +2584,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int1
 //=====================================
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator|=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator|=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this | rhs);
+    *this = static_cast<int128>(*this | rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator|=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator|=(const int128 rhs) noexcept
 {
     *this = *this | rhs;
     return *this;
@@ -2599,9 +2599,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator|=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator|=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator|=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this | rhs);
+    *this = static_cast<int128>(*this | rhs);
     return *this;
 }
 
@@ -2611,45 +2611,45 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator|=(const Integer rhs
 // And Operator
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(lhs.high & rhs.high, lhs.low & rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return detail::from_bits(lhs.high & (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low & static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(rhs.high & (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), static_cast<std::uint64_t>(lhs) & rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return {0, lhs.low & static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return {0, static_cast<std::uint64_t>(lhs) & rhs.low};
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator&(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator&(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs & static_cast<int128_t>(rhs);
+    return lhs & static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator&(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator&(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) & rhs;
+    return static_cast<int128>(lhs) & rhs;
 }
 
 
@@ -2658,9 +2658,9 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int1
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator&=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator&=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this & rhs);
+    *this = static_cast<int128>(*this & rhs);
     return *this;
 }
 
@@ -2671,13 +2671,13 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator&=(const Integer rhs
 //=====================================
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator&=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator&=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this & rhs);
+    *this = static_cast<int128>(*this & rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator&=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator&=(const int128 rhs) noexcept
 {
     *this = *this & rhs;
     return *this;
@@ -2687,45 +2687,45 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator&=(const int128_t
 // XOR Operator
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(lhs.high ^ rhs.high, lhs.low ^ rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return detail::from_bits(lhs.high ^ (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low ^ static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(rhs.high ^ (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), static_cast<std::uint64_t>(lhs) ^ rhs.low);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return detail::from_bits(lhs.high, lhs.low ^ static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::from_bits(rhs.high, static_cast<std::uint64_t>(lhs) ^ rhs.low);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator^(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator^(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs ^ static_cast<int128_t>(rhs);
+    return lhs ^ static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator^(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator^(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) ^ rhs;
+    return static_cast<int128>(lhs) ^ rhs;
 }
 
 
@@ -2736,13 +2736,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int1
 //=====================================
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator^=(Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator^=(Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this ^ rhs);
+    *this = static_cast<int128>(*this ^ rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator^=(int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator^=(int128 rhs) noexcept
 {
     *this = *this ^ rhs;
     return *this;
@@ -2751,9 +2751,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator^=(int128_t rhs) 
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator^=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator^=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this ^ rhs);
+    *this = static_cast<int128>(*this ^ rhs);
     return *this;
 }
 
@@ -2766,7 +2766,7 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator^=(const Integer rhs
 namespace detail {
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t default_ls_impl(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 default_ls_impl(const int128 lhs, const Integer rhs) noexcept
 {
     static_assert(std::is_integral<Integer>::value, "Only builtin types allowed");
 
@@ -2796,7 +2796,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t default_ls_impl(const int128_t lhs, 
 }
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE int128 intrinsic_ls_impl(const int128 lhs, const Integer rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators; delegate
@@ -2815,8 +2815,8 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
     std::memcpy(&value, &lhs, sizeof(builtin_u128));
     const auto res {value << rhs};
 
-    int128_t return_value;
-    std::memcpy(&return_value, &res, sizeof(int128_t));
+    int128 return_value;
+    std::memcpy(&return_value, &res, sizeof(int128));
     return return_value;
 
     #if defined(__GNUC__) && __GNUC__ >= 8
@@ -2825,7 +2825,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
 
     #  else
 
-    return int128_t{static_cast<builtin_u128>(lhs) << rhs};
+    return int128{static_cast<builtin_u128>(lhs) << rhs};
 
     #  endif
 
@@ -2837,7 +2837,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
     }
     else
     {
-        int128_t res;
+        int128 res;
         res.high = __shiftleft128(lhs.low, lhs.high, static_cast<unsigned char>(rhs));
         res.low = lhs.low << rhs;
 
@@ -2872,7 +2872,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_ls_impl(const int128_t lhs, const In
 } // namespace detail
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
 
@@ -2892,7 +2892,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts (negative, >= 128, or with the high word set) are
     // undefined, matching the built-in operators; forward to the scalar overload.
@@ -2901,13 +2901,13 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
@@ -2916,14 +2916,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 #endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) << rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) << rhs.low;
@@ -2935,13 +2935,13 @@ BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs
 #endif // _MSC_VER
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator<<=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator<<=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this << rhs);
+    *this = static_cast<int128>(*this << rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator<<=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator<<=(const int128 rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
@@ -2950,9 +2950,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator<<=(const int128_
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator<<=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator<<=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this << rhs);
+    *this = static_cast<int128>(*this << rhs);
     return *this;
 }
 
@@ -2969,7 +2969,7 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator<<=(const Integer rh
 namespace detail {
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t default_rs_impl(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 default_rs_impl(const int128 lhs, const Integer rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators. In a
@@ -2994,7 +2994,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t default_rs_impl(const int128_t lhs, 
 }
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE int128_t intrinsic_rs_impl(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE int128 intrinsic_rs_impl(const int128 lhs, const Integer rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators; delegate
@@ -3012,8 +3012,8 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_rs_impl(const int128_t lhs, const In
     std::memcpy(&value, &lhs, sizeof(builtin_i128));
     const auto res {value >> rhs};
 
-    int128_t return_value;
-    std::memcpy(&return_value, &res, sizeof(int128_t));
+    int128 return_value;
+    std::memcpy(&return_value, &res, sizeof(int128));
     return return_value;
 
     #if defined(__GNUC__) && __GNUC__ >= 8
@@ -3035,7 +3035,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_rs_impl(const int128_t lhs, const In
     }
     else
     {
-        int128_t res;
+        int128 res;
         res.low = __shiftright128(lhs.low, lhs.high, static_cast<unsigned char>(rhs));
         res.high = static_cast<std::uint64_t>(lhs.signed_high() >> rhs);
 
@@ -3068,7 +3068,7 @@ BOOST_INT128_HOST_DEVICE int128_t intrinsic_rs_impl(const int128_t lhs, const In
 } // namespace detail
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
 
@@ -3088,7 +3088,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts (negative, >= 128, or with the high word set) are
     // undefined, matching the built-in operators; forward to the scalar overload.
@@ -3097,13 +3097,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
@@ -3112,14 +3112,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 #endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) >> rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) >> rhs.low;
@@ -3131,13 +3131,13 @@ BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs
 #endif // _MSC_VER
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator>>=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator>>=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this >> rhs);
+    *this = static_cast<int128>(*this >> rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator>>=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator>>=(const int128 rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
@@ -3146,9 +3146,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator>>=(const int128_
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator>>=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator>>=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this >> rhs);
+    *this = static_cast<int128>(*this >> rhs);
     return *this;
 }
 
@@ -3162,7 +3162,7 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator>>=(const Integer rh
 // Increment Operators
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator++() noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator++() noexcept
 {
     if (++low == UINT64_C(0))
     {
@@ -3172,7 +3172,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator++() noexcept
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t int128_t::operator++(int) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 int128::operator++(int) noexcept
 {
     const auto temp {*this};
     ++(*this);
@@ -3183,7 +3183,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t int128_t::operator++(int) noexcept
 // Decrement Operators
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator--() noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator--() noexcept
 {
     if (low-- == UINT64_C(0))
     {
@@ -3193,7 +3193,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator--() noexcept
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t int128_t::operator--(int) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 int128::operator--(int) noexcept
 {
     const auto temp {*this};
     --(*this);
@@ -3206,7 +3206,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t int128_t::operator--(int) noexcept
 
 namespace detail {
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_add(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 library_add(const int128 lhs, const int128 rhs) noexcept
 {
     const auto new_low {lhs.low + rhs.low};
     const auto new_high {lhs.high +
@@ -3216,12 +3216,12 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_ad
     return detail::from_bits(new_high, new_low);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_add(const int128 lhs, const int128 rhs) noexcept
 {
     #if (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_WIN32) && defined(BOOST_INT128_HAS_INT128)
 
     // Compute in the unsigned domain so that overflow wraps modulo 2^128
-    return int128_t{static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW)
 
@@ -3240,7 +3240,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_ad
     }
     else
     {
-        int128_t result {};
+        int128 result {};
         const auto carry {BOOST_INT128_ADD_CARRY(0, lhs.low, rhs.low, &result.low)};
         BOOST_INT128_ADD_CARRY(carry, lhs.high, rhs.high, &result.high);
 
@@ -3255,7 +3255,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_ad
 }
 
 template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_add(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_add(const int128 lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low + rhs};
     const auto new_high {lhs.high + static_cast<std::uint64_t>(new_low < lhs.low)};
@@ -3263,7 +3263,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_ad
     return detail::from_bits(new_high, new_low);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_sub(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 library_sub(const int128 lhs, const int128 rhs) noexcept
 {
     const auto new_low {lhs.low - rhs.low};
     const auto new_high {lhs.high - rhs.high - static_cast<std::uint64_t>(lhs.low < rhs.low)};
@@ -3271,7 +3271,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t library_su
     return detail::from_bits(new_high, new_low);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_sub(const int128 lhs, const int128 rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (!defined(__aarch64__) || defined(__APPLE__) || !defined(BOOST_INT128_HAS_INT128)) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 
@@ -3284,7 +3284,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_su
     #elif defined(__aarch64__) && !defined(__APPLE__)
 
     // Unsigned wrap for consistent two's-complement semantics
-    return int128_t{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -3294,7 +3294,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_su
     }
     else
     {
-        int128_t result {};
+        int128 result {};
         const auto borrow {BOOST_INT128_SUB_BORROW(0, lhs.low, rhs.low, &result.low)};
         BOOST_INT128_SUB_BORROW(borrow, lhs.high, rhs.high, &result.high);
 
@@ -3309,7 +3309,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_su
 }
 
 template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_sub(const int128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_sub(const int128 lhs, const Integer rhs) noexcept
 {
     const auto new_low {lhs.low - rhs};
     const auto new_high {lhs.high - static_cast<std::uint64_t>(new_low > lhs.low)};
@@ -3322,14 +3322,14 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_su
 // doing addition via subtraction is >10% faster in the benchmarks
 #if defined(__s390__) || defined(__s390x__)
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::default_sub(lhs, -rhs);
 }
 
 #else
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::default_add(lhs, rhs);
 }
@@ -3337,13 +3337,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const 
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return detail::default_add(lhs, rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::default_add(rhs, lhs);
 }
@@ -3354,7 +3354,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const UnsignedInteger lhs,
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const SignedInteger rhs) noexcept
 {
     // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
     return rhs < 0 ? detail::default_sub(lhs, -static_cast<std::uint64_t>(rhs)) :
@@ -3362,7 +3362,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const 
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return lhs < 0 ? detail::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
                      detail::default_add(rhs, static_cast<std::uint64_t>(lhs));
@@ -3375,26 +3375,26 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const SignedInteger lhs, c
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator+(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return detail::default_add(lhs, static_cast<int128_t>(rhs));
+    return detail::default_add(lhs, static_cast<int128>(rhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator+(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator+(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return detail::default_add(rhs, static_cast<int128_t>(lhs));
+    return detail::default_add(rhs, static_cast<int128>(lhs));
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator+=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator+=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this + rhs);
+    *this = static_cast<int128>(*this + rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator+=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator+=(const int128 rhs) noexcept
 {
     *this = *this + rhs;
     return *this;
@@ -3403,9 +3403,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator+=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator+=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator+=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this + rhs);
+    *this = static_cast<int128>(*this + rhs);
     return *this;
 }
 
@@ -3415,58 +3415,58 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator+=(const Integer rhs
 // Subtraction Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::default_sub(lhs, rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     return detail::default_sub(lhs, rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     return detail::default_add(-rhs, lhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const SignedInteger rhs) noexcept
 {
-    return detail::default_sub(lhs, static_cast<int128_t>(rhs));
+    return detail::default_sub(lhs, static_cast<int128>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const SignedInteger lhs, const int128 rhs) noexcept
 {
-    return detail::default_sub(static_cast<int128_t>(lhs), rhs);
+    return detail::default_sub(static_cast<int128>(lhs), rhs);
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator-(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator-(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs - static_cast<int128_t>(rhs);
+    return lhs - static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator-(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator-(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) - rhs;
+    return static_cast<int128>(lhs) - rhs;
 }
 
 #endif
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator-=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator-=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this - rhs);
+    *this = static_cast<int128>(*this - rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator-=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator-=(const int128 rhs) noexcept
 {
     *this = *this - rhs;
     return *this;
@@ -3475,9 +3475,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator-=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator-=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator-=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this - rhs);
+    *this = static_cast<int128>(*this - rhs);
     return *this;
 }
 
@@ -3489,29 +3489,29 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator-=(const Integer rhs
 
 namespace detail {
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint64_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_mul(const int128 lhs, const std::uint64_t rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
     
-    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #else
 
-    return low_word_mul<int128_t>(lhs, rhs);
+    return low_word_mul<int128>(lhs, rhs);
 
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const std::uint32_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_mul(const int128 lhs, const std::uint32_t rhs) noexcept
 {
     return default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 #if defined(_M_AMD64) && !defined(__GNUC__)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE int128 msvc_amd64_mul(const int128 lhs, const int128 rhs) noexcept
 {
-    int128_t result {};
+    int128 result {};
     result.low = _umul128(lhs.low, rhs.low, &result.high);
     result.high += lhs.low * rhs.high;
     result.high += lhs.high * rhs.low;
@@ -3521,7 +3521,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE int128_t msvc_amd64_mul(const
 
 #endif
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mul(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_mul(const int128 lhs, const int128 rhs) noexcept
 {
     #if ((defined(__aarch64__) && defined(__APPLE__)) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && !defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
@@ -3529,7 +3529,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
-        return low_word_mul<int128_t>(lhs, rhs);
+        return low_word_mul<int128>(lhs, rhs);
     }
     else
     {
@@ -3543,7 +3543,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
         std::memcpy(&new_rhs, &rhs, sizeof(detail::builtin_u128));
 
         const auto res {new_lhs * new_rhs};
-        int128_t library_res {};
+        int128 library_res {};
 
         std::memcpy(&library_res, &res, sizeof(detail::builtin_u128));
 
@@ -3555,23 +3555,23 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
     #  elif defined(BOOST_INT128_HAS_INT128)
 
     // Unsigned wrap for consistent two's-complement semantics
-    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #  else
 
-    return low_word_mul<int128_t>(lhs, rhs);
+    return low_word_mul<int128>(lhs, rhs);
 
     #  endif
 
     #elif defined(__aarch64__) && defined(BOOST_INT128_HAS_INT128)
 
-    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(rhs))
     {
-        return low_word_mul<int128_t>(lhs, rhs); // LCOV_EXCL_LINE
+        return low_word_mul<int128>(lhs, rhs); // LCOV_EXCL_LINE
     }
     else
     {
@@ -3581,31 +3581,31 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128_t default_mu
     #elif defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
 
     // Multiply in the unsigned domain to avoid signed-overflow UB, then reinterpret the bits.
-    return int128_t{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
+    return int128{static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs)};
 
     #else
 
-    return low_word_mul<int128_t>(lhs, rhs);
+    return low_word_mul<int128>(lhs, rhs);
 
     #endif
 }
 
 } // namespace detail
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const int128 rhs) noexcept
 {
     return detail::default_mul(lhs, rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     using local_eval_type = detail::evaluation_type_t<UnsignedInteger>;
     return detail::default_mul(lhs, static_cast<local_eval_type>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     using local_eval_type = detail::evaluation_type_t<UnsignedInteger>;
     return detail::default_mul(rhs, static_cast<local_eval_type>(lhs));
@@ -3617,14 +3617,14 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const UnsignedInteger lhs,
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const SignedInteger rhs) noexcept
 {
     return rhs < 0 ? -detail::default_mul(lhs, -static_cast<std::uint64_t>(rhs)) :
                       detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const SignedInteger lhs, const int128 rhs) noexcept
 {
     return lhs < 0 ? -detail::default_mul(rhs, -static_cast<std::uint64_t>(lhs)) :
                       detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
@@ -3636,26 +3636,26 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const SignedInteger lhs, c
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator*(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator*(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return detail::default_mul(lhs, static_cast<int128_t>(rhs));
+    return detail::default_mul(lhs, static_cast<int128>(rhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator*(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator*(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return detail::default_mul(rhs, static_cast<int128_t>(lhs));
+    return detail::default_mul(rhs, static_cast<int128>(lhs));
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator*=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator*=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this * rhs);
+    *this = static_cast<int128>(*this * rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator*=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator*=(const int128 rhs) noexcept
 {
     *this = *this * rhs;
     return *this;
@@ -3664,9 +3664,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator*=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator*=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator*=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this * rhs);
+    *this = static_cast<int128>(*this * rhs);
     return *this;
 }
 
@@ -3681,7 +3681,7 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator*=(const Integer rhs
 #  pragma clang diagnostic ignored "-Wassume"
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const int128 lhs, const int128 rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
@@ -3689,7 +3689,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
         BOOST_INT128_UNREACHABLE;
     }
 
-    constexpr int128_t min_val {INT64_MIN, 0};
+    constexpr int128 min_val {INT64_MIN, 0};
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
 
@@ -3705,7 +3705,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
     // computed above and beats native signed division (the out-of-line __divti3) for this case.
     if (abs_rhs.high == 0)
     {
-        int128_t quotient {};
+        int128 quotient {};
 
         if (abs_lhs.high == 0)
         {
@@ -3721,7 +3721,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
 
     #if defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
+    return static_cast<int128>(static_cast<detail::builtin_i128>(lhs) / static_cast<detail::builtin_i128>(rhs));
 
     #else
 
@@ -3732,7 +3732,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const 
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -3744,13 +3744,13 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
 
     const auto abs_lhs {abs(lhs)};
 
-    int128_t quotient {};
+    int128 quotient {};
     detail::one_word_div(abs_lhs, static_cast<eval_type>(rhs), quotient);
     return lhs < 0 ? -quotient : quotient;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
@@ -3771,7 +3771,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const UnsignedInteger lhs,
             return {0, 0};
         }
         const auto res {static_cast<std::uint64_t>(lhs) / abs_rhs.low};
-        const int128_t result {0, res};
+        const int128 result {0, res};
         return rhs < 0 ? -result : result;
     }
 }
@@ -3782,7 +3782,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const UnsignedInteger lhs,
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const int128 lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
@@ -3792,9 +3792,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
         BOOST_INT128_UNREACHABLE;
     }
 
-    int128_t quotient {};
+    int128 quotient {};
 
-    constexpr int128_t min_val {INT64_MIN, 0};
+    constexpr int128 min_val {INT64_MIN, 0};
     const auto negative_res {static_cast<bool>((lhs.signed_high() < 0) ^ (rhs < 0))};
     // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
     const auto abs_rhs {rhs < 0 ? -static_cast<eval_type>(rhs) : static_cast<eval_type>(rhs)};
@@ -3811,7 +3811,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const 
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const SignedInteger lhs, const int128 rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0))
     {
@@ -3834,7 +3834,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const SignedInteger lhs, c
         }
         // Negate in the unsigned domain so INT64_MIN does not overflow (UBSAN)
         const auto abs_lhs {lhs < 0 ? -static_cast<std::uint64_t>(lhs) : static_cast<std::uint64_t>(lhs)};
-        const int128_t res {0, abs_lhs / abs_rhs.low};
+        const int128 res {0, abs_lhs / abs_rhs.low};
 
         return negative_res ? -res : res;
     }
@@ -3847,39 +3847,39 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const SignedInteger lhs, c
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator/(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator/(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) / rhs);
+    return static_cast<int128>(static_cast<detail::builtin_i128>(lhs) / rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator/(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator/(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs / static_cast<detail::builtin_i128>(rhs));
+    return static_cast<int128>(lhs / static_cast<detail::builtin_i128>(rhs));
 }
 
 #elif defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128_t operator/(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128 operator/(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs / static_cast<int128_t>(rhs);
+    return lhs / static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128_t operator/(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128 operator/(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) / rhs;
+    return static_cast<int128>(lhs) / rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator/=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator/=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this / rhs);
+    *this = static_cast<int128>(*this / rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator/=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator/=(const int128 rhs) noexcept
 {
     *this = *this / rhs;
     return *this;
@@ -3888,9 +3888,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator/=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator/=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator/=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this / rhs);
+    *this = static_cast<int128>(*this / rhs);
     return *this;
 }
 
@@ -3907,21 +3907,21 @@ BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator/=(const Integer rhs
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(int128_t lhs, UnsignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(int128 lhs, UnsignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(UnsignedInteger lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(UnsignedInteger lhs, int128 rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(int128_t lhs, SignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(int128 lhs, SignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(SignedInteger lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(SignedInteger lhs, int128 rhs) noexcept;
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator%(int128 lhs, int128 rhs) noexcept;
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const int128 lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -3931,8 +3931,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
         BOOST_INT128_UNREACHABLE;
     }
 
-    int128_t quotient {};
-    int128_t remainder {};
+    int128 quotient {};
+    int128 remainder {};
 
     const auto abs_lhs {abs(lhs)};
 
@@ -3942,7 +3942,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const UnsignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const UnsignedInteger lhs, const int128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -3959,24 +3959,24 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const UnsignedInteger lhs,
         return lhs;
     }
 
-    const int128_t remainder {0, static_cast<eval_type>(lhs) % abs_rhs.low};
+    const int128 remainder {0, static_cast<eval_type>(lhs) % abs_rhs.low};
 
     return remainder;
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const int128 lhs, const SignedInteger rhs) noexcept
 {
-    return lhs % static_cast<int128_t>(rhs);
+    return lhs % static_cast<int128>(rhs);
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const SignedInteger lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const SignedInteger lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) % rhs;
+    return static_cast<int128>(lhs) % rhs;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const int128 lhs, const int128 rhs) noexcept
 {
     if (rhs == 0)
     {
@@ -3984,7 +3984,7 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
         BOOST_INT128_UNREACHABLE;
     }
 
-    constexpr int128_t min_val {INT64_MIN, 0};
+    constexpr int128 min_val {INT64_MIN, 0};
     const auto abs_lhs {abs(lhs)};
     const auto abs_rhs {abs(rhs)};
 
@@ -3999,15 +3999,15 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
     // magnitudes with the hardware-accelerated one_word_div and reapply the dividend's sign.
     if (abs_rhs.high == 0)
     {
-        int128_t remainder {};
+        int128 remainder {};
 
         if (abs_lhs.high == 0)
         {
-            remainder = int128_t{0, abs_lhs.low % abs_rhs.low};
+            remainder = int128{0, abs_lhs.low % abs_rhs.low};
         }
         else
         {
-            int128_t quotient {};
+            int128 quotient {};
             detail::one_word_div(abs_lhs, abs_rhs.low, quotient, remainder);
         }
 
@@ -4016,11 +4016,11 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 
     #if defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<int128_t>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
+    return static_cast<int128>(static_cast<detail::builtin_i128>(lhs) % static_cast<detail::builtin_i128>(rhs));
 
     #else
 
-    int128_t remainder {};
+    int128 remainder {};
     detail::knuth_div(abs_lhs, abs_rhs, remainder);
     return is_neg ? -remainder : remainder;
 
@@ -4029,12 +4029,12 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const 
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator%(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
     return static_cast<detail::builtin_i128>(lhs) % rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int128 operator%(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
     return lhs % static_cast<detail::builtin_i128>(rhs);
 }
@@ -4042,27 +4042,27 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR int1
 
 #elif defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128_t operator%(const int128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128 operator%(const int128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs % static_cast<int128_t>(rhs);
+    return lhs % static_cast<int128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128_t operator%(const detail::builtin_i128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE inline int128 operator%(const detail::builtin_i128 lhs, const int128 rhs) noexcept
 {
-    return static_cast<int128_t>(lhs) % rhs;
+    return static_cast<int128>(lhs) % rhs;
 }
 
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator%=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator%=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this % rhs);
+    *this = static_cast<int128>(*this % rhs);
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator%=(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator%=(const int128 rhs) noexcept
 {
     *this = *this % rhs;
     return *this;
@@ -4071,9 +4071,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128_t& int128_t::operator%=(const int128_t
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline int128_t& int128_t::operator%=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline int128& int128::operator%=(const Integer rhs) noexcept
 {
-    *this = static_cast<int128_t>(*this % rhs);
+    *this = static_cast<int128>(*this % rhs);
     return *this;
 }
 
@@ -4129,15 +4129,15 @@ public:
     static constexpr bool tinyness_before = false;
 
     // Member functions
-    BOOST_INT128_HOST_DEVICE static constexpr auto (min)        () -> boost::int128::int128_t { return {INT64_MIN, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto lowest       () -> boost::int128::int128_t { return {INT64_MIN, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto (max)        () -> boost::int128::int128_t { return {INT64_MAX, UINT64_MAX}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto epsilon      () -> boost::int128::int128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto round_error  () -> boost::int128::int128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto infinity     () -> boost::int128::int128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto quiet_NaN    () -> boost::int128::int128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto signaling_NaN() -> boost::int128::int128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto denorm_min   () -> boost::int128::int128_t { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto (min)        () -> boost::int128::int128 { return {INT64_MIN, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto lowest       () -> boost::int128::int128 { return {INT64_MIN, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto (max)        () -> boost::int128::int128 { return {INT64_MAX, UINT64_MAX}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto epsilon      () -> boost::int128::int128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto round_error  () -> boost::int128::int128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto infinity     () -> boost::int128::int128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto quiet_NaN    () -> boost::int128::int128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto signaling_NaN() -> boost::int128::int128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto denorm_min   () -> boost::int128::int128 { return {0, 0}; }
 };
 
 #if !defined(__cpp_inline_variables) || __cpp_inline_variables < 201606L
@@ -4199,7 +4199,7 @@ namespace std {
 #endif
 
 template <>
-class numeric_limits<boost::int128::int128_t> :
+class numeric_limits<boost::int128::int128> :
     public boost::int128::detail::numeric_limits_impl_i128<true> {};
 
 #ifdef __clang__
@@ -4242,7 +4242,7 @@ BOOST_INT128_EXPORT struct
     #if (defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)) && !defined(_M_IX86)
     alignas(alignof(detail::builtin_u128))
     #endif
-uint128_t
+uint128
 {
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
     std::uint64_t low {};
@@ -4264,33 +4264,33 @@ uint128_t
     #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
     // Defaulted basic construction
-    constexpr uint128_t() noexcept = default;
-    constexpr uint128_t(const uint128_t&) noexcept = default;
-    constexpr uint128_t(uint128_t&&) noexcept = default;
-    constexpr uint128_t& operator=(const uint128_t&) noexcept = default;
-    constexpr uint128_t& operator=(uint128_t&&) noexcept = default;
+    constexpr uint128() noexcept = default;
+    constexpr uint128(const uint128&) noexcept = default;
+    constexpr uint128(uint128&&) noexcept = default;
+    constexpr uint128& operator=(const uint128&) noexcept = default;
+    constexpr uint128& operator=(uint128&&) noexcept = default;
 
     // Requires a conversion file to be implemented
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const int128_t& v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const int128& v) noexcept;
 
     // Construct from integral types
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept : low {lo}, high {hi} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const std::uint64_t hi, const std::uint64_t lo) noexcept : low {lo}, high {hi} {}
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? UINT64_MAX : UINT64_C(0)} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const SignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {v < 0 ? UINT64_MAX : UINT64_C(0)} {}
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const UnsignedInteger v) noexcept : low {static_cast<std::uint64_t>(v)}, high {} {}
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_i128 v) noexcept :
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128(const detail::builtin_i128 v) noexcept :
         low {static_cast<std::uint64_t>(v)},
         high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> static_cast<detail::builtin_u128>(64U))} {}
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_u128 v) noexcept :
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128(const detail::builtin_u128 v) noexcept :
         low {static_cast<std::uint64_t>(v)},
         high {static_cast<std::uint64_t>(v >> static_cast<detail::builtin_i128>(64U))} {}
 
@@ -4298,21 +4298,21 @@ uint128_t
 
     #else // Big endian
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const std::uint64_t hi, const std::uint64_t lo) noexcept : high {hi}, low {lo} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const std::uint64_t hi, const std::uint64_t lo) noexcept : high {hi}, low {lo} {}
 
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const SignedInteger v) noexcept : high {v < 0 ? UINT64_MAX : UINT64_C(0)}, low {static_cast<std::uint64_t>(v)} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const SignedInteger v) noexcept : high {v < 0 ? UINT64_MAX : UINT64_C(0)}, low {static_cast<std::uint64_t>(v)} {}
 
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
+    BOOST_INT128_HOST_DEVICE constexpr uint128(const UnsignedInteger v) noexcept : high {}, low {static_cast<std::uint64_t>(v)} {}
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_i128 v) noexcept :
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128(const detail::builtin_i128 v) noexcept :
         high {static_cast<std::uint64_t>(static_cast<detail::builtin_u128>(v) >> 64U)},
         low {static_cast<std::uint64_t>(v)} {}
 
-    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t(const detail::builtin_u128 v) noexcept :
+    BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128(const detail::builtin_u128 v) noexcept :
         high {static_cast<std::uint64_t>(v >> 64U)},
         low {static_cast<std::uint64_t>(v)} {}
 
@@ -4322,7 +4322,7 @@ uint128_t
 
     // Construct from floating-point types
     template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t(Float f) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128(Float f) noexcept;
 
     // Integer conversion operators
     BOOST_INT128_HOST_DEVICE explicit constexpr operator bool() const noexcept {return low || high; }
@@ -4355,136 +4355,136 @@ uint128_t
 
     // Compound OR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator|=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator|=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator|=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator|=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator|=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator|=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound AND
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator&=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator&=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator&=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator&=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator&=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator&=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound XOR
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator^=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator^=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator^=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator^=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator^=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator^=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Left Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator<<=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator<<=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator<<=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator<<=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator<<=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator<<=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Right Shift
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator>>=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator>>=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator>>=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator>>=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator>>=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator>>=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator++() noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t operator++(int) noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator--() noexcept;
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t operator--(int) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator++() noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128 operator++(int) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator--() noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128 operator--(int) noexcept;
 
     // Compound Addition
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator+=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator+=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator+=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator+=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator+=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator+=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Subtraction
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator-=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator-=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator-=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator-=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator-=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator-=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Multiplication
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator*=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator*=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator*=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator*=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator*=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator*=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound Division
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator/=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator/=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator/=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator/=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator/=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator/=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 
     // Compound modulo
     template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator%=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator%=(Integer rhs) noexcept;
 
-    BOOST_INT128_HOST_DEVICE constexpr uint128_t& operator%=(uint128_t rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator%=(uint128 rhs) noexcept;
 
     #ifdef BOOST_INT128_HAS_MSVC_INT128
 
     template <BOOST_INT128_DEFAULTED_128BIT_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE inline uint128_t& operator%=(Integer rhs) noexcept;
+    BOOST_INT128_HOST_DEVICE inline uint128& operator%=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
 };
@@ -4493,7 +4493,7 @@ uint128_t
 // Absolute Value function
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t abs(const uint128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 abs(const uint128 value) noexcept
 {
     return value;
 }
@@ -4506,7 +4506,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t abs(const uint1
 // runtime (__floatuntisf and friends) is correctly rounded. The portable fallback
 // composes the words as high * 2^64 + low; see detail/float_conversion.hpp
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator float() const noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128::operator float() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
@@ -4519,7 +4519,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator float() const noexcept
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator double() const noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128::operator double() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
@@ -4534,7 +4534,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::operator double() const noexcept
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
-constexpr uint128_t::operator long double() const noexcept
+constexpr uint128::operator long double() const noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128)
 
@@ -4557,7 +4557,7 @@ constexpr uint128_t::operator long double() const noexcept
 // NaN/negative -> 0
 // overflow -> UINT128_MAX.
 template <BOOST_INT128_FLOATING_POINT_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(Float f) noexcept
 {
     constexpr Float two_32 {static_cast<Float>(UINT64_C(1) << 32)};
     constexpr Float two_64 {two_32 * two_32};
@@ -4588,12 +4588,12 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(Float f) noexcept
 // Unary Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const uint128 value) noexcept
 {
     return value;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t value) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const uint128 value) noexcept
 {
     return {~value.high + static_cast<std::uint64_t>(value.low == UINT64_C(0)), ~value.low + UINT64_C(1)};
 }
@@ -4602,12 +4602,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const
 // Equality Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128_t lhs, const bool rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128 lhs, const bool rhs) noexcept
 {
     return lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const bool lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const bool lhs, const uint128 rhs) noexcept
 {
     return rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
 }
@@ -4621,32 +4621,32 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const boo
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high == rhs_u.high && lhs.low == rhs_u.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high == rhs.high && lhs_u.low == rhs.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high == UINT64_C(0) && lhs.low == static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high == UINT64_C(0) && rhs.low == static_cast<std::uint64_t>(lhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
@@ -4680,24 +4680,24 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uin
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs == static_cast<uint128_t>(rhs);
+    return lhs == static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == rhs;
+    return static_cast<uint128>(lhs) == rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs == static_cast<uint128_t>(rhs);
+    return lhs == static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == rhs;
+    return static_cast<uint128>(lhs) == rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -4706,43 +4706,43 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 // Inequality Operators
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128_t lhs, const bool rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128 lhs, const bool rhs) noexcept
 {
     return lhs.high != UINT64_C(0) || lhs.low != static_cast<std::uint64_t>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const bool lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const bool lhs, const uint128 rhs) noexcept
 {
     return rhs.high != UINT64_C(0) || rhs.low != static_cast<std::uint64_t>(lhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high != rhs_u.high || lhs.low != rhs_u.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high != rhs.high || lhs_u.low != rhs.low;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high != UINT64_C(0) || lhs.low != static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high != UINT64_C(0) || rhs.low != static_cast<std::uint64_t>(lhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(__aarch64__) || defined(_M_ARM64) || defined(_M_AMD64)
 
@@ -4777,25 +4777,25 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uin
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_BUILTIN_CONSTEXPR)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs != static_cast<uint128_t>(rhs);
+    return lhs != static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != rhs;
+    return static_cast<uint128>(lhs) != rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs != static_cast<uint128_t>(rhs);
+    return lhs != static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != rhs;
+    return static_cast<uint128>(lhs) != rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -4805,32 +4805,32 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high == rhs_u.high ? lhs.low < rhs_u.low : lhs.high < rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high == rhs.high ? lhs_u.low < rhs.low : lhs_u.high < rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high == UINT64_C(0) && lhs.low < static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high > UINT64_C(0) || static_cast<std::uint64_t>(lhs) < rhs.low;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128 lhs, const uint128 rhs) noexcept
 {
     // On ARM macs only with the clang compiler is casting to unsigned __int128 uniformly better (and seemingly cost free)
     #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
@@ -4895,25 +4895,25 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs < static_cast<uint128_t>(rhs);
+    return lhs < static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < rhs;
+    return static_cast<uint128>(lhs) < rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs < static_cast<uint128_t>(rhs);
+    return lhs < static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < rhs;
+    return static_cast<uint128>(lhs) < rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -4923,32 +4923,32 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high == rhs_u.high ? lhs.low <= rhs_u.low : lhs.high < rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high == rhs.high ? lhs_u.low <= rhs.low : lhs_u.high < rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high == UINT64_C(0) && lhs.low <= static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high > UINT64_C(0) || static_cast<std::uint64_t>(lhs) <= rhs.low;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
@@ -5012,24 +5012,24 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uin
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs <= static_cast<uint128_t>(rhs);
+    return lhs <= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= rhs;
+    return static_cast<uint128>(lhs) <= rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs <= static_cast<uint128_t>(rhs);
+    return lhs <= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= rhs;
+    return static_cast<uint128>(lhs) <= rhs;
 }
 
 
@@ -5040,32 +5040,32 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high == rhs_u.high ? lhs.low > rhs_u.low : lhs.high > rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high == rhs.high ? lhs_u.low > rhs.low : lhs_u.high > rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high > UINT64_C(0) || lhs.low > static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) > rhs.low;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
@@ -5129,24 +5129,24 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs > static_cast<uint128_t>(rhs);
+    return lhs > static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > rhs;
+    return static_cast<uint128>(lhs) > rhs;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs > static_cast<uint128_t>(rhs);
+    return lhs > static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > rhs;
+    return static_cast<uint128>(lhs) > rhs;
 }
 
 
@@ -5157,32 +5157,32 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128 lhs, const SignedInteger rhs) noexcept
 {
-    const uint128_t rhs_u {rhs};
+    const uint128 rhs_u {rhs};
     return lhs.high == rhs_u.high ? lhs.low >= rhs_u.low : lhs.high > rhs_u.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const SignedInteger lhs, const uint128 rhs) noexcept
 {
-    const uint128_t lhs_u {lhs};
+    const uint128 lhs_u {lhs};
     return lhs_u.high == rhs.high ? lhs_u.low >= rhs.low : lhs_u.high > rhs.high;
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return lhs.high > UINT64_C(0) || lhs.low >= static_cast<std::uint64_t>(rhs);
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return rhs.high == UINT64_C(0) && static_cast<std::uint64_t>(lhs) >= rhs.low;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(__clang__) && defined(BOOST_INT128_HAS_INT128)
 
@@ -5245,25 +5245,25 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uin
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs >= static_cast<uint128_t>(rhs);
+    return lhs >= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= rhs;
+    return static_cast<uint128>(lhs) >= rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs >= static_cast<uint128_t>(rhs);
+    return lhs >= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= rhs;
+    return static_cast<uint128>(lhs) >= rhs;
 }
 
 
@@ -5275,7 +5275,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool
 
 #ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128 lhs, const uint128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -5292,7 +5292,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering oper
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -5309,7 +5309,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint12
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -5326,7 +5326,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Unsign
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -5343,7 +5343,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Signed
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     if (lhs < rhs)
     {
@@ -5365,7 +5365,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const uint12
 // Not Operator
 //=====================================
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator~(const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator~(const uint128 rhs) noexcept
 {
     return {~rhs.high, ~rhs.low};
 }
@@ -5375,30 +5375,30 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator~(const
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     return {lhs.high | (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low | static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     return {rhs.high | (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low | static_cast<std::uint64_t>(lhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return {lhs.high, lhs.low | static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return {rhs.high, rhs.low | static_cast<std::uint64_t>(lhs)};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const uint128 lhs, const uint128 rhs) noexcept
 {
     return {lhs.high | rhs.high, lhs.low | rhs.low};
 }
@@ -5406,36 +5406,36 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs | static_cast<uint128_t>(rhs);
+    return lhs | static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | rhs;
+    return static_cast<uint128>(lhs) | rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs | static_cast<uint128_t>(rhs);
+    return lhs | static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | rhs;
+    return static_cast<uint128>(lhs) | rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator|=(const Integer rhs) noexcept
 {
     *this = *this | rhs;
     return *this;
 }
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator|=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator|=(const uint128 rhs) noexcept
 {
     *this = *this | rhs;
     return *this;
@@ -5444,7 +5444,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator|=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator|=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator|=(const Integer rhs) noexcept
 {
     *this = *this | rhs;
     return *this;
@@ -5457,30 +5457,30 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator|=(const Integer r
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     return {lhs.high & (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low & static_cast<std::uint64_t>(rhs)};
 }
 
 template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     return {rhs.high & (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low & static_cast<std::uint64_t>(lhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return {UINT64_C(0), lhs.low & static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return {UINT64_C(0), rhs.low & static_cast<std::uint64_t>(lhs)};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const uint128 lhs, const uint128 rhs) noexcept
 {
     return {lhs.high & rhs.high, lhs.low & rhs.low};
 }
@@ -5488,37 +5488,37 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs & static_cast<uint128_t>(rhs);
+    return lhs & static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & rhs;
+    return static_cast<uint128>(lhs) & rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs & static_cast<uint128_t>(rhs);
+    return lhs & static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & rhs;
+    return static_cast<uint128>(lhs) & rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator&=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator&=(const Integer rhs) noexcept
 {
     *this = *this & rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator&=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator&=(const uint128 rhs) noexcept
 {
     *this = *this & rhs;
     return *this;
@@ -5527,7 +5527,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator&=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator&=(Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator&=(Integer rhs) noexcept
 {
     *this = *this & rhs;
     return *this;
@@ -5541,30 +5541,30 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator&=(Integer rhs) no
 //=====================================
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     return {lhs.high ^ (rhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), lhs.low ^ static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     return {rhs.high ^ (lhs < 0 ? ~UINT64_C(0) : UINT64_C(0)), rhs.low ^ static_cast<std::uint64_t>(lhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return {lhs.high, lhs.low ^ static_cast<std::uint64_t>(rhs)};
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return {rhs.high, rhs.low ^ static_cast<std::uint64_t>(lhs)};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const uint128 lhs, const uint128 rhs) noexcept
 {
     return {lhs.high ^ rhs.high, lhs.low ^ rhs.low};
 }
@@ -5572,37 +5572,37 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs ^ static_cast<uint128_t>(rhs);
+    return lhs ^ static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ rhs;
+    return static_cast<uint128>(lhs) ^ rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs ^ static_cast<uint128_t>(rhs);
+    return lhs ^ static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ rhs;
+    return static_cast<uint128>(lhs) ^ rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator^=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator^=(const Integer rhs) noexcept
 {
     *this = *this ^ rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator^=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator^=(const uint128 rhs) noexcept
 {
     *this = *this ^ rhs;
     return *this;
@@ -5611,7 +5611,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator^=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator^=(Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator^=(Integer rhs) noexcept
 {
     *this = *this ^ rhs;
     return *this;
@@ -5626,7 +5626,7 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator^=(Integer rhs) no
 namespace detail {
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t default_ls_impl(const uint128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 default_ls_impl(const uint128 lhs, const Integer rhs) noexcept
 {
     static_assert(std::is_integral<Integer>::value, "Needs to be a builtin type");
 
@@ -5655,7 +5655,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t default_ls_impl(const uint128_t lhs
 }
 
 template <typename T>
-BOOST_INT128_HOST_DEVICE uint128_t intrinsic_ls_impl(const uint128_t lhs, const T rhs) noexcept
+BOOST_INT128_HOST_DEVICE uint128 intrinsic_ls_impl(const uint128 lhs, const T rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators; delegate
@@ -5673,8 +5673,8 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_ls_impl(const uint128_t lhs, const 
         std::memcpy(&value, &lhs, sizeof(builtin_u128));
         const auto res {value << rhs};
 
-        uint128_t return_value;
-        std::memcpy(&return_value, &res, sizeof(uint128_t));
+        uint128 return_value;
+        std::memcpy(&return_value, &res, sizeof(uint128));
         return return_value;
 
         #if defined(__GNUC__) && __GNUC__ >= 8
@@ -5715,7 +5715,7 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_ls_impl(const uint128_t lhs, const 
 } // namespace detail
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator<<(const uint128 lhs, const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
 
@@ -5737,7 +5737,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, con
 
 // A number of different overloads to ensure that we return the same type as the builtins would
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator<<(const uint128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts (>= 128 or with the high word set) are undefined,
     // matching the built-in operators; forward the count to the scalar overload.
@@ -5746,13 +5746,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(cons
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs << static_cast<detail::builtin_u128>(rhs.low);
@@ -5761,27 +5761,27 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 #endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) << rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned int>(lhs) << rhs.low;
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator<<=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator<<=(const Integer rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator<<=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator<<=(const uint128 rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
@@ -5790,7 +5790,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator<<=(const uint1
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator<<=(Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator<<=(Integer rhs) noexcept
 {
     *this = *this << rhs;
     return *this;
@@ -5805,7 +5805,7 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator<<=(Integer rhs) n
 namespace detail {
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t default_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 default_rs_impl(const uint128 lhs, const Integer rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators. In a
@@ -5832,7 +5832,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t default_rs_impl(const uint128_t lhs
 }
 
 template <typename Integer>
-BOOST_INT128_HOST_DEVICE uint128_t intrinsic_rs_impl(const uint128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE uint128 intrinsic_rs_impl(const uint128 lhs, const Integer rhs) noexcept
 {
     // A shift by a negative amount or by an amount >= 128 (the operand width) is
     // undefined behavior, exactly as for the built-in shift operators; delegate
@@ -5850,8 +5850,8 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_rs_impl(const uint128_t lhs, const 
         std::memcpy(&value, &lhs, sizeof(builtin_u128));
         const auto res {value >> rhs};
 
-        uint128_t return_value;
-        std::memcpy(&return_value, &res, sizeof(uint128_t));
+        uint128 return_value;
+        std::memcpy(&return_value, &res, sizeof(uint128));
         return return_value;
 
         #if defined(__GNUC__) && __GNUC__ >= 8
@@ -5889,7 +5889,7 @@ BOOST_INT128_HOST_DEVICE uint128_t intrinsic_rs_impl(const uint128_t lhs, const 
 } // namespace detail
 
 BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<std::is_integral<Integer>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator>>(const uint128 lhs, const Integer rhs) noexcept
 {
     #ifndef BOOST_INT128_NO_CONSTEVAL_DETECTION
 
@@ -5909,7 +5909,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator>>(const uint128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts (>= 128 or with the high word set) are undefined,
     // matching the built-in operators; forward the count to the scalar overload.
@@ -5918,13 +5918,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(cons
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return lhs >> static_cast<detail::builtin_u128>(rhs.low);
@@ -5933,27 +5933,27 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 #endif
 
 BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<int>(lhs) >> rhs.low;
 }
 
 BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) >> rhs.low;
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator>>=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator>>=(const Integer rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator>>=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator>>=(const uint128 rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
@@ -5962,7 +5962,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator>>=(const uint1
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator>>=(Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator>>=(Integer rhs) noexcept
 {
     *this = *this >> rhs;
     return *this;
@@ -5974,7 +5974,7 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator>>=(Integer rhs) n
 // Increment Operator
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator++() noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator++() noexcept
 {
     if (++low == UINT64_C(0))
     {
@@ -5984,7 +5984,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator++() noexcept
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t uint128_t::operator++(int) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 uint128::operator++(int) noexcept
 {
     const auto temp {*this};
     ++(*this);
@@ -5995,7 +5995,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t uint128_t::operator++(int) noexcept
 // Decrement Operator
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator--() noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator--() noexcept
 {
     if (--low == UINT64_MAX)
     {
@@ -6005,7 +6005,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator--() noexcept
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t uint128_t::operator--(int) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 uint128::operator--(int) noexcept
 {
     const auto temp {*this};
     --(*this);
@@ -6018,22 +6018,22 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t uint128_t::operator--(int) noexcept
 
 namespace impl {
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_add(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW) && (defined(__i386__) || (defined(__aarch64__) && !defined(__APPLE__)) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
 
-    uint128_t res {};
+    uint128 res {};
     res.high = lhs.high + rhs.high + __builtin_add_overflow(lhs.low, rhs.low, &res.low);
 
     return res;
 
     #elif (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_MSC_VER) && defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs));
+    return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) + static_cast<detail::builtin_u128>(rhs));
 
     #else
 
-    uint128_t temp {lhs.high + rhs.high, lhs.low + rhs.low};
+    uint128 temp {lhs.high + rhs.high, lhs.low + rhs.low};
 
     if (temp.low < lhs.low)
     {
@@ -6045,18 +6045,18 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_a
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_add(const uint128_t lhs, const std::uint64_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_add(const uint128 lhs, const std::uint64_t rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_BUILTIN_ADD_OVERFLOW) && (defined(__i386__) || (defined(__aarch64__) && !defined(__APPLE__)) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
 
-    uint128_t res {};
+    uint128 res {};
     res.high = lhs.high + __builtin_add_overflow(lhs.low, rhs, &res.low);
 
     return res;
 
     #else
 
-    uint128_t temp {lhs.high, lhs.low + rhs};
+    uint128 temp {lhs.high, lhs.low + rhs};
 
     if (temp.low < lhs.low)
     {
@@ -6068,22 +6068,22 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_a
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_sub(const uint128 lhs, const uint128 rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (defined(__i386__) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
 
-    uint128_t res {};
+    uint128 res {};
     res.high = lhs.high - rhs.high - __builtin_sub_overflow(lhs.low, rhs.low, &res.low);
 
     return res;
 
     #elif (defined(__x86_64__) || (defined(__aarch64__) && !defined(__APPLE__))) && !defined(_MSC_VER) && defined(BOOST_INT128_HAS_INT128)
 
-    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs));
+    return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs));
 
     #else
 
-    uint128_t temp {lhs.high - rhs.high, lhs.low - rhs.low};
+    uint128 temp {lhs.high - rhs.high, lhs.low - rhs.low};
 
     // Check for carry
     if (lhs.low < rhs.low)
@@ -6096,18 +6096,18 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_s
     #endif
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_sub(const uint128_t lhs, const std::uint64_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_sub(const uint128 lhs, const std::uint64_t rhs) noexcept
 {
     #if defined(BOOST_INT128_HAS_BUILTIN_SUB_OVERFLOW) && (defined(__i386__) || (defined(__aarch64__) && !defined(__APPLE__)) || defined(__arm__) || (defined(__s390__) || defined(__s390x__)))
 
-    uint128_t res {};
+    uint128 res {};
     res.high = lhs.high - __builtin_sub_overflow(lhs.low, rhs, &res.low);
 
     return res;
 
     #else
 
-    uint128_t temp {lhs.high, lhs.low - rhs};
+    uint128 temp {lhs.high, lhs.low - rhs};
 
     // Check for carry
     if (lhs.low < rhs)
@@ -6128,14 +6128,14 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_s
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     return rhs < 0 ? impl::default_sub(lhs, -static_cast<std::uint64_t>(rhs)) :
                      impl::default_add(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     return lhs < 0 ? impl::default_sub(rhs, -static_cast<std::uint64_t>(lhs)) :
                      impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
@@ -6146,18 +6146,18 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const SignedInteger lhs, 
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return impl::default_add(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return impl::default_add(rhs, static_cast<std::uint64_t>(lhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const uint128 lhs, const uint128 rhs) noexcept
 {
     return impl::default_add(lhs, rhs);
 }
@@ -6165,37 +6165,37 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return impl::default_add(lhs, static_cast<uint128_t>(rhs));
+    return impl::default_add(lhs, static_cast<uint128>(rhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return impl::default_add(static_cast<uint128_t>(lhs), rhs);
+    return impl::default_add(static_cast<uint128>(lhs), rhs);
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return impl::default_add(lhs, static_cast<uint128_t>(rhs));
+    return impl::default_add(lhs, static_cast<uint128>(rhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return impl::default_add(static_cast<uint128_t>(lhs), rhs);
+    return impl::default_add(static_cast<uint128>(lhs), rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator+=(const Integer rhs) noexcept
 {
     *this = *this + rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator+=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator+=(const uint128 rhs) noexcept
 {
     *this = *this + rhs;
     return *this;
@@ -6204,7 +6204,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator+=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator+=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator+=(const Integer rhs) noexcept
 {
     *this = *this + rhs;
     return *this;
@@ -6223,14 +6223,14 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator+=(const Integer r
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     return rhs < 0 ? impl::default_add(lhs, -static_cast<std::uint64_t>(rhs)) :
                      impl::default_sub(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     return lhs < 0 ? impl::default_sub(-rhs, -static_cast<std::uint64_t>(lhs)) :
                      impl::default_add(-rhs, static_cast<std::uint64_t>(lhs));
@@ -6241,18 +6241,18 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const SignedInteger lhs, 
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return impl::default_sub(lhs, static_cast<std::uint64_t>(rhs));
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return impl::default_add(-rhs, static_cast<std::uint64_t>(lhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const uint128 lhs, const uint128 rhs) noexcept
 {
     return impl::default_sub(lhs, rhs);
 }
@@ -6260,37 +6260,37 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs - static_cast<uint128_t>(rhs);
+    return lhs - static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - rhs;
+    return static_cast<uint128>(lhs) - rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs - static_cast<uint128_t>(rhs);
+    return lhs - static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - rhs;
+    return static_cast<uint128>(lhs) - rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator-=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator-=(const Integer rhs) noexcept
 {
     *this = *this - rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator-=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator-=(const uint128 rhs) noexcept
 {
     *this = *this - rhs;
     return *this;
@@ -6299,7 +6299,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator-=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator-=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator-=(const Integer rhs) noexcept
 {
     *this = *this - rhs;
     return *this;
@@ -6320,9 +6320,9 @@ namespace detail {
 
 #if defined(_M_AMD64) && !defined(__GNUC__)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const uint128 rhs) noexcept
 {
-    uint128_t result {};
+    uint128 result {};
     result.low = _umul128(lhs.low, rhs.low, &result.high);
     result.high += lhs.low * rhs.high;
     result.high += lhs.high * rhs.low;
@@ -6330,18 +6330,18 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint
     return result;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint64_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const std::uint64_t rhs) noexcept
 {
-    uint128_t result {};
+    uint128 result {};
     result.low = _umul128(lhs.low, rhs, &result.high);
     result.high += lhs.high * rhs;
 
     return result;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint32_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const std::uint32_t rhs) noexcept
 {
-    uint128_t result {};
+    uint128 result {};
     result.low = _umul128(lhs.low, static_cast<std::uint64_t>(rhs), &result.high);
     result.high += lhs.high * static_cast<std::uint64_t>(rhs);
 
@@ -6350,7 +6350,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint
 
 #elif defined(_M_ARM64)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const uint128 rhs) noexcept
 {
     const auto low_low{lhs.low * rhs.low};
     const auto high_low_low{__umulh(lhs.low, rhs.low)};
@@ -6363,7 +6363,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint
     return {high, low_low};
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint64_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const std::uint64_t rhs) noexcept
 {
     const auto low{lhs.low * rhs};
     const auto high{__umulh(lhs.low, rhs) + (lhs.high * rhs)};
@@ -6371,7 +6371,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint
     return {high, low};
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint128_t lhs, const std::uint32_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const std::uint32_t rhs) noexcept
 {
     const auto low{lhs.low * rhs};
     const auto high{__umulh(lhs.low, static_cast<std::uint64_t>(rhs)) + (lhs.high * rhs)};
@@ -6382,7 +6382,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128_t msvc_mul(const uint
 #endif // MSVC implementations
 
 template <typename UnsignedInteger>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_mul(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_mul(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     #if (defined(__aarch64__) || defined(__x86_64__) || defined(__PPC__) || defined(__powerpc__)) && defined(__GNUC__) && defined(BOOST_INT128_HAS_INT128)
 
@@ -6393,14 +6393,14 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
         detail::builtin_u128 new_lhs {};
         detail::builtin_u128 new_rhs {};
 
-        std::memcpy(&new_lhs, &lhs, sizeof(uint128_t));
+        std::memcpy(&new_lhs, &lhs, sizeof(uint128));
         std::memcpy(&new_rhs, &rhs, sizeof(UnsignedInteger));
 
         const auto res {new_lhs * new_rhs};
 
-        uint128_t library_res {};
+        uint128 library_res {};
 
-        std::memcpy(&library_res, &res, sizeof(uint128_t));
+        std::memcpy(&library_res, &res, sizeof(uint128));
 
         return library_res;
     }
@@ -6408,7 +6408,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
     #  elif defined(BOOST_INT128_HAS_INT128)
     #    define BOOST_INT128_HIDE_MUL
 
-        return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
+        return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
 
     #  endif
 
@@ -6425,14 +6425,14 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
     #elif defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
     #  define BOOST_INT128_HIDE_MUL
 
-    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
+    return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) * static_cast<detail::builtin_u128>(rhs));
 
     #endif
 
     // We need to hide this if we use a non-const eval method above to avoid a litany of cross-platform warnings
     #ifndef BOOST_INT128_HIDE_MUL
 
-    return low_word_mul<uint128_t>(lhs, rhs);
+    return low_word_mul<uint128>(lhs, rhs);
 
     #else
     #undef BOOST_INT128_HIDE_MUL
@@ -6451,7 +6451,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128_t default_m
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
@@ -6462,7 +6462,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, cons
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
 
@@ -6473,7 +6473,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const SignedInteger lhs, 
 }
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     return detail::default_mul(lhs, static_cast<std::uint64_t>(rhs));
 }
@@ -6483,12 +6483,12 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, cons
 #endif
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     return detail::default_mul(rhs, static_cast<std::uint64_t>(lhs));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const uint128 lhs, const uint128 rhs) noexcept
 {
     return detail::default_mul(lhs, rhs);
 }
@@ -6496,49 +6496,49 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
     const detail::builtin_u128 rhs_bits {static_cast<detail::builtin_u128>(rhs)};
     const bool rhs_negative {static_cast<std::int64_t>(static_cast<std::uint64_t>(rhs_bits >> static_cast<detail::builtin_u128>(64U))) < 0};
-    const uint128_t rhs_u {rhs_bits};
-    const uint128_t abs_rhs {rhs_negative ? -rhs_u : rhs_u};
-    const uint128_t res {lhs * abs_rhs};
+    const uint128 rhs_u {rhs_bits};
+    const uint128 abs_rhs {rhs_negative ? -rhs_u : rhs_u};
+    const uint128 res {lhs * abs_rhs};
 
     return rhs_negative ? -res : res;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
     const detail::builtin_u128 lhs_bits {static_cast<detail::builtin_u128>(lhs)};
     const bool lhs_negative {static_cast<std::int64_t>(static_cast<std::uint64_t>(lhs_bits >> static_cast<detail::builtin_u128>(64U))) < 0};
-    const uint128_t lhs_u {lhs_bits};
-    const uint128_t abs_lhs {lhs_negative ? -lhs_u : lhs_u};
-    const uint128_t res {abs_lhs * rhs};
+    const uint128 lhs_u {lhs_bits};
+    const uint128 abs_lhs {lhs_negative ? -lhs_u : lhs_u};
+    const uint128 res {abs_lhs * rhs};
 
     return lhs_negative ? -res : res;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs * static_cast<uint128_t>(rhs);
+    return lhs * static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * rhs;
+    return static_cast<uint128>(lhs) * rhs;
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator*=(const Integer rhs) noexcept
 {
     *this = *this * rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator*=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator*=(const uint128 rhs) noexcept
 {
     *this = *this * rhs;
     return *this;
@@ -6547,7 +6547,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator*=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator*=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator*=(const Integer rhs) noexcept
 {
     *this = *this * rhs;
     return *this;
@@ -6561,35 +6561,35 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator*=(const Integer r
 
 // For div we need forward declarations since we mix and match the arguments
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, SignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(uint128 lhs, SignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(SignedInteger lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(SignedInteger lhs, uint128 rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, UnsignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(uint128 lhs, UnsignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(UnsignedInteger lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(UnsignedInteger lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(uint128 lhs, uint128 rhs) noexcept;
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return rhs < 0 ? lhs / static_cast<uint128_t>(rhs) : lhs / static_cast<eval_type>(rhs);
+    return rhs < 0 ? lhs / static_cast<uint128>(rhs) : lhs / static_cast<eval_type>(rhs);
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return lhs < 0 ? static_cast<uint128_t>(lhs) / rhs : static_cast<eval_type>(lhs) / rhs;
+    return lhs < 0 ? static_cast<uint128>(lhs) / rhs : static_cast<eval_type>(lhs) / rhs;
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -6604,7 +6604,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
         return {0, 0};
     }
 
-    uint128_t quotient {};
+    uint128 quotient {};
 
     detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient);
 
@@ -6612,7 +6612,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -6630,7 +6630,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const UnsignedInteger lhs
     return {0, static_cast<eval_type>(lhs) / rhs.low};
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const uint128 lhs, const uint128 rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
@@ -6653,14 +6653,14 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
             return {0, lhs.low / rhs.low};
         }
 
-        uint128_t quotient {};
+        uint128 quotient {};
         detail::one_word_div(lhs, rhs.low, quotient);
         return quotient;
     }
 
     #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
 
-    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
+    return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) / static_cast<detail::builtin_u128>(rhs));
 
     #else
 
@@ -6671,38 +6671,38 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const uint128_t lhs, cons
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs / static_cast<uint128_t>(rhs);
+    return lhs / static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / rhs;
+    return static_cast<uint128>(lhs) / rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs / static_cast<uint128_t>(rhs);
+    return lhs / static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / rhs;
+    return static_cast<uint128>(lhs) / rhs;
 }
 
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator/=(const Integer rhs) noexcept
 {
     *this = *this / rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator/=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator/=(const uint128 rhs) noexcept
 {
     *this = *this / rhs;
     return *this;
@@ -6711,7 +6711,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator/=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator/=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator/=(const Integer rhs) noexcept
 {
     *this = *this / rhs;
     return *this;
@@ -6725,35 +6725,35 @@ BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator/=(const Integer r
 
 // For div we need forward declarations since we mix and match the arguments
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, SignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(uint128 lhs, SignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(SignedInteger lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(SignedInteger lhs, uint128 rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, UnsignedInteger rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(uint128 lhs, UnsignedInteger rhs) noexcept;
 
 BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(UnsignedInteger lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(UnsignedInteger lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(uint128 lhs, uint128 rhs) noexcept;
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, const SignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const uint128 lhs, const SignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return rhs < 0 ? lhs % static_cast<uint128_t>(rhs) : lhs % static_cast<eval_type>(rhs);
+    return rhs < 0 ? lhs % static_cast<uint128>(rhs) : lhs % static_cast<eval_type>(rhs);
 }
 
 template <BOOST_INT128_SIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const SignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const SignedInteger lhs, const uint128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<SignedInteger>;
-    return lhs < 0 ? static_cast<uint128_t>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
+    return lhs < 0 ? static_cast<uint128>(lhs) % rhs : static_cast<eval_type>(lhs) % rhs;
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, const UnsignedInteger rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const uint128 lhs, const UnsignedInteger rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -6765,8 +6765,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 
     if (lhs.high != 0)
     {
-        uint128_t quotient {};
-        uint128_t remainder {};
+        uint128 quotient {};
+        uint128 remainder {};
 
         detail::one_word_div(lhs, static_cast<eval_type>(rhs), quotient, remainder);
 
@@ -6779,7 +6779,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 }
 
 template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const UnsignedInteger lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const UnsignedInteger lhs, const uint128 rhs) noexcept
 {
     using eval_type = detail::evaluation_type_t<UnsignedInteger>;
 
@@ -6796,7 +6796,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const UnsignedInteger lhs
     return {0, static_cast<eval_type>(lhs) % rhs.low};
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const uint128 lhs, const uint128 rhs) noexcept
 {
     if (BOOST_INT128_UNLIKELY(rhs == 0U))
     {
@@ -6817,19 +6817,19 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
             return {0, lhs.low % rhs.low};
         }
 
-        uint128_t quotient {};
-        uint128_t remainder {};
+        uint128 quotient {};
+        uint128 remainder {};
         detail::one_word_div(lhs, rhs.low, quotient, remainder);
         return remainder;
     }
 
     #if defined(BOOST_INT128_HAS_INT128) && !defined(__s390__) && !defined(__s390x__)
 
-    return static_cast<uint128_t>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
+    return static_cast<uint128>(static_cast<detail::builtin_u128>(lhs) % static_cast<detail::builtin_u128>(rhs));
 
     #else
 
-    uint128_t remainder {};
+    uint128 remainder {};
     detail::knuth_div(lhs, rhs, remainder);
     return remainder;
 
@@ -6838,38 +6838,38 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const uint128_t lhs, cons
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const uint128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const uint128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return lhs % static_cast<uint128_t>(rhs);
+    return lhs % static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const detail::builtin_u128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const detail::builtin_u128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % rhs;
+    return static_cast<uint128>(lhs) % rhs;
 }
 
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const uint128_t lhs, const detail::builtin_i128 rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const uint128 lhs, const detail::builtin_i128 rhs) noexcept
 {
-    return lhs % static_cast<uint128_t>(rhs);
+    return lhs % static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const detail::builtin_i128 lhs, const uint128_t rhs) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const detail::builtin_i128 lhs, const uint128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % rhs;
+    return static_cast<uint128>(lhs) % rhs;
 }
 
 
 #endif // BOOST_INT128_HAS_INT128
 
 template <BOOST_INT128_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator%=(const Integer rhs) noexcept
 {
     *this = *this % rhs;
     return *this;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator%=(const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator%=(const uint128 rhs) noexcept
 {
     *this = *this % rhs;
     return *this;
@@ -6878,7 +6878,7 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t& uint128_t::operator%=(const uint12
 #ifdef BOOST_INT128_HAS_MSVC_INT128
 
 template <BOOST_INT128_128BIT_INTEGER_CONCEPT>
-BOOST_INT128_HOST_DEVICE inline uint128_t& uint128_t::operator%=(const Integer rhs) noexcept
+BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator%=(const Integer rhs) noexcept
 {
     * this = *this % rhs;
     return *this;
@@ -6936,15 +6936,15 @@ public:
     static constexpr bool tinyness_before = false;
 
     // Member functions
-    BOOST_INT128_HOST_DEVICE static constexpr auto (min)        () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto lowest       () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto (max)        () -> boost::int128::uint128_t { return {UINT64_MAX, UINT64_MAX}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto epsilon      () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto round_error  () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto infinity     () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto quiet_NaN    () -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto signaling_NaN() -> boost::int128::uint128_t { return {0, 0}; }
-    BOOST_INT128_HOST_DEVICE static constexpr auto denorm_min   () -> boost::int128::uint128_t { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto (min)        () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto lowest       () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto (max)        () -> boost::int128::uint128 { return {UINT64_MAX, UINT64_MAX}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto epsilon      () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto round_error  () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto infinity     () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto quiet_NaN    () -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto signaling_NaN() -> boost::int128::uint128 { return {0, 0}; }
+    BOOST_INT128_HOST_DEVICE static constexpr auto denorm_min   () -> boost::int128::uint128 { return {0, 0}; }
 };
 
 #if !defined(__cpp_inline_variables) || __cpp_inline_variables < 201606L
@@ -7007,7 +7007,7 @@ namespace std {
 #endif
 
 template <>
-class numeric_limits<boost::int128::uint128_t> :
+class numeric_limits<boost::int128::uint128> :
     public boost::int128::detail::numeric_limits_impl_u128<true> {};
 
 #ifdef __clang__
@@ -7037,7 +7037,7 @@ namespace detail {
 template <typename T>
 struct valid_overload
 {
-    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+    static constexpr bool value = std::is_same<T, uint128>::value || std::is_same<T, int128>::value;
 };
 
 template <typename T>
@@ -7047,15 +7047,15 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_valid_overload_v = valid_overload<T>::valu
 
 #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {v.high} {}
+BOOST_INT128_HOST_DEVICE constexpr int128::int128(const uint128& v) noexcept : low {v.low}, high {v.high} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : low {v.low}, high {v.high} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(const int128& v) noexcept : low {v.low}, high {v.high} {}
 
 #else
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : high {v.high}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr int128::int128(const uint128& v) noexcept : high {v.high}, low {v.low} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {v.high}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(const int128& v) noexcept : high {v.high}, low {v.low} {}
 
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
@@ -7071,37 +7071,37 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexc
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) == static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) != static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) < static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) <= static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) > static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) >= static_cast<uint128>(rhs);
 }
 
 //=====================================
@@ -7109,33 +7109,33 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noe
 //=====================================
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) + static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) + static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) - static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) * static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) / static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) % static_cast<uint128>(rhs);
 }
 
 //=====================================
@@ -7143,49 +7143,49 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const T lhs, const U rhs)
 //=====================================
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) | static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) & static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) ^ static_cast<uint128>(rhs);
 }
 
 //=====================================
 // Cross-type Shift Operators
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const uint128 rhs) noexcept
 {
-    return lhs << static_cast<int128_t>(rhs);
+    return lhs << static_cast<int128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator<<(const uint128 lhs, const int128 rhs) noexcept
 {
-    return lhs << static_cast<uint128_t>(rhs);
+    return lhs << static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const uint128 rhs) noexcept
 {
-    return lhs >> static_cast<int128_t>(rhs);
+    return lhs >> static_cast<int128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator>>(const uint128 lhs, const int128 rhs) noexcept
 {
-    return lhs >> static_cast<uint128_t>(rhs);
+    return lhs >> static_cast<uint128>(rhs);
 }
 
 //=====================================
-// int128_t with builtin unsigned __int128 comparison operators
+// int128 with builtin unsigned __int128 comparison operators
 //
 // These live here (not in int128_imp.hpp) 
 // to avoid C++20 rewritten-candidate ambiguity on MSVC
@@ -7193,152 +7193,152 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == rhs;
+    return static_cast<uint128>(lhs) == rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs == static_cast<uint128_t>(rhs);
+    return lhs == static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != rhs;
+    return static_cast<uint128>(lhs) != rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs != static_cast<uint128_t>(rhs);
+    return lhs != static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < rhs;
+    return static_cast<uint128>(lhs) < rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs < static_cast<uint128_t>(rhs);
+    return lhs < static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= rhs;
+    return static_cast<uint128>(lhs) <= rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs <= static_cast<uint128_t>(rhs);
+    return lhs <= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > rhs;
+    return static_cast<uint128>(lhs) > rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs > static_cast<uint128_t>(rhs);
+    return lhs > static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= rhs;
+    return static_cast<uint128>(lhs) >= rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs >= static_cast<uint128_t>(rhs);
+    return lhs >= static_cast<uint128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
-// int128_t with builtin unsigned __int128 binary operators
+// int128 with builtin unsigned __int128 binary operators
 //=====================================
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | rhs;
+    return static_cast<uint128>(lhs) | rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs | static_cast<uint128_t>(rhs);
+    return lhs | static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & rhs;
+    return static_cast<uint128>(lhs) & rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs & static_cast<uint128_t>(rhs);
+    return lhs & static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ rhs;
+    return static_cast<uint128>(lhs) ^ rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs ^ static_cast<uint128_t>(rhs);
+    return lhs ^ static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) + rhs;
+    return static_cast<uint128>(lhs) + rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs + static_cast<uint128_t>(rhs);
+    return lhs + static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - rhs;
+    return static_cast<uint128>(lhs) - rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs - static_cast<uint128_t>(rhs);
+    return lhs - static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * rhs;
+    return static_cast<uint128>(lhs) * rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs * static_cast<uint128_t>(rhs);
+    return lhs * static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / rhs;
+    return static_cast<uint128>(lhs) / rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs / static_cast<uint128_t>(rhs);
+    return lhs / static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % rhs;
+    return static_cast<uint128>(lhs) % rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs % static_cast<uint128_t>(rhs);
+    return lhs % static_cast<uint128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
@@ -7534,14 +7534,14 @@ namespace int128 {
 
 namespace impl {
 
-BOOST_INT128_HOST_DEVICE constexpr int countl_zero_impl(const uint128_t x) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int countl_zero_impl(const uint128 x) noexcept
 {
     return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
 }
 
 } // namespace impl
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uint128 x) noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_clzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -7560,38 +7560,38 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uin
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_one(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_one(const uint128 x) noexcept
 {
     return countl_zero(~x);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int bit_width(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int bit_width(const uint128 x) noexcept
 {
     return x ? 128 - countl_zero(x) : 0;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_ceil(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 bit_ceil(const uint128 x) noexcept
 {
     // __builtin_stdc_bit_ceil not available, but this is equivalent
-    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(2) << (127 - countl_zero(x - 1));
+    return x <= 1U ? static_cast<uint128>(1) : static_cast<uint128>(2) << (127 - countl_zero(x - 1));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_floor(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 bit_floor(const uint128 x) noexcept
 {
     // __builtin_stdc_bit_floor not available, but this is equivalent
-    return x == 0U ? static_cast<uint128_t>(0) : static_cast<uint128_t>(1) << (127 - countl_zero(x));
+    return x == 0U ? static_cast<uint128>(0) : static_cast<uint128>(1) << (127 - countl_zero(x));
 }
 
 namespace impl {
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero_impl(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero_impl(const uint128 x) noexcept
 {
     return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
 }
 
 } // namespace impl
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128 x) noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_ctzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -7610,19 +7610,19 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uin
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint128 x) noexcept
 {
     return countr_zero(~x);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotl(const uint128_t x, const int s) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 rotl(const uint128 x, const int s) noexcept
 {
     // __builtin_stdc_rotate_left not available
     constexpr auto mask {127U};
     return x << (static_cast<unsigned>(s) & mask) | x >> (static_cast<unsigned>(-s) & mask);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotr(const uint128_t x, const int s) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 rotr(const uint128 x, const int s) noexcept
 {
     // __builtin_stdc_rotate_right not available
     constexpr auto mask {127U};
@@ -7631,7 +7631,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotr(const uint
 
 namespace impl {
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(std::uint64_t x) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(std::uint64_t x) noexcept
 {
     x = x - ((x >> 1U) & UINT64_C(0x5555555555555555));
     x = (x & UINT64_C(0x3333333333333333)) + ((x >> 2U) & UINT64_C(0x3333333333333333));
@@ -7641,14 +7641,14 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(st
 }
 
 // The exact-match overload above is selected for the 64-bit halves
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(const uint128_t x) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(const uint128 x) noexcept
 {
     return popcount_impl(x.high) + popcount_impl(x.low);
 }
 
 } // namespace impl
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128 x) noexcept
 {
     #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_popcountg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -7725,14 +7725,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::uint64_t byteswap_im
     return (step16 & UINT64_C(0x00FF00FF00FF00FF)) << 8U | (step16 & UINT64_C(0xFF00FF00FF00FF00)) >> 8U;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap_impl(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 byteswap_impl(const uint128 x) noexcept
 {
     return {byteswap_impl(x.low), byteswap_impl(x.high)};
 }
 
 } // namespace impl
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 byteswap(const uint128 x) noexcept
 {
     // The whole-width builtins are deliberately ranked below the paired 64-bit form.
     // Measured today (7/29/2026) they are a regression: the 128-bit value blocks the loop vectorization
@@ -7751,7 +7751,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
         return impl::byteswap_impl(x);
     }
 
-    return static_cast<uint128_t>(__builtin_bswapg(static_cast<detail::builtin_u128>(x)));
+    return static_cast<uint128>(__builtin_bswapg(static_cast<detail::builtin_u128>(x)));
 
     #elif defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswap128) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -7760,7 +7760,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
         return impl::byteswap_impl(x);
     }
 
-    return static_cast<uint128_t>(__builtin_bswap128(static_cast<detail::builtin_u128>(x)));
+    return static_cast<uint128>(__builtin_bswap128(static_cast<detail::builtin_u128>(x)));
 
     #elif defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
@@ -7780,7 +7780,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
     #endif
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128 x) noexcept
 {
     return popcount(x) == 1;
 }
@@ -8049,26 +8049,26 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 }
 } // namespace impl
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<uint128_t, uint128_t>(first, last, value, base);
+    return impl::from_chars_integer_impl<uint128, uint128>(first, last, value, base);
 }
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<int128_t, uint128_t>(first, last, value, base);
+    return impl::from_chars_integer_impl<int128, uint128>(first, last, value, base);
 }
 
 // Parsing entry points for the user-defined literals. Unlike from_chars these skip the
 // C++ digit separator ' so that literals such as 1'234'567_u128 are accepted.
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, uint128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<uint128_t, uint128_t, true>(first, last, value, base);
+    return impl::from_chars_integer_impl<uint128, uint128, true>(first, last, value, base);
 }
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, int128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
+    return impl::from_chars_integer_impl<int128, uint128, true>(first, last, value, base);
 }
 
 // Rejects an out of range literal
@@ -8077,7 +8077,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    BOOST_int128HROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
     #endif
 }
 
@@ -8087,7 +8087,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    BOOST_int128HROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
     #endif
 }
 
@@ -8229,7 +8229,7 @@ static_assert(sizeof(upper_case_digit_table) == sizeof(char) * 16, "10 numbers, 
 
 #endif // !__NVCC__
 
-BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], uint128_t v, const int base, const bool uppercase) noexcept
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], uint128 v, const int base, const bool uppercase) noexcept
 {
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT)
     constexpr char lower_case_digit_table[] = {
@@ -8296,28 +8296,28 @@ BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_ch
     return last;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], const int128_t v, const int base, const bool uppercase) noexcept
+BOOST_INT128_HOST_DEVICE constexpr char* mini_to_chars(char (&buffer)[mini_to_chars_buffer_size], const int128 v, const int base, const bool uppercase) noexcept
 {
     char* p {nullptr};
 
     if (v < 0)
     {
         // We cant negate the min value inside the signed type, but we know what the result will be
-        if (v == (std::numeric_limits<int128_t>::min)())
+        if (v == (std::numeric_limits<int128>::min)())
         {
-            p = mini_to_chars(buffer, uint128_t{UINT64_C(0x8000000000000000), 0}, base, uppercase);
+            p = mini_to_chars(buffer, uint128{UINT64_C(0x8000000000000000), 0}, base, uppercase);
         }
         else
         {
             const auto neg_v {-v};
-            p = mini_to_chars(buffer, static_cast<uint128_t>(neg_v), base, uppercase);
+            p = mini_to_chars(buffer, static_cast<uint128>(neg_v), base, uppercase);
         }
 
         *--p = '-';
     }
     else
     {
-        p = mini_to_chars(buffer, static_cast<uint128_t>(v), base, uppercase);
+        p = mini_to_chars(buffer, static_cast<uint128>(v), base, uppercase);
     }
 
     return p;
@@ -8387,7 +8387,7 @@ namespace detail {
 template <typename T>
 struct streamable_overload
 {
-    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+    static constexpr bool value = std::is_same<T, uint128>::value || std::is_same<T, int128>::value;
 };
 
 template <typename T>
@@ -8539,44 +8539,44 @@ namespace boost {
 namespace int128 {
 namespace literals {
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<uint128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<uint128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + len);
+    return detail::parse_literal<uint128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + len);
+    return detail::parse_literal<uint128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<int128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<int128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + len);
+    return detail::parse_literal<int128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + len);
+    return detail::parse_literal<int128>(str, str + len);
 }
 
 } // namespace literals
@@ -8629,17 +8629,17 @@ namespace int128 {
 
 BOOST_INT128_EXPORT struct u128div_t
 {
-    uint128_t quot;
-    uint128_t rem;
+    uint128 quot;
+    uint128 rem;
 };
 
 BOOST_INT128_EXPORT struct i128div_t
 {
-    int128_t quot;
-    int128_t rem;
+    int128 quot;
+    int128 rem;
 };
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint128 x, const uint128 y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == 0U || y == 0U))
     {
@@ -8671,15 +8671,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint1
     }
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int128 x, const int128 y) noexcept
 {
     if (BOOST_INT128_UNLIKELY(x == 0 || y == 0))
     {
         return i128div_t{0, 0};
     }
 
-    const auto abs_lhs {static_cast<uint128_t>(abs(x))};
-    const auto abs_rhs {static_cast<uint128_t>(abs(y))};
+    const auto abs_lhs {static_cast<uint128>(abs(x))};
+    const auto abs_rhs {static_cast<uint128>(abs(y))};
 
     if (abs_rhs > abs_lhs)
     {
@@ -8695,15 +8695,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
     {
         const auto builtin_x {static_cast<detail::builtin_i128>(x)};
         const auto builtin_y {static_cast<detail::builtin_i128>(y)};
-        return i128div_t{static_cast<int128_t>(builtin_x / builtin_y),
-                         static_cast<int128_t>(builtin_x % builtin_y)};
+        return i128div_t{static_cast<int128>(builtin_x / builtin_y),
+                         static_cast<int128>(builtin_x % builtin_y)};
     }
 
     #endif
 
     const auto unsigned_res {div(abs_lhs, abs_rhs)};
 
-    i128div_t res {static_cast<int128_t>(unsigned_res.quot), static_cast<int128_t>(unsigned_res.rem)};
+    i128div_t res {static_cast<int128>(unsigned_res.quot), static_cast<int128>(unsigned_res.rem)};
 
     res.quot = negative_quot ? -res.quot : res.quot;
     res.rem = negative_rem ? -res.rem : res.rem;
@@ -8743,8 +8743,8 @@ struct reduced_integers
                                  std::is_same<IntegerType, unsigned long>::value ||
                                  std::is_same<IntegerType, signed long long>::value ||
                                  std::is_same<IntegerType, unsigned long long>::value ||
-                                 std::is_same<IntegerType, int128_t>::value ||
-                                 std::is_same<IntegerType, uint128_t>::value};
+                                 std::is_same<IntegerType, int128>::value ||
+                                 std::is_same<IntegerType, uint128>::value};
 };
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
@@ -8763,25 +8763,25 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_reduced_integer_v {reduced_integers<Intege
 
 } // namespace detail
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_add(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_add(const uint128 x, const uint128 y) noexcept
 {
     const auto z {x + y};
 
     if (z < x)
     {
-        return (std::numeric_limits<uint128_t>::max)();
+        return (std::numeric_limits<uint128>::max)();
     }
 
     return z;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_sub(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_sub(const uint128 x, const uint128 y) noexcept
 {
     const auto z {x - y};
 
     if (z > x)
     {
-        return (std::numeric_limits<uint128_t>::min)();
+        return (std::numeric_limits<uint128>::min)();
     }
 
     return z;
@@ -8793,7 +8793,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_sub(
 #  pragma warning(disable : 4146) // Unary minus applied to unsigned type
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_add(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_add(const int128 x, const int128 y) noexcept
 {
     // Detect overflow BEFORE the addition to avoid signed overflow UB.
     // When both are non-negative: overflow iff x > max - y (subtraction safe: max - non_negative >= 0)
@@ -8802,23 +8802,23 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_add(c
 
     if (x.signed_high() >= 0 && y.signed_high() >= 0)
     {
-        if (x > (std::numeric_limits<int128_t>::max)() - y)
+        if (x > (std::numeric_limits<int128>::max)() - y)
         {
-            return (std::numeric_limits<int128_t>::max)();
+            return (std::numeric_limits<int128>::max)();
         }
     }
     else if (x.signed_high() < 0 && y.signed_high() < 0)
     {
-        if (x < (std::numeric_limits<int128_t>::min)() - y)
+        if (x < (std::numeric_limits<int128>::min)() - y)
         {
-            return (std::numeric_limits<int128_t>::min)();
+            return (std::numeric_limits<int128>::min)();
         }
     }
 
     return x + y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_sub(const int128 x, const int128 y) noexcept
 {
     // Detect overflow BEFORE the subtraction to avoid signed overflow UB.
     // Positive overflow: x >= 0 and y < 0 and x > max + y (safe: max + negative < max)
@@ -8827,16 +8827,16 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(c
 
     if (x.signed_high() >= 0 && y.signed_high() < 0)
     {
-        if (x > (std::numeric_limits<int128_t>::max)() + y)
+        if (x > (std::numeric_limits<int128>::max)() + y)
         {
-            return (std::numeric_limits<int128_t>::max)();
+            return (std::numeric_limits<int128>::max)();
         }
     }
     else if (x.signed_high() < 0 && y.signed_high() >= 0)
     {
-        if (x < (std::numeric_limits<int128_t>::min)() + y)
+        if (x < (std::numeric_limits<int128>::min)() + y)
         {
-            return (std::numeric_limits<int128_t>::min)();
+            return (std::numeric_limits<int128>::min)();
         }
     }
 
@@ -8847,51 +8847,51 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_sub(c
 #  pragma warning(pop)
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_mul(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_mul(const uint128 x, const uint128 y) noexcept
 {
     const auto x_bits {bit_width(x)};
     const auto y_bits {bit_width(y)};
 
-    if ((x_bits + y_bits) > std::numeric_limits<uint128_t>::digits)
+    if ((x_bits + y_bits) > std::numeric_limits<uint128>::digits)
     {
-        return (std::numeric_limits<uint128_t>::max)();
+        return (std::numeric_limits<uint128>::max)();
     }
 
     return x * y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_mul(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_mul(const int128 x, const int128 y) noexcept
 {
-    const auto x_bits {bit_width(static_cast<uint128_t>(abs(x)))};
-    const auto y_bits {bit_width(static_cast<uint128_t>(abs(y)))};
+    const auto x_bits {bit_width(static_cast<uint128>(abs(x)))};
+    const auto y_bits {bit_width(static_cast<uint128>(abs(y)))};
 
-    if ((x_bits + y_bits) > std::numeric_limits<int128_t>::digits)
+    if ((x_bits + y_bits) > std::numeric_limits<int128>::digits)
     {
         if ((x < 0) != (y < 0))
         {
-            return (std::numeric_limits<int128_t>::min)();
+            return (std::numeric_limits<int128>::min)();
         }
         else
         {
-            return (std::numeric_limits<int128_t>::max)();
+            return (std::numeric_limits<int128>::max)();
         }
     }
 
-    const int128_t res {x * y};
+    const int128 res {x * y};
     return res;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t saturating_div(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_div(const uint128 x, const uint128 y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_div(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_div(const int128 x, const int128 y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128_t>::min)() && y == -1))
+    if (BOOST_INT128_UNLIKELY(x == (std::numeric_limits<int128>::min)() && y == -1))
     {
         // This is the only possible case of overflow
-        return (std::numeric_limits<int128_t>::max)();
+        return (std::numeric_limits<int128>::max)();
     }
 
     return x / y;
@@ -8903,15 +8903,15 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t saturating_div(c
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const uint128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const uint128 value) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
+    BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128, TargetType>::value)
     {
         return static_cast<TargetType>(value);
     }
     else
     {
-        if (value > static_cast<uint128_t>((std::numeric_limits<TargetType>::max)()))
+        if (value > static_cast<uint128>((std::numeric_limits<TargetType>::max)()))
         {
             return (std::numeric_limits<TargetType>::max)();
         }
@@ -8925,16 +8925,16 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const uint128_t va
 #endif
 
 BOOST_INT128_EXPORT template <typename TargetType, std::enable_if_t<detail::is_reduced_integer_v<TargetType>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const int128_t value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const int128 value) noexcept
 {
-    BOOST_INT128_IF_CONSTEXPR (std::is_same<int128_t, TargetType>::value)
+    BOOST_INT128_IF_CONSTEXPR (std::is_same<int128, TargetType>::value)
     {
         return static_cast<TargetType>(value);
     }
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
-    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value || std::is_same<detail::builtin_u128, TargetType>::value)
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128, TargetType>::value || std::is_same<detail::builtin_u128, TargetType>::value)
     #else
-    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128_t, TargetType>::value)
+    else BOOST_INT128_IF_CONSTEXPR (std::is_same<uint128, TargetType>::value)
     #endif
     {
         // We can't possibly have overflow in this case
@@ -8942,11 +8942,11 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const int128_t val
     }
     else
     {
-        if (value > static_cast<int128_t>((std::numeric_limits<TargetType>::max)()))
+        if (value > static_cast<int128>((std::numeric_limits<TargetType>::max)()))
         {
             return (std::numeric_limits<TargetType>::max)();
         }
-        else if (value < static_cast<int128_t>((std::numeric_limits<TargetType>::min)()))
+        else if (value < static_cast<int128>((std::numeric_limits<TargetType>::min)()))
         {
             return (std::numeric_limits<TargetType>::min)();
         }
@@ -8957,7 +8957,7 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(const int128_t val
 
 namespace detail {
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(std::uint64_t x, std::uint64_t y) noexcept
 {
     if (x == 0)
     {
@@ -8989,7 +8989,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr std::uint64_t gcd64(
 
 } // namespace detail
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 gcd(uint128 a, uint128 b) noexcept
 {
     // Base case
     if (a == 0U)
@@ -9013,7 +9013,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a
 
         if (a > b)
         {
-            const uint128_t temp {a};
+            const uint128 temp {a};
             a = b;
             b = temp;
         }
@@ -9023,12 +9023,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a
 
     // Stop doing 128-bit math as soon as we can
     const auto g {detail::gcd64(a.low, b.low)};
-    return uint128_t{0, g} << shift;
+    return uint128{0, g} << shift;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 gcd(const int128 a, const int128 b) noexcept
 {
-    return static_cast<int128_t>(gcd(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
+    return static_cast<int128>(gcd(static_cast<uint128>(abs(a)), static_cast<uint128>(abs(b))));
 }
 
 // For unknown reasons this implementation fails for MSVC x86 only in release mode
@@ -9036,11 +9036,11 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128
 // but very slow impl that we know works.
 #if !(defined(_M_IX86) && !defined(_NDEBUG))
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 lcm(const uint128 a, const uint128 b) noexcept
 {
     if (a == 0U || b == 0U)
     {
-        return static_cast<uint128_t>(0);
+        return static_cast<uint128>(0);
     }
 
     // Calculate GCD first
@@ -9052,11 +9052,11 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(const uint1
 
 #else
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 lcm(uint128 a, uint128 b) noexcept
 {
     if (a == 0U || b == 0U)
     {
-        return uint128_t{0};
+        return uint128{0};
     }
 
 
@@ -9074,7 +9074,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a
         std::swap(a, b);
     }
 
-    uint128_t lcm{a};
+    uint128 lcm{a};
 
     while (lcm % b != 0U) 
     {
@@ -9086,12 +9086,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a
 
 #endif
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 lcm(const int128 a, const int128 b) noexcept
 {
-    return static_cast<int128_t>(lcm(static_cast<uint128_t>(abs(a)), static_cast<uint128_t>(abs(b))));
+    return static_cast<int128>(lcm(static_cast<uint128>(abs(a)), static_cast<uint128>(abs(b))));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const uint128_t a, const uint128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 midpoint(const uint128 a, const uint128 b) noexcept
 {
     // Bit manipulation formula works for unsigned integers
     auto mid {(a & b) + ((a ^ b) >> 1)};
@@ -9105,7 +9105,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(const 
     return mid;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 midpoint(const int128 a, const int128 b) noexcept
 {
     // For signed integers, we use a + (b - a) / 2 or a - (a - b) / 2
     // The subtraction is done in unsigned arithmetic to handle overflow correctly
@@ -9113,10 +9113,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const i
     //
     // Use direct field access for both the uint128 construction and the
     // comparison to avoid NVCC host compiler issues with operator<= and
-    // static_cast on int128_t for large-magnitude values
+    // static_cast on int128 for large-magnitude values
 
-    const uint128_t ua {a.high, a.low};
-    const uint128_t ub {b.high, b.low};
+    const uint128 ua {a.high, a.low};
+    const uint128 ub {b.high, b.low};
 
     const bool a_le_b {a.high == b.high ? a.low <= b.low : a.signed_high() < b.signed_high()};
 
@@ -9124,13 +9124,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const i
     {
         // diff = b - a (computed in unsigned, handles wrap-around correctly)
         const auto diff {ub - ua};
-        return a + static_cast<int128_t>(diff / 2U);
+        return a + static_cast<int128>(diff / 2U);
     }
     else
     {
         // diff = a - b (computed in unsigned, handles wrap-around correctly)
         const auto diff {ua - ub};
-        return a - static_cast<int128_t>(diff / 2U);
+        return a - static_cast<int128>(diff / 2U);
     }
 }
 
@@ -9169,7 +9169,7 @@ BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const div_re
 namespace detail {
 
 // -1 when the exact quotient of x / y is negative, and 1 otherwise
-BOOST_INT128_HOST_DEVICE constexpr int quotient_sign(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int quotient_sign(const int128 x, const int128 y) noexcept
 {
     return (x < 0) != (y < 0) ? -1 : 1;
 }
@@ -9177,12 +9177,12 @@ BOOST_INT128_HOST_DEVICE constexpr int quotient_sign(const int128_t x, const int
 // Applies the quotient offset d (-1, 0, or 1) to a truncated division result, and returns the
 // remainder matching the adjusted quotient. The remainder is evaluated in unsigned arithmetic
 // so that the d * y term cannot overflow when y is INT128_MIN.
-BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> offset_quotient(const i128div_t truncated, const int128_t y, const int d) noexcept
+BOOST_INT128_HOST_DEVICE constexpr div_result<int128> offset_quotient(const i128div_t truncated, const int128 y, const int d) noexcept
 {
-    const uint128_t unsigned_rem {truncated.rem.high, truncated.rem.low};
-    const uint128_t unsigned_y {y.high, y.low};
+    const uint128 unsigned_rem {truncated.rem.high, truncated.rem.low};
+    const uint128 unsigned_y {y.high, y.low};
 
-    uint128_t rem {unsigned_rem};
+    uint128 rem {unsigned_rem};
 
     if (d > 0)
     {
@@ -9193,14 +9193,14 @@ BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> offset_quotient(const i1
         rem = unsigned_rem + unsigned_y;
     }
 
-    return div_result<int128_t>{truncated.quot + d, static_cast<int128_t>(rem)};
+    return div_result<int128>{truncated.quot + d, static_cast<int128>(rem)};
 }
 
 // An unsigned quotient is never rounded down, so the only offsets are 0 and 1. The remainder
 // of an incremented quotient is negative, and is returned reduced modulo 2^128.
-BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> offset_quotient(const u128div_t truncated, const uint128_t y, const bool increment) noexcept
+BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> offset_quotient(const u128div_t truncated, const uint128 y, const bool increment) noexcept
 {
-    return div_result<uint128_t>{increment ? truncated.quot + 1U : truncated.quot,
+    return div_result<uint128>{increment ? truncated.quot + 1U : truncated.quot,
                                  increment ? truncated.rem - y : truncated.rem};
 }
 
@@ -9208,31 +9208,31 @@ BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> offset_quotient(const u
 // magnitude when the remainder is more than half the divisor. truncate_ties selects the strict
 // form, which both breaks an exact tie towards zero and recovers the bit that abs(y) / 2 drops
 // when y is odd.
-BOOST_INT128_HOST_DEVICE constexpr bool nearest_increment(const uint128_t abs_rem, const uint128_t abs_half_y, const bool truncate_ties) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool nearest_increment(const uint128 abs_rem, const uint128 abs_half_y, const bool truncate_ties) noexcept
 {
     return truncate_ties ? abs_rem > abs_half_y : abs_rem >= abs_half_y;
 }
 
 // Magnitude of the remainder of a truncated signed division. The magnitude is always less
 // than abs(y), so it is representable for every valid divisor.
-BOOST_INT128_HOST_DEVICE constexpr uint128_t abs_remainder(const i128div_t truncated) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 abs_remainder(const i128div_t truncated) noexcept
 {
-    return static_cast<uint128_t>(abs(truncated.rem));
+    return static_cast<uint128>(abs(truncated.rem));
 }
 
 // floor(abs(y) / 2), exact for every y including INT128_MIN
-BOOST_INT128_HOST_DEVICE constexpr uint128_t abs_half_divisor(const int128_t y) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 abs_half_divisor(const int128 y) noexcept
 {
-    return static_cast<uint128_t>(abs(y)) >> 1U;
+    return static_cast<uint128>(abs(y)) >> 1U;
 }
 
 // An odd divisor cannot produce an exact tie, so every ties function truncates on it
-BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const int128_t x) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const int128 x) noexcept
 {
     return (x.low & 1U) != 0U;
 }
 
-BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const uint128_t x) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const uint128 x) noexcept
 {
     return (x.low & 1U) != 0U;
 }
@@ -9240,180 +9240,180 @@ BOOST_INT128_HOST_DEVICE constexpr bool is_odd(const uint128_t x) noexcept
 } // namespace detail
 
 // Rounds towards zero, which is what operator/ already does
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_to_zero(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
-    return div_result<uint128_t>{truncated.quot, truncated.rem};
+    return div_result<uint128>{truncated.quot, truncated.rem};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_to_zero(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
-    return div_result<int128_t>{truncated.quot, truncated.rem};
+    return div_result<int128>{truncated.quot, truncated.rem};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_to_zero(const uint128 x, const uint128 y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_to_zero(const int128 x, const int128 y) noexcept
 {
     return x / y;
 }
 
 // Rounds away from zero, so the quotient grows in magnitude unless the division is exact
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_away_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_away_zero(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, truncated.rem != 0U);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_away_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_away_zero(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, truncated.rem != 0 ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_away_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_away_zero(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_away_zero(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_away_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_away_zero(const int128 x, const int128 y) noexcept
 {
     return div_rem_away_zero(x, y).quotient;
 }
 
 // Rounds towards positive infinity, which for an unsigned quotient is away from zero
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_to_pos_inf(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, truncated.rem != 0U);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_pos_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_to_pos_inf(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto adjust {truncated.rem != 0 && detail::quotient_sign(x, y) > 0};
     return detail::offset_quotient(truncated, y, adjust ? 1 : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_to_pos_inf(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_to_pos_inf(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_pos_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_to_pos_inf(const int128 x, const int128 y) noexcept
 {
     return div_rem_to_pos_inf(x, y).quotient;
 }
 
 // Rounds towards negative infinity, which for an unsigned quotient is truncation
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_to_neg_inf(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
-    return div_result<uint128_t>{truncated.quot, truncated.rem};
+    return div_result<uint128>{truncated.quot, truncated.rem};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_to_neg_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_to_neg_inf(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto adjust {truncated.rem != 0 && detail::quotient_sign(x, y) < 0};
     return detail::offset_quotient(truncated, y, adjust ? -1 : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_to_neg_inf(const uint128 x, const uint128 y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_to_neg_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_to_neg_inf(const int128 x, const int128 y) noexcept
 {
     return div_rem_to_neg_inf(x, y).quotient;
 }
 
 // Euclidean division, whose remainder is always in [0, abs(y)). Only a negative remainder
 // needs fixing, and growing the quotient magnitude by one makes the remainder positive.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_euclid(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_euclid(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
-    return div_result<uint128_t>{truncated.quot, truncated.rem};
+    return div_result<uint128>{truncated.quot, truncated.rem};
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_euclid(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_euclid(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, truncated.rem < 0 ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_euclid(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_euclid(const uint128 x, const uint128 y) noexcept
 {
     return x / y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_euclid(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_euclid(const int128 x, const int128 y) noexcept
 {
     return div_rem_euclid(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie towards zero
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_to_zero(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, true));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_to_zero(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), true)};
     return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_to_zero(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_to_zero(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_to_zero(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_to_zero(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie away from zero
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_away_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_away_zero(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y)));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_away_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_away_zero(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto increment {detail::nearest_increment(detail::abs_remainder(truncated), detail::abs_half_divisor(y), detail::is_odd(y))};
     return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_away_zero(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_away_zero(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_away_zero(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_away_zero(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_away_zero(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_away_zero(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie towards positive infinity. A tie only grows the
 // magnitude when the quotient is positive.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_to_pos_inf(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y)));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_pos_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_to_pos_inf(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto sign {detail::quotient_sign(x, y)};
@@ -9421,25 +9421,25 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_
     return detail::offset_quotient(truncated, y, increment ? sign : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_pos_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_to_pos_inf(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_to_pos_inf(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_pos_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_to_pos_inf(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_to_pos_inf(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie towards negative infinity. A tie only grows the
 // magnitude when the quotient is negative, so an unsigned tie always truncates.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_to_neg_inf(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     return detail::offset_quotient(truncated, y, detail::nearest_increment(truncated.rem, y >> 1U, true));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_neg_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_to_neg_inf(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto sign {detail::quotient_sign(x, y)};
@@ -9447,26 +9447,26 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_
     return detail::offset_quotient(truncated, y, increment ? sign : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_neg_inf(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_to_neg_inf(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_to_neg_inf(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_neg_inf(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_to_neg_inf(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_to_neg_inf(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie to the odd quotient, so a tie only grows the
 // magnitude when truncation would have produced an even quotient
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_odd(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_to_odd(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto increment {detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y) || detail::is_odd(truncated.quot))};
     return detail::offset_quotient(truncated, y, increment);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_odd(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_to_odd(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto truncate_ties {detail::is_odd(y) || detail::is_odd(truncated.quot)};
@@ -9474,26 +9474,26 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_
     return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_odd(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_to_odd(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_to_odd(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_odd(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_to_odd(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_to_odd(x, y).quotient;
 }
 
 // Rounds to nearest, breaking an exact tie to the even quotient, so a tie only grows the
 // magnitude when truncation would have produced an odd quotient
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128_t> div_rem_ties_to_even(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_ties_to_even(const uint128 x, const uint128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto increment {detail::nearest_increment(truncated.rem, y >> 1U, detail::is_odd(y) || !detail::is_odd(truncated.quot))};
     return detail::offset_quotient(truncated, y, increment);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_rem_ties_to_even(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_ties_to_even(const int128 x, const int128 y) noexcept
 {
     const auto truncated {div(x, y)};
     const auto truncate_ties {detail::is_odd(y) || !detail::is_odd(truncated.quot)};
@@ -9501,31 +9501,31 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr div_result<int128_t> div_
     return detail::offset_quotient(truncated, y, increment ? detail::quotient_sign(x, y) : 0);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t div_ties_to_even(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 div_ties_to_even(const uint128 x, const uint128 y) noexcept
 {
     return div_rem_ties_to_even(x, y).quotient;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t div_ties_to_even(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 div_ties_to_even(const int128 x, const int128 y) noexcept
 {
     return div_rem_ties_to_even(x, y).quotient;
 }
 
 // The Euclidean remainder, which is always in [0, abs(y)). Only a negative remainder needs
 // fixing, and abs(y) is added in unsigned arithmetic so that INT128_MIN is handled.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rem_euclid(const uint128_t x, const uint128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 rem_euclid(const uint128 x, const uint128 y) noexcept
 {
     return x % y;
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t rem_euclid(const int128_t x, const int128_t y) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 rem_euclid(const int128 x, const int128 y) noexcept
 {
     const auto rem {x % y};
 
     if (rem < 0)
     {
-        const uint128_t unsigned_rem {rem.high, rem.low};
-        return static_cast<int128_t>(unsigned_rem + static_cast<uint128_t>(abs(y)));
+        const uint128 unsigned_rem {rem.high, rem.low};
+        return static_cast<int128>(unsigned_rem + static_cast<uint128>(abs(y)));
     }
 
     return rem;
@@ -9714,14 +9714,14 @@ constexpr auto parse_impl(ParseContext& ctx)
                 is_upper = true;
                 break;
             default:                                                                                // LCOV_EXCL_LINE
-                BOOST_INT128_THROW_EXCEPTION(std::format_error("Unsupported format specifier"));    // LCOV_EXCL_LINE
+                BOOST_int128HROW_EXCEPTION(std::format_error("Unsupported format specifier"));    // LCOV_EXCL_LINE
         }
     }
 
     // Verify we're at the closing brace
     if (it != ctx.end() && *it != '}')
     {
-        BOOST_INT128_THROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
+        BOOST_int128HROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
     return std::make_tuple(base, padding_digits, sign, is_upper, prefix, zero_pad, fill_char, align, it);
@@ -9730,7 +9730,7 @@ constexpr auto parse_impl(ParseContext& ctx)
 template <typename T>
 struct is_library_type_impl
 {
-    static constexpr bool value {std::is_same_v<T, boost::int128::uint128_t> || std::is_same_v<T, boost::int128::int128_t>};
+    static constexpr bool value {std::is_same_v<T, boost::int128::uint128> || std::is_same_v<T, boost::int128::int128>};
 };
 
 template <typename T>
@@ -9786,31 +9786,31 @@ struct formatter<T>
     {
         char buffer[boost::int128::detail::mini_to_chars_buffer_size];
         bool isneg {false};
-        boost::int128::uint128_t abs_v {};
+        boost::int128::uint128 abs_v {};
 
-        if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+        if constexpr (std::is_same_v<T, boost::int128::int128>)
         {
             if (v < 0)
             {
                 isneg = true;
-                // Can't negate int128_t::min(), handle specially
+                // Can't negate int128::min(), handle specially
                 if (v == (std::numeric_limits<T>::min)())
                 {
-                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                    abs_v = boost::int128::uint128{UINT64_C(0x8000000000000000), 0};
                 }
                 else
                 {
-                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                    abs_v = static_cast<boost::int128::uint128>(-v);
                 }
             }
             else
             {
-                abs_v = static_cast<boost::int128::uint128_t>(v);
+                abs_v = static_cast<boost::int128::uint128>(v);
             }
         }
         else
         {
-            abs_v = static_cast<boost::int128::uint128_t>(v);
+            abs_v = static_cast<boost::int128::uint128>(v);
         }
 
         const auto end = boost::int128::detail::mini_to_chars(buffer, abs_v, base, is_upper);
@@ -9914,7 +9914,7 @@ struct formatter<T>
                 {
                     s.insert(s.begin(), ' ');
                 }
-                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+                if constexpr (std::is_same_v<T, boost::int128::int128>)
                 {
                     if (isneg)
                     {
@@ -9923,7 +9923,7 @@ struct formatter<T>
                 }
                 break;
             case boost::int128::detail::sign_option::negative:
-                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+                if constexpr (std::is_same_v<T, boost::int128::int128>)
                 {
                     if (isneg)
                     {
@@ -10008,10 +10008,10 @@ struct formatter<T>
 // [amalgamate] skipped duplicate include of boost/int128/detail/uint128_imp.hpp
 #include <climits>
 
-#define BOOST_INT128_UINT128_MAX boost::int128::uint128_t{UINT64_MAX, UINT64_MAX}
+#define BOOST_INT128_UINT128_MAX boost::int128::uint128{UINT64_MAX, UINT64_MAX}
 
-#define BOOST_INT128_INT128_MIN  boost::int128::int128_t{INT64_MIN, 0}
-#define BOOST_INT128_INT128_MAX  boost::int128::int128_t{INT64_MAX, UINT64_MAX}
+#define BOOST_INT128_INT128_MIN  boost::int128::int128{INT64_MIN, 0}
+#define BOOST_INT128_INT128_MAX  boost::int128::int128{INT64_MAX, UINT64_MAX}
 
 #endif // BOOST_INT128_CLIMITS_HPP
 // ===== END boost/int128/climits.hpp =====
@@ -10037,7 +10037,7 @@ namespace boost {
 namespace int128 {
 
 template <typename T>
-auto to_string(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value), std::string>
+auto to_string(const T& value) -> std::enable_if_t<(std::is_same<T, int128>::value || std::is_same<T, uint128>::value), std::string>
 {
     char buffer[detail::mini_to_chars_buffer_size];
     const auto last {detail::mini_to_chars(buffer, value, 10, false)};
@@ -10045,7 +10045,7 @@ auto to_string(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::v
 }
 
 template <typename T>
-auto to_wstring(const T& value) -> std::enable_if_t<(std::is_same<T, int128_t>::value || std::is_same<T, uint128_t>::value), std::wstring>
+auto to_wstring(const T& value) -> std::enable_if_t<(std::is_same<T, int128>::value || std::is_same<T, uint128>::value), std::wstring>
 {
     char buffer[detail::mini_to_chars_buffer_size];
     const auto last {detail::mini_to_chars(buffer, value, 10, false)};
@@ -10084,9 +10084,9 @@ namespace int128 {
 namespace detail {
 
 // Modular addition for 128-bit operands assuming 0 <= a, b < m
-BOOST_INT128_HOST_DEVICE constexpr uint128_t addmod(const uint128_t a, const uint128_t b, const uint128_t m) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 addmod(const uint128 a, const uint128 b, const uint128 m) noexcept
 {
-    const uint128_t s {a + b};
+    const uint128 s {a + b};
 
     if (s < a || s >= m)
     {
@@ -10097,9 +10097,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t addmod(const uint128_t a, const uin
 }
 
 // Modular multiplication via shift-and-add for the full 128-bit modulus case
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mulmod_shift(uint128_t a, uint128_t b, const uint128_t m) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 mulmod_shift(uint128 a, uint128 b, const uint128 m) noexcept
 {
-    uint128_t result {0};
+    uint128 result {0};
 
     while (b != 0U)
     {
@@ -10118,42 +10118,42 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t mulmod_shi
 // Modular multiplication when the modulus fits in 64 bits
 BOOST_INT128_HOST_DEVICE constexpr std::uint64_t mulmod_word(const std::uint64_t a, const std::uint64_t b, const std::uint64_t m) noexcept
 {
-    return ((uint128_t{a} * uint128_t{b}) % uint128_t{m}).low;
+    return ((uint128{a} * uint128{b}) % uint128{m}).low;
 }
 
 } // namespace detail
 
 // Computes (base ^ exp) mod m using fast modular exponentiation with
 // optimizations specific to the boost::int128 library types
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t powm(uint128_t base, uint128_t exp, const uint128_t m) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 powm(uint128 base, uint128 exp, const uint128 m) noexcept
 {
     if (BOOST_INT128_UNLIKELY(m == 0U))
     {
-        return uint128_t{0};
+        return uint128{0};
     }
 
     if (m == 1U)
     {
-        return uint128_t{0};
+        return uint128{0};
     }
 
     if (exp == 0U)
     {
-        return uint128_t{1};
+        return uint128{1};
     }
 
     base %= m;
 
     if (base == 0U)
     {
-        return uint128_t{0};
+        return uint128{0};
     }
 
     // Power-of-two modulus: reduction is just a bitmask.
     if (has_single_bit(m))
     {
-        const uint128_t mask {m - 1U};
-        uint128_t result {1};
+        const uint128 mask {m - 1U};
+        uint128 result {1};
 
         while (exp != 0U)
         {
@@ -10187,12 +10187,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t powm(uint128_t 
             exp >>= 1;
         }
 
-        return uint128_t{result};
+        return uint128{result};
     }
 
     // General 128-bit modulus: shift-and-add for each squaring keeps every
     // intermediate strictly below m without needing a 256-bit product.
-    uint128_t result {1};
+    uint128 result {1};
 
     while (exp != 0U)
     {
@@ -10209,36 +10209,36 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t powm(uint128_t 
 }
 
 // Signed overload. Returns the non-negative residue in [0, m)
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t powm(const int128_t base, const int128_t exp, const int128_t m) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 powm(const int128 base, const int128 exp, const int128 m) noexcept
 {
     if (BOOST_INT128_UNLIKELY(m <= 0 || exp < 0))
     {
-        return int128_t{0};
+        return int128{0};
     }
 
-    const uint128_t um {static_cast<uint128_t>(m)};
+    const uint128 um {static_cast<uint128>(m)};
 
-    uint128_t ub {};
+    uint128 ub {};
 
     if (base.signed_high() < 0)
     {
-        const uint128_t magnitude {static_cast<uint128_t>(abs(base))};
-        const uint128_t r {magnitude % um};
-        ub = r == 0U ? uint128_t{0} : static_cast<uint128_t>(um - r);
+        const uint128 magnitude {static_cast<uint128>(abs(base))};
+        const uint128 r {magnitude % um};
+        ub = r == 0U ? uint128{0} : static_cast<uint128>(um - r);
     }
     else
     {
-        ub = static_cast<uint128_t>(base) % um;
+        ub = static_cast<uint128>(base) % um;
     }
 
-    return static_cast<int128_t>(powm(ub, static_cast<uint128_t>(exp), um));
+    return static_cast<int128>(powm(ub, static_cast<uint128>(exp), um));
 }
 
 // Computes base^exp using exponentiation by squaring. The result is reduced
 // modulo 2^128, mirroring the wrap-around behavior of operator*.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t ipow(uint128_t base, std::uint64_t exp) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 ipow(uint128 base, std::uint64_t exp) noexcept
 {
-    uint128_t result {1};
+    uint128 result {1};
 
     while (exp != 0U)
     {
@@ -10259,9 +10259,9 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t ipow(uint128_t 
 }
 
 // Signed overload. Wraps modulo 2^128 on overflow, matching operator*.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t base, std::uint64_t exp) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 ipow(int128 base, std::uint64_t exp) noexcept
 {
-    int128_t result {1};
+    int128 result {1};
 
     while (exp != 0U)
     {
@@ -10282,7 +10282,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t ba
 }
 
 // Integer square root: returns floor(sqrt(n)).
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(const uint128_t n) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 isqrt(const uint128 n) noexcept
 {
     if (n < 2U)
     {
@@ -10290,11 +10290,11 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(const uin
     }
 
     // 2^ceil(bit_width(n)/2) is the smallest power of two whose square exceeds n.
-    uint128_t x {uint128_t{1} << ((bit_width(n) + 1) / 2)};
+    uint128 x {uint128{1} << ((bit_width(n) + 1) / 2)};
 
     while (true)
     {
-        const uint128_t y {(x + n / x) >> 1};
+        const uint128 y {(x + n / x) >> 1};
 
         if (y >= x)
         {
@@ -10306,14 +10306,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(const uin
 }
 
 // Signed overload. Negative inputs are documented to return 0.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(const int128_t n) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 isqrt(const int128 n) noexcept
 {
     if (BOOST_INT128_UNLIKELY(n < 0))
     {
-        return int128_t{0};
+        return int128{0};
     }
 
-    return static_cast<int128_t>(isqrt(static_cast<uint128_t>(n)));
+    return static_cast<int128>(isqrt(static_cast<uint128>(n)));
 }
 
 namespace detail {
@@ -10326,22 +10326,22 @@ struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::va
                                                          !std::is_same<T, char>::value> {};
 
 template <>
-struct valid_checked_type<int128_t> : std::true_type {};
+struct valid_checked_type<int128> : std::true_type {};
 
 template <>
-struct valid_checked_type<uint128_t> : std::true_type {};
+struct valid_checked_type<uint128> : std::true_type {};
 
-// Widen an integer operand to its 128-bit two's complement bit pattern, returned as a uint128_t
+// Widen an integer operand to its 128-bit two's complement bit pattern, returned as a uint128
 template <typename T>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t ckd_widen(const T value) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 ckd_widen(const T value) noexcept
 {
     BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<T>::is_signed)
     {
-        return static_cast<uint128_t>(static_cast<int128_t>(value));
+        return static_cast<uint128>(static_cast<int128>(value));
     }
     else
     {
-        return static_cast<uint128_t>(value);
+        return static_cast<uint128>(value);
     }
 }
 
@@ -10349,35 +10349,35 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t ckd_widen(const T value) noexcept
 // image. magnitude is the absolute value; negative records the sign.
 struct ckd_operand
 {
-    uint128_t raw;
-    uint128_t magnitude;
+    uint128 raw;
+    uint128 magnitude;
     bool negative;
 };
 
 template <typename T>
 BOOST_INT128_HOST_DEVICE constexpr ckd_operand ckd_decompose(const T value) noexcept
 {
-    const uint128_t raw {ckd_widen(value)};
+    const uint128 raw {ckd_widen(value)};
     const bool negative {std::numeric_limits<T>::is_signed && ((raw >> 127) != 0U)};
-    return ckd_operand{raw, negative ? uint128_t{0} - raw : raw, negative};
+    return ckd_operand{raw, negative ? uint128{0} - raw : raw, negative};
 }
 
 // Exact signed sum of two operands given as (magnitude, sign). carry marks a
 // 129th bit, which no 128-bit or narrower target can represent.
 struct ckd_sum_result
 {
-    uint128_t magnitude;
+    uint128 magnitude;
     bool negative;
     bool carry;
 };
 
-BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128_t a_magnitude, const bool a_negative,
-                                                                 const uint128_t b_magnitude, const bool b_negative) noexcept
+BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128 a_magnitude, const bool a_negative,
+                                                                 const uint128 b_magnitude, const bool b_negative) noexcept
 {
     if (a_negative == b_negative)
     {
         // Equal signs: magnitudes add and may overflow into a 129th bit.
-        const uint128_t magnitude {a_magnitude + b_magnitude};
+        const uint128 magnitude {a_magnitude + b_magnitude};
         return ckd_sum_result{magnitude, a_negative, magnitude < a_magnitude};
     }
 
@@ -10393,18 +10393,18 @@ BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128_t
 // Whether a result of the given sign and magnitude fits in T1. exceeds_width
 // forces overflow when the true magnitude does not even fit in 128 bits.
 template <typename T1>
-BOOST_INT128_HOST_DEVICE constexpr bool ckd_overflows(const uint128_t magnitude, const bool negative, const bool exceeds_width) noexcept
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_overflows(const uint128 magnitude, const bool negative, const bool exceeds_width) noexcept
 {
     if (exceeds_width)
     {
         return true;
     }
 
-    const uint128_t max_magnitude {static_cast<uint128_t>((std::numeric_limits<T1>::max)())};
+    const uint128 max_magnitude {static_cast<uint128>((std::numeric_limits<T1>::max)())};
 
     if (negative)
     {
-        const uint128_t min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128_t{1} : uint128_t{0}};
+        const uint128 min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128{1} : uint128{0}};
         return magnitude > min_magnitude;
     }
 
@@ -10485,9 +10485,9 @@ BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, const T2 a, const T3
     // UINT128_MAX. Dividing the maximum by one magnitude tests that without
     // forming a 256-bit product.
     const bool exceeds_width {op_a.magnitude != 0U &&
-                              op_b.magnitude > ((std::numeric_limits<uint128_t>::max)() / op_a.magnitude)};
+                              op_b.magnitude > ((std::numeric_limits<uint128>::max)() / op_a.magnitude)};
 
-    const uint128_t product_magnitude {op_a.magnitude * op_b.magnitude};
+    const uint128 product_magnitude {op_a.magnitude * op_b.magnitude};
     const bool product_negative {op_a.negative != op_b.negative};
 
     return detail::ckd_overflows<T1>(product_magnitude, product_negative, exceeds_width);
@@ -10520,8 +10520,8 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_type_v = valid_comparison
 
 // Allow the builtins to be used when available
 template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128_t>::value ||
-                                                      std::is_same<T, uint128_t>::value
+BOOST_INT128_INLINE_CONSTEXPR bool is_int128ype_v = std::is_same<T, int128>::value ||
+                                                      std::is_same<T, uint128>::value
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
                                                       || std::is_same<T, builtin_i128>::value
                                                       || std::is_same<T, builtin_u128>::value
@@ -10530,7 +10530,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128_t>:
 
 template <typename T>
 BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_operand_v = is_valid_comparison_type_v<T> ||
-                                                                   is_int128_type_v<T>;
+                                                                   is_int128ype_v<T>;
 
 // Maps the builtin 128-bit types onto the library equivalents
 template <typename T>
@@ -10544,13 +10544,13 @@ struct comparison_canonical
 template <>
 struct comparison_canonical<builtin_i128>
 {
-    using type = int128_t;
+    using type = int128;
 };
 
 template <>
 struct comparison_canonical<builtin_u128>
 {
-    using type = uint128_t;
+    using type = uint128;
 };
 
 #endif
@@ -10594,7 +10594,7 @@ BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_impl(const T lhs, const U rhs) 
 template <typename T, typename U>
 BOOST_INT128_INLINE_CONSTEXPR bool enable_comparison_v = is_valid_comparison_operand_v<T> &&
                                                         is_valid_comparison_operand_v<U> &&
-                                                        (is_int128_type_v<T> || is_int128_type_v<U>);
+                                                        (is_int128ype_v<T> || is_int128ype_v<U>);
 
 } // namespace detail
 
@@ -10704,9 +10704,9 @@ inline std::size_t hash_finalize_64(std::uint64_t v) noexcept
 namespace std {
 
 template <>
-struct hash<boost::int128::int128_t>
+struct hash<boost::int128::int128>
 {
-    auto operator()(const boost::int128::int128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::int128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
@@ -10717,9 +10717,9 @@ struct hash<boost::int128::int128_t>
 };
 
 template <>
-struct hash<boost::int128::uint128_t>
+struct hash<boost::int128::uint128>
 {
-    auto operator()(const boost::int128::uint128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::uint128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
@@ -10734,14 +10734,14 @@ struct hash<boost::int128::uint128_t>
 namespace boost {
 namespace int128 {
 
-inline std::size_t hash_value(const uint128_t v) noexcept
+inline std::size_t hash_value(const uint128 v) noexcept
 {
-    return std::hash<uint128_t>{}(v);
+    return std::hash<uint128>{}(v);
 }
 
-inline std::size_t hash_value(const int128_t v) noexcept
+inline std::size_t hash_value(const int128 v) noexcept
 {
-    return std::hash<int128_t>{}(v);
+    return std::hash<int128>{}(v);
 }
 
 } // namespace int128

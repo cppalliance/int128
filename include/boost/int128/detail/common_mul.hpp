@@ -25,7 +25,7 @@ struct ctor_high_word
 };
 
 template <>
-struct ctor_high_word<int128_t>
+struct ctor_high_word<int128>
 {
     using type = std::int64_t;
 };

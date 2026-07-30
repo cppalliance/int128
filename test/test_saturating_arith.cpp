@@ -15,26 +15,26 @@ template <typename T>
 void test_add_sat();
 
 template <>
-void test_add_sat<boost::int128::uint128_t>()
+void test_add_sat<boost::int128::uint128>()
 {
     using boost::int128::saturating_add;
 
-    auto near_max {std::numeric_limits<boost::int128::uint128_t>::max() - boost::int128::uint128_t{5}};
+    auto near_max {std::numeric_limits<boost::int128::uint128>::max() - boost::int128::uint128{5}};
 
-    for (boost::int128::uint128_t i {0}; i < boost::int128::uint128_t{5}; ++i)
+    for (boost::int128::uint128 i {0}; i < boost::int128::uint128{5}; ++i)
     {
         const auto sat_res {saturating_add(near_max,  i)};
-        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128_t>::max());
+        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128>::max());
 
         const auto res {near_max + i};
         BOOST_TEST(sat_res == res);
     }
 
-    near_max += boost::int128::uint128_t{5};
-    for (boost::int128::uint128_t i {1}; i < boost::int128::uint128_t{5}; ++i)
+    near_max += boost::int128::uint128{5};
+    for (boost::int128::uint128 i {1}; i < boost::int128::uint128{5}; ++i)
     {
         const auto sat_res {saturating_add(near_max,  i)};
-        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::max());
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128>::max());
 
         const auto res {near_max + i};
         BOOST_TEST(sat_res != res);
@@ -42,7 +42,7 @@ void test_add_sat<boost::int128::uint128_t>()
 }
 
 template <>
-void test_add_sat<boost::int128::int128_t>()
+void test_add_sat<boost::int128::int128>()
 {
     // There are four branches that need to be tested
     // 1) x > 0 && y > 0
@@ -52,14 +52,14 @@ void test_add_sat<boost::int128::int128_t>()
 
     using boost::int128::saturating_add;
 
-    constexpr auto min {std::numeric_limits<boost::int128::int128_t>::min()};
-    constexpr auto max {std::numeric_limits<boost::int128::int128_t>::max()};
+    constexpr auto min {std::numeric_limits<boost::int128::int128>::min()};
+    constexpr auto max {std::numeric_limits<boost::int128::int128>::max()};
 
     // 1 - We can only overflow, but there are many such cases
     {
-        auto near_max {max - boost::int128::int128_t{5}};
+        auto near_max {max - boost::int128::int128{5}};
 
-        for (boost::int128::int128_t i {0}; i < boost::int128::int128_t{5}; ++i)
+        for (boost::int128::int128 i {0}; i < boost::int128::int128{5}; ++i)
         {
             const auto sat_res {saturating_add(near_max,  i)};
             BOOST_TEST(sat_res < max);
@@ -68,8 +68,8 @@ void test_add_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res == res);
         }
 
-        near_max += boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {1}; i < boost::int128::int128_t{5}; ++i)
+        near_max += boost::int128::int128{5};
+        for (boost::int128::int128 i {1}; i < boost::int128::int128{5}; ++i)
         {
             const auto sat_res {saturating_add(near_max,  i)};
             BOOST_TEST(sat_res == max);
@@ -80,8 +80,8 @@ void test_add_sat<boost::int128::int128_t>()
     {
         for (std::size_t i {0}; i < N; ++i)
         {
-            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
-            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
+            boost::int128::int128 x {signed_dist(rng), dist(rng)};
+            boost::int128::int128 y {signed_dist(rng), dist(rng)};
 
             if (x > 0)
             {
@@ -106,8 +106,8 @@ void test_add_sat<boost::int128::int128_t>()
     {
         for (std::size_t i {0}; i < N; ++i)
         {
-            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
-            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
+            boost::int128::int128 x {signed_dist(rng), dist(rng)};
+            boost::int128::int128 y {signed_dist(rng), dist(rng)};
 
             if (x < 0)
             {
@@ -130,9 +130,9 @@ void test_add_sat<boost::int128::int128_t>()
 
     // 4 - We can only underflow, and there exist many ways to do so
     {
-        auto near_min {min + boost::int128::int128_t{5}};
+        auto near_min {min + boost::int128::int128{5}};
 
-        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{-5}; --i)
+        for (boost::int128::int128 i {0}; i > boost::int128::int128{-5}; --i)
         {
             const auto sat_res {saturating_add(near_min,  i)};
             BOOST_TEST(sat_res > min);
@@ -141,8 +141,8 @@ void test_add_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res == res);
         }
 
-        near_min -= boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {-1}; i > boost::int128::int128_t{-5}; --i)
+        near_min -= boost::int128::int128{5};
+        for (boost::int128::int128 i {-1}; i > boost::int128::int128{-5}; --i)
         {
             const auto sat_res {saturating_add(near_min,  i)};
             BOOST_TEST(sat_res == min);
@@ -154,26 +154,26 @@ template <typename T>
 void test_sub_sat();
 
 template <>
-void test_sub_sat<boost::int128::uint128_t>()
+void test_sub_sat<boost::int128::uint128>()
 {
     using boost::int128::saturating_sub;
 
-    auto near_min {std::numeric_limits<boost::int128::uint128_t>::min() + boost::int128::uint128_t{5}};
+    auto near_min {std::numeric_limits<boost::int128::uint128>::min() + boost::int128::uint128{5}};
 
-    for (boost::int128::uint128_t i {0}; i < boost::int128::uint128_t{5}; ++i)
+    for (boost::int128::uint128 i {0}; i < boost::int128::uint128{5}; ++i)
     {
         const auto sat_res {saturating_sub(near_min,  i)};
-        BOOST_TEST(sat_res > std::numeric_limits<boost::int128::uint128_t>::min());
+        BOOST_TEST(sat_res > std::numeric_limits<boost::int128::uint128>::min());
 
         const auto res {near_min - i};
         BOOST_TEST(sat_res == res);
     }
 
-    near_min -= boost::int128::uint128_t{5};
-    for (boost::int128::uint128_t i {1}; i < boost::int128::uint128_t{5}; ++i)
+    near_min -= boost::int128::uint128{5};
+    for (boost::int128::uint128 i {1}; i < boost::int128::uint128{5}; ++i)
     {
         const auto sat_res {saturating_sub(near_min,  i)};
-        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::min());
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128>::min());
 
         const auto res {near_min + i};
         BOOST_TEST(sat_res != res);
@@ -181,7 +181,7 @@ void test_sub_sat<boost::int128::uint128_t>()
 }
 
 template <>
-void test_sub_sat<boost::int128::int128_t>()
+void test_sub_sat<boost::int128::int128>()
 {
     // The same as saturating_add but the logic backwards
     // There are four branches that need to be tested
@@ -192,15 +192,15 @@ void test_sub_sat<boost::int128::int128_t>()
 
     using boost::int128::saturating_sub;
 
-    constexpr auto min {std::numeric_limits<boost::int128::int128_t>::min()};
-    constexpr auto max {std::numeric_limits<boost::int128::int128_t>::max()};
+    constexpr auto min {std::numeric_limits<boost::int128::int128>::min()};
+    constexpr auto max {std::numeric_limits<boost::int128::int128>::max()};
 
     // 1 - Nothing bad can happen here
     {
         for (std::size_t i {0}; i < N; ++i)
         {
-            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
-            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
+            boost::int128::int128 x {signed_dist(rng), dist(rng)};
+            boost::int128::int128 y {signed_dist(rng), dist(rng)};
 
             if (x < 0)
             {
@@ -223,9 +223,9 @@ void test_sub_sat<boost::int128::int128_t>()
 
     // 2 - Underflow is possible in this case
     {
-        auto near_min {min + boost::int128::int128_t{5}};
+        auto near_min {min + boost::int128::int128{5}};
 
-        for (boost::int128::int128_t i {0}; i < boost::int128::int128_t{5}; ++i)
+        for (boost::int128::int128 i {0}; i < boost::int128::int128{5}; ++i)
         {
             const auto sat_res {saturating_sub(near_min,  i)};
             BOOST_TEST(sat_res > min);
@@ -235,7 +235,7 @@ void test_sub_sat<boost::int128::int128_t>()
         }
 
         near_min = min;
-        for (boost::int128::int128_t i {1}; i < boost::int128::int128_t{5}; ++i)
+        for (boost::int128::int128 i {1}; i < boost::int128::int128{5}; ++i)
         {
             const auto sat_res {saturating_sub(near_min,  i)};
             BOOST_TEST(sat_res == min);
@@ -250,9 +250,9 @@ void test_sub_sat<boost::int128::int128_t>()
 
     // 3 - Overflow is possible in this case
     {
-        auto near_max {max - boost::int128::int128_t{5}};
+        auto near_max {max - boost::int128::int128{5}};
 
-        for (boost::int128::int128_t i {0}; i > boost::int128::int128_t{-5}; --i)
+        for (boost::int128::int128 i {0}; i > boost::int128::int128{-5}; --i)
         {
             const auto sat_res {saturating_sub(near_max,  i)};
             BOOST_TEST(sat_res < max);
@@ -261,8 +261,8 @@ void test_sub_sat<boost::int128::int128_t>()
             BOOST_TEST(sat_res == res);
         }
 
-        near_max += boost::int128::int128_t{5};
-        for (boost::int128::int128_t i {-1}; i > boost::int128::int128_t{-5}; --i)
+        near_max += boost::int128::int128{5};
+        for (boost::int128::int128 i {-1}; i > boost::int128::int128{-5}; --i)
         {
             const auto sat_res {saturating_sub(near_max,  i)};
             BOOST_TEST(sat_res == max);
@@ -273,8 +273,8 @@ void test_sub_sat<boost::int128::int128_t>()
     {
         for (std::size_t i {0}; i < N; ++i)
         {
-            boost::int128::int128_t x {signed_dist(rng), dist(rng)};
-            boost::int128::int128_t y {signed_dist(rng), dist(rng)};
+            boost::int128::int128 x {signed_dist(rng), dist(rng)};
+            boost::int128::int128 y {signed_dist(rng), dist(rng)};
 
             if (x > 0)
             {
@@ -300,18 +300,18 @@ template <typename T>
 void test_mul_sat();
 
 template <>
-void test_mul_sat<boost::int128::uint128_t>()
+void test_mul_sat<boost::int128::uint128>()
 {
     using boost::int128::saturating_mul;
 
-    boost::int128::uint128_t x {2U};
-    boost::int128::uint128_t y {2U};
+    boost::int128::uint128 x {2U};
+    boost::int128::uint128 y {2U};
     int bit_count {4};
 
     while (bit_count <= 128)
     {
         const auto sat_res {saturating_mul(x, y)};
-        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128_t>::max());
+        BOOST_TEST(sat_res < std::numeric_limits<boost::int128::uint128>::max());
 
         const auto res {x * y};
         BOOST_TEST(res == sat_res);
@@ -325,7 +325,7 @@ void test_mul_sat<boost::int128::uint128_t>()
     while (bit_count < 256)
     {
         const auto sat_res {saturating_mul(x, y)};
-        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128_t>::max());
+        BOOST_TEST(sat_res == std::numeric_limits<boost::int128::uint128>::max());
 
         const auto res {x * y};
         BOOST_TEST(res != sat_res);
@@ -339,19 +339,19 @@ void test_mul_sat<boost::int128::uint128_t>()
 }
 
 template <>
-void test_mul_sat<boost::int128::int128_t>()
+void test_mul_sat<boost::int128::int128>()
 {
     using boost::int128::saturating_mul;
 
     {
-        boost::int128::int128_t x {2};
-        boost::int128::int128_t y {2};
+        boost::int128::int128 x {2};
+        boost::int128::int128 y {2};
         int bit_count {4};
 
         while (bit_count < 128)
         {
             const auto sat_res {saturating_mul(x, y)};
-            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128_t>::max());
+            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128>::max());
 
             const auto res {x * y};
             BOOST_TEST(res == sat_res);
@@ -365,7 +365,7 @@ void test_mul_sat<boost::int128::int128_t>()
         while (bit_count < 254)
         {
             const auto sat_res {saturating_mul(x, y)};
-            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::max());
+            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128>::max());
 
             const auto res {x * y};
             BOOST_TEST(res != sat_res);
@@ -377,17 +377,17 @@ void test_mul_sat<boost::int128::int128_t>()
         }
     }
     {
-        boost::int128::int128_t x {2};
-        boost::int128::int128_t y {-2};
+        boost::int128::int128 x {2};
+        boost::int128::int128 y {-2};
         int bit_count {4};
 
         while (bit_count < 128)
         {
             const auto sat_res {saturating_mul(x, y)};
-            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128_t>::max());
-            BOOST_TEST(sat_res > std::numeric_limits<boost::int128::int128_t>::min());
+            BOOST_TEST(sat_res < std::numeric_limits<boost::int128::int128>::max());
+            BOOST_TEST(sat_res > std::numeric_limits<boost::int128::int128>::min());
 
-            const boost::int128::int128_t res {x * y};
+            const boost::int128::int128 res {x * y};
             BOOST_TEST(res == sat_res);
 
             x <<= 1;
@@ -403,8 +403,8 @@ void test_mul_sat<boost::int128::int128_t>()
                 return; // LCOV_EXCL_LINE
             }
 
-            const boost::int128::int128_t sat_res {saturating_mul(x, y)};
-            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128_t>::min());
+            const boost::int128::int128 sat_res {saturating_mul(x, y)};
+            BOOST_TEST(sat_res == std::numeric_limits<boost::int128::int128>::min());
             x <<= 1;
             y *= 2;
 
@@ -417,14 +417,14 @@ template <typename T>
 void test_div_sat();
 
 template <>
-void test_div_sat<boost::int128::uint128_t>()
+void test_div_sat<boost::int128::uint128>()
 {
     using boost::int128::saturating_div;
 
     for (std::size_t i {}; i < N; ++i)
     {
-        const boost::int128::uint128_t value1{dist(rng), dist(rng)};
-        const boost::int128::uint128_t value2{dist(rng), dist(rng)};
+        const boost::int128::uint128 value1{dist(rng), dist(rng)};
+        const boost::int128::uint128 value2{dist(rng), dist(rng)};
 
         const auto sat_res {saturating_div(value1, value2)};
         const auto res {value1 / value2};
@@ -434,14 +434,14 @@ void test_div_sat<boost::int128::uint128_t>()
 }
 
 template <>
-void test_div_sat<boost::int128::int128_t>()
+void test_div_sat<boost::int128::int128>()
 {
     using boost::int128::saturating_div;
 
     for (std::size_t i {}; i < N; ++i)
     {
-        const boost::int128::int128_t value1{signed_dist(rng), dist(rng)};
-        const boost::int128::int128_t value2{signed_dist(rng), dist(rng)};
+        const boost::int128::int128 value1{signed_dist(rng), dist(rng)};
+        const boost::int128::int128 value2{signed_dist(rng), dist(rng)};
 
         const auto sat_res {saturating_div(value1, value2)};
         const auto res {value1 / value2};
@@ -449,8 +449,8 @@ void test_div_sat<boost::int128::int128_t>()
         BOOST_TEST(sat_res == res);
     }
 
-    constexpr auto min_val {std::numeric_limits<boost::int128::int128_t>::min()};
-    constexpr auto max_val{std::numeric_limits<boost::int128::int128_t>::max()};
+    constexpr auto min_val {std::numeric_limits<boost::int128::int128>::min()};
+    constexpr auto max_val{std::numeric_limits<boost::int128::int128>::max()};
     BOOST_TEST(saturating_div(min_val, -1) == max_val);
 }
 
@@ -458,14 +458,14 @@ template <typename T>
 void test_saturate_cast();
 
 template <>
-void test_saturate_cast<boost::int128::uint128_t>()
+void test_saturate_cast<boost::int128::uint128>()
 {
     using boost::int128::saturating_cast;
 
     for (std::size_t i {}; i < N; ++i)
     {
         const auto value {dist(rng)};
-        const boost::int128::uint128_t big_value{value};
+        const boost::int128::uint128 big_value{value};
 
         BOOST_TEST(saturating_cast<std::uint64_t>(big_value) == value);
         BOOST_TEST(saturating_cast<std::uint64_t>(big_value) == static_cast<std::uint64_t>(big_value));
@@ -474,21 +474,21 @@ void test_saturate_cast<boost::int128::uint128_t>()
     for (std::size_t i {}; i < N; ++i)
     {
         const auto value {dist(rng)};
-        const boost::int128::uint128_t big_value{value, value};
+        const boost::int128::uint128 big_value{value, value};
         BOOST_TEST(saturating_cast<std::uint64_t>(big_value) == std::numeric_limits<std::uint64_t>::max());
         BOOST_TEST(saturating_cast<std::uint64_t>(big_value) != static_cast<std::uint64_t>(big_value));
     }
 }
 
 template <>
-void test_saturate_cast<boost::int128::int128_t>()
+void test_saturate_cast<boost::int128::int128>()
 {
     using boost::int128::saturating_cast;
 
     for (std::size_t i {}; i < N; ++i)
     {
         const auto value {signed_dist(rng)};
-        const boost::int128::int128_t big_value{value};
+        const boost::int128::int128 big_value{value};
 
         BOOST_TEST(saturating_cast<std::int64_t>(big_value) == value);
         BOOST_TEST(saturating_cast<std::int64_t>(big_value) == static_cast<std::int64_t>(big_value));
@@ -498,7 +498,7 @@ void test_saturate_cast<boost::int128::int128_t>()
     {
         const auto hi_word {signed_dist(rng)};
         const auto lo_word {dist(rng)};
-        const boost::int128::int128_t big_value{hi_word, lo_word};
+        const boost::int128::int128 big_value{hi_word, lo_word};
 
         if (hi_word > 0)
         {
@@ -513,17 +513,17 @@ void test_saturate_cast<boost::int128::int128_t>()
 
 int main()
 {
-    test_add_sat<boost::int128::uint128_t>();
-    test_sub_sat<boost::int128::uint128_t>();
-    test_mul_sat<boost::int128::uint128_t>();
-    test_div_sat<boost::int128::uint128_t>();
-    test_saturate_cast<boost::int128::uint128_t>();
+    test_add_sat<boost::int128::uint128>();
+    test_sub_sat<boost::int128::uint128>();
+    test_mul_sat<boost::int128::uint128>();
+    test_div_sat<boost::int128::uint128>();
+    test_saturate_cast<boost::int128::uint128>();
 
-    test_add_sat<boost::int128::int128_t>();
-    test_sub_sat<boost::int128::int128_t>();
-    test_mul_sat<boost::int128::int128_t>();
-    test_div_sat<boost::int128::int128_t>();
-    test_saturate_cast<boost::int128::int128_t>();
+    test_add_sat<boost::int128::int128>();
+    test_sub_sat<boost::int128::int128>();
+    test_mul_sat<boost::int128::int128>();
+    test_div_sat<boost::int128::int128>();
+    test_saturate_cast<boost::int128::int128>();
 
     return boost::report_errors();
 }

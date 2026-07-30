@@ -33,10 +33,10 @@ https://www.boost.org/LICENSE_1_0.txt
 |===
 | Type | Description
 
-| xref:uint128_t.adoc[`uint128_t`]
+| xref:uint128.adoc[`uint128`]
 | Unsigned 128-bit integer
 
-| xref:int128_t.adoc[`int128_t`]
+| xref:int128.adoc[`int128`]
 | Signed 128-bit integer
 |===
 
@@ -67,23 +67,23 @@ https://www.boost.org/LICENSE_1_0.txt
 |===
 | Structure | Description
 
-| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
-| Numeric limits specialization for `uint128_t`
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128>`]
+| Numeric limits specialization for `uint128`
 
-| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
-| Numeric limits specialization for `int128_t`
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128>`]
+| Numeric limits specialization for `int128`
 
-| xref:hash.adoc[`std::hash<uint128_t>`]
-| Hash specialization for `uint128_t`
+| xref:hash.adoc[`std::hash<uint128>`]
+| Hash specialization for `uint128`
 
-| xref:hash.adoc[`std::hash<int128_t>`]
-| Hash specialization for `int128_t`
+| xref:hash.adoc[`std::hash<int128>`]
+| Hash specialization for `int128`
 
 | xref:cstdlib.adoc#div_structs[`u128div_t`]
-| Result type for `div(uint128_t, uint128_t)`
+| Result type for `div(uint128, uint128)`
 
 | xref:cstdlib.adoc#div_structs[`i128div_t`]
-| Result type for `div(int128_t, int128_t)`
+| Result type for `div(int128, int128)`
 
 | xref:numeric.adoc#div_result[`div_result<T>`]
 | Result type for the `div_rem_*` functions
@@ -159,7 +159,7 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| xref:int128_t.adoc#i128_abs[`abs`]
+| xref:int128.adoc#i128_abs[`abs`]
 | Absolute value
 |===
 
@@ -181,11 +181,11 @@ Listed by analogous STL header.
 |===
 | Specialization | Description
 
-| xref:hash.adoc[`std::hash<uint128_t>`]
-| Enables `uint128_t` as a key in unordered associative containers
+| xref:hash.adoc[`std::hash<uint128>`]
+| Enables `uint128` as a key in unordered associative containers
 
-| xref:hash.adoc[`std::hash<int128_t>`]
-| Enables `int128_t` as a key in unordered associative containers
+| xref:hash.adoc[`std::hash<int128>`]
+| Enables `int128` as a key in unordered associative containers
 |===
 
 [#api_formatting]
@@ -384,13 +384,13 @@ Listed by analogous STL header.
 | Macro | Description
 
 | `BOOST_INT128_UINT128_MAX`
-| Maximum value for `uint128_t`
+| Maximum value for `uint128`
 
 | `BOOST_INT128_INT128_MAX`
-| Maximum value for `int128_t`
+| Maximum value for `int128`
 
 | `BOOST_INT128_INT128_MIN`
-| Minimum value for `int128_t`
+| Minimum value for `int128`
 |===
 
 === Literals
@@ -488,19 +488,19 @@ Listed by analogous STL header.
 | Formatting integration for pass:[C++20] `<format>`
 
 | xref:hash.adoc[`<boost/int128/hash.hpp>`]
-| `std::hash` specializations for `int128_t` and `uint128_t`
+| `std::hash` specializations for `int128` and `uint128`
 
 | `<boost/int128/int128.hpp>`
-| The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
+| The xref:uint128.adoc[`uint128`] and xref:int128.adoc[`int128`] types
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
-| Iostream overloads for `int128_t` and `uint128_t`
+| Iostream overloads for `int128` and `uint128`
 
 | `<boost/int128/limits.hpp>`
-| Overloads for `std::numeric_limits` for `int128_t` and `uint128_t`
+| Overloads for `std::numeric_limits` for `int128` and `uint128`
 
 | xref:literals.adoc[`<boost/int128/literals.hpp>`]
-| User-defined literals for `int128_t` and `uint128_t`
+| User-defined literals for `int128` and `uint128`
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
 | Numeric algorithms (gcd, lcm, midpoint, integer division)

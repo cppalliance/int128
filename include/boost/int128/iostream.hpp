@@ -28,7 +28,7 @@ namespace detail {
 template <typename T>
 struct streamable_overload
 {
-    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+    static constexpr bool value = std::is_same<T, uint128>::value || std::is_same<T, int128>::value;
 };
 
 template <typename T>

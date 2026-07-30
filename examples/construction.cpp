@@ -11,23 +11,23 @@
 
 int main()
 {
-    using boost::int128::uint128_t;
-    using boost::int128::int128_t;
+    using boost::int128::uint128;
+    using boost::int128::int128;
 
-    std::cout << "=== uint128_t Construction ===" << std::endl;
+    std::cout << "=== uint128 Construction ===" << std::endl;
 
     // 1) From a builtin integer type
-    constexpr uint128_t from_builtin {42U};
+    constexpr uint128 from_builtin {42U};
     std::cout << "From builtin (42U): " << from_builtin << std::endl;
 
     // 2) From high and low 64-bit values (high, low)
-    constexpr uint128_t from_parts {UINT64_C(0x1), UINT64_C(0x0)};  // 2^64
+    constexpr uint128 from_parts {UINT64_C(0x1), UINT64_C(0x0)};  // 2^64
     std::cout << "From parts (1, 0) = 2^64: " << from_parts << std::endl;
 
-    constexpr uint128_t max_value {UINT64_C(0xFFFFFFFFFFFFFFFF), UINT64_C(0xFFFFFFFFFFFFFFFF)};
+    constexpr uint128 max_value {UINT64_C(0xFFFFFFFFFFFFFFFF), UINT64_C(0xFFFFFFFFFFFFFFFF)};
     std::cout << "From parts (max, max): " << max_value << std::endl;
     std::cout << "  Equals numeric_limits max? " << std::boolalpha
-              << (max_value == std::numeric_limits<uint128_t>::max()) << std::endl;
+              << (max_value == std::numeric_limits<uint128>::max()) << std::endl;
 
     // 3) From user-defined literals.
     // The library provides only string-form UDLs
@@ -44,22 +44,22 @@ int main()
     // 5) From input stream
     std::stringstream ss;
     ss.str("12345678901234567890123456789");
-    uint128_t from_stream;
+    uint128 from_stream;
     ss >> from_stream;
     std::cout << "From stringstream: " << from_stream << std::endl;
 
-    std::cout << "\n=== int128_t Construction ===" << std::endl;
+    std::cout << "\n=== int128 Construction ===" << std::endl;
 
     // Signed from builtin
-    constexpr int128_t signed_builtin {-42};
+    constexpr int128 signed_builtin {-42};
     std::cout << "From builtin (-42): " << signed_builtin << std::endl;
 
     // Signed from parts. Both words are stored unsigned, but the constructor takes
     // the high word signed; read it back with signed_high().
-    constexpr int128_t min_value {INT64_MIN, 0};
+    constexpr int128 min_value {INT64_MIN, 0};
     std::cout << "From parts (INT64_MIN, 0): " << min_value << std::endl;
     std::cout << "  Equals numeric_limits min? "
-              << (min_value == std::numeric_limits<int128_t>::min()) << std::endl;
+              << (min_value == std::numeric_limits<int128>::min()) << std::endl;
 
     // Signed literals. Values that fit in unsigned long long can be written
     // directly; the leading minus is parsed as a unary operator on the
@@ -84,52 +84,52 @@ int main()
     std::cout << "\n=== Default and Copy Construction ===" << std::endl;
 
     // Default construction (zero-initialized)
-    constexpr uint128_t default_constructed {};
+    constexpr uint128 default_constructed {};
     std::cout << "Default constructed: " << default_constructed << std::endl;
 
     // Copy construction
-    const uint128_t copied {from_macro};
+    const uint128 copied {from_macro};
     std::cout << "Copy constructed: " << copied << std::endl;
 
     std::cout << "\n=== Floating-Point Construction ===" << std::endl;
 
     // Floating-point construction truncates toward zero, matching the behavior of
     // a static_cast from a floating-point type to a built-in integer.
-    constexpr uint128_t from_double {12345.9};
-    std::cout << "uint128_t from 12345.9 (truncated): " << from_double << std::endl;
+    constexpr uint128 from_double {12345.9};
+    std::cout << "uint128 from 12345.9 (truncated): " << from_double << std::endl;
 
-    constexpr int128_t from_negative_double {-12345.9};
-    std::cout << "int128_t from -12345.9 (truncated toward zero): " << from_negative_double << std::endl;
+    constexpr int128 from_negative_double {-12345.9};
+    std::cout << "int128 from -12345.9 (truncated toward zero): " << from_negative_double << std::endl;
 
     // Values that exceed the 64-bit range are routed through the full 128-bit decomposition.
     const double two_to_the_100 {1.2676506002282294e30};  // 2^100
-    const uint128_t large_from_double {two_to_the_100};
-    std::cout << "uint128_t from 2^100: " << large_from_double << std::endl;
+    const uint128 large_from_double {two_to_the_100};
+    std::cout << "uint128 from 2^100: " << large_from_double << std::endl;
 
     std::cout << "\n=== Floating-Point Edge Cases ===" << std::endl;
 
     // NaN yields zero for both signed and unsigned (mirrors libgcc's __fix(uns)Xfti).
     const double nan_value {std::numeric_limits<double>::quiet_NaN()};
-    const uint128_t unsigned_from_nan {nan_value};
-    const int128_t signed_from_nan {nan_value};
-    std::cout << "uint128_t from NaN: " << unsigned_from_nan << std::endl;
-    std::cout << "int128_t from NaN: " << signed_from_nan << std::endl;
+    const uint128 unsigned_from_nan {nan_value};
+    const int128 signed_from_nan {nan_value};
+    std::cout << "uint128 from NaN: " << unsigned_from_nan << std::endl;
+    std::cout << "int128 from NaN: " << signed_from_nan << std::endl;
 
-    // Negative values are clamped to zero when constructing uint128_t.
-    const uint128_t unsigned_from_negative {-1.0};
-    std::cout << "uint128_t from -1.0 (clamped to zero): " << unsigned_from_negative << std::endl;
+    // Negative values are clamped to zero when constructing uint128.
+    const uint128 unsigned_from_negative {-1.0};
+    std::cout << "uint128 from -1.0 (clamped to zero): " << unsigned_from_negative << std::endl;
 
     // Positive overflow saturates: anything >= 2^128 (including +infinity) becomes UINT128_MAX.
     const double infinity {std::numeric_limits<double>::infinity()};
-    const uint128_t saturated_unsigned {infinity};
-    std::cout << "uint128_t from +infinity (saturates to UINT128_MAX): " << saturated_unsigned << std::endl;
+    const uint128 saturated_unsigned {infinity};
+    std::cout << "uint128 from +infinity (saturates to UINT128_MAX): " << saturated_unsigned << std::endl;
 
-    // For int128_t, values >= 2^127 saturate to INT128_MAX and values <= -2^127 saturate to INT128_MIN.
+    // For int128, values >= 2^127 saturate to INT128_MAX and values <= -2^127 saturate to INT128_MIN.
     const double huge {1e40};  // Well beyond 2^127 (~ 1.7e38)
-    const int128_t saturated_positive {huge};
-    const int128_t saturated_negative {-huge};
-    std::cout << "int128_t from 1e40 (saturates to INT128_MAX): " << saturated_positive << std::endl;
-    std::cout << "int128_t from -1e40 (saturates to INT128_MIN): " << saturated_negative << std::endl;
+    const int128 saturated_positive {huge};
+    const int128 saturated_negative {-huge};
+    std::cout << "int128 from 1e40 (saturates to INT128_MAX): " << saturated_positive << std::endl;
+    std::cout << "int128 from -1e40 (saturates to INT128_MIN): " << saturated_negative << std::endl;
 
     return 0;
 }

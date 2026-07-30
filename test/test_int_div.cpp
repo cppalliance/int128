@@ -107,10 +107,10 @@ struct mode_entry
 {
     const char* name;
     long long (*reference)(long long, long long);
-    int128_t (*signed_quotient)(int128_t, int128_t);
-    div_result<int128_t> (*signed_div_rem)(int128_t, int128_t);
-    uint128_t (*unsigned_quotient)(uint128_t, uint128_t);
-    div_result<uint128_t> (*unsigned_div_rem)(uint128_t, uint128_t);
+    int128 (*signed_quotient)(int128, int128);
+    div_result<int128> (*signed_div_rem)(int128, int128);
+    uint128 (*unsigned_quotient)(uint128, uint128);
+    div_result<uint128> (*unsigned_div_rem)(uint128, uint128);
     bool nearest;
 };
 
@@ -148,23 +148,23 @@ static void test_signed_sweep()
 
             for (const auto& mode : modes)
             {
-                const int128_t wide_x {x};
-                const int128_t wide_y {y};
+                const int128 wide_x {x};
+                const int128 wide_y {y};
                 const auto expected {mode.reference(x, y)};
 
-                if (!BOOST_TEST_EQ(mode.signed_quotient(wide_x, wide_y), int128_t{expected}))
+                if (!BOOST_TEST_EQ(mode.signed_quotient(wide_x, wide_y), int128{expected}))
                 {
                     context(mode, x, y);
                 }
 
                 const auto res {mode.signed_div_rem(wide_x, wide_y)};
 
-                if (!BOOST_TEST_EQ(res.quotient, int128_t{expected}))
+                if (!BOOST_TEST_EQ(res.quotient, int128{expected}))
                 {
                     context(mode, x, y);
                 }
 
-                if (!BOOST_TEST_EQ(res.remainder, int128_t{x - expected * y}))
+                if (!BOOST_TEST_EQ(res.remainder, int128{x - expected * y}))
                 {
                     context(mode, x, y);
                 }
@@ -172,7 +172,7 @@ static void test_signed_sweep()
 
             const auto rem {x % y};
             const auto expected_rem {rem < 0 ? rem + (y < 0 ? -y : y) : rem};
-            BOOST_TEST_EQ(rem_euclid(int128_t{x}, int128_t{y}), int128_t{expected_rem});
+            BOOST_TEST_EQ(rem_euclid(int128{x}, int128{y}), int128{expected_rem});
         }
     }
 }
@@ -186,10 +186,10 @@ static void test_unsigned_sweep()
         {
             for (const auto& mode : modes)
             {
-                const uint128_t wide_x {static_cast<unsigned long long>(x)};
-                const uint128_t wide_y {static_cast<unsigned long long>(y)};
+                const uint128 wide_x {static_cast<unsigned long long>(x)};
+                const uint128 wide_y {static_cast<unsigned long long>(y)};
                 const auto expected {mode.reference(x, y)};
-                const uint128_t wide_expected {static_cast<unsigned long long>(expected)};
+                const uint128 wide_expected {static_cast<unsigned long long>(expected)};
 
                 if (!BOOST_TEST_EQ(mode.unsigned_quotient(wide_x, wide_y), wide_expected))
                 {
@@ -205,14 +205,14 @@ static void test_unsigned_sweep()
 
                 // The remainder of a rounded up unsigned quotient is negative, and is
                 // returned reduced modulo 2^128
-                if (!BOOST_TEST_EQ(res.remainder, uint128_t{wide_x - wide_expected * wide_y}))
+                if (!BOOST_TEST_EQ(res.remainder, uint128{wide_x - wide_expected * wide_y}))
                 {
                     context(mode, x, y);
                 }
             }
 
-            BOOST_TEST_EQ(rem_euclid(uint128_t{static_cast<unsigned long long>(x)}, uint128_t{static_cast<unsigned long long>(y)}),
-                          uint128_t{static_cast<unsigned long long>(x % y)});
+            BOOST_TEST_EQ(rem_euclid(uint128{static_cast<unsigned long long>(x)}, uint128{static_cast<unsigned long long>(y)}),
+                          uint128{static_cast<unsigned long long>(x % y)});
         }
     }
 }
@@ -221,7 +221,7 @@ static void test_unsigned_sweep()
 // which puts the full 128-bit division path under the same reference
 static void test_scaled_sweep()
 {
-    const int128_t scale {int128_t{1} << 70};
+    const int128 scale {int128{1} << 70};
 
     for (long long x {-40}; x <= 40; ++x)
     {
@@ -234,17 +234,17 @@ static void test_scaled_sweep()
 
             for (const auto& mode : modes)
             {
-                const int128_t wide_x {int128_t{x} * scale};
-                const int128_t wide_y {int128_t{y} * scale};
+                const int128 wide_x {int128{x} * scale};
+                const int128 wide_y {int128{y} * scale};
                 const auto expected {mode.reference(x, y)};
                 const auto res {mode.signed_div_rem(wide_x, wide_y)};
 
-                if (!BOOST_TEST_EQ(res.quotient, int128_t{expected}))
+                if (!BOOST_TEST_EQ(res.quotient, int128{expected}))
                 {
                     context(mode, x, y);
                 }
 
-                if (!BOOST_TEST_EQ(res.remainder, wide_x - int128_t{expected} * wide_y))
+                if (!BOOST_TEST_EQ(res.remainder, wide_x - int128{expected} * wide_y))
                 {
                     context(mode, x, y);
                 }
@@ -256,22 +256,22 @@ static void test_scaled_sweep()
 // Properties that hold for arbitrary operands, checked on values with no small equivalent
 static void test_signed_invariants()
 {
-    constexpr auto int_min {(std::numeric_limits<int128_t>::min)()};
-    constexpr auto int_max {(std::numeric_limits<int128_t>::max)()};
+    constexpr auto int_min {(std::numeric_limits<int128>::min)()};
+    constexpr auto int_max {(std::numeric_limits<int128>::max)()};
 
-    const int128_t dividends[]
+    const int128 dividends[]
     {
         int_max, int_min, int_min + 1, int_max - 1,
         BOOST_INT128_INT128_C(-170141183460469231731687303715884105727),
         BOOST_INT128_INT128_C(99999999999999999999999999999999999999),
         BOOST_INT128_INT128_C(-12345678901234567890123456789012345678),
-        int128_t{1} << 100, -(int128_t{1} << 100)
+        int128{1} << 100, -(int128{1} << 100)
     };
 
-    const int128_t divisors[]
+    const int128 divisors[]
     {
-        int128_t{1}, int128_t{-1}, int128_t{2}, int128_t{-2}, int128_t{3}, int128_t{-3},
-        int128_t{1} << 64, -(int128_t{1} << 64), int_max, int_min,
+        int128{1}, int128{-1}, int128{2}, int128{-2}, int128{3}, int128{-3},
+        int128{1} << 64, -(int128{1} << 64), int_max, int_min,
         BOOST_INT128_INT128_C(1000000000000000000000000000000000000)
     };
 
@@ -299,16 +299,16 @@ static void test_signed_invariants()
 
                 // x == quotient * y + remainder, evaluated modulo 2^128 so that no
                 // intermediate overflows
-                const uint128_t unsigned_x {x.high, x.low};
-                const uint128_t unsigned_y {y.high, y.low};
-                const uint128_t unsigned_quot {res.quotient.high, res.quotient.low};
-                const uint128_t unsigned_rem {res.remainder.high, res.remainder.low};
-                const uint128_t reconstructed {unsigned_quot * unsigned_y + unsigned_rem};
+                const uint128 unsigned_x {x.high, x.low};
+                const uint128 unsigned_y {y.high, y.low};
+                const uint128 unsigned_quot {res.quotient.high, res.quotient.low};
+                const uint128 unsigned_rem {res.remainder.high, res.remainder.low};
+                const uint128 reconstructed {unsigned_quot * unsigned_y + unsigned_rem};
                 BOOST_TEST_EQ(unsigned_x, reconstructed);
 
                 // abs(remainder) < abs(y)
-                const auto abs_rem {static_cast<uint128_t>(boost::int128::abs(res.remainder))};
-                const auto abs_y {static_cast<uint128_t>(boost::int128::abs(y))};
+                const auto abs_rem {static_cast<uint128>(boost::int128::abs(res.remainder))};
+                const auto abs_y {static_cast<uint128>(boost::int128::abs(y))};
                 BOOST_TEST(abs_rem < abs_y);
 
                 // A nearest mode never leaves more than half the divisor behind
@@ -327,7 +327,7 @@ static void test_signed_invariants()
             // The Euclidean remainder is always non-negative and below abs(y)
             const auto euclid_rem {rem_euclid(x, y)};
             BOOST_TEST(euclid_rem >= 0);
-            BOOST_TEST(static_cast<uint128_t>(euclid_rem) < static_cast<uint128_t>(boost::int128::abs(y)));
+            BOOST_TEST(static_cast<uint128>(euclid_rem) < static_cast<uint128>(boost::int128::abs(y)));
             BOOST_TEST_EQ(euclid_rem, div_rem_euclid(x, y).remainder);
         }
     }
@@ -335,18 +335,18 @@ static void test_signed_invariants()
 
 static void test_unsigned_invariants()
 {
-    constexpr auto uint_max {(std::numeric_limits<uint128_t>::max)()};
+    constexpr auto uint_max {(std::numeric_limits<uint128>::max)()};
 
-    const uint128_t dividends[]
+    const uint128 dividends[]
     {
-        uint_max, uint_max - 1U, uint128_t{1} << 127U, uint128_t{1} << 100U,
+        uint_max, uint_max - 1U, uint128{1} << 127U, uint128{1} << 100U,
         BOOST_INT128_UINT128_C(340282366920938463463374607431768211451),
         BOOST_INT128_UINT128_C(99999999999999999999999999999999999999)
     };
 
-    const uint128_t divisors[]
+    const uint128 divisors[]
     {
-        uint128_t{1}, uint128_t{2}, uint128_t{3}, uint128_t{1} << 64U, uint_max,
+        uint128{1}, uint128{2}, uint128{3}, uint128{1} << 64U, uint_max,
         BOOST_INT128_UINT128_C(1000000000000000000000000000000000000)
     };
 
@@ -367,7 +367,7 @@ static void test_unsigned_invariants()
 
                 // x == quotient * y + remainder modulo 2^128, including when the
                 // remainder has wrapped
-                const uint128_t reconstructed {res.quotient * y + res.remainder};
+                const uint128 reconstructed {res.quotient * y + res.remainder};
                 BOOST_TEST_EQ(x, reconstructed);
 
                 if (res.quotient == truncated.quot)
@@ -390,136 +390,136 @@ static void test_unsigned_invariants()
     }
 }
 
-// The divisor whose magnitude is not representable as a positive int128_t
+// The divisor whose magnitude is not representable as a positive int128
 static void test_int128_min_divisor()
 {
-    constexpr auto int_min {(std::numeric_limits<int128_t>::min)()};
-    constexpr auto int_max {(std::numeric_limits<int128_t>::max)()};
+    constexpr auto int_min {(std::numeric_limits<int128>::min)()};
+    constexpr auto int_max {(std::numeric_limits<int128>::max)()};
 
     // -3 / INT128_MIN is a tiny positive fraction: only the modes that round up in
     // magnitude leave zero
-    BOOST_TEST_EQ(div_to_zero(int128_t{-3}, int_min), int128_t{0});
-    BOOST_TEST_EQ(div_away_zero(int128_t{-3}, int_min), int128_t{1});
-    BOOST_TEST_EQ(div_to_pos_inf(int128_t{-3}, int_min), int128_t{1});
-    BOOST_TEST_EQ(div_to_neg_inf(int128_t{-3}, int_min), int128_t{0});
-    BOOST_TEST_EQ(div_euclid(int128_t{-3}, int_min), int128_t{1});
-    BOOST_TEST_EQ(div_ties_to_zero(int128_t{-3}, int_min), int128_t{0});
-    BOOST_TEST_EQ(div_ties_away_zero(int128_t{-3}, int_min), int128_t{0});
-    BOOST_TEST_EQ(div_ties_to_even(int128_t{-3}, int_min), int128_t{0});
+    BOOST_TEST_EQ(div_to_zero(int128{-3}, int_min), int128{0});
+    BOOST_TEST_EQ(div_away_zero(int128{-3}, int_min), int128{1});
+    BOOST_TEST_EQ(div_to_pos_inf(int128{-3}, int_min), int128{1});
+    BOOST_TEST_EQ(div_to_neg_inf(int128{-3}, int_min), int128{0});
+    BOOST_TEST_EQ(div_euclid(int128{-3}, int_min), int128{1});
+    BOOST_TEST_EQ(div_ties_to_zero(int128{-3}, int_min), int128{0});
+    BOOST_TEST_EQ(div_ties_away_zero(int128{-3}, int_min), int128{0});
+    BOOST_TEST_EQ(div_ties_to_even(int128{-3}, int_min), int128{0});
 
     // The matching remainder is -3 - 1 * INT128_MIN, which is 2^127 - 3
-    BOOST_TEST_EQ(div_rem_euclid(int128_t{-3}, int_min).remainder, int_max - 2);
-    BOOST_TEST_EQ(rem_euclid(int128_t{-3}, int_min), int_max - 2);
-    BOOST_TEST_EQ(div_rem_to_zero(int128_t{-3}, int_min).remainder, int128_t{-3});
+    BOOST_TEST_EQ(div_rem_euclid(int128{-3}, int_min).remainder, int_max - 2);
+    BOOST_TEST_EQ(rem_euclid(int128{-3}, int_min), int_max - 2);
+    BOOST_TEST_EQ(div_rem_to_zero(int128{-3}, int_min).remainder, int128{-3});
 
     // INT128_MIN / 2 is exact, so no mode adjusts it
     for (const auto& mode : modes)
     {
-        BOOST_TEST_EQ(mode.signed_quotient(int_min, int128_t{2}), int_min / 2);
-        BOOST_TEST_EQ(mode.signed_div_rem(int_min, int128_t{2}).remainder, int128_t{0});
+        BOOST_TEST_EQ(mode.signed_quotient(int_min, int128{2}), int_min / 2);
+        BOOST_TEST_EQ(mode.signed_div_rem(int_min, int128{2}).remainder, int128{0});
     }
 
     // A quotient at the limits of the type is never rounded further
     for (const auto& mode : modes)
     {
-        BOOST_TEST_EQ(mode.signed_quotient(int_max, int128_t{1}), int_max);
-        BOOST_TEST_EQ(mode.signed_quotient(int_min, int128_t{1}), int_min);
-        BOOST_TEST_EQ(mode.signed_quotient(int_max, int128_t{-1}), -int_max);
+        BOOST_TEST_EQ(mode.signed_quotient(int_max, int128{1}), int_max);
+        BOOST_TEST_EQ(mode.signed_quotient(int_min, int128{1}), int_min);
+        BOOST_TEST_EQ(mode.signed_quotient(int_max, int128{-1}), -int_max);
     }
 
     // 2^127 is congruent to 2 modulo 7, so INT128_MIN is congruent to 5
-    BOOST_TEST_EQ(rem_euclid(int_min, int128_t{7}), int128_t{5});
-    BOOST_TEST_EQ(rem_euclid(int_min, int128_t{-7}), int128_t{5});
+    BOOST_TEST_EQ(rem_euclid(int_min, int128{7}), int128{5});
+    BOOST_TEST_EQ(rem_euclid(int_min, int128{-7}), int128{5});
 }
 
 static void test_unsigned_limits()
 {
-    constexpr auto uint_max {(std::numeric_limits<uint128_t>::max)()};
+    constexpr auto uint_max {(std::numeric_limits<uint128>::max)()};
 
     // No mode overflows a quotient that is already the maximum
     for (const auto& mode : modes)
     {
-        BOOST_TEST_EQ(mode.unsigned_quotient(uint_max, uint128_t{1}), uint_max);
+        BOOST_TEST_EQ(mode.unsigned_quotient(uint_max, uint128{1}), uint_max);
     }
 
     // UINT128_MAX is odd, so halving it is a tie in neither direction
-    BOOST_TEST_EQ(div_ties_to_zero(uint_max, uint128_t{2}), uint_max / 2U);
-    BOOST_TEST_EQ(div_ties_away_zero(uint_max, uint128_t{2}), uint_max / 2U + 1U);
-    BOOST_TEST_EQ(div_away_zero(uint_max, uint128_t{2}), uint_max / 2U + 1U);
-    BOOST_TEST_EQ(div_to_zero(uint_max, uint128_t{2}), uint_max / 2U);
+    BOOST_TEST_EQ(div_ties_to_zero(uint_max, uint128{2}), uint_max / 2U);
+    BOOST_TEST_EQ(div_ties_away_zero(uint_max, uint128{2}), uint_max / 2U + 1U);
+    BOOST_TEST_EQ(div_away_zero(uint_max, uint128{2}), uint_max / 2U + 1U);
+    BOOST_TEST_EQ(div_to_zero(uint_max, uint128{2}), uint_max / 2U);
 
     // A tie against an even divisor at the top of the range
-    const uint128_t even_tie {uint_max - 1U};
-    BOOST_TEST_EQ(div_ties_to_zero(even_tie, uint128_t{2}), even_tie / 2U);
-    BOOST_TEST_EQ(div_ties_away_zero(even_tie, uint128_t{2}), even_tie / 2U);
+    const uint128 even_tie {uint_max - 1U};
+    BOOST_TEST_EQ(div_ties_to_zero(even_tie, uint128{2}), even_tie / 2U);
+    BOOST_TEST_EQ(div_ties_away_zero(even_tie, uint128{2}), even_tie / 2U);
 }
 
 // The worked example from P3724
 static void test_paper_example()
 {
-    const int128_t x {-12};
-    const int128_t y {5};
+    const int128 x {-12};
+    const int128 y {5};
 
-    BOOST_TEST_EQ(div_to_zero(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_away_zero(x, y), int128_t{-3});
-    BOOST_TEST_EQ(div_to_pos_inf(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_to_neg_inf(x, y), int128_t{-3});
-    BOOST_TEST_EQ(div_euclid(x, y), int128_t{-3});
-    BOOST_TEST_EQ(div_ties_to_zero(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_ties_away_zero(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_ties_to_pos_inf(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_ties_to_neg_inf(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_ties_to_odd(x, y), int128_t{-2});
-    BOOST_TEST_EQ(div_ties_to_even(x, y), int128_t{-2});
+    BOOST_TEST_EQ(div_to_zero(x, y), int128{-2});
+    BOOST_TEST_EQ(div_away_zero(x, y), int128{-3});
+    BOOST_TEST_EQ(div_to_pos_inf(x, y), int128{-2});
+    BOOST_TEST_EQ(div_to_neg_inf(x, y), int128{-3});
+    BOOST_TEST_EQ(div_euclid(x, y), int128{-3});
+    BOOST_TEST_EQ(div_ties_to_zero(x, y), int128{-2});
+    BOOST_TEST_EQ(div_ties_away_zero(x, y), int128{-2});
+    BOOST_TEST_EQ(div_ties_to_pos_inf(x, y), int128{-2});
+    BOOST_TEST_EQ(div_ties_to_neg_inf(x, y), int128{-2});
+    BOOST_TEST_EQ(div_ties_to_odd(x, y), int128{-2});
+    BOOST_TEST_EQ(div_ties_to_even(x, y), int128{-2});
 
-    BOOST_TEST_EQ(div_rem_to_zero(x, y).remainder, int128_t{-2});
-    BOOST_TEST_EQ(div_rem_to_neg_inf(x, y).remainder, int128_t{3});
-    BOOST_TEST_EQ(rem_euclid(x, y), int128_t{3});
+    BOOST_TEST_EQ(div_rem_to_zero(x, y).remainder, int128{-2});
+    BOOST_TEST_EQ(div_rem_to_neg_inf(x, y).remainder, int128{3});
+    BOOST_TEST_EQ(rem_euclid(x, y), int128{3});
 }
 
 // Every tie-breaking rule on the same exact tie
 static void test_tie_breaking()
 {
     // 7 / 2 and -7 / 2 are ties, and the truncated quotients are 3 and -3
-    BOOST_TEST_EQ(div_ties_to_zero(int128_t{7}, int128_t{2}), int128_t{3});
-    BOOST_TEST_EQ(div_ties_away_zero(int128_t{7}, int128_t{2}), int128_t{4});
-    BOOST_TEST_EQ(div_ties_to_pos_inf(int128_t{7}, int128_t{2}), int128_t{4});
-    BOOST_TEST_EQ(div_ties_to_neg_inf(int128_t{7}, int128_t{2}), int128_t{3});
-    BOOST_TEST_EQ(div_ties_to_odd(int128_t{7}, int128_t{2}), int128_t{3});
-    BOOST_TEST_EQ(div_ties_to_even(int128_t{7}, int128_t{2}), int128_t{4});
+    BOOST_TEST_EQ(div_ties_to_zero(int128{7}, int128{2}), int128{3});
+    BOOST_TEST_EQ(div_ties_away_zero(int128{7}, int128{2}), int128{4});
+    BOOST_TEST_EQ(div_ties_to_pos_inf(int128{7}, int128{2}), int128{4});
+    BOOST_TEST_EQ(div_ties_to_neg_inf(int128{7}, int128{2}), int128{3});
+    BOOST_TEST_EQ(div_ties_to_odd(int128{7}, int128{2}), int128{3});
+    BOOST_TEST_EQ(div_ties_to_even(int128{7}, int128{2}), int128{4});
 
-    BOOST_TEST_EQ(div_ties_to_zero(int128_t{-7}, int128_t{2}), int128_t{-3});
-    BOOST_TEST_EQ(div_ties_away_zero(int128_t{-7}, int128_t{2}), int128_t{-4});
-    BOOST_TEST_EQ(div_ties_to_pos_inf(int128_t{-7}, int128_t{2}), int128_t{-3});
-    BOOST_TEST_EQ(div_ties_to_neg_inf(int128_t{-7}, int128_t{2}), int128_t{-4});
-    BOOST_TEST_EQ(div_ties_to_odd(int128_t{-7}, int128_t{2}), int128_t{-3});
-    BOOST_TEST_EQ(div_ties_to_even(int128_t{-7}, int128_t{2}), int128_t{-4});
+    BOOST_TEST_EQ(div_ties_to_zero(int128{-7}, int128{2}), int128{-3});
+    BOOST_TEST_EQ(div_ties_away_zero(int128{-7}, int128{2}), int128{-4});
+    BOOST_TEST_EQ(div_ties_to_pos_inf(int128{-7}, int128{2}), int128{-3});
+    BOOST_TEST_EQ(div_ties_to_neg_inf(int128{-7}, int128{2}), int128{-4});
+    BOOST_TEST_EQ(div_ties_to_odd(int128{-7}, int128{2}), int128{-3});
+    BOOST_TEST_EQ(div_ties_to_even(int128{-7}, int128{2}), int128{-4});
 
     // 5 / 2 has an even quotient after rounding away from zero
-    BOOST_TEST_EQ(div_ties_to_odd(int128_t{5}, int128_t{2}), int128_t{3});
-    BOOST_TEST_EQ(div_ties_to_even(int128_t{5}, int128_t{2}), int128_t{2});
+    BOOST_TEST_EQ(div_ties_to_odd(int128{5}, int128{2}), int128{3});
+    BOOST_TEST_EQ(div_ties_to_even(int128{5}, int128{2}), int128{2});
 
-    BOOST_TEST_EQ(div_ties_to_zero(uint128_t{7}, uint128_t{2}), uint128_t{3});
-    BOOST_TEST_EQ(div_ties_away_zero(uint128_t{7}, uint128_t{2}), uint128_t{4});
-    BOOST_TEST_EQ(div_ties_to_pos_inf(uint128_t{7}, uint128_t{2}), uint128_t{4});
-    BOOST_TEST_EQ(div_ties_to_neg_inf(uint128_t{7}, uint128_t{2}), uint128_t{3});
-    BOOST_TEST_EQ(div_ties_to_odd(uint128_t{7}, uint128_t{2}), uint128_t{3});
-    BOOST_TEST_EQ(div_ties_to_even(uint128_t{7}, uint128_t{2}), uint128_t{4});
+    BOOST_TEST_EQ(div_ties_to_zero(uint128{7}, uint128{2}), uint128{3});
+    BOOST_TEST_EQ(div_ties_away_zero(uint128{7}, uint128{2}), uint128{4});
+    BOOST_TEST_EQ(div_ties_to_pos_inf(uint128{7}, uint128{2}), uint128{4});
+    BOOST_TEST_EQ(div_ties_to_neg_inf(uint128{7}, uint128{2}), uint128{3});
+    BOOST_TEST_EQ(div_ties_to_odd(uint128{7}, uint128{2}), uint128{3});
+    BOOST_TEST_EQ(div_ties_to_even(uint128{7}, uint128{2}), uint128{4});
 }
 
 static void test_div_result()
 {
-    const div_result<int128_t> a {int128_t{3}, int128_t{1}};
-    const div_result<int128_t> b {int128_t{3}, int128_t{2}};
-    const div_result<int128_t> c {int128_t{4}, int128_t{1}};
+    const div_result<int128> a {int128{3}, int128{1}};
+    const div_result<int128> b {int128{3}, int128{2}};
+    const div_result<int128> c {int128{4}, int128{1}};
 
     BOOST_TEST(a == a);
     BOOST_TEST(a != b);
     BOOST_TEST(!(a == b));
-    BOOST_TEST(a == div_rem_to_zero(int128_t{10}, int128_t{3}));
+    BOOST_TEST(a == div_rem_to_zero(int128{10}, int128{3}));
 
-    const div_result<uint128_t> ua {uint128_t{3}, uint128_t{1}};
-    BOOST_TEST(ua == div_rem_to_zero(uint128_t{10}, uint128_t{3}));
+    const div_result<uint128> ua {uint128{3}, uint128{1}};
+    BOOST_TEST(ua == div_rem_to_zero(uint128{10}, uint128{3}));
 
     #ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
 
@@ -528,7 +528,7 @@ static void test_div_result()
     BOOST_TEST(c > a);
     BOOST_TEST(a <= a);
     BOOST_TEST((a <=> a) == std::strong_ordering::equal);
-    BOOST_TEST((ua <=> div_result<uint128_t>{uint128_t{3}, uint128_t{2}}) == std::strong_ordering::less);
+    BOOST_TEST((ua <=> div_result<uint128>{uint128{3}, uint128{2}}) == std::strong_ordering::less);
 
     #else
 
@@ -539,27 +539,27 @@ static void test_div_result()
 
 static void test_constexpr()
 {
-    static_assert(div_to_zero(int128_t{-7}, int128_t{2}) == -3, "div_to_zero");
-    static_assert(div_away_zero(int128_t{-7}, int128_t{2}) == -4, "div_away_zero");
-    static_assert(div_to_pos_inf(int128_t{-7}, int128_t{2}) == -3, "div_to_pos_inf");
-    static_assert(div_to_neg_inf(int128_t{-7}, int128_t{2}) == -4, "div_to_neg_inf");
-    static_assert(div_euclid(int128_t{-7}, int128_t{2}) == -4, "div_euclid");
-    static_assert(div_ties_to_zero(int128_t{-7}, int128_t{2}) == -3, "div_ties_to_zero");
-    static_assert(div_ties_away_zero(int128_t{-7}, int128_t{2}) == -4, "div_ties_away_zero");
-    static_assert(div_ties_to_pos_inf(int128_t{-7}, int128_t{2}) == -3, "div_ties_to_pos_inf");
-    static_assert(div_ties_to_neg_inf(int128_t{-7}, int128_t{2}) == -4, "div_ties_to_neg_inf");
-    static_assert(div_ties_to_odd(int128_t{-7}, int128_t{2}) == -3, "div_ties_to_odd");
-    static_assert(div_ties_to_even(int128_t{-7}, int128_t{2}) == -4, "div_ties_to_even");
-    static_assert(rem_euclid(int128_t{-7}, int128_t{2}) == 1, "rem_euclid");
+    static_assert(div_to_zero(int128{-7}, int128{2}) == -3, "div_to_zero");
+    static_assert(div_away_zero(int128{-7}, int128{2}) == -4, "div_away_zero");
+    static_assert(div_to_pos_inf(int128{-7}, int128{2}) == -3, "div_to_pos_inf");
+    static_assert(div_to_neg_inf(int128{-7}, int128{2}) == -4, "div_to_neg_inf");
+    static_assert(div_euclid(int128{-7}, int128{2}) == -4, "div_euclid");
+    static_assert(div_ties_to_zero(int128{-7}, int128{2}) == -3, "div_ties_to_zero");
+    static_assert(div_ties_away_zero(int128{-7}, int128{2}) == -4, "div_ties_away_zero");
+    static_assert(div_ties_to_pos_inf(int128{-7}, int128{2}) == -3, "div_ties_to_pos_inf");
+    static_assert(div_ties_to_neg_inf(int128{-7}, int128{2}) == -4, "div_ties_to_neg_inf");
+    static_assert(div_ties_to_odd(int128{-7}, int128{2}) == -3, "div_ties_to_odd");
+    static_assert(div_ties_to_even(int128{-7}, int128{2}) == -4, "div_ties_to_even");
+    static_assert(rem_euclid(int128{-7}, int128{2}) == 1, "rem_euclid");
 
-    static_assert(div_rem_to_neg_inf(int128_t{-7}, int128_t{2}).remainder == 1, "div_rem_to_neg_inf");
-    static_assert(div_rem_euclid(int128_t{-7}, int128_t{2}).quotient == -4, "div_rem_euclid");
+    static_assert(div_rem_to_neg_inf(int128{-7}, int128{2}).remainder == 1, "div_rem_to_neg_inf");
+    static_assert(div_rem_euclid(int128{-7}, int128{2}).quotient == -4, "div_rem_euclid");
 
-    static_assert(div_to_zero(uint128_t{7}, uint128_t{2}) == 3U, "unsigned div_to_zero");
-    static_assert(div_away_zero(uint128_t{7}, uint128_t{2}) == 4U, "unsigned div_away_zero");
-    static_assert(div_euclid(uint128_t{7}, uint128_t{2}) == 3U, "unsigned div_euclid");
-    static_assert(rem_euclid(uint128_t{7}, uint128_t{2}) == 1U, "unsigned rem_euclid");
-    static_assert(div_rem_ties_to_even(uint128_t{7}, uint128_t{2}).quotient == 4U, "unsigned ties_to_even");
+    static_assert(div_to_zero(uint128{7}, uint128{2}) == 3U, "unsigned div_to_zero");
+    static_assert(div_away_zero(uint128{7}, uint128{2}) == 4U, "unsigned div_away_zero");
+    static_assert(div_euclid(uint128{7}, uint128{2}) == 3U, "unsigned div_euclid");
+    static_assert(rem_euclid(uint128{7}, uint128{2}) == 1U, "unsigned rem_euclid");
+    static_assert(div_rem_ties_to_even(uint128{7}, uint128{2}).quotient == 4U, "unsigned ties_to_even");
 }
 
 #ifdef _MSC_VER

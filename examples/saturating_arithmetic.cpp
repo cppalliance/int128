@@ -18,26 +18,26 @@
 
 int main()
 {
-    using boost::int128::uint128_t;
-    using boost::int128::int128_t;
+    using boost::int128::uint128;
+    using boost::int128::int128;
 
     // std::numeric_limits is overloaded for both types
-    constexpr auto uint_max {std::numeric_limits<uint128_t>::max()};
-    static_assert(std::is_same<decltype(uint_max), const uint128_t>::value, "Types should match");
+    constexpr auto uint_max {std::numeric_limits<uint128>::max()};
+    static_assert(std::is_same<decltype(uint_max), const uint128>::value, "Types should match");
 
-    constexpr auto int_max {std::numeric_limits<int128_t>::max()};
-    constexpr auto int_min {std::numeric_limits<int128_t>::min()};
+    constexpr auto int_max {std::numeric_limits<int128>::max()};
+    constexpr auto int_min {std::numeric_limits<int128>::min()};
 
     std::cout << "=== Saturating Arithmetic ===" << std::endl;
-    std::cout << "uint128_t max = " << uint_max << std::endl;
-    std::cout << "int128_t max  = " << int_max << std::endl;
-    std::cout << "int128_t min  = " << int_min << std::endl;
+    std::cout << "uint128 max = " << uint_max << std::endl;
+    std::cout << "int128 max  = " << int_max << std::endl;
+    std::cout << "int128 min  = " << int_min << std::endl;
 
     // Saturating arithmetic returns max on overflow, or min on underflow rather than rolling over
     std::cout << "\n=== Saturating Addition and Subtraction ===" << std::endl;
     std::cout << "saturating_add(uint_max, uint_max) = " << boost::int128::saturating_add(uint_max, uint_max)
               << " (saturates to uint_max)" << std::endl;
-    std::cout << "saturating_sub(0, uint_max) = " << boost::int128::saturating_sub(uint128_t{0}, uint_max)
+    std::cout << "saturating_sub(0, uint_max) = " << boost::int128::saturating_sub(uint128{0}, uint_max)
               << " (saturates to 0, not underflow)" << std::endl;
 
     // This is especially useful for signed types since rollover is undefined
@@ -54,7 +54,7 @@ int main()
 
     // saturating_cast allows types to be safely converted without rollover behavior
     std::cout << "\n=== Saturating Casts ===" << std::endl;
-    std::cout << "saturating_cast<int128_t>(uint_max) = " << boost::int128::saturating_cast<int128_t>(uint_max)
+    std::cout << "saturating_cast<int128>(uint_max) = " << boost::int128::saturating_cast<int128>(uint_max)
               << " (saturates to int_max)" << std::endl;
 
     // You can also cast to builtin types

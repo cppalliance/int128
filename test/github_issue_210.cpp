@@ -17,7 +17,7 @@ constexpr bool test_spot_div(IntType lhs, IntType rhs, IntType known_res)
 
 int main()
 {
-    static_assert(test_spot_div<boost::int128::uint128_t>(boost::int128::uint128_t{50012077812411ULL, 6429278683030093824ULL}, boost::int128::uint128_t{542101086ULL, 4477988020393345024ULL}, 92256), "Spot failure");
+    static_assert(test_spot_div<boost::int128::uint128>(boost::int128::uint128{50012077812411ULL, 6429278683030093824ULL}, boost::int128::uint128{542101086ULL, 4477988020393345024ULL}, 92256), "Spot failure");
 
     return 0;
 }

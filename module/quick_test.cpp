@@ -15,7 +15,7 @@ int main()
 {
     using namespace boost::int128;
 
-    uint128_t a {2, 0};
+    uint128 a {2, 0};
     a += 2u;
     std::cout << a << std::endl;
 

@@ -15,44 +15,44 @@ namespace boost {
 namespace int128 {
 namespace literals {
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<uint128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<uint128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + len);
+    return detail::parse_literal<uint128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<uint128_t>(str, str + len);
+    return detail::parse_literal<uint128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<int128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + detail::strlen(str));
+    return detail::parse_literal<int128>(str, str + detail::strlen(str));
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + len);
+    return detail::parse_literal<int128>(str, str + len);
 }
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str, std::size_t len) noexcept
 {
-    return detail::parse_literal<int128_t>(str, str + len);
+    return detail::parse_literal<int128>(str, str + len);
 }
 
 } // namespace literals

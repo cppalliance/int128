@@ -37,26 +37,26 @@ void test_unsigned_div()
 {
     for (std::size_t i {}; i < N; ++i)
     {
-        uint128_t lhs;
-        uint128_t rhs;
+        uint128 lhs;
+        uint128 rhs;
 
         switch (layout)
         {
             case 0U:
-                lhs = uint128_t {dist(rng), dist(rng)};
-                rhs = uint128_t {dist(rng), dist(rng)};
+                lhs = uint128 {dist(rng), dist(rng)};
+                rhs = uint128 {dist(rng), dist(rng)};
                 break;
             case 1U:
-                lhs = uint128_t {dist(rng)};
-                rhs = uint128_t {dist(rng), dist(rng)};
+                lhs = uint128 {dist(rng)};
+                rhs = uint128 {dist(rng), dist(rng)};
                 break;
             case 2U:
-                lhs = uint128_t {dist(rng), dist(rng)};
-                rhs = uint128_t {dist(rng)};
+                lhs = uint128 {dist(rng), dist(rng)};
+                rhs = uint128 {dist(rng)};
                 break;
             case 3U:
-                lhs = uint128_t {dist(rng)};
-                rhs = uint128_t {dist(rng)};
+                lhs = uint128 {dist(rng)};
+                rhs = uint128 {dist(rng)};
                 break;
             default:                        // LCOV_EXCL_LINE
                 BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
@@ -71,8 +71,8 @@ void test_unsigned_div()
         BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
     }
 
-    uint128_t lhs {dist(rng), dist(rng)};
-    uint128_t zero {dist(rng) * 0U, dist(rng) * 0U};
+    uint128 lhs {dist(rng), dist(rng)};
+    uint128 zero {dist(rng) * 0U, dist(rng) * 0U};
     const auto lhs_num {boost::int128::div(lhs, zero)};
     BOOST_TEST_EQ(lhs_num.quot, 0U);
     BOOST_TEST_EQ(lhs_num.rem, 0U);
@@ -87,26 +87,26 @@ void test_signed_div()
 {
     for (std::size_t i {}; i < N; ++i)
     {
-        int128_t lhs;
-        int128_t rhs;
+        int128 lhs;
+        int128 rhs;
 
         switch (layout)
         {
             case 0U:
-                lhs = int128_t {idist(rng), dist(rng)};
-                rhs = int128_t {idist(rng), dist(rng)};
+                lhs = int128 {idist(rng), dist(rng)};
+                rhs = int128 {idist(rng), dist(rng)};
                 break;
             case 1U:
-                lhs = int128_t {idist(rng)};
-                rhs = int128_t {idist(rng), dist(rng)};
+                lhs = int128 {idist(rng)};
+                rhs = int128 {idist(rng), dist(rng)};
                 break;
             case 2U:
-                lhs = int128_t {idist(rng), dist(rng)};
-                rhs = int128_t {idist(rng)};
+                lhs = int128 {idist(rng), dist(rng)};
+                rhs = int128 {idist(rng)};
                 break;
             case 3U:
-                lhs = int128_t {idist(rng)};
-                rhs = int128_t {idist(rng)};
+                lhs = int128 {idist(rng)};
+                rhs = int128 {idist(rng)};
                 break;
             default:                        // LCOV_EXCL_LINE
                 BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
@@ -121,8 +121,8 @@ void test_signed_div()
         BOOST_TEST_EQ(inv_div_res.rem, rhs % lhs);
     }
 
-    int128_t lhs {idist(rng), dist(rng)};
-    int128_t zero {idist(rng) * 0, dist(rng) * 0U};
+    int128 lhs {idist(rng), dist(rng)};
+    int128 zero {idist(rng) * 0, dist(rng) * 0U};
     const auto lhs_num {boost::int128::div(lhs, zero)};
     BOOST_TEST_EQ(lhs_num.quot, 0);
     BOOST_TEST_EQ(lhs_num.rem, 0);

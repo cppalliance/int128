@@ -5,7 +5,7 @@ https://www.boost.org/LICENSE_1_0.txt
 ////
 
 [#i128_benchmarks]
-= `int128_t` Benchmarks
+= `int128` Benchmarks
 :idprefix: i128_benchmarks_
 
 == Methodology
@@ -16,7 +16,7 @@ Each platform states its element count and pass count, and therefore how many op
 The `Comparisons` row is the total of all six relational operators (`==`, `!=`, `<`, `<=`, `>`, `>=`) over that same vector, which is why it costs roughly six arithmetic rows.
 
 On most platforms we use the builtin `\__int128` as the reference benchmark.
-When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::int128_t` (abbreviated as `boost::mp::int128_t`) as it is widely used, and known to be portable.
+When this is unavailable (such as on 32-bit architectures) we use `boost::multiprecision::int128` (abbreviated as `boost::mp::int128`) as it is widely used, and known to be portable.
 On MSVC platforms we use as reference `std::_Signed128` from the header `<__msvc_int128.hpp>` since this is bundled with their compiler.
 Lastly, when available, the benchmarks are also run with `absl::int128` which is the 128-bit signed integer from the https://abseil.io[Abseil Libraries].
 
@@ -53,7 +53,7 @@ Measured with GCC 14.2 (pass:[C++]20): 5 passes over 20,000,000 element pairs (1
 
 [cols="1,>1,>1,>1,>1"]
 |===
-| Operation | `__int128` | `int128_t` | `boost::mp::int128_t` | `absl::int128`
+| Operation | `__int128` | `int128` | `boost::mp::int128` | `absl::int128`
 
 | Comparisons | 575,065 | 500,451 | 1,703,153 | 503,204
 | Addition | 65,874 | 60,371 | 176,054 | 60,901
@@ -71,7 +71,7 @@ Measured with GCC 14.2 (pass:[C++]20): 5 passes over 20,000,000 element pairs (1
 
 [cols="1,>1,>1,>1,>1"]
 |===
-| Operation | `__int128` | `int128_t` | `boost::mp::int128_t` | `absl::int128`
+| Operation | `__int128` | `int128` | `boost::mp::int128` | `absl::int128`
 
 | Comparisons | 1,548,448 | 978,632 | 2,358,441 | 1,576,854
 | Addition | 86,459 | 87,101 | 221,898 | 88,399
@@ -89,7 +89,7 @@ Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10
 
 [cols="1,>1,>1,>1,>1"]
 |===
-| Operation | `__int128` | `int128_t` | `boost::mp::int128_t` | `absl::int128`
+| Operation | `__int128` | `int128` | `boost::mp::int128` | `absl::int128`
 
 | Comparisons | 785,777 | 708,911 | 2,059,404 | 525,305
 | Addition | 50,685 | 44,057 | 258,246 | 37,090
@@ -107,7 +107,7 @@ Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10
 
 [cols="1,>1,>1,>1"]
 |===
-| Operation | `__int128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `__int128` | `int128` | `boost::mp::int128`
 
 | Comparisons | 428,645 | 462,487 | 1,021,098
 | Addition | 24,939 | 16,225 | 118,021
@@ -121,13 +121,13 @@ image::i128_graphs/linux/ppc64le_relative_performance.png[ppc64le Relative Perfo
 
 === x86_32
 
-NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128_t`
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128`
 
 Measured with GCC 14.2 (pass:[C++]20): 5 passes over 10,000,000 element pairs (50,000,000 operations per cell).
 
 [cols="1,>1,>1"]
 |===
-| Operation | `int128_t` | `boost::mp::int128_t`
+| Operation | `int128` | `boost::mp::int128`
 
 | Comparisons | 1,803,323 | 2,166,376
 | Addition | 159,907 | 1,198,244
@@ -141,13 +141,13 @@ image::i128_graphs/linux/x86_relative_performance.png[x86 Relative Performance, 
 
 === ARM32
 
-NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128_t`
+NOTE: This platform has no hardware type so we compare relative to `boost::mp::int128`
 
 Measured with GCC 12.2 (pass:[C++]20): 5 passes over 2,000,000 element pairs (10,000,000 operations per cell).
 
 [cols="1,>1,>1"]
 |===
-| Operation | `int128_t` | `boost::mp::int128_t`
+| Operation | `int128` | `boost::mp::int128`
 
 | Comparisons | 1,199,464 | 1,149,576
 | Addition | 90,313 | 1,105,341
@@ -168,7 +168,7 @@ Measured with MSVC 14.51 (pass:[C++]20): 5 passes over 20,000,000 element pairs 
 
 [cols="1,>1,>1,>1"]
 |===
-| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `std::_Signed128` | `int128` | `boost::mp::int128`
 
 | Comparisons | 1,361,518 | 1,271,189 | 4,315,263
 | Addition | 115,135 | 107,633 | 2,089,612
@@ -186,7 +186,7 @@ Measured with MSVC 14.44 (pass:[C++]20): 5 passes over 20,000,000 element pairs 
 
 [cols="1,>1,>1,>1"]
 |===
-| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `std::_Signed128` | `int128` | `boost::mp::int128`
 
 | Comparisons | 1,191,566 | 1,125,261 | 2,871,780
 | Addition | 86,160 | 84,055 | 1,598,093
@@ -204,7 +204,7 @@ Measured with MSVC 14.51 (pass:[C++]20): 5 passes over 10,000,000 element pairs 
 
 [cols="1,>1,>1,>1"]
 |===
-| Operation | `std::_Signed128` | `int128_t` | `boost::mp::int128_t`
+| Operation | `std::_Signed128` | `int128` | `boost::mp::int128`
 
 | Comparisons | 2,084,732 | 1,947,041 | 2,898,710
 | Addition | 131,344 | 128,063 | 1,325,852
@@ -225,7 +225,7 @@ Measured with Apple Clang 21.0 (pass:[C++]20): 5 passes over 20,000,000 element 
 
 [cols="1,>1,>1,>1,>1"]
 |===
-| Operation | `__int128` | `int128_t` | `boost::mp::int128_t` | `absl::int128`
+| Operation | `__int128` | `int128` | `boost::mp::int128` | `absl::int128`
 
 | Comparisons | 479,219 | 358,275 | 1,035,078 | 405,457
 | Addition | 152,489 | 90,873 | 444,144 | 72,358

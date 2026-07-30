@@ -4,7 +4,7 @@
 //
 // A prefixed user-defined literal whose value does not fit the target type must be
 // rejected at compile time. 0x1 followed by 32 zeros is 2^128, one past the
-// uint128_t maximum, so the base-16 parse overflows and this must not compile.
+// uint128 maximum, so the base-16 parse overflows and this must not compile.
 
 #include <boost/int128/literals.hpp>
 

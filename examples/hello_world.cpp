@@ -9,8 +9,8 @@
 int main()
 {
     // 2^64 is one past the largest value a 64-bit integer can hold
-    const boost::int128::uint128_t x {boost::int128::uint128_t{1} << 64U};
-    const boost::int128::uint128_t y {42};
+    const boost::int128::uint128 x {boost::int128::uint128{1} << 64U};
+    const boost::int128::uint128 y {42};
 
     std::cout << x << " + " << y << " = " << x + y << std::endl;
 

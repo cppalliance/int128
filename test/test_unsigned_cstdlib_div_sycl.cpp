@@ -4,12 +4,12 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::uint128_t;
+using boost::int128::uint128;
 
 int main()
 {
-    return int128_sycl_test::run<uint128_t, uint128_t>(
-        [](uint128_t a, uint128_t b, int)
+    return int128_sycl_test::run<uint128, uint128>(
+        [](uint128 a, uint128 b, int)
         {
             const auto d {boost::int128::div(a, int128_sycl_test::safe_divisor(a, b))};
             return d.quot ^ d.rem;

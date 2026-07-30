@@ -27,14 +27,14 @@
 
 int main()
 {
-    std::cout << "=== uint128_t ===" << '\n';
+    std::cout << "=== uint128 ===" << '\n';
 
     // Setup our rng and distribution
     std::mt19937_64 rng {42};
-    boost::random::uniform_int_distribution<boost::int128::uint128_t> dist {0, (std::numeric_limits<boost::int128::uint128_t>::max)()};
+    boost::random::uniform_int_distribution<boost::int128::uint128> dist {0, (std::numeric_limits<boost::int128::uint128>::max)()};
 
-    // Create a dataset for ourselves of random uint128_ts using our dist and rng from above
-    std::array<boost::int128::uint128_t, 10000> data_set;
+    // Create a dataset for ourselves of random uint128s using our dist and rng from above
+    std::array<boost::int128::uint128, 10000> data_set;
     for (auto& value : data_set)
     {
         value = dist(rng);
@@ -45,12 +45,12 @@ int main()
     std::cout << "Variance: " << boost::math::statistics::variance(data_set) << '\n';
     std::cout << "  Median: " << boost::math::statistics::median(data_set) << '\n';
 
-    std::cout << "=== int128_t ===" << '\n';
+    std::cout << "=== int128 ===" << '\n';
 
-    // We can also generate random signed integers using int128_t
-    boost::random::uniform_int_distribution<boost::int128::int128_t> signed_dist {std::numeric_limits<boost::int128::int128_t>::min(), std::numeric_limits<boost::int128::int128_t>::max()};
+    // We can also generate random signed integers using int128
+    boost::random::uniform_int_distribution<boost::int128::int128> signed_dist {std::numeric_limits<boost::int128::int128>::min(), std::numeric_limits<boost::int128::int128>::max()};
 
-    std::cout << "Random int128_t: " << signed_dist(rng) << std::endl;
+    std::cout << "Random int128: " << signed_dist(rng) << std::endl;
 
     return 0;
 }

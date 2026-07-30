@@ -10,7 +10,7 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Exactly 128 Bits on Every Platform
 
-The central design goal is that `sizeof(uint128_t)` and `sizeof(int128_t)` are exactly 16 bytes on every supported platform.
+The central design goal is that `sizeof(uint128)` and `sizeof(int128)` are exactly 16 bytes on every supported platform.
 The compiler's `pass:[__int128]` extension is only available on some 64-bit targets and is absent on MSVC, while multiprecision types typically carry an additional word of bookkeeping.
 By fixing the layout at two 64-bit words, the library provides a drop-in 128-bit integer whose size and alignment match a built-in type where one exists.
 See xref:comp_to_multiprecision.adoc[Comparison to Boost.Multiprecision] for the tradeoffs relative to a multiprecision `number`.
@@ -29,19 +29,19 @@ Meeting the pass:[C++14] bar also satisfies the conceptual requirements of libra
 
 == Emulating a Built-in Integer
 
-To behave like a built-in integer in generic code, the types provide implicit conversions to and from the built-in integer and floating-point types, and implicit conversion between `int128_t` and `uint128_t`.
+To behave like a built-in integer in generic code, the types provide implicit conversions to and from the built-in integer and floating-point types, and implicit conversion between `int128` and `uint128`.
 The single exception is `operator bool`, which is `explicit` to match the standard library convention and to avoid unintended participation in arithmetic and overload resolution.
 
 Mixed-sign and mixed-width operations follow the usual arithmetic conversions of the language.
-In particular, an operation mixing a signed and an unsigned 128-bit operand produces a `uint128_t`, identical to the value the equivalent built-in `pass:[unsigned __int128]` operation would produce, with two's-complement wrap-around.
+In particular, an operation mixing a signed and an unsigned 128-bit operand produces a `uint128`, identical to the value the equivalent built-in `pass:[unsigned __int128]` operation would produce, with two's-complement wrap-around.
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the complete result-type rules.
 
 == Layout and Alignment
 
 Each type is a struct of two 64-bit words, `low` and `high`, whose declaration order depends on the endianness of the target so that the in-memory representation matches a native 128-bit integer.
-Both words are `std::uint64_t` in both types; `int128_t` interprets the pair as two's complement and exposes `signed_high()` for the sign.
-Keeping the two halves the same type is what lets a compiler treat the pair as one wide access, so loops over `int128_t` vectorize instead of being scalarized.
-See xref:int128_t.adoc#i128_storage[Storage and signed_high].
+Both words are `std::uint64_t` in both types; `int128` interprets the pair as two's complement and exposes `signed_high()` for the sign.
+Keeping the two halves the same type is what lets a compiler treat the pair as one wide access, so loops over `int128` vectorize instead of being scalarized.
+See xref:int128.adoc#i128_storage[Storage and signed_high].
 When a native 128-bit type is available the struct is over-aligned to match it, except on 32-bit x86 where the native alignment is not forced.
 
 == GPU Support

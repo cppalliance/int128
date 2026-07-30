@@ -171,22 +171,22 @@ extern "C" __declspec(dllexport) HRESULT __stdcall formatter_s128_hex(DWORD cons
 
 __declspec(dllexport) HRESULT __stdcall formatter_u128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128<boost::int128::uint128_t, 10>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::uint128, 10>(address, helper, base, unicode, result, maximum, reserved);
 }
 
 __declspec(dllexport) HRESULT __stdcall formatter_u128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128<boost::int128::uint128_t, 16>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::uint128, 16>(address, helper, base, unicode, result, maximum, reserved);
 }
 
 __declspec(dllexport) HRESULT __stdcall formatter_s128_dec(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128<boost::int128::int128_t, 10>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::int128, 10>(address, helper, base, unicode, result, maximum, reserved);
 }
 
 __declspec(dllexport) HRESULT __stdcall formatter_s128_hex(DWORD const address, DEBUGHELPER_t* const helper, int const base, BOOL const unicode, char* const result, size_t const maximum, DWORD const reserved)
 {
-	return formatter_128<boost::int128::int128_t, 16>(address, helper, base, unicode, result, maximum, reserved);
+	return formatter_128<boost::int128::int128, 16>(address, helper, base, unicode, result, maximum, reserved);
 }
 
 BOOL APIENTRY DllMain(HMODULE const hmodule, DWORD  const reason, LPVOID const reserved)

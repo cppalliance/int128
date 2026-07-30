@@ -30,8 +30,8 @@ void test_left_unsigned()
         const auto lhs {u_dist(rng)};
         const auto rhs {i_dist(rng)};
 
-        const uint128_t lib_lhs {lhs};
-        const int128_t lib_rhs {rhs};
+        const uint128 lib_lhs {lhs};
+        const int128 lib_rhs {rhs};
 
         // Builtin oracle: same-rank int128/uint128 -> both promote to unsigned __int128
         const builtin_u128 builtin_lhs {lhs};
@@ -47,10 +47,10 @@ void test_left_unsigned()
 
     // Edge cases that the old deviations would have answered differently
     {
-        const uint128_t lhs {42u};
-        const int128_t rhs {-42};
+        const uint128 lhs {42u};
+        const int128 rhs {-42};
 
-        // Builtin: int128_t(-42) -> unsigned huge; 42 vs huge
+        // Builtin: int128(-42) -> unsigned huge; 42 vs huge
         BOOST_TEST_EQ(lhs == rhs, false);
         BOOST_TEST_EQ(lhs != rhs, true);
         BOOST_TEST_EQ(lhs <  rhs, true);   // 42 < huge
@@ -69,8 +69,8 @@ void test_right_unsigned()
         const auto lhs {i_dist(rng)};
         const auto rhs {u_dist(rng)};
 
-        const int128_t lib_lhs {lhs};
-        const uint128_t lib_rhs {rhs};
+        const int128 lib_lhs {lhs};
+        const uint128 lib_rhs {rhs};
 
         const builtin_u128 builtin_lhs = static_cast<builtin_u128>(static_cast<__int128>(lhs));
         const builtin_u128 builtin_rhs {rhs};
@@ -84,10 +84,10 @@ void test_right_unsigned()
     }
 
     {
-        const int128_t lhs {-42};
-        const uint128_t rhs {42u};
+        const int128 lhs {-42};
+        const uint128 rhs {42u};
 
-        // Builtin: int128_t(-42) -> unsigned huge; huge vs 42
+        // Builtin: int128(-42) -> unsigned huge; huge vs 42
         BOOST_TEST_EQ(lhs == rhs, false);
         BOOST_TEST_EQ(lhs != rhs, true);
         BOOST_TEST_EQ(lhs <  rhs, false);  // huge not < 42

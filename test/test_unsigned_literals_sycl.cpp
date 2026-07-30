@@ -7,7 +7,7 @@
 #include <iostream>
 #include <cstdlib>
 
-using boost::int128::uint128_t;
+using boost::int128::uint128;
 using namespace boost::int128::literals;
 
 // Exercises the user-defined literal operators inside a SYCL kernel and checks the
@@ -19,7 +19,7 @@ int main()
     sycl::queue q;
     std::cout << "SYCL device: " << q.get_device().get_info<sycl::info::device::name>() << "\n";
 
-    uint128_t* out {sycl::malloc_shared<uint128_t>(N, q)};
+    uint128* out {sycl::malloc_shared<uint128>(N, q)};
 
     q.submit([&](sycl::handler& h)
     {
@@ -56,7 +56,7 @@ int main()
         });
     }).wait();
 
-    uint128_t expected[N];
+    uint128 expected[N];
     expected[0]  = 0_u128;
     expected[1]  = 1_u128;
     expected[2]  = 18446744073709551615_u128;

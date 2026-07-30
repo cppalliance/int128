@@ -49,9 +49,9 @@ inline std::size_t hash_finalize_64(std::uint64_t v) noexcept
 namespace std {
 
 template <>
-struct hash<boost::int128::int128_t>
+struct hash<boost::int128::int128>
 {
-    auto operator()(const boost::int128::int128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::int128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
@@ -62,9 +62,9 @@ struct hash<boost::int128::int128_t>
 };
 
 template <>
-struct hash<boost::int128::uint128_t>
+struct hash<boost::int128::uint128>
 {
-    auto operator()(const boost::int128::uint128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::uint128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
@@ -79,14 +79,14 @@ struct hash<boost::int128::uint128_t>
 namespace boost {
 namespace int128 {
 
-inline std::size_t hash_value(const uint128_t v) noexcept
+inline std::size_t hash_value(const uint128 v) noexcept
 {
-    return std::hash<uint128_t>{}(v);
+    return std::hash<uint128>{}(v);
 }
 
-inline std::size_t hash_value(const int128_t v) noexcept
+inline std::size_t hash_value(const int128 v) noexcept
 {
-    return std::hash<int128_t>{}(v);
+    return std::hash<int128>{}(v);
 }
 
 } // namespace int128

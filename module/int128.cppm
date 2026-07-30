@@ -71,18 +71,18 @@ extern "C++" {
 
 export namespace boost::int128 {
 
-struct int128_t;
-struct uint128_t;
+struct int128;
+struct uint128;
 
 } // namespace boost::int128
 
 export namespace std {
 
 template <>
-class numeric_limits<boost::int128::int128_t>;
+class numeric_limits<boost::int128::int128>;
 
 template <>
-class numeric_limits<boost::int128::uint128_t>;
+class numeric_limits<boost::int128::uint128>;
 
 } // namespace std
 

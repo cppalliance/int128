@@ -17,7 +17,7 @@ pass:[C++] has no 128-bit literal, so the first practical question about a 128-b
 This example covers every route: from a built-in integer, from an explicit pair of high and low 64-bit words, from the `_u128` and `_i128` user-defined literals, from the `BOOST_INT128_UINT128_C` and `BOOST_INT128_INT128_C` macros, from a string through a stream, and from floating point.
 The floating-point cases at the end are worth reading closely, because the conversion is total: NaN yields zero and out-of-range values saturate to the nearest limit rather than invoking undefined behavior.
 
-.This https://github.com/cppalliance/int128/blob/develop/examples/construction.cpp[example] demonstrates the various ways to construct uint128_t and int128_t values
+.This https://github.com/cppalliance/int128/blob/develop/examples/construction.cpp[example] demonstrates the various ways to construct uint128 and int128 values
 ====
 [source, c++]
 ----
@@ -27,7 +27,7 @@ include::example$construction.cpp[]
 .Expected Output
 [listing]
 ----
-=== uint128_t Construction ===
+=== uint128 Construction ===
 From builtin (42U): 42
 From parts (1, 0) = 2^64: 18446744073709551616
 From parts (max, max): 340282366920938463463374607431768211455
@@ -36,7 +36,7 @@ From literal 12345_U128: 12345
 From BOOST_INT128_UINT128_C(max): 340282366920938463463374607431768211455
 From stringstream: 12345678901234567890123456789
 
-=== int128_t Construction ===
+=== int128 Construction ===
 From builtin (-42): -42
 From parts (INT64_MIN, 0): -170141183460469231731687303715884105728
   Equals numeric_limits min? true
@@ -51,17 +51,17 @@ Default constructed: 0
 Copy constructed: 340282366920938463463374607431768211455
 
 === Floating-Point Construction ===
-uint128_t from 12345.9 (truncated): 12345
-int128_t from -12345.9 (truncated toward zero): -12345
-uint128_t from 2^100: 1267650600228229401496703205376
+uint128 from 12345.9 (truncated): 12345
+int128 from -12345.9 (truncated toward zero): -12345
+uint128 from 2^100: 1267650600228229401496703205376
 
 === Floating-Point Edge Cases ===
-uint128_t from NaN: 0
-int128_t from NaN: 0
-uint128_t from -1.0 (clamped to zero): 0
-uint128_t from +infinity (saturates to UINT128_MAX): 340282366920938463463374607431768211455
-int128_t from 1e40 (saturates to INT128_MAX): 170141183460469231731687303715884105727
-int128_t from -1e40 (saturates to INT128_MIN): -170141183460469231731687303715884105728
+uint128 from NaN: 0
+int128 from NaN: 0
+uint128 from -1.0 (clamped to zero): 0
+uint128 from +infinity (saturates to UINT128_MAX): 340282366920938463463374607431768211455
+int128 from 1e40 (saturates to INT128_MAX): 170141183460469231731687303715884105727
+int128 from -1e40 (saturates to INT128_MIN): -170141183460469231731687303715884105728
 ----
 ====
 
@@ -154,13 +154,13 @@ Lower unsigned value: 36893488147419103231
 === Large Values (Beyond 64-bit) ===
 2^64 = 18446744073709551616
 2^100 = 1267650600228229401496703205376
-uint128_t max = 340282366920938463463374607431768211455
-int128_t min = -170141183460469231731687303715884105728
-int128_t max = 170141183460469231731687303715884105727
+uint128 max = 340282366920938463463374607431768211455
+int128 min = -170141183460469231731687303715884105728
+int128 max = 170141183460469231731687303715884105727
 
 === String Conversion with std::stringstream ===
-uint128_t to string: "1267650600228229401496703205376"
-String to uint128_t: 123456789012345678901234567890
+uint128 to string: "1267650600228229401496703205376"
+String to uint128: 123456789012345678901234567890
 
 === Round-trip Conversion ===
 Original:     68915718020162848918556923512
@@ -174,7 +174,7 @@ Match: true
 == Rollover Behavior
 
 Overflow is defined for both types.
-`uint128_t` wraps modulo 2^128 as any unsigned integer does, and `int128_t` wraps using two's complement rather than invoking the undefined behavior that built-in signed overflow does; both types report `is_modulo` through `std::numeric_limits`.
+`uint128` wraps modulo 2^128 as any unsigned integer does, and `int128` wraps using two's complement rather than invoking the undefined behavior that built-in signed overflow does; both types report `is_modulo` through `std::numeric_limits`.
 This example steps over each of the four boundaries in turn.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/rollover.cpp[example] demonstrates the rollover behavior of both the unsigned and signed type
@@ -187,18 +187,18 @@ include::example$rollover.cpp[]
 .Expected Output
 [listing]
 ----
-=== uint128_t behavior ===
-Max of uint128_t: 340282366920938463463374607431768211455
+=== uint128 behavior ===
+Max of uint128: 340282366920938463463374607431768211455
 Max + 1U: 0
 
-Min of uint128_t: 0
+Min of uint128: 0
 Min - 1U: 340282366920938463463374607431768211455
 
-=== int128_t behavior ===
-Max of int128_t: 170141183460469231731687303715884105727
+=== int128 behavior ===
+Max of int128: 170141183460469231731687303715884105727
 Max + 1: -170141183460469231731687303715884105728
 
-Min of int128_t: -170141183460469231731687303715884105728
+Min of int128: -170141183460469231731687303715884105728
 Min - 1: 170141183460469231731687303715884105727
 ----
 ====
@@ -206,7 +206,7 @@ Min - 1: 170141183460469231731687303715884105727
 [#examples_bit]
 == Bitwise Functions (<bit>)
 
-The `<bit>` functions are provided for `uint128_t`, and every one of them is `constexpr`.
+The `<bit>` functions are provided for `uint128`, and every one of them is `constexpr`.
 This example takes advantage of that by asserting all of its results with `static_assert`, so the whole thing is checked at compile time: if it builds, it passes.
 It also shows that `bit.hpp` can be included on its own, without pulling in the umbrella header.
 
@@ -236,9 +236,9 @@ include::example$saturating_arithmetic.cpp[]
 [listing]
 ----
 === Saturating Arithmetic ===
-uint128_t max = 340282366920938463463374607431768211455
-int128_t max  = 170141183460469231731687303715884105727
-int128_t min  = -170141183460469231731687303715884105728
+uint128 max = 340282366920938463463374607431768211455
+int128 max  = 170141183460469231731687303715884105727
+int128 min  = -170141183460469231731687303715884105728
 
 === Saturating Addition and Subtraction ===
 saturating_add(uint_max, uint_max) = 340282366920938463463374607431768211455 (saturates to uint_max)
@@ -252,7 +252,7 @@ saturating_mul(-(int_max - 2), 5) = -170141183460469231731687303715884105728 (sa
 saturating_div(int_min, -1) = 170141183460469231731687303715884105727 (saturates to int_max; normally this overflows)
 
 === Saturating Casts ===
-saturating_cast<int128_t>(uint_max) = 170141183460469231731687303715884105727 (saturates to int_max)
+saturating_cast<int128>(uint_max) = 170141183460469231731687303715884105727 (saturates to int_max)
 saturating_cast<int64_t>(int_max) = 9223372036854775807 (saturates to INT64_MAX)
 saturating_cast<int32_t>(uint_max) = 2147483647 (saturates to INT32_MAX)
 ----
@@ -390,7 +390,7 @@ ckd_mul(INT128_MAX, 2): overflow=true, wrapped=-2
 ckd_mul(INT128_MIN, -1): overflow=true, wrapped=-170141183460469231731687303715884105728
 
 === Mixed Types ===
-ckd_add<int64_t>(uint128_t{5}, int128_t{-3}): overflow=false, result=2
+ckd_add<int64_t>(uint128{5}, int128{-3}): overflow=false, result=2
 ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
 ----
 ====
@@ -412,7 +412,7 @@ include::example$mixed_type_arithmetic.cpp[]
 .Expected Output
 [listing]
 ----
-=== Mixed Type Arithmetic with uint128_t ===
+=== Mixed Type Arithmetic with uint128 ===
 unsigned_value = 3
 unsigned_value + 1 = 4
 unsigned_value - 1 = 2
@@ -421,7 +421,7 @@ unsigned_value / 3 = 1
 unsigned_value % 3 = 0
 unsigned_value + 5 = 8 (same as greater_unsigned_value: 8)
 
-=== Mixed Type Arithmetic with int128_t ===
+=== Mixed Type Arithmetic with int128 ===
 signed_value = -3
 signed_value + 1U = -2
 signed_value - 4U = -7
@@ -447,12 +447,12 @@ include::example$math_and_random.cpp[tags=**;!exclude]
 .Example Output (values vary per run)
 [listing]
 ----
-=== uint128_t ===
+=== uint128 ===
     Mean: 22125900135088040520646253247977468
 Variance: 15183108029620265677746188314852225
   Median: 169775281866460752209725324063124732284
-=== int128_t ===
-Random int128_t: 45422201008201503618595888886744218664
+=== int128 ===
+Random int128: 45422201008201503618595888886744218664
 ----
 ====
 
@@ -474,10 +474,10 @@ include::example$charconv.cpp[]
 [listing]
 ----
 === to_chars ===
-uint128_t max (decimal): 340282366920938463463374607431768211455
-int128_t min (decimal):  -170141183460469231731687303715884105728
-uint128_t (hex): 0xdeadbeefcafebabe12345678
-int128_t 511 (octal): 0777
+uint128 max (decimal): 340282366920938463463374607431768211455
+int128 min (decimal):  -170141183460469231731687303715884105728
+uint128 (hex): 0xdeadbeefcafebabe12345678
+int128 511 (octal): 0777
 
 === from_chars ===
 Parsed "340282366920938463463374607431768211455"
@@ -508,10 +508,10 @@ include::example$container_hash.cpp[tags=**;!exclude]
 [listing]
 ----
 === boost::hash on 128-bit types ===
-boost::hash matches std::hash (uint128_t): true
-boost::hash matches std::hash (int128_t):  true
+boost::hash matches std::hash (uint128): true
+boost::hash matches std::hash (int128):  true
 
-=== boost::unordered_map<uint128_t, ...> ===
+=== boost::unordered_map<uint128, ...> ===
 Entries: 3
 Label at 2^64: two to the sixty-fourth
 Contains 42: true
@@ -521,7 +521,7 @@ Cities stored: 2
 Population at (10, 20): 5000000
 Same coordinate hashes equal: true
 
-=== boost::unordered_flat_map<int128_t, ...> ===
+=== boost::unordered_flat_map<int128, ...> ===
 Flat map size: 3
 counts[-1] = 1
 ----
@@ -532,7 +532,7 @@ counts[-1] = 1
 
 `to_string` is the convenience route to a `std::string`, mirroring `std::to_string` for the built-in integers.
 This example checks that agreement directly for values inside the 64-bit range and then continues past it.
-The last case is a deliberate trap: the magnitude of the most negative `int128_t` is larger than the maximum `int128_t`, so it cannot be written as a negated literal.
+The last case is a deliberate trap: the magnitude of the most negative `int128` is larger than the maximum `int128`, so it cannot be written as a negated literal.
 The `NOTE` following the output explains what to use instead.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/to_string.cpp[example] demonstrates to_string for 128-bit integers, comparing results against std::to_string for values that fit in 64 bits
@@ -545,34 +545,34 @@ include::example$to_string.cpp[]
 .Expected Output
 [listing]
 ----
-=== to_string with uint128_t ===
-uint128_t to_string(1234567890): 1234567890
+=== to_string with uint128 ===
+uint128 to_string(1234567890): 1234567890
 std::to_string(uint64_t 1234567890): 1234567890
 Match: true
 
-uint128_t to_string(UINT64_MAX): 18446744073709551615
+uint128 to_string(UINT64_MAX): 18446744073709551615
 std::to_string(UINT64_MAX):      18446744073709551615
 Match: true
 
-uint128_t max: 340282366920938463463374607431768211455
+uint128 max: 340282366920938463463374607431768211455
 
-=== to_string with int128_t ===
-int128_t to_string(-42): -42
+=== to_string with int128 ===
+int128 to_string(-42): -42
 std::to_string(int64_t -42): -42
 Match: true
 
-int128_t to_string(INT64_MAX): 9223372036854775807
+int128 to_string(INT64_MAX): 9223372036854775807
 std::to_string(INT64_MAX):     9223372036854775807
 Match: true
 
-int128_t min with string literal: 0
+int128 min with string literal: 0
 
-int128_t min with INT128_C macro: -170141183460469231731687303715884105728
-int128_t max: 170141183460469231731687303715884105727
+int128 min with INT128_C macro: -170141183460469231731687303715884105728
+int128 max: 170141183460469231731687303715884105727
 ----
 ====
 
-NOTE: The line `int128_t min with string literal: 0` is expected. The positive magnitude of the minimum `int128_t` value (2^127) is larger than the maximum `int128_t` value, so it cannot be written as a negated `_i128` literal. Construct it with `BOOST_INT128_INT128_C` or `(std::numeric_limits<int128_t>::min)()`, as the example shows.
+NOTE: The line `int128 min with string literal: 0` is expected. The positive magnitude of the minimum `int128` value (2^127) is larger than the maximum `int128` value, so it cannot be written as a negated `_i128` literal. Construct it with `BOOST_INT128_INT128_C` or `(std::numeric_limits<int128>::min)()`, as the example shows.
 
 [#examples_fmt_format]
 == \{fmt} Library Integration
@@ -639,9 +639,9 @@ Left align hex:   'ff        '
 Center with prefix: '****0xff****'
 
 === Large Values ===
-uint128_t max: 340282366920938463463374607431768211455
-uint128_t max (hex): 0xffffffffffffffffffffffffffffffff
-int128_t min: -170141183460469231731687303715884105728
+uint128 max: 340282366920938463463374607431768211455
+uint128 max (hex): 0xffffffffffffffffffffffffffffffff
+int128 min: -170141183460469231731687303715884105728
 
 === Combined Format Specifiers ===
 Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
@@ -740,7 +740,7 @@ All CPU and GPU computed elements match!
 A GPU is a natural fit for primality testing because every candidate is independent, but
 the arithmetic is not expressible in 64 bits. Miller-Rabin repeatedly reduces a product of
 two residues modulo `n`; when `n` is a 64-bit value both operands can approach `2^64`, so
-the product needs a full 128 bits before it can be reduced. `uint128_t` supplies that
+the product needs a full 128 bits before it can be reduced. `uint128` supplies that
 intermediate in device code, where `unsigned __int128` is not portably available.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/cuda_primality.cu[example] runs a deterministic Miller-Rabin test over the largest odd values representable in 64 bits, one candidate per thread, using xref:utilities.adoc#powm[`powm`] and the 128-bit product for the modular squarings.
@@ -755,7 +755,7 @@ include::example$cuda_primality.cu[]
 ----
 Full 128-bit product a * b: 159945956516994065446882290339781513595
   (a * b) % n, 64-bit math: 17693923505768731003  <- the product wrapped
-  (a * b) % n via uint128_t: 12755662373092413040
+  (a * b) % n via uint128: 12755662373092413040
 
 [Miller-Rabin on 65536 odd candidates from 18446744073709420545 to 18446744073709551615]
 CUDA kernel launch with 256 blocks of 256 threads
@@ -772,7 +772,7 @@ Reductions are the other common reason to reach for a wider integer on a GPU. A 
 of 64-bit integers overflows a 64-bit accumulator, and widening to `double` only trades a
 wrong answer for a lossy one. Floating point also makes the result depend on the order of
 summation, which a parallel reduction does not control: the partitioning of the work becomes
-part of the answer. Integer addition is associative, so a `uint128_t` accumulator is both
+part of the answer. Integer addition is associative, so a `uint128` accumulator is both
 exact and independent of how the reduction is split across the device.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/sycl_accumulate.cpp[example] computes an exact dot product on the device as 1024 strided partial sums, then shows that it is bit-for-bit equal to the host result summed in either direction, while a 64-bit accumulator wraps and a `double` cannot represent even a single product.
@@ -788,7 +788,7 @@ include::example$sycl_accumulate.cpp[]
 [Exact dot product of 1048576 pairs of 40-bit integers]
 SYCL device: Intel(R) ...
 
-uint128_t accumulator, exact and 99 bits wide
+uint128 accumulator, exact and 99 bits wide
   device, 1024 strided partials : 317117374481213326859021202374
   host, ascending order         : 317117374481213326859021202374
   host, descending order        : 317117374481213326859021202374
@@ -799,7 +799,7 @@ uint64_t accumulator, silently wrong
   times it wrapped past 2^64    : 17190967317
 
 double, too few significand bits for even one product
-  lhs[0] * rhs[0] as uint128_t  : 583389027108597783863934 (79 bits)
+  lhs[0] * rhs[0] as uint128  : 583389027108597783863934 (79 bits)
   lhs[0] * rhs[0] as double     : 5.8338902710859781e+23
   rounding error                : 23584130
 

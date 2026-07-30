@@ -30,7 +30,7 @@ from ./boost/int128.hpp:8,
 from libs/decimal/test/test_consteval_funcs.cpp:6:
 libs/decimal/test/test_consteval_funcs.cpp:39:25:   in constexpr expansion of 'boost::int128::operator*<unsigned int>(x, 2)'
 ./boost/int128/detail/uint128_imp.hpp:2276:31:   in constexpr expansion of 'boost::int128::detail::default_mul<long long unsigned int>(lhs, ((uint64_t)rhs))'
-./boost/int128/detail/uint128_imp.hpp:2211:37:   in constexpr expansion of 'boost::int128::detail::knuth_multiply<boost::int128::uint128_t, 4, 2>(((const uint32_t (&)[4])(& lhs_words)), ((const uint32_t (&)[2])(& rhs_words)))'
+./boost/int128/detail/uint128_imp.hpp:2211:37:   in constexpr expansion of 'boost::int128::detail::knuth_multiply<boost::int128::uint128, 4, 2>(((const uint32_t (&)[4])(& lhs_words)), ((const uint32_t (&)[2])(& rhs_words)))'
 ./boost/int128/detail/common_mul.hpp:38:9: error: constexpr loop iteration count exceeds limit of 262144 (use -fconstexpr-loop-limit= to increase the limit)
 for (std::size_t i {}; i < u_size; ++i)
 ^~~
@@ -102,8 +102,8 @@ BOOST_INT128_CONSTEVAL bool test()
 
 int main()
 {
-    static_assert(test<boost::int128::uint128_t>(), "");
-    static_assert(test<boost::int128::int128_t>(), "");
+    static_assert(test<boost::int128::uint128>(), "");
+    static_assert(test<boost::int128::int128>(), "");
 
     return 0;
 }

@@ -34,16 +34,16 @@
 #include <iostream>
 #include <string>
 
-using boost::int128::uint128_t;
-using boost::int128::int128_t;
+using boost::int128::uint128;
+using boost::int128::int128;
 
 // A user-defined composite key that holds 128-bit fields. Providing a hash_value
 // overload in the type's own namespace lets Boost.ContainerHash find it via ADL,
 // and boost::hash_combine reuses the int128 hashes supplied by hash.hpp.
 struct point
 {
-    int128_t x;
-    int128_t y;
+    int128 x;
+    int128 y;
 };
 
 bool operator==(const point& lhs, const point& rhs)
@@ -65,30 +65,30 @@ int main()
 
     // boost::hash<T> dispatches to the hash_value overloads from hash.hpp, which
     // delegate to std::hash, so the two functors always agree.
-    const uint128_t big {UINT64_C(0xDEADBEEF), UINT64_C(0xCAFEBABE12345678)};
-    const int128_t neg {-123456789012345678LL};
+    const uint128 big {UINT64_C(0xDEADBEEF), UINT64_C(0xCAFEBABE12345678)};
+    const int128 neg {-123456789012345678LL};
 
-    std::cout << "boost::hash matches std::hash (uint128_t): "
-              << std::boolalpha << (boost::hash<uint128_t>{}(big) == std::hash<uint128_t>{}(big)) << std::endl;
-    std::cout << "boost::hash matches std::hash (int128_t):  "
-              << (boost::hash<int128_t>{}(neg) == std::hash<int128_t>{}(neg)) << std::endl;
+    std::cout << "boost::hash matches std::hash (uint128): "
+              << std::boolalpha << (boost::hash<uint128>{}(big) == std::hash<uint128>{}(big)) << std::endl;
+    std::cout << "boost::hash matches std::hash (int128):  "
+              << (boost::hash<int128>{}(neg) == std::hash<int128>{}(neg)) << std::endl;
 
-    std::cout << "\n=== boost::unordered_map<uint128_t, ...> ===" << std::endl;
+    std::cout << "\n=== boost::unordered_map<uint128, ...> ===" << std::endl;
 
-    // boost::unordered_map defaults to boost::hash<Key>, so uint128_t keys need
+    // boost::unordered_map defaults to boost::hash<Key>, so uint128 keys need
     // no explicit hasher.
-    boost::unordered_map<uint128_t, std::string> labels {};
-    labels[uint128_t{1, 0}] = "two to the sixty-fourth";                   // 2^64
-    labels[uint128_t{UINT64_C(0x8000000000000000), 0}] = "two to the one hundred twenty-seventh"; // 2^127
-    labels[uint128_t{42}] = "forty-two";
+    boost::unordered_map<uint128, std::string> labels {};
+    labels[uint128{1, 0}] = "two to the sixty-fourth";                   // 2^64
+    labels[uint128{UINT64_C(0x8000000000000000), 0}] = "two to the one hundred twenty-seventh"; // 2^127
+    labels[uint128{42}] = "forty-two";
 
     std::cout << "Entries: " << labels.size() << std::endl;
-    std::cout << "Label at 2^64: " << labels[uint128_t{1, 0}] << std::endl;
-    std::cout << "Contains 42: " << (labels.find(uint128_t{42}) != labels.end()) << std::endl;
+    std::cout << "Label at 2^64: " << labels[uint128{1, 0}] << std::endl;
+    std::cout << "Contains 42: " << (labels.find(uint128{42}) != labels.end()) << std::endl;
 
     std::cout << "\n=== hash_combine for a composite key ===" << std::endl;
 
-    // The point hasher combines two int128_t fields; boost::hash<point> finds it
+    // The point hasher combines two int128 fields; boost::hash<point> finds it
     // via ADL, letting point be used as a key directly.
     boost::unordered_map<point, long> populations {};
     populations[point{10, 20}] = 5000000;
@@ -99,16 +99,16 @@ int main()
     std::cout << "Same coordinate hashes equal: "
               << (boost::hash<point>{}(point{10, 20}) == boost::hash<point>{}(point{10, 20})) << std::endl;
 
-    std::cout << "\n=== boost::unordered_flat_map<int128_t, ...> ===" << std::endl;
+    std::cout << "\n=== boost::unordered_flat_map<int128, ...> ===" << std::endl;
 
     // The modern flat container also defaults to boost::hash.
-    boost::unordered_flat_map<int128_t, int> counts {};
-    counts[int128_t{-1}] = 1;
-    counts[int128_t{0}] = 2;
-    counts[int128_t{1}] = 3;
+    boost::unordered_flat_map<int128, int> counts {};
+    counts[int128{-1}] = 1;
+    counts[int128{0}] = 2;
+    counts[int128{1}] = 3;
 
     std::cout << "Flat map size: " << counts.size() << std::endl;
-    std::cout << "counts[-1] = " << counts[int128_t{-1}] << std::endl;
+    std::cout << "counts[-1] = " << counts[int128{-1}] << std::endl;
 
     return 0;
 }

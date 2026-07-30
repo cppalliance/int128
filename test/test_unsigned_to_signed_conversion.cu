@@ -17,8 +17,8 @@
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
 
-using signed_type = boost::int128::int128_t;
-using unsigned_type = boost::int128::uint128_t;
+using signed_type = boost::int128::int128;
+using unsigned_type = boost::int128::uint128;
 
 /**
  * CUDA Kernel Device code

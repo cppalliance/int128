@@ -14,7 +14,7 @@
 
 #include <cuda_runtime.h>
 
-using test_type = boost::int128::uint128_t;
+using test_type = boost::int128::uint128;
 
 // Calculates the GCD of 2 values on device
 __global__ void cuda_gcd(const test_type* in1, const test_type* in2, test_type* out, int numElements)

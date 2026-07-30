@@ -10,8 +10,8 @@
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT struct uint128_t;
-BOOST_INT128_EXPORT struct int128_t;
+BOOST_INT128_EXPORT struct uint128;
+BOOST_INT128_EXPORT struct int128;
 
 } // namespace int128
 } // namespace boost

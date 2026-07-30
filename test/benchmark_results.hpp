@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // https://www.boost.org/LICENSE_1_0.txt
 
-#ifndef BOOST_INT128_TEST_BENCHMARK_RESULTS_HPP
-#define BOOST_INT128_TEST_BENCHMARK_RESULTS_HPP
+#ifndef BOOST_int128EST_BENCHMARK_RESULTS_HPP
+#define BOOST_int128EST_BENCHMARK_RESULTS_HPP
 
 // Command line handling and result collection shared by benchmark_u128.cpp and
 // benchmark_i128.cpp. Every timing is still printed to stderr as it is measured
@@ -343,4 +343,4 @@ inline void parse_options(const int argc, char* argv[])
 
 } // namespace bench
 
-#endif // BOOST_INT128_TEST_BENCHMARK_RESULTS_HPP
+#endif // BOOST_int128EST_BENCHMARK_RESULTS_HPP

@@ -11,28 +11,28 @@
 
 int main()
 {
-    using boost::int128::uint128_t;
-    using boost::int128::int128_t;
+    using boost::int128::uint128;
+    using boost::int128::int128;
 
-    constexpr uint128_t max_unsigned_value {std::numeric_limits<uint128_t>::max()};
-    constexpr uint128_t min_unsigned_value {std::numeric_limits<uint128_t>::min()};
+    constexpr uint128 max_unsigned_value {std::numeric_limits<uint128>::max()};
+    constexpr uint128 min_unsigned_value {std::numeric_limits<uint128>::min()};
 
-    std::cout << "=== uint128_t behavior ===" << std::endl;
+    std::cout << "=== uint128 behavior ===" << std::endl;
 
-    std::cout << "Max of uint128_t: " << max_unsigned_value << '\n'
+    std::cout << "Max of uint128: " << max_unsigned_value << '\n'
               << "Max + 1U: " << max_unsigned_value + 1U << "\n\n";
 
-    std::cout << "Min of uint128_t: " << min_unsigned_value << '\n'
+    std::cout << "Min of uint128: " << min_unsigned_value << '\n'
               << "Min - 1U: " << min_unsigned_value - 1U << "\n\n";
 
-    constexpr int128_t max_signed_value {std::numeric_limits<int128_t>::max()};
-    constexpr int128_t min_signed_value {std::numeric_limits<int128_t>::min()};
+    constexpr int128 max_signed_value {std::numeric_limits<int128>::max()};
+    constexpr int128 min_signed_value {std::numeric_limits<int128>::min()};
 
-    std::cout << "=== int128_t behavior ===" << std::endl;
+    std::cout << "=== int128 behavior ===" << std::endl;
 
-    std::cout << "Max of int128_t: " << max_signed_value << '\n'
+    std::cout << "Max of int128: " << max_signed_value << '\n'
               << "Max + 1: " << max_signed_value + 1 << "\n";
 
-    std::cout << "\nMin of int128_t: " << min_signed_value << '\n'
+    std::cout << "\nMin of int128: " << min_signed_value << '\n'
               << "Min - 1: " << min_signed_value - 1 << '\n' << std::endl;
 }

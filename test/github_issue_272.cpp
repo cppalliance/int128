@@ -36,8 +36,8 @@ void check_endpos()
 
 int main()
 {
-    check_endpos<boost::int128::uint128_t>();
-    check_endpos<boost::int128::int128_t>();
+    check_endpos<boost::int128::uint128>();
+    check_endpos<boost::int128::int128>();
 
     return boost::report_errors();
 }

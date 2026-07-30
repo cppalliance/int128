@@ -19,7 +19,7 @@
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
 
-using test_type = boost::int128::int128_t;
+using test_type = boost::int128::int128;
 
 constexpr int BUF_SIZE = 64;
 

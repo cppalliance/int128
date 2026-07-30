@@ -57,8 +57,8 @@ Int128 provides 2 types:
 namespace boost {
 namespace int128 {
 
-struct uint128_t;
-struct int128_t;
+struct uint128;
+struct int128;
 
 } //namespace int128
 } //namespace boost

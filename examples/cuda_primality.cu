@@ -7,7 +7,7 @@
 //
 // Every step of the test reduces a product of two residues modulo n. For a
 // 64-bit n both operands can approach 2^64, so the product needs a full 128
-// bits before it can be reduced. uint128_t supplies that intermediate in
+// bits before it can be reduced. uint128 supplies that intermediate in
 // device code, where unsigned __int128 is not portably available.
 
 #include <boost/int128.hpp>
@@ -19,7 +19,7 @@
 
 #include <cuda_runtime.h>
 
-using boost::int128::uint128_t;
+using boost::int128::uint128;
 
 // Number of bases that make Miller-Rabin deterministic for every 64-bit n
 constexpr int num_bases {12};
@@ -28,7 +28,7 @@ constexpr int num_bases {12};
 // first so that no high-order bits are discarded before the reduction.
 __host__ __device__ std::uint64_t mulmod(const std::uint64_t a, const std::uint64_t b, const std::uint64_t n) noexcept
 {
-    return static_cast<std::uint64_t>((uint128_t{a} * uint128_t{b}) % uint128_t{n});
+    return static_cast<std::uint64_t>((uint128{a} * uint128{b}) % uint128{n});
 }
 
 // Deterministic Miller-Rabin. Exact for the whole 64-bit range.
@@ -65,8 +65,8 @@ __host__ __device__ bool is_prime(const std::uint64_t n) noexcept
 
     for (int i {0}; i < num_bases; ++i)
     {
-        // powm keeps every intermediate in a uint128_t, so a^d mod n is exact
-        auto x {static_cast<std::uint64_t>(boost::int128::powm(uint128_t{bases[i]}, uint128_t{d}, uint128_t{n}))};
+        // powm keeps every intermediate in a uint128, so a^d mod n is exact
+        auto x {static_cast<std::uint64_t>(boost::int128::powm(uint128{bases[i]}, uint128{d}, uint128{n}))};
 
         if (x == 1U || x == n - 1U)
         {
@@ -136,9 +136,9 @@ int main()
     const std::uint64_t b {14029467366897019727ULL};
     const std::uint64_t n {18446744073709551557ULL};
 
-    std::cout << "Full 128-bit product a * b: " << uint128_t{a} * uint128_t{b} << std::endl;
+    std::cout << "Full 128-bit product a * b: " << uint128{a} * uint128{b} << std::endl;
     std::cout << "  (a * b) % n, 64-bit math: " << (a * b) % n << "  <- the product wrapped" << std::endl;
-    std::cout << "  (a * b) % n via uint128_t: " << mulmod(a, b, n) << std::endl;
+    std::cout << "  (a * b) % n via uint128: " << mulmod(a, b, n) << std::endl;
     std::cout << std::endl;
 
     // Test the largest odd values that fit in 64 bits

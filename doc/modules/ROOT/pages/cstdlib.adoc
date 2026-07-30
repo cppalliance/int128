@@ -27,14 +27,14 @@ namespace int128 {
 
 struct u128div_t
 {
-    uint128_t quot;
-    uint128_t rem;
+    uint128 quot;
+    uint128 rem;
 };
 
 struct i128div_t
 {
-    int128_t quot;
-    int128_t rem;
+    int128 quot;
+    int128 rem;
 };
 
 } // namespace int128
@@ -51,9 +51,9 @@ Using the structures defined above, the `div` function computes both quotient an
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr u128div_t div(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr u128div_t div(uint128 lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr i128div_t div(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr i128div_t div(int128 lhs, int128 rhs) noexcept;
 
 } // namespace int128
 } // namespace boost
