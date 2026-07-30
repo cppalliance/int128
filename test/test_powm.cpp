@@ -192,6 +192,13 @@ void test_int128_powm()
     BOOST_TEST_EQ(powm(int128_t{2}, int128_t{-1}, int128_t{5}), int128_t{0});
 }
 
+// Only present with MSVC 14.1
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4307) // integral constant overflow
+#  pragma warning(disable : 4146) // unary minus operator applied to unsigned type, result still unsigned
+#endif
+
 void test_constexpr_powm()
 {
     constexpr uint128_t r1 {powm(uint128_t{2}, uint128_t{10}, uint128_t{1000})};

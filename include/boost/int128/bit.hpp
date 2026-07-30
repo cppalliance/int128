@@ -13,14 +13,32 @@
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
+namespace impl {
+
+BOOST_INT128_HOST_DEVICE constexpr int countl_zero_impl(const uint128_t x) noexcept
 {
-    return x && !(x & (x - 1U));
+    return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
 }
+
+} // namespace impl
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_zero(const uint128_t x) noexcept
 {
-    return x.high == 0 ? 64 + detail::countl_zero(x.low) : detail::countl_zero(x.high);
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_clzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::countl_zero_impl(x);
+    }
+
+    // The second argument is the result for x == 0, which is undefined without it
+    return __builtin_clzg(static_cast<detail::builtin_u128>(x), 128);
+
+    #else
+
+    return impl::countl_zero_impl(x);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countl_one(const uint128_t x) noexcept
@@ -35,17 +53,42 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int bit_width(const uint1
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_ceil(const uint128_t x) noexcept
 {
-    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(1) << bit_width(x - 1U);
+    // __builtin_stdc_bit_ceil not available, but this is equivalent
+    return x <= 1U ? static_cast<uint128_t>(1) : static_cast<uint128_t>(2) << (127 - countl_zero(x - 1));
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t bit_floor(const uint128_t x) noexcept
 {
-    return x > 0U ? static_cast<uint128_t>(1) << (bit_width(x) - 1U) : static_cast<uint128_t>(0);
+    // __builtin_stdc_bit_floor not available, but this is equivalent
+    return x == 0U ? static_cast<uint128_t>(0) : static_cast<uint128_t>(1) << (127 - countl_zero(x));
 }
+
+namespace impl {
+
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero_impl(const uint128_t x) noexcept
+{
+    return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
+}
+
+} // namespace impl
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_zero(const uint128_t x) noexcept
 {
-    return x.low == 0 ? 64 + detail::countr_zero(x.high) : detail::countr_zero(x.low);
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_ctzg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::countr_zero_impl(x);
+    }
+
+    // The second argument is the result for x == 0, which is undefined without it
+    return __builtin_ctzg(static_cast<detail::builtin_u128>(x), 128);
+
+    #else
+
+    return impl::countr_zero_impl(x);
+
+    #endif
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint128_t x) noexcept
@@ -55,24 +98,17 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int countr_one(const uint
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotl(const uint128_t x, const int s) noexcept
 {
+    // __builtin_stdc_rotate_left not available
     constexpr auto mask {127U};
     return x << (static_cast<unsigned>(s) & mask) | x >> (static_cast<unsigned>(-s) & mask);
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t rotr(const uint128_t x, const int s) noexcept
 {
+    // __builtin_stdc_rotate_right not available
     constexpr auto mask {127U};
     return x >> (static_cast<unsigned>(s) & mask) | x << (static_cast<unsigned>(-s) & mask);
 }
-
-#if BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
-    return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
-}
-
-#endif
 
 namespace impl {
 
@@ -85,15 +121,34 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(st
     return static_cast<int>((x * UINT64_C(0x0101010101010101)) >> 56U);
 }
 
-} // namespace impl
+// The exact-match overload above is selected for the 64-bit halves
+BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount_impl(const uint128_t x) noexcept
+{
+    return popcount_impl(x.high) + popcount_impl(x.low);
+}
 
-#if defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+} // namespace impl
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
 {
+    #if defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_popcountg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
+        return impl::popcount_impl(x);
+    }
+
+    return __builtin_popcountg(static_cast<detail::builtin_u128>(x));
+
+    #elif BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+    return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
+
+    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::popcount_impl(x); // LCOV_EXCL_LINE
     }
     else
     {
@@ -107,15 +162,12 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
         #endif
     }
-}
 
-#elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll)
+    #elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
-        return impl::popcount_impl(x.high) + impl::popcount_impl(x.low); // LCOV_EXCL_LINE
+        return impl::popcount_impl(x); // LCOV_EXCL_LINE
     }
     else
     {
@@ -137,25 +189,13 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
         #endif
     }
+
+    #else
+
+    return impl::popcount_impl(x);
+
+    #endif
 }
-
-#elif !BOOST_INT128_HAS_BUILTIN(__builtin_popcountll) || (defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint128_t x) noexcept
-{
-    return impl::popcount_impl(x.high) + impl::popcount_impl(x.low);
-}
-
-#endif
-
-#if BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
-
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
-{
-    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
-}
-
-#endif
 
 namespace impl {
 
@@ -173,10 +213,38 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap_impl(c
 
 } // namespace impl
 
-#if defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64)
-
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
 {
+    // The whole-width builtins are deliberately ranked below the paired 64-bit form.
+    // Measured today (7/29/2026) they are a regression: the 128-bit value blocks the loop vectorization
+    // the paired __builtin_bswap64 receives, costing up to 1.5x on arm64, and on x86-64 both
+    // forms emit identical code. Revisit if the codegen improves.
+    #if BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+
+    return {__builtin_bswap64(x.low), __builtin_bswap64(x.high)};
+
+    // __builtin_bswapg is clang-only (LLVM 22.1) and __builtin_bswap128 is GCC-only (GCC 11),
+    // so at most one of the two whole-width branches is ever live
+    #elif defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswapg) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::byteswap_impl(x);
+    }
+
+    return static_cast<uint128_t>(__builtin_bswapg(static_cast<detail::builtin_u128>(x)));
+
+    #elif defined(BOOST_INT128_HAS_INT128) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA)) && BOOST_INT128_HAS_BUILTIN(__builtin_bswap128) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
+    if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
+    {
+        return impl::byteswap_impl(x);
+    }
+
+    return static_cast<uint128_t>(__builtin_bswap128(static_cast<detail::builtin_u128>(x)));
+
+    #elif defined(_MSC_VER) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
         return impl::byteswap_impl(x); // LCOV_EXCL_LINE
@@ -185,16 +253,18 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const 
     {
         return {_byteswap_uint64(x.low), _byteswap_uint64(x.high)};
     }
-}
 
-#elif !BOOST_INT128_HAS_BUILTIN(__builtin_bswap64) || (defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+    #else
 
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128_t byteswap(const uint128_t x) noexcept
-{
     return impl::byteswap_impl(x);
+
+    #endif
 }
 
-#endif
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool has_single_bit(const uint128_t x) noexcept
+{
+    return popcount(x) == 1;
+}
 
 } // namespace int128
 } // namespace boost
