@@ -37,10 +37,10 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | C++20 `std::format` support
 
 | xref:hash.adoc[`<boost/int128/hash.hpp>`]
-| `std::hash` specializations for `int128_t` and `uint128_t`
+| `std::hash` specializations for `int128` and `uint128`
 
 | xref:api_reference.adoc#api_types[`<boost/int128/int128.hpp>`]
-| Core type definitions (xref:uint128_t.adoc[`uint128_t`], xref:int128_t.adoc[`int128_t`])
+| Core type definitions (xref:uint128.adoc[`uint128`], xref:int128.adoc[`int128`])
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
 | Stream insertion/extraction operators

@@ -27,14 +27,14 @@ static std::uniform_int_distribution<std::uint64_t> dist(0, UINT64_MAX);
 // Knuth Algorithm D that the library retains. Returns quotient and remainder.
 static void knuth_oracle(const std::uint64_t uh, const std::uint64_t ul,
                          const std::uint64_t vh, const std::uint64_t vl,
-                         uint128_t& quot, uint128_t& rem)
+                         uint128& quot, uint128& rem)
 {
-    const uint128_t u_val {uh, ul};
-    const uint128_t v_val {vh, vl};
+    const uint128 u_val {uh, ul};
+    const uint128 v_val {vh, vl};
 
     if (u_val < v_val)
     {
-        quot = uint128_t{UINT64_C(0)};
+        quot = uint128{UINT64_C(0)};
         rem = u_val;
         return;
     }
@@ -48,8 +48,8 @@ static void knuth_oracle(const std::uint64_t uh, const std::uint64_t ul,
 
     detail::impl::knuth_divide<true>(u, m, v, n, q);
 
-    quot = detail::impl::from_words<uint128_t>(q);
-    rem = detail::impl::from_words<uint128_t>(u);
+    quot = detail::impl::from_words<uint128>(q);
+    rem = detail::impl::from_words<uint128>(u);
 }
 
 static void check_div3by2(const std::uint64_t uh, const std::uint64_t ul,
@@ -59,14 +59,14 @@ static void check_div3by2(const std::uint64_t uh, const std::uint64_t ul,
     std::uint64_t rem_lo {};
     const auto q {detail::div3by2<true>(uh, ul, vh, vl, rem_hi, rem_lo)};
 
-    uint128_t expected_q {};
-    uint128_t expected_r {};
+    uint128 expected_q {};
+    uint128 expected_r {};
     knuth_oracle(uh, ul, vh, vl, expected_q, expected_r);
 
     // The quotient always fits in 64 bits when the divisor is >= 2^64
     BOOST_TEST_EQ(expected_q.high, UINT64_C(0));
     BOOST_TEST_EQ(q, expected_q.low);
-    BOOST_TEST_EQ(uint128_t(rem_hi, rem_lo), expected_r);
+    BOOST_TEST_EQ(uint128(rem_hi, rem_lo), expected_r);
 }
 
 static void test_div3by2_random()
@@ -179,7 +179,7 @@ static void test_div3by2_boundary()
                     const auto got_q {detail::div3by2<true>(uh, ul, vh, vl, rem_hi, rem_lo)};
 
                     BOOST_TEST_EQ(got_q, static_cast<std::uint64_t>(u_val / v_val));
-                    BOOST_TEST_EQ(uint128_t(rem_hi, rem_lo), static_cast<uint128_t>(u_val % v_val));
+                    BOOST_TEST_EQ(uint128(rem_hi, rem_lo), static_cast<uint128>(u_val % v_val));
                 }
             }
         }

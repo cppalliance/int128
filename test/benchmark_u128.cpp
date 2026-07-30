@@ -101,15 +101,15 @@ template <typename T>
 const char* impl_label() noexcept;
 
 template <>
-const char* impl_label<boost::int128::uint128_t>() noexcept
+const char* impl_label<boost::int128::uint128>() noexcept
 {
-    return "uint128_t";
+    return "uint128";
 }
 
 template <>
 const char* impl_label<mp_u128>() noexcept
 {
-    return "boost::mp::uint128_t";
+    return "boost::mp::uint128";
 }
 
 #if defined(BOOST_INT128_HAS_INT128)
@@ -156,13 +156,13 @@ const char* impl_label<absl::uint128>() noexcept
 // 4 = Random width
 
 template <typename T>
-T from_uint128(const boost::int128::uint128_t value)
+T from_uint128(const boost::int128::uint128 value)
 {
     return static_cast<T>(value);
 }
 
 template <>
-mp_u128 from_uint128(const boost::int128::uint128_t value)
+mp_u128 from_uint128(const boost::int128::uint128 value)
 {
     return static_cast<mp_u128>(value.high) << 64 | value.low;
 }
@@ -170,7 +170,7 @@ mp_u128 from_uint128(const boost::int128::uint128_t value)
 #ifdef BOOST_INT128_HAS_MSVC_INTERNAL_I128
 
 template <>
-std::_Unsigned128 from_uint128(const boost::int128::uint128_t value)
+std::_Unsigned128 from_uint128(const boost::int128::uint128 value)
 {
     return static_cast<std::_Unsigned128>(value.high) << static_cast<std::_Unsigned128>(64) | static_cast<std::_Unsigned128>(value.low);
 }
@@ -180,7 +180,7 @@ std::_Unsigned128 from_uint128(const boost::int128::uint128_t value)
 #ifdef BOOST_INT128_BENCHMARK_ABSL
 
 template <>
-absl::uint128 from_uint128(const boost::int128::uint128_t value)
+absl::uint128 from_uint128(const boost::int128::uint128 value)
 {
     return static_cast<absl::uint128>(value.high) << 64U | static_cast<absl::uint128>(value.low);
 }
@@ -190,7 +190,7 @@ absl::uint128 from_uint128(const boost::int128::uint128_t value)
 template <int words, typename T>
 std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
 {
-    using boost::int128::uint128_t;
+    using boost::int128::uint128;
 
     if (seed == 0)
     {
@@ -210,32 +210,32 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
         switch (words)
         {
             case 0:
-                result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                result[i] = from_uint128<T>(uint128{dist_high(gen), dist_low(gen)});
                 break;
 
             case 1:
-                result[i] = from_uint128<T>(uint128_t{ dist_low(gen) });
+                result[i] = from_uint128<T>(uint128{ dist_low(gen) });
                 break;
 
             case 2:
                 if (i % 2 == 0)
                 {
-                    result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                    result[i] = from_uint128<T>(uint128{dist_high(gen), dist_low(gen)});
                 }
                 else
                 {
-                    result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
+                    result[i] = from_uint128<T>(uint128{dist_low(gen)});
                 }
             break;
 
             case 3:
                 if (i % 2 == 1)
                 {
-                    result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                    result[i] = from_uint128<T>(uint128{dist_high(gen), dist_low(gen)});
                 }
                 else
                 {
-                    result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
+                    result[i] = from_uint128<T>(uint128{dist_low(gen)});
                 }
             break;
 
@@ -244,16 +244,16 @@ std::vector<T> generate_random_vector(std::size_t size = N, unsigned seed = 42U)
                 switch (size_dist(gen))
                 {
                     case 0:
-                        result[i] = from_uint128<T>(uint128_t{dist_low(gen)});
+                        result[i] = from_uint128<T>(uint128{dist_low(gen)});
                         break;
                     case 1:
-                        result[i] = from_uint128<T>(uint128_t{dist_high(gen), dist_low(gen)});
+                        result[i] = from_uint128<T>(uint128{dist_high(gen), dist_low(gen)});
                         break;
                     case 2:
-                        result[i] = from_uint128<T>(uint128_t{dist_small(gen), dist_low(gen)});
+                        result[i] = from_uint128<T>(uint128{dist_small(gen), dist_low(gen)});
                         break;
                     case 3:
-                        result[i] = from_uint128<T>(uint128_t{dist_small(gen)});
+                        result[i] = from_uint128<T>(uint128{dist_small(gen)});
                         break;
                     default:
                         BOOST_INT128_UNREACHABLE;
@@ -638,7 +638,7 @@ int main(int argc, char* argv[])
         std::cerr << "Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<0, boost::int128::uint128_t>();
+        const auto library_vector = generate_random_vector<0, boost::int128::uint128>();
         const auto mp_vector = generate_random_vector<0, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -773,7 +773,7 @@ int main(int argc, char* argv[])
         std::cerr << "One Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<1, boost::int128::uint128_t>();
+        const auto library_vector = generate_random_vector<1, boost::int128::uint128>();
         const auto mp_vector = generate_random_vector<1, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -874,7 +874,7 @@ int main(int argc, char* argv[])
         std::cerr << "Two-One Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<2, boost::int128::uint128_t>();
+        const auto library_vector = generate_random_vector<2, boost::int128::uint128>();
         const auto mp_vector = generate_random_vector<2, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -973,7 +973,7 @@ int main(int argc, char* argv[])
         std::cerr << "One-Two Word Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<3, boost::int128::uint128_t>();
+        const auto library_vector = generate_random_vector<3, boost::int128::uint128>();
         const auto mp_vector = generate_random_vector<3, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -1071,7 +1071,7 @@ int main(int argc, char* argv[])
         std::cerr << "Random Width Operations\n";
         std::cerr << "---------------------------\n\n";
 
-        const auto library_vector = generate_random_vector<4, boost::int128::uint128_t>();
+        const auto library_vector = generate_random_vector<4, boost::int128::uint128>();
         const auto mp_vector = generate_random_vector<4, mp_u128>();
 
         #if defined(BOOST_INT128_HAS_INT128)
@@ -1230,7 +1230,7 @@ int main(int argc, char* argv[])
 
     }
 
-    bench::write_json(bench::metadata{"uint128_t", "u128", impl_label<baseline_type>()});
+    bench::write_json(bench::metadata{"uint128", "u128", impl_label<baseline_type>()});
 
     // The Jamfile declares this target with run-fail, so a successful run reports 1.
     return 1;

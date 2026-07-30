@@ -13,7 +13,7 @@
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
 
-using boost::int128::int128_t;
+using boost::int128::int128;
 using namespace boost::int128::literals;
 
 // Number of test cases: we test each literal operator with several values
@@ -27,7 +27,7 @@ using namespace boost::int128::literals;
 
 constexpr int NUM_TESTS = 30;
 
-__global__ void cuda_test(int128_t *out)
+__global__ void cuda_test(int128 *out)
 {
     int i = threadIdx.x;
 
@@ -80,7 +80,7 @@ int main(void)
 
     std::cout << "[Signed literal tests: " << NUM_TESTS << " cases]" << std::endl;
 
-    cuda_managed_ptr<int128_t> output(NUM_TESTS);
+    cuda_managed_ptr<int128> output(NUM_TESTS);
 
     // Launch with 1 block of NUM_TESTS threads
     watch w;
@@ -98,7 +98,7 @@ int main(void)
     }
 
     // Build expected values on host using the same literals
-    int128_t expected[NUM_TESTS];
+    int128 expected[NUM_TESTS];
 
     // operator""_i128(const char*) - raw literal (values must fit unsigned long long to avoid NVCC warnings)
     expected[0]  = 0_i128;

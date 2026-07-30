@@ -6,8 +6,8 @@
 //  element-wise on the SYCL device over random inputs and verifies that the
 //  device results match a host recomputation of the same operation.
 
-#ifndef BOOST_INT128_TEST_SYCL_TEST_HPP
-#define BOOST_INT128_TEST_SYCL_TEST_HPP
+#ifndef BOOST_int128EST_SYCL_TEST_HPP
+#define BOOST_int128EST_SYCL_TEST_HPP
 
 #include <sycl/sycl.hpp>
 #include <boost/int128.hpp>
@@ -319,4 +319,4 @@ int run_from_chars(const int base)
 
 } // namespace int128_sycl_test
 
-#endif // BOOST_INT128_TEST_SYCL_TEST_HPP
+#endif // BOOST_int128EST_SYCL_TEST_HPP

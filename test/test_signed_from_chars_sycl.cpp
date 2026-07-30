@@ -4,9 +4,9 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::int128_t;
+using boost::int128::int128;
 
 int main()
 {
-    return int128_sycl_test::run_from_chars<int128_t>(10);
+    return int128_sycl_test::run_from_chars<int128>(10);
 }

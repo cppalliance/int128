@@ -18,21 +18,21 @@ namespace boost {
 namespace int128 {
 namespace literals {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_u128(const char* str, std::size_t len) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_u128(const char* str, std::size_t len) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator ""_U128(const char* str, std::size_t len) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator ""_U128(const char* str, std::size_t len) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_i128(const char* str, std::size_t len) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_i128(const char* str, std::size_t len) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator ""_I128(const char* str, std::size_t len) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator ""_I128(const char* str, std::size_t len) noexcept;
 
 } // namespace literals
 } // namespace int128
@@ -68,7 +68,7 @@ An invalid literal is rejected at compile time rather than being silently accept
 This includes a value that overflows the target type, a digit that is not valid for the selected base (for example `0b2` or `09`), and an empty magnitude such as `0x`.
 When such a literal is used in a constant expression the parse reaches `BOOST_INT128_UNREACHABLE`, which is not a constant expression and therefore is a hard compile error.
 
-NOTE: The minimum `int128_t` value cannot be written as a negated `_i128` literal, because its positive magnitude (2^127) exceeds the maximum `int128_t` value and so fails to parse (a hard compile error in a constant expression). Use `BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)`, the string form `"-170141183460469231731687303715884105728"_i128`, or `(std::numeric_limits<int128_t>::min)()` instead.
+NOTE: The minimum `int128` value cannot be written as a negated `_i128` literal, because its positive magnitude (2^127) exceeds the maximum `int128` value and so fails to parse (a hard compile error in a constant expression). Use `BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)`, the string form `"-170141183460469231731687303715884105728"_i128`, or `(std::numeric_limits<int128>::min)()` instead.
 
 See the xref:examples.adoc#examples_construction[construction examples] for usage demonstrations of both literals and macros.
 
@@ -85,7 +85,7 @@ For values smaller than 2^64, prefer the constructor:
 
 [source, c++]
 ----
-constexpr uint128_t small {42U};            // direct conversion from a builtin
+constexpr uint128 small {42U};            // direct conversion from a builtin
 const auto small_literal {42_U128};         // parses "42" and then constructs
 ----
 

@@ -4,14 +4,14 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::uint128_t;
+using boost::int128::uint128;
 
 int main()
 {
     int result {0};
-    result |= int128_sycl_test::run_to_chars<uint128_t>(2);
-    result |= int128_sycl_test::run_to_chars<uint128_t>(8);
-    result |= int128_sycl_test::run_to_chars<uint128_t>(16);
-    result |= int128_sycl_test::run_to_chars<uint128_t>(36);
+    result |= int128_sycl_test::run_to_chars<uint128>(2);
+    result |= int128_sycl_test::run_to_chars<uint128>(8);
+    result |= int128_sycl_test::run_to_chars<uint128>(16);
+    result |= int128_sycl_test::run_to_chars<uint128>(36);
     return result;
 }

@@ -8,7 +8,7 @@ https://www.boost.org/LICENSE_1_0.txt
 = Hashing
 :idprefix: hash_
 
-The `<boost/int128/hash.hpp>` header provides specializations of `std::hash` for `uint128_t` and `int128_t`, allowing the library types to be used as keys in `std::unordered_map`, `std::unordered_set`, and any other container that relies on `std::hash`.
+The `<boost/int128/hash.hpp>` header provides specializations of `std::hash` for `uint128` and `int128`, allowing the library types to be used as keys in `std::unordered_map`, `std::unordered_set`, and any other container that relies on `std::hash`.
 
 [source, c++]
 ----
@@ -23,15 +23,15 @@ The `<boost/int128/hash.hpp>` header provides specializations of `std::hash` for
 namespace std {
 
 template <>
-struct hash<boost::int128::int128_t>
+struct hash<boost::int128::int128>
 {
-    std::size_t operator()(boost::int128::int128_t v) const noexcept;
+    std::size_t operator()(boost::int128::int128 v) const noexcept;
 };
 
 template <>
-struct hash<boost::int128::uint128_t>
+struct hash<boost::int128::uint128>
 {
-    std::size_t operator()(boost::int128::uint128_t v) const noexcept;
+    std::size_t operator()(boost::int128::uint128 v) const noexcept;
 };
 
 } // namespace std
@@ -45,7 +45,7 @@ The two finalized halves are then combined with the `boost::hash_combine` mixing
 == Guarantees
 
 * Two values comparing equal under `operator==` produce the same hash.
-* For any non-zero `v`, `std::hash<int128_t>{}(v) != std::hash<int128_t>{}(-v)`.
+* For any non-zero `v`, `std::hash<int128>{}(v) != std::hash<int128>{}(-v)`.
 * The mixing function is asymmetric, so `{high, low}` and `{low, high}` do not collide except by chance.
 
 [#hash_container_hash]
@@ -58,9 +58,9 @@ The header also injects `hash_value` overloads into the `boost::int128` namespac
 namespace boost {
 namespace int128 {
 
-std::size_t hash_value(uint128_t v) noexcept;
+std::size_t hash_value(uint128 v) noexcept;
 
-std::size_t hash_value(int128_t v) noexcept;
+std::size_t hash_value(int128 v) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -82,9 +82,9 @@ See the xref:examples.adoc#examples_boost_container_hash[Boost.ContainerHash int
 
 int main()
 {
-    std::unordered_map<boost::int128::uint128_t, int> counts {};
-    counts[boost::int128::uint128_t{1, 0}] = 1;
-    counts[boost::int128::uint128_t{0, 1}] = 2;
+    std::unordered_map<boost::int128::uint128, int> counts {};
+    counts[boost::int128::uint128{1, 0}] = 1;
+    counts[boost::int128::uint128{0, 1}] = 2;
 
     return 0;
 }

@@ -36,9 +36,9 @@ int main()
 // end::exclude[]
 int main()
 {
-    // The functions from bit are only available for uint128_t
+    // The functions from bit are only available for uint128
 
-    constexpr boost::int128::uint128_t x {1U};
+    constexpr boost::int128::uint128 x {1U};
 
     // All the functions are constexpr
 
@@ -66,13 +66,13 @@ int main()
 
     // Swap the bytes
     // Create a value with distinct byte pattern
-    constexpr boost::int128::uint128_t original{
+    constexpr boost::int128::uint128 original{
         0x0123456789ABCDEFULL,
         0xFEDCBA9876543210ULL
     };
 
     // Expected result after byteswap
-    constexpr boost::int128::uint128_t expected{
+    constexpr boost::int128::uint128 expected{
         0x1032547698BADCFEULL,
         0xEFCDAB8967452301ULL
     };

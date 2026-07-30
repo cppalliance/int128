@@ -19,7 +19,7 @@ void test_empty()
     BOOST_TEST_CSTR_EQ(std::format("{}", T{22222}).c_str(), "22222");
     BOOST_TEST_CSTR_EQ(std::format("{}", T{222222}).c_str(), "222222");
 
-    if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+    if constexpr (std::is_same_v<T, boost::int128::int128>)
     {
         BOOST_TEST_CSTR_EQ(std::format("{}", T{-2}).c_str(), "-2");
         BOOST_TEST_CSTR_EQ(std::format("{}", T{-22}).c_str(), "-22");
@@ -74,7 +74,7 @@ void test_decimal()
     BOOST_TEST_CSTR_EQ(std::format("{:-3d}", T{42}).c_str(), " 42");
     BOOST_TEST_CSTR_EQ(std::format("{:-#3d}", T{42}).c_str(), " 42");
 
-    if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+    if constexpr (std::is_same_v<T, boost::int128::int128>)
     {
         BOOST_TEST_CSTR_EQ(std::format("{: 3d}", T{42}).c_str(), " 42");
         BOOST_TEST_CSTR_EQ(std::format("{: #3d}", T{42}).c_str(), " 42");
@@ -104,7 +104,7 @@ void test_hex()
     BOOST_TEST_CSTR_EQ(std::format("{:+X}", T{42}).c_str(), "+2A");
     BOOST_TEST_CSTR_EQ(std::format("{:+#X}", T{42}).c_str(), "+0X2A");
 
-    if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+    if constexpr (std::is_same_v<T, boost::int128::int128>)
     {
         BOOST_TEST_CSTR_EQ(std::format("{:-X}", T{-42}).c_str(), "-2A");
         BOOST_TEST_CSTR_EQ(std::format("{:-#X}", T{-42}).c_str(), "-0X2A");
@@ -194,27 +194,27 @@ static_assert(std::format("num: {}", 1234_u128) == "num: 1234");
 
 int main()
 {
-    test_empty<boost::int128::uint128_t>();
-    test_empty<boost::int128::int128_t>();
+    test_empty<boost::int128::uint128>();
+    test_empty<boost::int128::int128>();
 
-    test_binary<boost::int128::uint128_t>();
-    test_binary<boost::int128::int128_t>();
+    test_binary<boost::int128::uint128>();
+    test_binary<boost::int128::int128>();
 
-    test_octal<boost::int128::uint128_t>();
-    test_octal<boost::int128::int128_t>();
+    test_octal<boost::int128::uint128>();
+    test_octal<boost::int128::int128>();
 
-    test_decimal<boost::int128::uint128_t>();
-    test_decimal<boost::int128::int128_t>();
+    test_decimal<boost::int128::uint128>();
+    test_decimal<boost::int128::int128>();
 
-    test_hex<boost::int128::uint128_t>();
-    test_hex<boost::int128::int128_t>();
+    test_hex<boost::int128::uint128>();
+    test_hex<boost::int128::int128>();
 
-    test_string_insertion<boost::int128::uint128_t>();
-    test_string_insertion<boost::int128::int128_t>();
+    test_string_insertion<boost::int128::uint128>();
+    test_string_insertion<boost::int128::int128>();
 
-    test_alignment<boost::int128::uint128_t>();
-    test_alignment<boost::int128::int128_t>();
-    test_alignment_negative<boost::int128::int128_t>();
+    test_alignment<boost::int128::uint128>();
+    test_alignment<boost::int128::int128>();
+    test_alignment_negative<boost::int128::int128>();
 
     return boost::report_errors();
 }

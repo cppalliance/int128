@@ -10,13 +10,13 @@
 //    double round 2^64 - 1 up to 2^64, which hid the error, but any type with 64 or
 //    more significand bits (x87 80-bit and IEEE quad long double) holds 2^64 - 1
 //    exactly, so every conversion with a non-zero high word was off by the value of
-//    the high word. For example uint128_t{1, 0} (2^64) converted to 2^64 - 1.
+//    the high word. For example uint128{1, 0} (2^64) converted to 2^64 - 1.
 //
-// 2) int128_t fed its raw two's complement words into high * scale + low. That
+// 2) int128 fed its raw two's complement words into high * scale + low. That
 //    identity is exact in integer arithmetic but not in floating point: a small
 //    negative value stores low close to 2^64, which rounds to exactly 2^64 whenever
 //    the type has fewer than 64 significand bits, and adding the scaled high word
-//    then cancels catastrophically. int128_t{-1} converted to 0.0 instead of -1.0.
+//    then cancels catastrophically. int128{-1} converted to 0.0 instead of -1.0.
 //
 // The operators now use the builtin 128-bit conversion where one exists, and the
 // portable fallback scales by an exact 2^64 and converts negative values through
@@ -39,8 +39,8 @@
 #include <limits>
 #include <random>
 
-using boost::int128::int128_t;
-using boost::int128::uint128_t;
+using boost::int128::int128;
+using boost::int128::uint128;
 
 // Exactly representable values must convert exactly, so a defect either produces
 // the exact expected value or it is a bug. No tolerances are used anywhere here.
@@ -51,7 +51,7 @@ void test_small_negative_values()
 {
     for (int v {-1}; v >= -1024; --v)
     {
-        const int128_t value {v};
+        const int128 value {v};
         BOOST_TEST_EQ(static_cast<T>(value), static_cast<T>(v));
 
         // The portable fallback must also be correct on platforms
@@ -66,16 +66,16 @@ void test_signed_powers_of_two()
 {
     for (int k {0}; k < 127; ++k)
     {
-        const int128_t value {-(int128_t{1} << k)};
+        const int128 value {-(int128{1} << k)};
         const T expected {-std::ldexp(static_cast<T>(1), k)};
 
         BOOST_TEST_EQ(static_cast<T>(value), expected);
         BOOST_TEST_EQ(boost::int128::detail::signed_words_to_float<T>(value.signed_high(), value.low), expected);
     }
 
-    // INT128_MIN itself: the magnitude 2^127 does not fit in int128_t,
+    // INT128_MIN itself: the magnitude 2^127 does not fit in int128,
     // so this exercises the negation edge case in the fallback
-    const auto min_value {(std::numeric_limits<int128_t>::min)()};
+    const auto min_value {(std::numeric_limits<int128>::min)()};
     const T expected_min {-std::ldexp(static_cast<T>(1), 127)};
 
     BOOST_TEST_EQ(static_cast<T>(min_value), expected_min);
@@ -101,18 +101,18 @@ void test_offset_exactness()
 
     for (std::uint64_t k {1}; k <= 64; ++k)
     {
-        BOOST_TEST_EQ(static_cast<T>(uint128_t{k, 0}), static_cast<T>(k) * two_64);
+        BOOST_TEST_EQ(static_cast<T>(uint128{k, 0}), static_cast<T>(k) * two_64);
         BOOST_TEST_EQ(boost::int128::detail::unsigned_words_to_float<T>(k, 0), static_cast<T>(k) * two_64);
 
-        const int128_t negative {-int128_t{static_cast<std::int64_t>(k), 0}};
+        const int128 negative {-int128{static_cast<std::int64_t>(k), 0}};
         BOOST_TEST_EQ(static_cast<T>(negative), -(static_cast<T>(k) * two_64));
     }
 
-    BOOST_TEST_EQ(static_cast<T>(uint128_t{UINT64_C(1) << 63, 0}), std::ldexp(static_cast<T>(1), 127));
+    BOOST_TEST_EQ(static_cast<T>(uint128{UINT64_C(1) << 63, 0}), std::ldexp(static_cast<T>(1), 127));
 
     // -(2^64 - 1): exact wherever the significand holds 64 bits, and the computed
     // expected value rounds identically to the conversion everywhere else
-    const int128_t value {-1, 1};
+    const int128 value {-1, 1};
     BOOST_TEST_EQ(static_cast<T>(value), -(two_64 - static_cast<T>(1)));
 }
 
@@ -147,10 +147,10 @@ void test_vs_builtin()
         const auto hi {rng()};
         const auto lo {rng()};
 
-        const uint128_t u {hi, lo};
+        const uint128 u {hi, lo};
         const auto builtin_u {(static_cast<builtin_u128>(hi) << 64) | static_cast<builtin_u128>(lo)};
 
-        const int128_t s {static_cast<std::int64_t>(hi), lo};
+        const int128 s {static_cast<std::int64_t>(hi), lo};
         const auto builtin_s {static_cast<builtin_i128>(builtin_u)};
 
         // The operators use the builtin conversion on this platform, so these are exact
@@ -176,23 +176,23 @@ void test_vs_builtin()
 #endif // BOOST_INT128_HAS_INT128
 
 // Both conversion paths are constexpr, so the regressions are also pinned at compile time
-static_assert(static_cast<float>(int128_t{-1}) == -1.0f, "int128_t{-1} must convert to -1.0f");
-static_assert(static_cast<double>(int128_t{-1}) == -1.0, "int128_t{-1} must convert to -1.0");
-static_assert(static_cast<double>(int128_t{-1024}) == -1024.0, "small negatives must not cancel to 0");
-static_assert(static_cast<double>(uint128_t{1, 0}) == 18446744073709551616.0, "uint128_t 2^64 must convert to 2^64");
+static_assert(static_cast<float>(int128{-1}) == -1.0f, "int128{-1} must convert to -1.0f");
+static_assert(static_cast<double>(int128{-1}) == -1.0, "int128{-1} must convert to -1.0");
+static_assert(static_cast<double>(int128{-1024}) == -1024.0, "small negatives must not cancel to 0");
+static_assert(static_cast<double>(uint128{1, 0}) == 18446744073709551616.0, "uint128 2^64 must convert to 2^64");
 
 static_assert(boost::int128::detail::signed_words_to_float<double>(-1, UINT64_MAX) == -1.0,
-              "fallback conversion of int128_t{-1} must yield -1.0");
+              "fallback conversion of int128{-1} must yield -1.0");
 static_assert(boost::int128::detail::unsigned_words_to_float<double>(1, 0) == 18446744073709551616.0,
               "fallback conversion of 2^64 must yield 2^64");
 
 #if !defined(BOOST_INT128_HAS_GPU_SUPPORT)
 
-static_assert(static_cast<long double>(int128_t{-1}) == -1.0L, "int128_t{-1} must convert to -1.0L");
-static_assert(static_cast<long double>(uint128_t{1, 0}) == 18446744073709551616.0L,
-              "uint128_t 2^64 must convert to 2^64 exactly, not 2^64 - 1");
-static_assert(static_cast<long double>(int128_t{-1, 1}) == -(18446744073709551616.0L - 1.0L),
-              "int128_t -(2^64 - 1) must match the correctly rounded value");
+static_assert(static_cast<long double>(int128{-1}) == -1.0L, "int128{-1} must convert to -1.0L");
+static_assert(static_cast<long double>(uint128{1, 0}) == 18446744073709551616.0L,
+              "uint128 2^64 must convert to 2^64 exactly, not 2^64 - 1");
+static_assert(static_cast<long double>(int128{-1, 1}) == -(18446744073709551616.0L - 1.0L),
+              "int128 -(2^64 - 1) must match the correctly rounded value");
 
 #endif
 

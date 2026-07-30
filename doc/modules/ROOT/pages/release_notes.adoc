@@ -12,14 +12,14 @@ https://www.boost.org/LICENSE_1_0.txt
 
 === New: integer division with every rounding mode
 
-`<boost/int128/numeric.hpp>` now provides the `div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)], for both `uint128_t` and `int128_t`.
+`<boost/int128/numeric.hpp>` now provides the `div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)], for both `uint128` and `int128`.
 `operator/` only rounds towards zero; these functions round away from zero, towards either infinity, and to nearest under each of the six tie-breaking rules, along with Euclidean division and its always non-negative remainder.
 
 [source, c++]
 ----
-div_to_neg_inf(int128_t{-7}, int128_t{2});   // -4, where -7 / 2 is -3
-div_ties_to_even(int128_t{-7}, int128_t{2}); // -4, breaking the tie at -3.5
-rem_euclid(int128_t{-7}, int128_t{2});       // 1, where -7 % 2 is -1
+div_to_neg_inf(int128{-7}, int128{2});   // -4, where -7 / 2 is -3
+div_ties_to_even(int128{-7}, int128{2}); // -4, breaking the tie at -3.5
+rem_euclid(int128{-7}, int128{2});       // 1, where -7 % 2 is -1
 
 const auto res = div_rem_to_pos_inf(x, y);   // res.quotient and res.remainder, one division
 ----
@@ -27,14 +27,14 @@ const auto res = div_rem_to_pos_inf(x, y);   // res.quotient and res.remainder, 
 Each mode also has a `div_rem_` form returning a `div_result<T>` with both halves from a single division, and there is a standalone `rem_euclid`.
 See xref:numeric.adoc#int_div[Integer Division] for the full list.
 
-=== Breaking: `int128_t::high` is now `std::uint64_t`
+=== Breaking: `int128::high` is now `std::uint64_t`
 
-`int128_t` previously stored `std::uint64_t low` and `std::int64_t high`.
+`int128` previously stored `std::uint64_t low` and `std::int64_t high`.
 Both words are now `std::uint64_t`; the value is still interpreted as two's complement across the pair, and no bit of the representation moved.
 
 The reason is codegen.
-When the two halves of the struct have different types, a compiler's data-reference analysis cannot merge them into a single wide access, so loops over `int128_t` are emitted with shuffles or scalarized outright.
-Measured with GCC 14 at `-O3 -march=znver3` on `r[i] = x[i] | y[i]` over an `std::array<int128_t, 128>`:
+When the two halves of the struct have different types, a compiler's data-reference analysis cannot merge them into a single wide access, so loops over `int128` are emitted with shuffles or scalarized outright.
+Measured with GCC 14 at `-O3 -march=znver3` on `r[i] = x[i] | y[i]` over an `std::array<int128, 128>`:
 
 [cols="1,1,1",options="header"]
 |===
@@ -43,14 +43,14 @@ Measured with GCC 14 at `-O3 -march=znver3` on `r[i] = x[i] | y[i]` over an `std
 | `~`            | 74 instructions, 10 shuffles | 20 instructions, 0 shuffles
 |===
 
-Those are now exactly the numbers `uint128_t` has always produced, since it already had uniform word types.
+Those are now exactly the numbers `uint128` has always produced, since it already had uniform word types.
 Scalar code is unaffected or better: `a + b` drops from 20 instructions to 10, `a << n` from 17 to 12, and `a >> n` from 18 to 13.
 
 ==== What still works
 
-* The two-word constructor is unchanged and still takes its high word as `std::int64_t`, so `int128_t{-1, 0}` and `int128_t{INT64_MIN, 0}` compile and mean exactly what they did.
-* `sizeof`, `alignof`, and the in-memory byte order are unchanged. The type remains trivially copyable and standard layout, so anything that `memcpy`s an `int128_t` is unaffected.
-* Every operator produces bit-identical results. Conversions to and from `uint128_t` and the native `pass:[__int128]` are unchanged.
+* The two-word constructor is unchanged and still takes its high word as `std::int64_t`, so `int128{-1, 0}` and `int128{INT64_MIN, 0}` compile and mean exactly what they did.
+* `sizeof`, `alignof`, and the in-memory byte order are unchanged. The type remains trivially copyable and standard layout, so anything that `memcpy`s an `int128` is unaffected.
+* Every operator produces bit-identical results. Conversions to and from `uint128` and the native `pass:[__int128]` are unchanged.
 
 ==== What to change
 
@@ -79,4 +79,4 @@ BOOST_INT128_HOST_DEVICE constexpr std::int64_t signed_high() const noexcept;
 It is a pure reinterpretation of the stored bits, `constexpr` everywhere, and available on device.
 Passing `high` to something expecting a `std::int64_t` also needs it, since the conversion is now the other direction.
 
-See xref:int128_t.adoc#i128_storage[Storage and signed_high] for details.
+See xref:int128.adoc#i128_storage[Storage and signed_high] for details.

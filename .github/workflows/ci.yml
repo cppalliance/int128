@@ -997,7 +997,7 @@ jobs:
           #include <iostream>
           int main() {
               using namespace boost::int128;
-              uint128_t d{456};
+              uint128 d{456};
               std::cout << "Value: " << d << "\n";
               return 0;
           }
@@ -1075,7 +1075,7 @@ jobs:
           #include <iostream>
           int main() {
               using namespace boost::int128;
-              uint128_t d{42};
+              uint128 d{42};
               std::cout << "Value: " << d << "\n";
               return 0;
           }
@@ -1145,7 +1145,7 @@ jobs:
           #include <iostream>
           int main() {
               using namespace boost::int128;
-              uint128_t d{123};
+              uint128 d{123};
               std::cout << "Value: " << d << "\n";
               return 0;
           }

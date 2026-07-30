@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-using test_type = boost::int128::uint128_t;
+using test_type = boost::int128::uint128;
 
 // Calculates the GCD of two values on the SYCL device and verifies against the host
 int main()

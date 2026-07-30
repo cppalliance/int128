@@ -4,7 +4,7 @@
   Distributed under the Boost Software License, Version 1.0.
   https://www.boost.org/LICENSE_1_0.txt
 
-  NATVIS visualizer for boost::int128::uint128_t and boost::int128::int128_t.
+  NATVIS visualizer for boost::int128::uint128 and boost::int128::int128.
 
   Place this file alongside your project or in:
     %USERPROFILE%\Documents\Visual Studio <version>\Visualizers\
@@ -15,8 +15,8 @@
 -->
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-  <!-- uint128_t: unsigned 128-bit integer -->
-  <Type Name="boost::int128::uint128_t">
+  <!-- uint128: unsigned 128-bit integer -->
+  <Type Name="boost::int128::uint128">
     <DisplayString Condition="high == 0">{low,d}</DisplayString>
     <DisplayString Condition="high != 0">0x{high,nvohb}{low,nvohb}</DisplayString>
     <Expand>
@@ -25,10 +25,10 @@
     </Expand>
   </Type>
 
-  <!-- int128_t: signed 128-bit integer. Both words are unsigned; the pair is
+  <!-- int128: signed 128-bit integer. Both words are unsigned; the pair is
        read as two's complement, so the negative fast path tests the all-ones
        high word rather than a signed -1. -->
-  <Type Name="boost::int128::int128_t">
+  <Type Name="boost::int128::int128">
     <DisplayString Condition="high == 0">{low,u}</DisplayString>
     <DisplayString Condition="high == 0xFFFFFFFFFFFFFFFFull &amp;&amp; low != 0">-{~low + 1,u}</DisplayString>
     <DisplayString>0x{high,nvohb}{low,nvohb}</DisplayString>

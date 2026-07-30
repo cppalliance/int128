@@ -4,11 +4,11 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::int128_t;
+using boost::int128::int128;
 
 int main()
 {
     // Restrict inputs so the true LCM stays within 128 bits.
-    return int128_sycl_test::run<int128_t, int128_t>(
-        [](int128_t a, int128_t b, int) { return boost::int128::lcm(a >> 65, b >> 65); });
+    return int128_sycl_test::run<int128, int128>(
+        [](int128 a, int128 b, int) { return boost::int128::lcm(a >> 65, b >> 65); });
 }

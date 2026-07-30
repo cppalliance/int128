@@ -16,7 +16,7 @@
 
 #include <cuda_runtime.h>
 
-using test_type = boost::int128::int128_t;
+using test_type = boost::int128::int128;
 
 __global__ void cuda_test(const test_type *in, const test_type *in2, test_type *out, int numElements)
 {

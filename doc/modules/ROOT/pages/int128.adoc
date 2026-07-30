@@ -4,13 +4,13 @@ Distributed under the Boost Software License, Version 1.0.
 https://www.boost.org/LICENSE_1_0.txt
 ////
 
-[#int128_t]
-= int128_t
-:idprefix: int128_t_
+[#int128]
+= int128
+:idprefix: int128_
 
 == Description
 
-`int128_t` is a signed 128-bit integer.
+`int128` is a signed 128-bit integer.
 
 [source, c++]
 ----
@@ -19,7 +19,7 @@ https://www.boost.org/LICENSE_1_0.txt
 namespace boost {
 namespace int128 {
 
-struct int128_t {
+struct int128 {
 
     #if BOOST_INT128_ENDIAN_LITTLE_BYTE
     std::uint64_t low {};
@@ -41,7 +41,7 @@ struct int128_t {
 
 The type provides:
 
-* Constructors from all built-in integer types and `uint128_t`
+* Constructors from all built-in integer types and `uint128`
 * Conversion operators to built-in integer and floating-point types
 * Full set of comparison operators (`<`, `<=`, `>`, `>=`, `==`, `!=`)
 * Bitwise operators (`~`, `|`, `&`, `^`, `<<`, `>>`)
@@ -53,8 +53,8 @@ The type provides:
 == Storage and `signed_high`
 
 Both words are `std::uint64_t`, and the value is interpreted as two's complement across the pair.
-The two halves deliberately have the *same* type: when they differ, a compiler's data-reference analysis cannot merge them into one wide access, and loops over `int128_t` come out with shuffles or fully scalarized.
-Giving both words the same type makes the signed type generate the same code as `uint128_t`, which has always had uniform words.
+The two halves deliberately have the *same* type: when they differ, a compiler's data-reference analysis cannot merge them into one wide access, and loops over `int128` come out with shuffles or fully scalarized.
+Giving both words the same type makes the signed type generate the same code as `uint128`, which has always had uniform words.
 
 To read the high word as a signed quantity, use `signed_high()`:
 
@@ -67,13 +67,13 @@ It is a pure reinterpretation of the stored bits and is `constexpr` on all platf
 
 [source, c++]
 ----
-const boost::int128::int128_t v {-1};
+const boost::int128::int128 v {-1};
 
 v.high;             // 0xFFFFFFFFFFFFFFFF, a std::uint64_t
 v.signed_high();    // -1, a std::int64_t
 ----
 
-The two-word constructor still takes its high word as `std::int64_t`, so `int128_t{-1, 0}` and `int128_t{INT64_MIN, 0}` are unchanged.
+The two-word constructor still takes its high word as `std::int64_t`, so `int128{-1, 0}` and `int128{INT64_MIN, 0}` are unchanged.
 
 CAUTION: Code that reads `high` directly and depends on its signedness, such as `value.high < 0`, changes meaning: the comparison is now unsigned and always false. Replace those reads with `value.signed_high() < 0`, or simply compare the value itself (`value < 0`).
 
@@ -84,7 +84,7 @@ If your platform has a native 128-bit signed integer, the struct is over-aligned
 
 [source, c++]
 ----
-struct alignas(alignof(__int128)) int128_t
+struct alignas(alignof(__int128)) int128
 ----
 
 Otherwise (including 32-bit x86), the alignment is left up to the compiler to decide.
@@ -92,16 +92,16 @@ Otherwise (including 32-bit x86), the alignment is left up to the compiler to de
 [#i128_operator_behavior]
 == Operator Behavior
 
-All comparison, arithmetic, bitwise, and shift operators are defined between `int128_t` and any built-in integer type, signed or unsigned.
+All comparison, arithmetic, bitwise, and shift operators are defined between `int128` and any built-in integer type, signed or unsigned.
 Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `__int128` operation.
 Specifically:
 
-* For built-in unsigned types of lesser rank (`uint8_t` through `uint64_t`), `int128_t` is the common type and arithmetic / bitwise operations return `int128_t` with signed semantics.
-* For `unsigned __int128` (same rank), the signed `int128_t` is converted to the unsigned counterpart, the operation is performed unsigned, and arithmetic / bitwise operations return `uint128_t` (the library's wrapper for `unsigned __int128`).
-* For shift operators, the result type follows the LHS: `int128_t << T` and `int128_t >> T` always return `int128_t`, regardless of `T`.
+* For built-in unsigned types of lesser rank (`uint8_t` through `uint64_t`), `int128` is the common type and arithmetic / bitwise operations return `int128` with signed semantics.
+* For `unsigned __int128` (same rank), the signed `int128` is converted to the unsigned counterpart, the operation is performed unsigned, and arithmetic / bitwise operations return `uint128` (the library's wrapper for `unsigned __int128`).
+* For shift operators, the result type follows the LHS: `int128 << T` and `int128 >> T` always return `int128`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
 
-NOTE: Division and remainder match `__int128` for every input except the two the built-in leaves undefined. Division or remainder by zero is likewise undefined behavior: the library adds no zero-divisor check, so it behaves like the built-in (a hardware trap on platforms that fault on integer division by zero) and is a hard compile-time error in a constant expression. The signed overflow `INT128_MIN / -1`, whose true quotient is not representable, is the one case the library defines rather than leaving undefined: it wraps to `INT128_MIN` (and `INT128_MIN % -1` is `0`), matching the two's-complement wrap the library applies to other overflowing signed operations such as `INT128_MIN * -1`. See xref:int128_t.adoc#i128_math_operators[Division] and Modulo below.
+NOTE: Division and remainder match `__int128` for every input except the two the built-in leaves undefined. Division or remainder by zero is likewise undefined behavior: the library adds no zero-divisor check, so it behaves like the built-in (a hardware trap on platforms that fault on integer division by zero) and is a hard compile-time error in a constant expression. The signed overflow `INT128_MIN / -1`, whose true quotient is not representable, is the one case the library defines rather than leaving undefined: it wraps to `INT128_MIN` (and `INT128_MIN % -1` is `0`), matching the two's-complement wrap the library applies to other overflowing signed operations such as `INT128_MIN * -1`. See xref:int128.adoc#i128_math_operators[Division] and Modulo below.
 
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-type signatures and detailed result-type rules.
 
@@ -113,41 +113,41 @@ See xref:mixed_type_ops.adoc[Mixed Type Operations] for the full set of cross-ty
 namespace boost {
 namespace int128 {
 
-struct int128_t
+struct int128
 {
     ...
 
     // Defaulted basic construction
-    BOOST_INT128_HOST_DEVICE constexpr int128_t() noexcept = default;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const int128_t&) noexcept = default;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(int128_t&&) noexcept = default;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator=(const int128_t&) noexcept = default;
-    BOOST_INT128_HOST_DEVICE constexpr int128_t& operator=(int128_t&&) noexcept = default;
+    BOOST_INT128_HOST_DEVICE constexpr int128() noexcept = default;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const int128&) noexcept = default;
+    BOOST_INT128_HOST_DEVICE constexpr int128(int128&&) noexcept = default;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator=(const int128&) noexcept = default;
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator=(int128&&) noexcept = default;
 
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const uint128_t& v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const uint128& v) noexcept;
 
     // Construct from integral types
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const std::int64_t hi, const std::uint64_t lo) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const std::int64_t hi, const std::uint64_t lo) noexcept;
 
     template <BOOST_INT128_SIGNED_INTEGER_CONCEPT SignedInteger>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const SignedInteger v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const SignedInteger v) noexcept;
 
     template <BOOST_INT128_UNSIGNED_INTEGER_CONCEPT UnsignedInteger>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const UnsignedInteger v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const UnsignedInteger v) noexcept;
 
     #ifdef BOOST_INT128_HAS_INT128
 
     // Typically a typedef from __int128
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const detail::builtin_i128 v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const detail::builtin_i128 v) noexcept;
 
     // Typically a typedef unsigned __int128
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(const detail::builtin_u128 v) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(const detail::builtin_u128 v) noexcept;
 
     #endif // BOOST_INT128_HAS_INT128
 
     // Construct from floating-point types
     template <BOOST_INT128_FLOATING_POINT_CONCEPT Float>
-    BOOST_INT128_HOST_DEVICE constexpr int128_t(Float f) noexcept;
+    BOOST_INT128_HOST_DEVICE constexpr int128(Float f) noexcept;
 };
 
 } // namespace int128
@@ -155,7 +155,7 @@ struct int128_t
 ----
 
 None of the constructors are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
-Integer constructors are subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+Integer constructors are subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 The floating-point constructor truncates toward zero, matching `static_cast<__int128>(f)`.
 Edge cases mirror libgcc's `__fixXfti`: NaN yields zero, values `>= 2^127` saturate to `INT128_MAX`, and values `<= -2^127` saturate to `INT128_MIN`.
@@ -168,7 +168,7 @@ Edge cases mirror libgcc's `__fixXfti`: NaN yields zero, values `>= 2^127` satur
 namespace boost {
 namespace int128 {
 
-struct int128_t
+struct int128
 {
     ...
 
@@ -200,9 +200,9 @@ struct int128_t
 ----
 
 All conversion operators except `operator bool()` are implicit to match the behavior of built-in integer types.
-`operator bool()` is explicit so that an `int128_t` cannot accidentally bind to a `bool` parameter; contextual conversions (`if (x)`, `!x`, etc.) still work.
-Conversions to unsigned integers are subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
-Conversions to floating-point types may not be lossless depending on the value of the `int128_t` at time of conversion,
+`operator bool()` is explicit so that an `int128` cannot accidentally bind to a `bool` parameter; contextual conversions (`if (x)`, `!x`, etc.) still work.
+Conversions to unsigned integers are subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+Conversions to floating-point types may not be lossless depending on the value of the `int128` at time of conversion,
 as the number of digits it represents can exceed the precision of the significand in floating point types.
 
 [#i128_comparison_operators]
@@ -213,108 +213,108 @@ as the number of digits it represents can exceed the precision of the significan
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is less than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Less Than or Equal To
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is less than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Greater Than
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is greater than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Greater Than or Equal To
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is greater than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Equality
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Inequality
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Spaceship Operator (Requires pass:[C++20])
 
 [source, c++]
 ----
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128 lhs, const int128 rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const Integer lhs, const int128 rhs) noexcept;
 ----
 
 Returns one of the following without exception:
@@ -330,7 +330,7 @@ Returns one of the following without exception:
 
 [source, c++]
 ----
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator~(const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator~(const int128 rhs) noexcept
 ----
 
 Returns the bitwise negation of `rhs` without exception.
@@ -340,70 +340,70 @@ Returns the bitwise negation of `rhs` without exception.
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator|(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator|(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns the bitwise or of `lhs` and `rhs` without exception.
-This operation is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === And
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator&(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator&(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns the bitwise and of `lhs` and `rhs` without exception.
-This operation is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Xor
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator^(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator^(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns the bitwise xor of `lhs` and `rhs` without exception.
-This operation is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Left Shift
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const Integer rhs) noexcept;
 
 template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128 rhs) noexcept;
 
 template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const int128 rhs) noexcept;
 
 // When the compiler provides native 128-bit integers, a built-in 128-bit lhs
-// shifted by an int128_t returns that built-in type.
+// shifted by an int128 returns that built-in type.
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
-BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept;
-BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator<<(const detail::builtin_u128 lhs, const int128 rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator<<(const detail::builtin_i128 lhs, const int128 rhs) noexcept;
 #endif
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns the bitwise left shift of `lhs` without exception.
@@ -415,30 +415,30 @@ When the count is in the range `[0, 128)` the low bits vacated by the shift are 
 Shifting by a count that is negative or greater than or equal to `128` (the operand width in bits) is *undefined behavior*, exactly as for the built-in shift operators and the native `__int128` and `unsigned __int128` types (`[expr.shift]` in the C++ standard). No result is guaranteed, not even zero, and inside a constant expression the program is ill-formed. Delegating straight to the native shift this way keeps the in-range operation branchless and bit-for-bit compatible with the built-in types.
 ====
 
-When a built-in integer is the `lhs` and an `int128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
-This operation is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+When a built-in integer is the `lhs` and an `int128` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Right Shift
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const Integer rhs) noexcept;
 
 template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128 rhs) noexcept;
 
 template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned int operator>>(const UnsignedInteger lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr unsigned int operator>>(const UnsignedInteger lhs, const int128 rhs) noexcept;
 
 // When the compiler provides native 128-bit integers, a built-in 128-bit lhs
-// shifted by an int128_t returns that built-in type.
+// shifted by an int128 returns that built-in type.
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
-BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept;
-BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_u128 operator>>(const detail::builtin_u128 lhs, const int128 rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr detail::builtin_i128 operator>>(const detail::builtin_i128 lhs, const int128 rhs) noexcept;
 #endif
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const int128 rhs) noexcept;
 ----
 
 Returns the bitwise right shift of `lhs` without exception.
@@ -450,23 +450,23 @@ When the count is in the range `[0, 128)` the shift is arithmetic: the high bits
 Shifting by a count that is negative or greater than or equal to `128` (the operand width in bits) is *undefined behavior*, exactly as for the built-in shift operators and the native `__int128` and `unsigned __int128` types (`[expr.shift]` in the C++ standard). No result is guaranteed, not even zero or a fully sign-extended value, and inside a constant expression the program is ill-formed. Delegating straight to the native shift this way keeps the in-range operation branchless and bit-for-bit compatible with the built-in types.
 ====
 
-When a built-in integer is the `lhs` and an `int128_t` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
-This operation is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+When a built-in integer is the `lhs` and an `int128` is the shift amount, the return type matches the promotion behavior of the built-in shift: integer types of 16 bits or fewer promote to `int` or `unsigned int`, and, where the compiler provides them, the native 128-bit types return their own type.
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 
 [#i128_math_operators]
 == Arithmetic Operators
 
 All of the arithmetic operators use two's-complement wrap-around on overflow.
-When a result is not representable in an `int128_t` it silently rolls over modulo `2^128` rather than trapping or invoking undefined behavior, matching `std::numeric_limits<int128_t>::is_modulo`.
+When a result is not representable in an `int128` it silently rolls over modulo `2^128` rather than trapping or invoking undefined behavior, matching `std::numeric_limits<int128>::is_modulo`.
 For example, `BOOST_INT128_INT128_MAX + 1` wraps to `BOOST_INT128_INT128_MIN`, and `BOOST_INT128_INT128_MIN - 1` wraps to `BOOST_INT128_INT128_MAX`.
 
 === Unary Plus and Minus
 
 [source, c++]
 ----
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t value) noexcept;
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 value) noexcept;
 ----
 
 Unary `operator+` returns `value` unchanged.
@@ -478,101 +478,101 @@ Negating `BOOST_INT128_INT128_MIN` wraps back to itself, matching the behavior o
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator+(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const int128 rhs) noexcept;
 ----
 
-Returns as an `int128_t` the sum of `lhs` and `rhs`.
+Returns as an `int128` the sum of `lhs` and `rhs`.
 If the sum is greater than `BOOST_INT128_INT128_MAX`, the operation silently performs signed rollover to `BOOST_INT128_INT128_MIN`.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Subtraction
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator-(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const int128 rhs) noexcept;
 ----
 
-Returns as an `int128_t` the difference of `lhs` and `rhs`.
+Returns as an `int128` the difference of `lhs` and `rhs`.
 If the difference is less than `BOOST_INT128_INT128_MIN`, the operation silently performs signed rollover to `BOOST_INT128_INT128_MAX`.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Multiplication
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator*(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const int128 rhs) noexcept;
 ----
 
-Returns as an `int128_t` the product of `lhs` and `rhs`.
+Returns as an `int128` the product of `lhs` and `rhs`.
 If the product overflows, the operation silently performs signed rollover (wrapping from `BOOST_INT128_INT128_MAX` to `BOOST_INT128_INT128_MIN` or vice versa).
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Division
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator/(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const int128 lhs, const int128 rhs) noexcept;
 ----
 
-Returns as an `int128_t` the quotient of `lhs` and `rhs` without exception.
+Returns as an `int128` the quotient of `lhs` and `rhs` without exception.
 The quotient truncates toward zero, and for any `rhs` other than `0` (and other than the overflow noted below) the result is identical to the built-in `__int128` division.
 Division by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 The signed overflow `INT128_MIN / -1` is defined to wrap to `INT128_MIN` rather than being left undefined as it is for the built-in.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 === Modulo
 
 [source, c++]
 ----
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const Integer rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const int128 lhs, const Integer rhs) noexcept;
 
 template <BOOST_INT128_INTEGER_CONCEPT Integer>
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const Integer lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const Integer lhs, const int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator%(const int128_t lhs, const int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 operator%(const int128 lhs, const int128 rhs) noexcept;
 ----
 
-Returns as an `int128_t` the remainder of `lhs` and `rhs` without exception.
+Returns as an `int128` the remainder of `lhs` and `rhs` without exception.
 The remainder takes the sign of the dividend `lhs`, and for any `rhs` other than `0` the result is identical to the built-in `__int128` remainder, so that `(lhs / rhs) * rhs + lhs % rhs == lhs`.
 Remainder by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 The signed overflow `INT128_MIN % -1` is defined to be `0` rather than being left undefined as it is for the built-in.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128_t.adoc#i128_operator_behavior[above].
+This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 [#i128_abs]
 === Absolute Value
 
 [source, c++]
 ----
-BOOST_INT128_HOST_DEVICE constexpr int128_t abs(int128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 abs(int128 value) noexcept;
 ----
 
-Returns the absolute value of `value` as an `int128_t`.
+Returns the absolute value of `value` as an `int128`.
 For negative inputs the result is computed by negation, so the range of the return value is the same asymmetric range as the type itself.
-The magnitude of `BOOST_INT128_INT128_MIN` is one greater than `BOOST_INT128_INT128_MAX` and is therefore not representable as a positive `int128_t`.
+The magnitude of `BOOST_INT128_INT128_MIN` is one greater than `BOOST_INT128_INT128_MAX` and is therefore not representable as a positive `int128`.
 In that single case `abs` rolls over and returns `BOOST_INT128_INT128_MIN` unchanged, so the result remains negative.
 This is consistent with the two's-complement wrap-around of unary `operator-` described above.
 Note that calling `std::abs` on a built-in signed integer holding its minimum value is undefined behavior, whereas this overload is well-defined for every input and never traps or throws.
@@ -580,7 +580,7 @@ Note that calling `std::abs` on a built-in signed integer holding its minimum va
 [#i128_limits]
 == `<limits>` Support and Values
 
-A full specialization of `std::numeric_limits<int128_t>` is provided.
+A full specialization of `std::numeric_limits<int128>` is provided.
 It is defined in xref:api_reference.adoc#api_structs[`<boost/int128/limits.hpp>`] and is also included by the umbrella header `<boost/int128.hpp>`.
 The member values match those of a built-in signed 128-bit integer.
 
@@ -591,14 +591,14 @@ The member values match those of a built-in signed 128-bit integer.
 namespace std {
 
 template <>
-class numeric_limits<boost::int128::int128_t>;
+class numeric_limits<boost::int128::int128>;
 
 } // namespace std
 ----
 
 === Member Functions
 
-Each function is `static constexpr` and returns an `int128_t`.
+Each function is `static constexpr` and returns an `int128`.
 
 [cols="1,2", options="header"]
 |===
@@ -632,7 +632,7 @@ Each function is `static constexpr` and returns an `int128_t`.
 | `0`
 |===
 
-NOTE: Wrap `min` and `max` in parentheses at the call site, as `(std::numeric_limits<int128_t>::min)()`, so the call is not intercepted by the `min`/`max` function-like macros that some platform headers define.
+NOTE: Wrap `min` and `max` in parentheses at the call site, as `(std::numeric_limits<int128>::min)()`, so the call is not intercepted by the `min`/`max` function-like macros that some platform headers define.
 
 === Member Constants
 

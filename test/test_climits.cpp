@@ -7,9 +7,9 @@
 
 int main()
 {
-    static_assert(BOOST_INT128_UINT128_MAX == std::numeric_limits<boost::int128::uint128_t>::max(), "Should be equal");
-    static_assert(BOOST_INT128_INT128_MAX == std::numeric_limits<boost::int128::int128_t>::max(), "Should be equal");
-    static_assert(BOOST_INT128_INT128_MIN == std::numeric_limits<boost::int128::int128_t>::min(), "Should be equal");
+    static_assert(BOOST_INT128_UINT128_MAX == std::numeric_limits<boost::int128::uint128>::max(), "Should be equal");
+    static_assert(BOOST_INT128_INT128_MAX == std::numeric_limits<boost::int128::int128>::max(), "Should be equal");
+    static_assert(BOOST_INT128_INT128_MIN == std::numeric_limits<boost::int128::int128>::min(), "Should be equal");
 
     return 0;
 }

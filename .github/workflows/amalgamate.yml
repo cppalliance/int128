@@ -66,7 +66,7 @@ jobs:
                   return 2;
               }
 
-              if (saturating_add(a, b) != (std::numeric_limits<uint128_t>::max)())
+              if (saturating_add(a, b) != (std::numeric_limits<uint128>::max)())
               {
                   return 3;
               }

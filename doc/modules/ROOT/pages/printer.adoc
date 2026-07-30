@@ -8,7 +8,7 @@ https://www.boost.org/LICENSE_1_0.txt
 = Pretty Printers
 :idprefix: pretty_printers_
 
-Pretty printers allow debuggers to display `uint128_t` and `int128_t` values in human-readable format instead of showing the raw struct members.
+Pretty printers allow debuggers to display `uint128` and `int128` values in human-readable format instead of showing the raw struct members.
 The library contains pretty printers for LLDB, GDB, and Visual Studio in the `extra/` folder.
 
 [#printer_lldb]
@@ -23,7 +23,7 @@ command script import /path/to/int128/extra/int128_printer_lldb.py
 
 If this is successful, you should see the following message in your debugger upon startup:
 
-`"int128_t and uint128_t pretty printers loaded successfully"`
+`"int128 and uint128 pretty printers loaded successfully"`
 
 [#printer_gdb]
 == GDB
@@ -84,31 +84,31 @@ Larger values are displayed as a synthesized hexadecimal value with a `'` digit 
 |===
 | Type | Value | Display
 
-| `uint128_t`
+| `uint128`
 | `42`
 | `42`
 
-| `uint128_t`
+| `uint128`
 | `2^64 + 1`
 | `0x0000000000000001'0000000000000001`
 
-| `uint128_t`
+| `uint128`
 | `uint128_max`
 | `0xFFFFFFFFFFFFFFFF'FFFFFFFFFFFFFFFF`
 
-| `int128_t`
+| `int128`
 | `42`
 | `42`
 
-| `int128_t`
+| `int128`
 | `-5`
 | `-5`
 
-| `int128_t`
+| `int128`
 | `2^64 + 1`
 | `0x0000000000000001'0000000000000001`
 
-| `int128_t`
+| `int128`
 | `int128_min`
 | `0x8000000000000000'0000000000000000`
 |===

@@ -247,26 +247,26 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
 }
 } // namespace impl
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, uint128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<uint128_t, uint128_t>(first, last, value, base);
+    return impl::from_chars_integer_impl<uint128, uint128>(first, last, value, base);
 }
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars(const char* first, const char* last, int128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<int128_t, uint128_t>(first, last, value, base);
+    return impl::from_chars_integer_impl<int128, uint128>(first, last, value, base);
 }
 
 // Parsing entry points for the user-defined literals. Unlike from_chars these skip the
 // C++ digit separator ' so that literals such as 1'234'567_u128 are accepted.
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, uint128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, uint128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<uint128_t, uint128_t, true>(first, last, value, base);
+    return impl::from_chars_integer_impl<uint128, uint128, true>(first, last, value, base);
 }
 
-BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, int128_t& value, int base = 10) noexcept
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal(const char* first, const char* last, int128& value, int base = 10) noexcept
 {
-    return impl::from_chars_integer_impl<int128_t, uint128_t, true>(first, last, value, base);
+    return impl::from_chars_integer_impl<int128, uint128, true>(first, last, value, base);
 }
 
 // Rejects an out of range literal
@@ -275,7 +275,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    BOOST_int128HROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
     #endif
 }
 
@@ -285,7 +285,7 @@ BOOST_INT128_TEST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_liter
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    BOOST_int128HROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
     #endif
 }
 

@@ -39,29 +39,29 @@ void test()
             continue;  // skip divide/modulo by zero
         }
 
-        const uint128_t lhs_u {u_val};
-        const int128_t rhs_i {i_val};
+        const uint128 lhs_u {u_val};
+        const int128 rhs_i {i_val};
 
         // Builtin oracle: both operands promoted to unsigned __int128
         const builtin_u128 builtin_lhs {u_val};
         const builtin_u128 builtin_rhs = static_cast<builtin_u128>(static_cast<__int128>(i_val));
 
-        BOOST_TEST_EQ(lhs_u + rhs_i, uint128_t{builtin_lhs + builtin_rhs});
-        BOOST_TEST_EQ(lhs_u - rhs_i, uint128_t{builtin_lhs - builtin_rhs});
-        BOOST_TEST_EQ(lhs_u * rhs_i, uint128_t{builtin_lhs * builtin_rhs});
-        BOOST_TEST_EQ(lhs_u / rhs_i, uint128_t{builtin_lhs / builtin_rhs});
-        BOOST_TEST_EQ(lhs_u % rhs_i, uint128_t{builtin_lhs % builtin_rhs});
+        BOOST_TEST_EQ(lhs_u + rhs_i, uint128{builtin_lhs + builtin_rhs});
+        BOOST_TEST_EQ(lhs_u - rhs_i, uint128{builtin_lhs - builtin_rhs});
+        BOOST_TEST_EQ(lhs_u * rhs_i, uint128{builtin_lhs * builtin_rhs});
+        BOOST_TEST_EQ(lhs_u / rhs_i, uint128{builtin_lhs / builtin_rhs});
+        BOOST_TEST_EQ(lhs_u % rhs_i, uint128{builtin_lhs % builtin_rhs});
 
         // Reverse operand order
         if (u_val == 0)
         {
             continue;
         }
-        BOOST_TEST_EQ(rhs_i + lhs_u, uint128_t{builtin_rhs + builtin_lhs});
-        BOOST_TEST_EQ(rhs_i - lhs_u, uint128_t{builtin_rhs - builtin_lhs});
-        BOOST_TEST_EQ(rhs_i * lhs_u, uint128_t{builtin_rhs * builtin_lhs});
-        BOOST_TEST_EQ(rhs_i / lhs_u, uint128_t{builtin_rhs / builtin_lhs});
-        BOOST_TEST_EQ(rhs_i % lhs_u, uint128_t{builtin_rhs % builtin_lhs});
+        BOOST_TEST_EQ(rhs_i + lhs_u, uint128{builtin_rhs + builtin_lhs});
+        BOOST_TEST_EQ(rhs_i - lhs_u, uint128{builtin_rhs - builtin_lhs});
+        BOOST_TEST_EQ(rhs_i * lhs_u, uint128{builtin_rhs * builtin_lhs});
+        BOOST_TEST_EQ(rhs_i / lhs_u, uint128{builtin_rhs / builtin_lhs});
+        BOOST_TEST_EQ(rhs_i % lhs_u, uint128{builtin_rhs % builtin_lhs});
     }
 }
 

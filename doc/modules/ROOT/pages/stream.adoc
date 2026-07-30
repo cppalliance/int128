@@ -21,16 +21,16 @@ namespace boost {
 namespace int128 {
 
 template <typename charT, typename traits>
-std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const int128_t& v);
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const int128& v);
 
 template <typename charT, typename traits>
-std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, int128_t& v);
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, int128& v);
 
 template <typename charT, typename traits>
-std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const uint128_t& v);
+std::basic_ostream<charT, traits>& operator<<(std::basic_ostream<charT, traits>& os, const uint128& v);
 
 template <typename charT, typename traits>
-std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, uint128_t& v);
+std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, traits>& is, uint128& v);
 
 } // namespace int128
 } // namespace boost

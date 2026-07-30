@@ -152,19 +152,19 @@ void test_negative_value()
     // These should always return positive values
     // Also exercises our constexpr-ness
 
-    constexpr int128_t p {2 * 2 * 3};
-    constexpr int128_t q {2 * 3 * 3};
+    constexpr int128 p {2 * 2 * 3};
+    constexpr int128 q {2 * 3 * 3};
     static_assert(2 * 3 == gcd(p, q), "Wrong");
 
-    static_assert(gcd(int128_t{6},  int128_t{10}) == 2, "Wrong");
-    static_assert(gcd(int128_t{6}, int128_t{-10}) == 2, "Wrong");
-    static_assert(gcd(int128_t{-6}, int128_t{-10}) == 2, "Wrong");
+    static_assert(gcd(int128{6},  int128{10}) == 2, "Wrong");
+    static_assert(gcd(int128{6}, int128{-10}) == 2, "Wrong");
+    static_assert(gcd(int128{-6}, int128{-10}) == 2, "Wrong");
 
-    static_assert(gcd(int128_t{24}, int128_t{0}) == 24, "Wrong");
-    static_assert(gcd(int128_t{-24}, int128_t{0}) == 24, "Wrong");
+    static_assert(gcd(int128{24}, int128{0}) == 24, "Wrong");
+    static_assert(gcd(int128{-24}, int128{0}) == 24, "Wrong");
 
-    static_assert(gcd(int128_t{0}, int128_t{24}) == 24, "Wrong");
-    static_assert(gcd(int128_t{0}, int128_t{-24}) == 24, "Wrong");
+    static_assert(gcd(int128{0}, int128{24}) == 24, "Wrong");
+    static_assert(gcd(int128{0}, int128{-24}) == 24, "Wrong");
 }
 
 #ifdef _MSC_VER
@@ -173,13 +173,13 @@ void test_negative_value()
 
 int main()
 {
-    test_gcd<uint128_t>();
-    test_lcm<uint128_t>();
-    test_gcd_lcm_properties<uint128_t>();
+    test_gcd<uint128>();
+    test_lcm<uint128>();
+    test_gcd_lcm_properties<uint128>();
 
-    test_gcd<int128_t>();
-    test_lcm<int128_t>();
-    test_gcd_lcm_properties<int128_t>();
+    test_gcd<int128>();
+    test_lcm<int128>();
+    test_gcd_lcm_properties<int128>();
     test_negative_value();
 
     return boost::report_errors();

@@ -84,8 +84,8 @@ REGRESSION_THRESHOLD = 5.0
 
 # Fallback when a data set names a baseline that it did not measure; first match wins.
 BASELINE_PRIORITY = {
-    'u128': ['unsigned __int128', 'std::_Unsigned128', 'boost::mp::uint128_t'],
-    'i128': ['__int128', 'std::_Signed128', 'boost::mp::int128_t'],
+    'u128': ['unsigned __int128', 'std::_Unsigned128', 'boost::mp::uint128'],
+    'i128': ['__int128', 'std::_Signed128', 'boost::mp::int128'],
 }
 
 

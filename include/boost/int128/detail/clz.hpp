@@ -21,7 +21,7 @@ namespace detail {
 // The whole impl namespace is exported when building the module for testing so
 // the low-level bit helpers can be exercised directly; it is an ordinary
 // namespace in every other build.
-BOOST_INT128_TEST_EXPORT namespace impl {
+BOOST_int128EST_EXPORT namespace impl {
 
 #if !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 

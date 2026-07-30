@@ -23,13 +23,13 @@
 
 int main()
 {
-    using boost::int128::int128_t;
-    using boost::int128::uint128_t;
+    using boost::int128::int128;
+    using boost::int128::uint128;
 
     std::cout << "=== Basic Formatting ===" << std::endl;
 
-    constexpr uint128_t unsigned_value {0xDEADBEEF, 0xCAFEBABE12345678};
-    constexpr int128_t signed_value {-123456789012345678};
+    constexpr uint128 unsigned_value {0xDEADBEEF, 0xCAFEBABE12345678};
+    constexpr int128 signed_value {-123456789012345678};
 
     // Default decimal formatting
     std::cout << fmt::format("Default (decimal): {}", unsigned_value) << std::endl;
@@ -38,7 +38,7 @@ int main()
     std::cout << "\n=== Base Specifiers ===" << std::endl;
 
     // Different bases: binary, octal, decimal, hex
-    constexpr uint128_t value {255};
+    constexpr uint128 value {255};
     std::cout << fmt::format("Binary:      {:b}", value) << std::endl;
     std::cout << fmt::format("Octal:       {:o}", value) << std::endl;
     std::cout << fmt::format("Decimal:     {:d}", value) << std::endl;
@@ -55,8 +55,8 @@ int main()
 
     std::cout << "\n=== Sign Options ===" << std::endl;
 
-    constexpr int128_t positive {42};
-    constexpr int128_t negative {-42};
+    constexpr int128 positive {42};
+    constexpr int128 negative {-42};
 
     // Sign specifiers: + (always show), - (default), space (space for positive)
     std::cout << fmt::format("Plus sign:  {:+} and {:+}", positive, negative) << std::endl;
@@ -101,12 +101,12 @@ int main()
     std::cout << "\n=== Large Values ===" << std::endl;
 
     // Demonstrate with values beyond 64-bit range
-    constexpr auto uint_max {std::numeric_limits<uint128_t>::max()};
-    constexpr auto int_min {std::numeric_limits<int128_t>::min()};
+    constexpr auto uint_max {std::numeric_limits<uint128>::max()};
+    constexpr auto int_min {std::numeric_limits<int128>::min()};
 
-    std::cout << fmt::format("uint128_t max: {}", uint_max) << std::endl;
-    std::cout << fmt::format("uint128_t max (hex): {:#x}", uint_max) << std::endl;
-    std::cout << fmt::format("int128_t min: {}", int_min) << std::endl;
+    std::cout << fmt::format("uint128 max: {}", uint_max) << std::endl;
+    std::cout << fmt::format("uint128 max (hex): {:#x}", uint_max) << std::endl;
+    std::cout << fmt::format("int128 min: {}", int_min) << std::endl;
 
     std::cout << "\n=== Combined Format Specifiers ===" << std::endl;
 

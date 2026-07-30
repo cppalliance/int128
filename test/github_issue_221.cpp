@@ -29,8 +29,8 @@ void test()
 
 int main()
 {
-    test<boost::int128::int128_t>();
-    test<boost::int128::uint128_t>();
+    test<boost::int128::int128>();
+    test<boost::int128::uint128>();
 
     return boost::report_errors();
 }

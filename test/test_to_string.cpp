@@ -53,12 +53,12 @@ void test_builtin()
         BOOST_TEST(r);
         *r.ptr = '\0';
 
-        const auto value_str {to_string(int128_t{value})};
+        const auto value_str {to_string(int128{value})};
 
         BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
         BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
 
-        const auto value_wstr {to_wstring(int128_t{value})};
+        const auto value_wstr {to_wstring(int128{value})};
 
         BOOST_TEST(value_wstr == std::to_wstring(value));
     }
@@ -79,22 +79,22 @@ void test_builtin()
         *r.ptr = '\0';
 
         {
-            const auto value_str {to_string(int128_t{value})};
+            const auto value_str {to_string(int128{value})};
 
             BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
             BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
 
-            const auto value_wstr {to_wstring(int128_t{value})};
+            const auto value_wstr {to_wstring(int128{value})};
 
             BOOST_TEST(value_wstr == std::to_wstring(value));
         }
         {
-            const auto value_str {to_string(uint128_t{value})};
+            const auto value_str {to_string(uint128{value})};
 
             BOOST_TEST_CSTR_EQ(buffer, value_str.c_str());
             BOOST_TEST_CSTR_EQ(std::to_string(value).c_str(), value_str.c_str());
 
-            const auto value_wstr {to_wstring(uint128_t{value})};
+            const auto value_wstr {to_wstring(uint128{value})};
 
             BOOST_TEST(value_wstr == std::to_wstring(value));
         }
@@ -103,8 +103,8 @@ void test_builtin()
 
 int main()
 {
-    test<uint128_t>();
-    test<int128_t>();
+    test<uint128>();
+    test<int128>();
 
     test_builtin<std::int8_t>();
     test_builtin<std::uint8_t>();

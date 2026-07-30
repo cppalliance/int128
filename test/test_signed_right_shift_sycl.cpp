@@ -4,10 +4,10 @@
 
 #include "sycl_test.hpp"
 
-using boost::int128::int128_t;
+using boost::int128::int128;
 
 int main()
 {
-    return int128_sycl_test::run<int128_t, int128_t>(
-        [](int128_t a, int128_t, int i) { return a >> (i % 128); });
+    return int128_sycl_test::run<int128, int128>(
+        [](int128 a, int128, int i) { return a >> (i % 128); });
 }

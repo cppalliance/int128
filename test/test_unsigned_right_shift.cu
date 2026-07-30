@@ -17,7 +17,7 @@
 // For the CUDA runtime routines (prefixed with "cuda_")
 #include <cuda_runtime.h>
 
-using test_type = boost::int128::uint128_t;
+using test_type = boost::int128::uint128;
 
 __global__ void cuda_test(const test_type *in, const unsigned *shift, test_type *out, int numElements)
 {

@@ -9,5 +9,5 @@
 
 int main()
 {
-    return boost::int128::cmp_equal(boost::int128::uint128_t{1}, 'a') ? 1 : 0;
+    return boost::int128::cmp_equal(boost::int128::uint128{1}, 'a') ? 1 : 0;
 }

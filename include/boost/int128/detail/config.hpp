@@ -6,13 +6,13 @@
 #define BOOST_INT128_DETAIL_CONFIG_HPP
 
 // A handful of detail-namespace entities are exercised directly by the module
-// test suite. BOOST_INT128_TEST_EXPORT exports them only when the module is built
+// test suite. BOOST_int128EST_EXPORT exports them only when the module is built
 // for testing (BOOST_INT128_EXPORT_TESTING), so the normal module API stays limited
 // to the public interface. It expands to nothing in ordinary (header) builds.
 #if defined(BOOST_INT128_BUILD_MODULE) && defined(BOOST_INT128_EXPORT_TESTING)
-#  define BOOST_INT128_TEST_EXPORT export
+#  define BOOST_int128EST_EXPORT export
 #else
-#  define BOOST_INT128_TEST_EXPORT
+#  define BOOST_int128EST_EXPORT
 #endif
 
 // The SYCL device target (spir64) has no native 128-bit integer, so force the portable
@@ -43,13 +43,13 @@ namespace detail {
 // Avoids pedantic warnings
 #ifdef __GNUC__
 
-BOOST_INT128_TEST_EXPORT __extension__ using builtin_i128 = __int128 ;
-BOOST_INT128_TEST_EXPORT __extension__ using builtin_u128 = unsigned __int128 ;
+BOOST_int128EST_EXPORT __extension__ using builtin_i128 = __int128 ;
+BOOST_int128EST_EXPORT __extension__ using builtin_u128 = unsigned __int128 ;
 
 #else
 
-BOOST_INT128_TEST_EXPORT using builtin_i128 = __int128 ;
-BOOST_INT128_TEST_EXPORT using builtin_u128 = unsigned __int128;
+BOOST_int128EST_EXPORT using builtin_i128 = __int128 ;
+BOOST_int128EST_EXPORT using builtin_u128 = unsigned __int128;
 
 #endif
 
@@ -80,8 +80,8 @@ namespace detail {
 // See the note above: skip the re-declaration in a module consumer.
 #if !defined(BOOST_INT128_BUILD_MODULE) || defined(BOOST_INT128_INTERFACE_UNIT)
 
-BOOST_INT128_TEST_EXPORT using builtin_i128 = std::_Signed128;
-BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
+BOOST_int128EST_EXPORT using builtin_i128 = std::_Signed128;
+BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #endif
 
@@ -293,22 +293,22 @@ BOOST_INT128_TEST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #ifdef BOOST_INT128_DISABLE_EXCEPTIONS
 
-#  define BOOST_INT128_THROW_EXCEPTION(expr)
+#  define BOOST_int128HROW_EXCEPTION(expr)
 
 #else
 
 #  ifdef _MSC_VER
 #    ifdef _CPPUNWIND
-#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_int128HROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #  else
 #    ifdef __EXCEPTIONS
-#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
+#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_INT128_THROW_EXCEPTION(expr)
+#      define BOOST_int128HROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #endif

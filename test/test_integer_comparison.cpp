@@ -9,8 +9,8 @@
 #include <random>
 #include <cstdint>
 
-using boost::int128::int128_t;
-using boost::int128::uint128_t;
+using boost::int128::int128;
+using boost::int128::uint128;
 using boost::int128::cmp_equal;
 using boost::int128::cmp_not_equal;
 using boost::int128::cmp_less;
@@ -25,73 +25,73 @@ using boost::int128::in_range;
 //
 void test_known_answers()
 {
-    constexpr auto u_max {(std::numeric_limits<uint128_t>::max)()};
-    constexpr auto i_max {(std::numeric_limits<int128_t>::max)()};
-    constexpr auto i_min {(std::numeric_limits<int128_t>::min)()};
+    constexpr auto u_max {(std::numeric_limits<uint128>::max)()};
+    constexpr auto i_max {(std::numeric_limits<int128>::max)()};
+    constexpr auto i_min {(std::numeric_limits<int128>::min)()};
 
     // The signature case: a large unsigned value against a negative signed one.
     // The built-in operators would convert -1 to 2^128-1 and report equal; the
     // cmp_* functions compare the true mathematical values.
-    BOOST_TEST(!cmp_equal(u_max, int128_t{-1}));
-    BOOST_TEST(cmp_not_equal(u_max, int128_t{-1}));
-    BOOST_TEST(cmp_greater(u_max, int128_t{-1}));
-    BOOST_TEST(!cmp_less(u_max, int128_t{-1}));
-    BOOST_TEST(cmp_less(int128_t{-1}, u_max));
-    BOOST_TEST(cmp_greater_equal(u_max, int128_t{-1}));
-    BOOST_TEST(cmp_less_equal(int128_t{-1}, u_max));
+    BOOST_TEST(!cmp_equal(u_max, int128{-1}));
+    BOOST_TEST(cmp_not_equal(u_max, int128{-1}));
+    BOOST_TEST(cmp_greater(u_max, int128{-1}));
+    BOOST_TEST(!cmp_less(u_max, int128{-1}));
+    BOOST_TEST(cmp_less(int128{-1}, u_max));
+    BOOST_TEST(cmp_greater_equal(u_max, int128{-1}));
+    BOOST_TEST(cmp_less_equal(int128{-1}, u_max));
 
-    // uint128_t vs builtin
-    BOOST_TEST(cmp_equal(uint128_t{5}, 5));
-    BOOST_TEST(cmp_equal(uint128_t{5}, 5U));
-    BOOST_TEST(!cmp_equal(uint128_t{5}, -5));
-    BOOST_TEST(cmp_not_equal(uint128_t{5}, -5));
-    BOOST_TEST(cmp_greater(uint128_t{5}, -5));
-    BOOST_TEST(!cmp_less(uint128_t{0}, -1));
-    BOOST_TEST(cmp_greater(uint128_t{0}, -1));
-    BOOST_TEST(cmp_less(uint128_t{5}, 10));
-    BOOST_TEST(cmp_less_equal(uint128_t{5}, 5));
-    BOOST_TEST(cmp_greater_equal(uint128_t{5}, 5));
+    // uint128 vs builtin
+    BOOST_TEST(cmp_equal(uint128{5}, 5));
+    BOOST_TEST(cmp_equal(uint128{5}, 5U));
+    BOOST_TEST(!cmp_equal(uint128{5}, -5));
+    BOOST_TEST(cmp_not_equal(uint128{5}, -5));
+    BOOST_TEST(cmp_greater(uint128{5}, -5));
+    BOOST_TEST(!cmp_less(uint128{0}, -1));
+    BOOST_TEST(cmp_greater(uint128{0}, -1));
+    BOOST_TEST(cmp_less(uint128{5}, 10));
+    BOOST_TEST(cmp_less_equal(uint128{5}, 5));
+    BOOST_TEST(cmp_greater_equal(uint128{5}, 5));
 
-    // int128_t vs builtin, both signs
-    BOOST_TEST(cmp_less(int128_t{-5}, 0U));
-    BOOST_TEST(cmp_less(int128_t{-5}, -3));
-    BOOST_TEST(cmp_greater(int128_t{-3}, -5));
-    BOOST_TEST(cmp_equal(int128_t{-5}, -5));
-    BOOST_TEST(!cmp_equal(int128_t{-5}, 5U));
-    BOOST_TEST(cmp_less(int128_t{-1}, 0U));
-    BOOST_TEST(cmp_greater_equal(int128_t{5}, -5));
-    BOOST_TEST(cmp_less_equal(int128_t{-5}, 5U));
+    // int128 vs builtin, both signs
+    BOOST_TEST(cmp_less(int128{-5}, 0U));
+    BOOST_TEST(cmp_less(int128{-5}, -3));
+    BOOST_TEST(cmp_greater(int128{-3}, -5));
+    BOOST_TEST(cmp_equal(int128{-5}, -5));
+    BOOST_TEST(!cmp_equal(int128{-5}, 5U));
+    BOOST_TEST(cmp_less(int128{-1}, 0U));
+    BOOST_TEST(cmp_greater_equal(int128{5}, -5));
+    BOOST_TEST(cmp_less_equal(int128{-5}, 5U));
 
     // builtin on the left
     BOOST_TEST(cmp_less(-1, u_max));
-    BOOST_TEST(!cmp_greater(-1, uint128_t{0}));
-    BOOST_TEST(cmp_less(-1, uint128_t{0}));
+    BOOST_TEST(!cmp_greater(-1, uint128{0}));
+    BOOST_TEST(cmp_less(-1, uint128{0}));
     BOOST_TEST(!cmp_equal(-1, u_max));
-    BOOST_TEST(cmp_greater(5, int128_t{-5}));
-    BOOST_TEST(cmp_equal(5U, uint128_t{5}));
+    BOOST_TEST(cmp_greater(5, int128{-5}));
+    BOOST_TEST(cmp_equal(5U, uint128{5}));
 
     // same-type 128-bit
-    BOOST_TEST(cmp_equal(uint128_t{7}, uint128_t{7}));
-    BOOST_TEST(cmp_not_equal(uint128_t{7}, uint128_t{8}));
-    BOOST_TEST(cmp_less(uint128_t{7}, uint128_t{8}));
-    BOOST_TEST(cmp_equal(int128_t{-7}, int128_t{-7}));
-    BOOST_TEST(cmp_less(int128_t{-7}, int128_t{-3}));
-    BOOST_TEST(cmp_greater(int128_t{-3}, int128_t{-7}));
+    BOOST_TEST(cmp_equal(uint128{7}, uint128{7}));
+    BOOST_TEST(cmp_not_equal(uint128{7}, uint128{8}));
+    BOOST_TEST(cmp_less(uint128{7}, uint128{8}));
+    BOOST_TEST(cmp_equal(int128{-7}, int128{-7}));
+    BOOST_TEST(cmp_less(int128{-7}, int128{-3}));
+    BOOST_TEST(cmp_greater(int128{-3}, int128{-7}));
 
     // extremes across the two 128-bit types
     BOOST_TEST(cmp_less(i_max, u_max));
     BOOST_TEST(cmp_greater(u_max, i_max));
-    BOOST_TEST(cmp_less(i_min, uint128_t{0}));
-    BOOST_TEST(cmp_greater(uint128_t{0}, i_min));
-    BOOST_TEST(cmp_equal(uint128_t{i_max}, i_max));
+    BOOST_TEST(cmp_less(i_min, uint128{0}));
+    BOOST_TEST(cmp_greater(uint128{0}, i_min));
+    BOOST_TEST(cmp_equal(uint128{i_max}, i_max));
     BOOST_TEST(!cmp_equal(u_max, i_max));
 
     // zero comparisons
-    BOOST_TEST(cmp_equal(uint128_t{0}, 0));
-    BOOST_TEST(cmp_equal(int128_t{0}, 0U));
-    BOOST_TEST(cmp_equal(int128_t{0}, uint128_t{0}));
-    BOOST_TEST(cmp_greater_equal(uint128_t{0}, int128_t{0}));
-    BOOST_TEST(cmp_less_equal(uint128_t{0}, int128_t{0}));
+    BOOST_TEST(cmp_equal(uint128{0}, 0));
+    BOOST_TEST(cmp_equal(int128{0}, 0U));
+    BOOST_TEST(cmp_equal(int128{0}, uint128{0}));
+    BOOST_TEST(cmp_greater_equal(uint128{0}, int128{0}));
+    BOOST_TEST(cmp_less_equal(uint128{0}, int128{0}));
 }
 
 //
@@ -100,41 +100,41 @@ void test_known_answers()
 //
 void test_in_range()
 {
-    constexpr auto u_max {(std::numeric_limits<uint128_t>::max)()};
-    constexpr auto i_max {(std::numeric_limits<int128_t>::max)()};
-    constexpr auto i_min {(std::numeric_limits<int128_t>::min)()};
+    constexpr auto u_max {(std::numeric_limits<uint128>::max)()};
+    constexpr auto i_max {(std::numeric_limits<int128>::max)()};
+    constexpr auto i_min {(std::numeric_limits<int128>::min)()};
 
     // library value -> narrow builtin target
-    BOOST_TEST(in_range<std::int8_t>(int128_t{127}));
-    BOOST_TEST(!in_range<std::int8_t>(int128_t{128}));
-    BOOST_TEST(in_range<std::int8_t>(int128_t{-128}));
-    BOOST_TEST(!in_range<std::int8_t>(int128_t{-129}));
-    BOOST_TEST(!in_range<std::uint8_t>(int128_t{-1}));
-    BOOST_TEST(in_range<std::uint8_t>(uint128_t{255}));
-    BOOST_TEST(!in_range<std::uint8_t>(uint128_t{256}));
+    BOOST_TEST(in_range<std::int8_t>(int128{127}));
+    BOOST_TEST(!in_range<std::int8_t>(int128{128}));
+    BOOST_TEST(in_range<std::int8_t>(int128{-128}));
+    BOOST_TEST(!in_range<std::int8_t>(int128{-129}));
+    BOOST_TEST(!in_range<std::uint8_t>(int128{-1}));
+    BOOST_TEST(in_range<std::uint8_t>(uint128{255}));
+    BOOST_TEST(!in_range<std::uint8_t>(uint128{256}));
 
     // library value -> wide builtin target
     BOOST_TEST(!in_range<std::uint64_t>(u_max));
-    BOOST_TEST(in_range<std::uint64_t>(uint128_t{(std::numeric_limits<std::uint64_t>::max)()}));
+    BOOST_TEST(in_range<std::uint64_t>(uint128{(std::numeric_limits<std::uint64_t>::max)()}));
     BOOST_TEST(!in_range<std::int64_t>(i_max));
-    BOOST_TEST(in_range<std::int64_t>(int128_t{(std::numeric_limits<std::int64_t>::max)()}));
+    BOOST_TEST(in_range<std::int64_t>(int128{(std::numeric_limits<std::int64_t>::max)()}));
     BOOST_TEST(!in_range<std::int64_t>(u_max));
 
     // builtin value -> library target (every builtin fits, except negatives in
     // an unsigned target)
-    BOOST_TEST(!in_range<uint128_t>(-1));
-    BOOST_TEST(in_range<uint128_t>(5));
-    BOOST_TEST(in_range<int128_t>(-5));
-    BOOST_TEST(in_range<int128_t>((std::numeric_limits<std::int64_t>::min)()));
-    BOOST_TEST(in_range<uint128_t>((std::numeric_limits<std::uint64_t>::max)()));
+    BOOST_TEST(!in_range<uint128>(-1));
+    BOOST_TEST(in_range<uint128>(5));
+    BOOST_TEST(in_range<int128>(-5));
+    BOOST_TEST(in_range<int128>((std::numeric_limits<std::int64_t>::min)()));
+    BOOST_TEST(in_range<uint128>((std::numeric_limits<std::uint64_t>::max)()));
 
     // library value -> library target
-    BOOST_TEST(!in_range<int128_t>(u_max));
-    BOOST_TEST(in_range<int128_t>(uint128_t{i_max}));
-    BOOST_TEST(!in_range<uint128_t>(int128_t{-1}));
-    BOOST_TEST(in_range<uint128_t>(i_max));
-    BOOST_TEST(in_range<uint128_t>(u_max));
-    BOOST_TEST(in_range<int128_t>(i_min));
+    BOOST_TEST(!in_range<int128>(u_max));
+    BOOST_TEST(in_range<int128>(uint128{i_max}));
+    BOOST_TEST(!in_range<uint128>(int128{-1}));
+    BOOST_TEST(in_range<uint128>(i_max));
+    BOOST_TEST(in_range<uint128>(u_max));
+    BOOST_TEST(in_range<int128>(i_min));
 }
 
 //
@@ -159,8 +159,8 @@ void test_constraints()
     static_assert(!is_valid_comparison_type_v<char32_t>,          "char32_t is not permitted");
     static_assert(!is_valid_comparison_type_v<wchar_t>,           "wchar_t is not permitted");
     static_assert(!is_valid_comparison_type_v<double>,            "double is not permitted");
-    static_assert(!is_valid_comparison_type_v<int128_t>,          "int128_t is handled by its own overloads");
-    static_assert(!is_valid_comparison_type_v<uint128_t>,         "uint128_t is handled by its own overloads");
+    static_assert(!is_valid_comparison_type_v<int128>,          "int128 is handled by its own overloads");
+    static_assert(!is_valid_comparison_type_v<uint128>,         "uint128 is handled by its own overloads");
 
     #if defined(__cpp_char8_t)
     static_assert(!is_valid_comparison_type_v<char8_t>,           "char8_t is not permitted");
@@ -172,20 +172,20 @@ void test_constraints()
 //
 void test_constexpr()
 {
-    constexpr auto u_max {(std::numeric_limits<uint128_t>::max)()};
+    constexpr auto u_max {(std::numeric_limits<uint128>::max)()};
 
-    static_assert(cmp_equal(uint128_t{5}, 5), "");
-    static_assert(cmp_not_equal(u_max, int128_t{-1}), "");
-    static_assert(cmp_less(int128_t{-1}, uint128_t{0}), "");
-    static_assert(cmp_greater(uint128_t{0}, int128_t{-1}), "");
-    static_assert(cmp_less_equal(int128_t{-1}, u_max), "");
-    static_assert(cmp_greater_equal(uint128_t{5}, int128_t{5}), "");
-    static_assert(!cmp_equal(u_max, int128_t{-1}), "");
+    static_assert(cmp_equal(uint128{5}, 5), "");
+    static_assert(cmp_not_equal(u_max, int128{-1}), "");
+    static_assert(cmp_less(int128{-1}, uint128{0}), "");
+    static_assert(cmp_greater(uint128{0}, int128{-1}), "");
+    static_assert(cmp_less_equal(int128{-1}, u_max), "");
+    static_assert(cmp_greater_equal(uint128{5}, int128{5}), "");
+    static_assert(!cmp_equal(u_max, int128{-1}), "");
 
-    static_assert(in_range<std::int8_t>(int128_t{127}), "");
-    static_assert(!in_range<std::uint8_t>(int128_t{-1}), "");
-    static_assert(in_range<uint128_t>(5), "");
-    static_assert(!in_range<int128_t>(u_max), "");
+    static_assert(in_range<std::int8_t>(int128{127}), "");
+    static_assert(!in_range<std::uint8_t>(int128{-1}), "");
+    static_assert(in_range<uint128>(5), "");
+    static_assert(!in_range<int128>(u_max), "");
 }
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
@@ -219,13 +219,13 @@ static void ref_sign_mag(builtin_u128 v, bool& neg, builtin_u128& mag) noexcept
     mag = v;
 }
 
-static void ref_sign_mag(uint128_t v, bool& neg, builtin_u128& mag) noexcept
+static void ref_sign_mag(uint128 v, bool& neg, builtin_u128& mag) noexcept
 {
     neg = false;
     mag = static_cast<builtin_u128>(v);
 }
 
-static void ref_sign_mag(int128_t v, bool& neg, builtin_u128& mag) noexcept
+static void ref_sign_mag(int128 v, bool& neg, builtin_u128& mag) noexcept
 {
     ref_sign_mag(static_cast<builtin_i128>(v), neg, mag);
 }
@@ -292,10 +292,10 @@ void test_random_oracle()
         const std::uint64_t hi2 {u_dist(rng)};
         const std::uint64_t lo2 {u_dist(rng)};
 
-        const uint128_t ua {hi, lo};
-        const uint128_t ub {hi2, lo2};
-        const int128_t ia {static_cast<std::int64_t>(hi), lo};
-        const int128_t ib {static_cast<std::int64_t>(hi2), lo2};
+        const uint128 ua {hi, lo};
+        const uint128 ub {hi2, lo2};
+        const int128 ia {static_cast<std::int64_t>(hi), lo};
+        const int128 ib {static_cast<std::int64_t>(hi2), lo2};
 
         const std::int64_t si {i_dist(rng)};
         const std::uint64_t su {u_dist(rng)};
@@ -341,8 +341,8 @@ void test_builtin_128()
     const builtin_i128 bi_5 {5};
     const builtin_u128 bu_5 {5};
 
-    constexpr auto u_max {(std::numeric_limits<uint128_t>::max)()};
-    constexpr auto i_max {(std::numeric_limits<int128_t>::max)()};
+    constexpr auto u_max {(std::numeric_limits<uint128>::max)()};
+    constexpr auto i_max {(std::numeric_limits<int128>::max)()};
 
     // trait classification
     static_assert(boost::int128::detail::is_int128_type_v<builtin_i128>,             "builtin signed is a 128-bit type");
@@ -352,10 +352,10 @@ void test_builtin_128()
 
     // library 128-bit vs builtin 128-bit
     BOOST_TEST(!boost::int128::cmp_equal(u_max, bi_neg1));
-    BOOST_TEST(!boost::int128::cmp_equal(bu_max, int128_t{-1}));
-    BOOST_TEST(boost::int128::cmp_less(bi_neg1, uint128_t{0}));
-    BOOST_TEST(boost::int128::cmp_greater(uint128_t{0}, bi_neg1));
-    BOOST_TEST(boost::int128::cmp_equal(uint128_t{bu_max}, bu_max));
+    BOOST_TEST(!boost::int128::cmp_equal(bu_max, int128{-1}));
+    BOOST_TEST(boost::int128::cmp_less(bi_neg1, uint128{0}));
+    BOOST_TEST(boost::int128::cmp_greater(uint128{0}, bi_neg1));
+    BOOST_TEST(boost::int128::cmp_equal(uint128{bu_max}, bu_max));
 
     // builtin 128-bit vs builtin 128-bit, cross signedness
     BOOST_TEST(!boost::int128::cmp_equal(bu_max, bi_neg1));
@@ -373,7 +373,7 @@ void test_builtin_128()
 
     // in_range with a builtin 128-bit target and/or value
     BOOST_TEST(!boost::int128::in_range<builtin_i128>(u_max));
-    BOOST_TEST(!boost::int128::in_range<builtin_u128>(int128_t{-1}));
+    BOOST_TEST(!boost::int128::in_range<builtin_u128>(int128{-1}));
     BOOST_TEST(!boost::int128::in_range<std::uint8_t>(bu_max));
     BOOST_TEST(boost::int128::in_range<std::int8_t>(bi_neg1));
     BOOST_TEST(boost::int128::in_range<builtin_u128>(bi_5));
