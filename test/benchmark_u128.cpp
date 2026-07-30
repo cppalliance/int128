@@ -92,7 +92,7 @@ using namespace std::chrono_literals;
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-using mp_u128 = boost::multiprecision::uint128;
+using mp_u128 = boost::multiprecision::uint128_t;
 
 // Names of the implementations under test. The generated documentation tables and
 // the plot legends use these labels verbatim, so each one spells the type the way

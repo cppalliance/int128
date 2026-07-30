@@ -345,8 +345,8 @@ void test_builtin_128()
     constexpr auto i_max {(std::numeric_limits<int128>::max)()};
 
     // trait classification
-    static_assert(boost::int128::detail::is_int128ype_v<builtin_i128>,             "builtin signed is a 128-bit type");
-    static_assert(boost::int128::detail::is_int128ype_v<builtin_u128>,             "builtin unsigned is a 128-bit type");
+    static_assert(boost::int128::detail::is_int128_type_v<builtin_i128>,             "builtin signed is a 128-bit type");
+    static_assert(boost::int128::detail::is_int128_type_v<builtin_u128>,             "builtin unsigned is a 128-bit type");
     static_assert(boost::int128::detail::is_valid_comparison_operand_v<builtin_i128>, "builtin signed is an operand");
     static_assert(boost::int128::detail::is_valid_comparison_operand_v<builtin_u128>, "builtin unsigned is an operand");
 
