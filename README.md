@@ -73,3 +73,10 @@ The entire library can be conveniently included with `#include <boost/int128.hpp
 # Full Documentation
 
 The complete documentation can be found at: https://develop.int128.cpp.al
+
+# Help and feedback
+
+* **[GitHub Issues](https://github.com/cppalliance/int128/issues)** for bug reports. Search before opening a new one.
+* **[GitHub Discussions](https://github.com/cppalliance/int128/discussions)** for questions, design ideas, and general conversation about the library.
+* **[Boost mailing list](http://lists.boost.org/mailman/listinfo.cgi/boost-users)** for general Boost development. Use the `[int128]` tag in the subject line.
+* **CppLang Slack** for real-time chat. [Request an invite](https://cppalliance.org/slack/), then join the `#boost` channel.
