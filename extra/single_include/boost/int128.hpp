@@ -10520,7 +10520,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_type_v = valid_comparison
 
 // Allow the builtins to be used when available
 template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR bool is_int128ype_v = std::is_same<T, int128>::value ||
+BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128>::value ||
                                                       std::is_same<T, uint128>::value
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
                                                       || std::is_same<T, builtin_i128>::value
@@ -10530,7 +10530,7 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_int128ype_v = std::is_same<T, int128>::val
 
 template <typename T>
 BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_operand_v = is_valid_comparison_type_v<T> ||
-                                                                   is_int128ype_v<T>;
+                                                                   is_int128_type_v<T>;
 
 // Maps the builtin 128-bit types onto the library equivalents
 template <typename T>
@@ -10594,7 +10594,7 @@ BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_impl(const T lhs, const U rhs) 
 template <typename T, typename U>
 BOOST_INT128_INLINE_CONSTEXPR bool enable_comparison_v = is_valid_comparison_operand_v<T> &&
                                                         is_valid_comparison_operand_v<U> &&
-                                                        (is_int128ype_v<T> || is_int128ype_v<U>);
+                                                        (is_int128_type_v<T> || is_int128_type_v<U>);
 
 } // namespace detail
 
