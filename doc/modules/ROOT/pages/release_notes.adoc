@@ -27,6 +27,11 @@ const auto res = div_rem_to_pos_inf(x, y);   // res.quotient and res.remainder, 
 Each mode also has a `div_rem_` form returning a `div_result<T>` with both halves from a single division, and there is a standalone `rem_euclid`.
 See xref:numeric.adoc#int_div[Integer Division] for the full list.
 
+=== Breaking: `int128_t` and `uint128_t` are now `int128` and `uint128`
+
+In order to avoid possible future possible ambiguity the types have been renamed.
+For detailed discussion see https://www.reddit.com/r/cpp/comments/1v3duby/comment/oz45dln/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button[this reddit post].
+
 === Breaking: `int128::high` is now `std::uint64_t`
 
 `int128` previously stored `std::uint64_t low` and `std::int64_t high`.
