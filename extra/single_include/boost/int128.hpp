@@ -59,7 +59,7 @@
 // Use 128-bit integers.
 // The SYCL device target (spir64) has no native 128-bit integer, so on the device pass
 // we fall back to the portable path (the same one used on platforms without __int128).
-#if (defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER)) && !defined(BOOST_INT128_NO_BUILTIN_INT128)) && !defined(__SYCL_DEVICE_ONLY__)
+#if (defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER))) && !defined(__SYCL_DEVICE_ONLY__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
 
 #define BOOST_INT128_HAS_INT128
 
@@ -191,6 +191,10 @@ BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_FORCE_INLINE inline
 #endif
 
+// MinGW defines the MSVC platform macros (_M_AMD64, _M_IX86, _M_ARM64) for source
+// compatibility, but it provides the GNU intrinsics rather than the MSVC ones. Every
+// guard selecting an MSVC-only intrinsic (__shiftleft128, _umul128, __umulh, _BitScan*,
+// __popcnt*, ...) therefore has to exclude GNU-mode compilers with !defined(__GNUC__).
 #ifdef __x86_64__
 
 #ifndef BOOST_INT128_BUILD_MODULE
@@ -652,7 +656,7 @@ constexpr int countl_impl(unsigned long long x) noexcept
     return x ? __builtin_clzll(x) : std::numeric_limits<unsigned long long>::digits;
 }
 
-#elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 
 constexpr int countl_impl(std::uint32_t x) noexcept
 {
@@ -696,7 +700,7 @@ constexpr int countl_impl(std::uint64_t x) noexcept
     }
 }
 
-#elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+#elif defined(_M_IX86) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
 constexpr int countl_impl(std::uint32_t x) noexcept
 {
@@ -828,7 +832,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umul(
 
         return _umul128(a, b, &hi);
 
-        #elif defined(_M_ARM64) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
+        #elif defined(_M_ARM64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
 
         hi = __umulh(a, b);
         return a * b;
@@ -1640,8 +1644,27 @@ int128
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
+    #ifdef _MSC_VER
+    #  pragma warning(push)
+    #  pragma warning(disable:4127)
+    #endif
+
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, bool>::value)
+        {
+            return low || high;
+        }
+        else
+        {
+            return static_cast<UnsignedInteger>(low);
+        }
+    }
+
+    #ifdef _MSC_VER
+    #  pragma warning(pop)
+    #endif
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -2829,7 +2852,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_ls_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {
@@ -3026,7 +3049,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_rs_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {
@@ -3281,7 +3304,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_sub(
 
     return detail::from_bits(result_high, result_low);
 
-    #elif defined(__aarch64__) && !defined(__APPLE__)
+    #elif defined(__aarch64__) && !defined(__APPLE__) && defined(BOOST_INT128_HAS_INT128)
 
     // Unsigned wrap for consistent two's-complement semantics
     return int128{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
@@ -3840,6 +3863,10 @@ BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const SignedInteger lhs, con
     }
 }
 
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#endif
+
 #ifdef _MSC_VER
 #  pragma warning(pop)
 #endif
@@ -4330,8 +4357,27 @@ uint128
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
+    #ifdef _MSC_VER
+    #  pragma warning(push)
+    #  pragma warning(disable:4127)
+    #endif
+
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, bool>::value)
+        {
+            return low || high;
+        }
+        else
+        {
+            return static_cast<UnsignedInteger>(low);
+        }
+    }
+
+    #ifdef _MSC_VER
+    #  pragma warning(pop)
+    #endif
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -4652,7 +4698,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uin
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
-    #elif defined (__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) == static_cast<detail::builtin_u128>(rhs);
 
@@ -4748,7 +4794,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uin
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) != static_cast<detail::builtin_u128>(rhs);
 
@@ -6348,7 +6394,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint12
     return result;
 }
 
-#elif defined(_M_ARM64)
+#elif defined(_M_ARM64) && !defined(__GNUC__)
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const uint128 rhs) noexcept
 {
@@ -6415,7 +6461,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_mul
     // s390x intentionally falls through to the synthetic low_word_mul below. Casting to builtin_u128
     // makes GCC reconstruct the value through a vector-unit stack round-trip that is several times
     // slower, and the memcpy path is unsafe for the narrow (scalar rhs) overloads on big-endian.
-    #elif ((defined(_M_AMD64) && !defined(__GNUC__)) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -6718,6 +6764,12 @@ BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator/=(const Integer rhs) 
 }
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
 
 //=====================================
 // Modulo Operator
@@ -7104,6 +7156,16 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noe
     return static_cast<uint128>(lhs) >= static_cast<uint128>(rhs);
 }
 
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128>(lhs) <=> static_cast<uint128>(rhs);
+}
+
+#endif
+
 //=====================================
 // Arithmetic Operators
 //=====================================
@@ -7478,7 +7540,7 @@ BOOST_INT128_HOST_DEVICE constexpr int countr_impl(std::uint32_t x) noexcept
 
 #endif
 
-#if (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_ctz) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#if (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !BOOST_INT128_HAS_BUILTIN(__builtin_ctz) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 
 constexpr int countr_impl(std::uint64_t x) noexcept
 {
@@ -7663,7 +7725,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
 
     return __builtin_popcountll(x.high) + __builtin_popcountll(x.low);
 
-    #elif defined(_M_AMD64) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
@@ -7682,7 +7744,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int popcount(const uint12
         #endif
     }
 
-    #elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif defined(_M_IX86) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (BOOST_INT128_IS_CONSTANT_EVALUATED(x))
     {
@@ -8641,9 +8703,9 @@ BOOST_INT128_EXPORT struct i128div_t
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint128 x, const uint128 y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == 0U || y == 0U))
+    if (y == 0U)
     {
-        return u128div_t{0U, 0U};
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (x < y)
@@ -8673,9 +8735,9 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint1
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int128 x, const int128 y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == 0 || y == 0))
+    if (y == 0)
     {
-        return i128div_t{0, 0};
+        BOOST_INT128_UNREACHABLE;
     }
 
     const auto abs_lhs {static_cast<uint128>(abs(x))};
@@ -8717,6 +8779,601 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int12
 #endif // BOOST_INT128_CSTDLIB_HPP
 // ===== END boost/int128/cstdlib.hpp =====
 // [amalgamate] skipped duplicate include of boost/int128/detail/traits.hpp
+// ===== BEGIN boost/int128/utilities.hpp =====
+// Copyright 2026 Matt Borland
+// Distributed under the Boost Software License, Version 1.0.
+// https://www.boost.org/LICENSE_1_0.txt
+
+#ifndef BOOST_INT128_UTILITIES_HPP
+#define BOOST_INT128_UTILITIES_HPP
+
+// [amalgamate] skipped duplicate include of boost/int128/int128.hpp
+// [amalgamate] skipped duplicate include of boost/int128/bit.hpp
+// [amalgamate] skipped duplicate include of boost/int128/detail/config.hpp
+
+#ifndef BOOST_INT128_BUILD_MODULE
+
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
+
+#endif
+
+namespace boost {
+namespace int128 {
+
+namespace detail {
+
+// Modular addition for 128-bit operands assuming 0 <= a, b < m
+BOOST_INT128_HOST_DEVICE constexpr uint128 addmod(const uint128 a, const uint128 b, const uint128 m) noexcept
+{
+    const uint128 s {a + b};
+
+    if (s < a || s >= m)
+    {
+        return s - m;
+    }
+
+    return s;
+}
+
+// Modular multiplication via shift-and-add for the full 128-bit modulus case
+BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 mulmod_shift(uint128 a, uint128 b, const uint128 m) noexcept
+{
+    uint128 result {0};
+
+    while (b != 0U)
+    {
+        if (static_cast<bool>(b.low & 1U))
+        {
+            result = addmod(result, a, m);
+        }
+
+        a = addmod(a, a, m);
+        b >>= 1;
+    }
+
+    return result;
+}
+
+// Modular multiplication when the modulus fits in 64 bits
+BOOST_INT128_HOST_DEVICE constexpr std::uint64_t mulmod_word(const std::uint64_t a, const std::uint64_t b, const std::uint64_t m) noexcept
+{
+    return ((uint128{a} * uint128{b}) % uint128{m}).low;
+}
+
+} // namespace detail
+
+// Computes (base ^ exp) mod m using fast modular exponentiation with
+// optimizations specific to the boost::int128 library types
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 powm(uint128 base, uint128 exp, const uint128 m) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(m == 0U))
+    {
+        return uint128{0};
+    }
+
+    if (m == 1U)
+    {
+        return uint128{0};
+    }
+
+    if (exp == 0U)
+    {
+        return uint128{1};
+    }
+
+    base %= m;
+
+    if (base == 0U)
+    {
+        return uint128{0};
+    }
+
+    // Power-of-two modulus: reduction is just a bitmask.
+    if (has_single_bit(m))
+    {
+        const uint128 mask {m - 1U};
+        uint128 result {1};
+
+        while (exp != 0U)
+        {
+            if (static_cast<bool>(exp.low & 1U))
+            {
+                result = (result * base) & mask;
+            }
+
+            base = (base * base) & mask;
+            exp >>= 1;
+        }
+
+        return result;
+    }
+
+    // Modulus fits in 64 bits: stay in 64-bit lanes.
+    if (m.high == 0U)
+    {
+        const auto mm {m.low};
+        std::uint64_t result {1};
+        auto b {base.low};
+
+        while (exp != 0U)
+        {
+            if (static_cast<bool>(exp.low & 1U))
+            {
+                result = detail::mulmod_word(result, b, mm);
+            }
+
+            b = detail::mulmod_word(b, b, mm);
+            exp >>= 1;
+        }
+
+        return uint128{result};
+    }
+
+    // General 128-bit modulus: shift-and-add for each squaring keeps every
+    // intermediate strictly below m without needing a 256-bit product.
+    uint128 result {1};
+
+    while (exp != 0U)
+    {
+        if (static_cast<bool>(exp.low & 1U))
+        {
+            result = detail::mulmod_shift(result, base, m);
+        }
+
+        base = detail::mulmod_shift(base, base, m);
+        exp >>= 1;
+    }
+
+    return result;
+}
+
+// Signed overload. Returns the non-negative residue in [0, m)
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 powm(const int128 base, const int128 exp, const int128 m) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(m <= 0 || exp < 0))
+    {
+        return int128{0};
+    }
+
+    const uint128 um {static_cast<uint128>(m)};
+
+    uint128 ub {};
+
+    if (base.signed_high() < 0)
+    {
+        const uint128 magnitude {static_cast<uint128>(abs(base))};
+        const uint128 r {magnitude % um};
+        ub = r == 0U ? uint128{0} : static_cast<uint128>(um - r);
+    }
+    else
+    {
+        ub = static_cast<uint128>(base) % um;
+    }
+
+    return static_cast<int128>(powm(ub, static_cast<uint128>(exp), um));
+}
+
+// Computes base^exp using exponentiation by squaring. The result is reduced
+// modulo 2^128, mirroring the wrap-around behavior of operator*.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 ipow(uint128 base, std::uint64_t exp) noexcept
+{
+    uint128 result {1};
+
+    while (exp != 0U)
+    {
+        if (static_cast<bool>(exp & 1U))
+        {
+            result *= base;
+        }
+
+        exp >>= 1;
+
+        if (exp != 0U)
+        {
+            base *= base;
+        }
+    }
+
+    return result;
+}
+
+// Signed overload. Wraps modulo 2^128 on overflow, matching operator*.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 ipow(int128 base, std::uint64_t exp) noexcept
+{
+    int128 result {1};
+
+    while (exp != 0U)
+    {
+        if (static_cast<bool>(exp & 1U))
+        {
+            result *= base;
+        }
+
+        exp >>= 1;
+
+        if (exp != 0U)
+        {
+            base *= base;
+        }
+    }
+
+    return result;
+}
+
+// Integer square root: returns floor(sqrt(n)).
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 isqrt(const uint128 n) noexcept
+{
+    if (n < 2U)
+    {
+        return n;
+    }
+
+    // 2^ceil(bit_width(n)/2) is the smallest power of two whose square exceeds n.
+    uint128 x {uint128{1} << ((bit_width(n) + 1) / 2)};
+
+    while (true)
+    {
+        const uint128 y {(x + n / x) >> 1};
+
+        if (y >= x)
+        {
+            return x;
+        }
+
+        x = y;
+    }
+}
+
+// Signed overload. Negative inputs are documented to return 0.
+BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 isqrt(const int128 n) noexcept
+{
+    if (BOOST_INT128_UNLIKELY(n < 0))
+    {
+        return int128{0};
+    }
+
+    return static_cast<int128>(isqrt(static_cast<uint128>(n)));
+}
+
+namespace detail {
+
+// The C23 checked integer macros accept any integer type for their operands
+// except bool, plain char, enumerated types, and bit-precise (_BitInt) types.
+template <typename T>
+struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::value &&
+                                                         !std::is_same<T, bool>::value &&
+                                                         !std::is_same<T, char>::value> {};
+
+template <>
+struct valid_checked_type<int128> : std::true_type {};
+
+template <>
+struct valid_checked_type<uint128> : std::true_type {};
+
+// Widen an integer operand to its 128-bit two's complement bit pattern, returned as a uint128
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr uint128 ckd_widen(const T value) noexcept
+{
+    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<T>::is_signed)
+    {
+        return static_cast<uint128>(static_cast<int128>(value));
+    }
+    else
+    {
+        return static_cast<uint128>(value);
+    }
+}
+
+// Sign and magnitude of an operand together with its 128-bit two's complement
+// image. magnitude is the absolute value; negative records the sign.
+struct ckd_operand
+{
+    uint128 raw;
+    uint128 magnitude;
+    bool negative;
+};
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr ckd_operand ckd_decompose(const T value) noexcept
+{
+    const uint128 raw {ckd_widen(value)};
+    const bool negative {std::numeric_limits<T>::is_signed && ((raw >> 127) != 0U)};
+    return ckd_operand{raw, negative ? uint128{0} - raw : raw, negative};
+}
+
+// Exact signed sum of two operands given as (magnitude, sign). carry marks a
+// 129th bit, which no 128-bit or narrower target can represent.
+struct ckd_sum_result
+{
+    uint128 magnitude;
+    bool negative;
+    bool carry;
+};
+
+BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128 a_magnitude, const bool a_negative,
+                                                                 const uint128 b_magnitude, const bool b_negative) noexcept
+{
+    if (a_negative == b_negative)
+    {
+        // Equal signs: magnitudes add and may overflow into a 129th bit.
+        const uint128 magnitude {a_magnitude + b_magnitude};
+        return ckd_sum_result{magnitude, a_negative, magnitude < a_magnitude};
+    }
+
+    // Opposite signs: the smaller magnitude is subtracted and never carries.
+    if (a_magnitude >= b_magnitude)
+    {
+        return ckd_sum_result{a_magnitude - b_magnitude, a_negative, false};
+    }
+
+    return ckd_sum_result{b_magnitude - a_magnitude, b_negative, false};
+}
+
+// Whether a result of the given sign and magnitude fits in T1. exceeds_width
+// forces overflow when the true magnitude does not even fit in 128 bits.
+template <typename T1>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_overflows(const uint128 magnitude, const bool negative, const bool exceeds_width) noexcept
+{
+    if (exceeds_width)
+    {
+        return true;
+    }
+
+    const uint128 max_magnitude {static_cast<uint128>((std::numeric_limits<T1>::max)())};
+
+    if (negative)
+    {
+        const uint128 min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128{1} : uint128{0}};
+        return magnitude > min_magnitude;
+    }
+
+    return magnitude > max_magnitude;
+}
+
+} // namespace detail
+
+// Checked addition following the C23 <stdckdint.h> ckd_add contract.
+//
+// Computes a + b as if both operands were represented in a signed integer
+// type of infinite range and then converts that exact result to the type
+// pointed to by result. *result always receives the exact result wrapped
+// around to the width of *result. Returns false when *result represents the
+// exact mathematical sum, and true when the sum did not fit and wrap-around
+// occurred.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_add operands must be integer types other than bool and plain char.");
+
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
+
+    // The modular sum of the widened images is the exact sum mod 2^128, which
+    // is all the wrapped result needs for any target no wider than 128 bits.
+    *result = static_cast<T1>(op_a.raw + op_b.raw);
+
+    const auto sum {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, op_b.negative)};
+    return detail::ckd_overflows<T1>(sum.magnitude, sum.negative, sum.carry);
+}
+
+// Checked subtraction following the C23 <stdckdint.h> ckd_sub contract.
+//
+// Behaves as ckd_add for a - b: *result receives the exact difference wrapped
+// to its width, and the return value reports whether that difference did not
+// fit.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_sub(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_sub operands must be integer types other than bool and plain char.");
+
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
+
+    *result = static_cast<T1>(op_a.raw - op_b.raw);
+
+    // a - b is a + (-b): negating b flips its sign while keeping its magnitude.
+    const auto difference {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, !op_b.negative)};
+    return detail::ckd_overflows<T1>(difference.magnitude, difference.negative, difference.carry);
+}
+
+// Checked multiplication following the C23 <stdckdint.h> ckd_mul contract.
+//
+// Computes a * b as if both operands had infinite range, stores the result
+// wrapped to the width of *result, and returns true when the exact product did
+// not fit.
+BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
+BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, const T2 a, const T3 b) noexcept
+{
+    static_assert(detail::valid_checked_type<T1>::value &&
+                  detail::valid_checked_type<T2>::value &&
+                  detail::valid_checked_type<T3>::value,
+                  "ckd_mul operands must be integer types other than bool and plain char.");
+
+    const auto op_a {detail::ckd_decompose(a)};
+    const auto op_b {detail::ckd_decompose(b)};
+
+    *result = static_cast<T1>(op_a.raw * op_b.raw);
+
+    // The product magnitude needs more than 128 bits exactly when it exceeds
+    // UINT128_MAX. Dividing the maximum by one magnitude tests that without
+    // forming a 256-bit product.
+    const bool exceeds_width {op_a.magnitude != 0U &&
+                              op_b.magnitude > ((std::numeric_limits<uint128>::max)() / op_a.magnitude)};
+
+    const uint128 product_magnitude {op_a.magnitude * op_b.magnitude};
+    const bool product_negative {op_a.negative != op_b.negative};
+
+    return detail::ckd_overflows<T1>(product_magnitude, product_negative, exceeds_width);
+}
+
+namespace detail {
+
+// See: https://eel.is/c++draft/utility.intcmp
+// [Note 1: These function templates cannot be used to compare byte, char, char8_t, char16_t, char32_t, wchar_t, and bool. end note]
+template <typename T>
+struct valid_comparison_type
+{
+    static constexpr bool value = std::is_integral<T>::value &&
+                                  !std::is_same<T, char>::value &&
+                                      !std::is_same<T, char16_t>::value &&
+                                          !std::is_same<T, char32_t>::value &&
+                                              !std::is_same<T, wchar_t>::value &&
+                                                  !std::is_same<T, bool>::value
+                                                    #if defined(__cpp_char8_t)
+                                                    && !std::is_same<T, char8_t>::value
+                                                    #endif
+                                                    #if defined(__cpp_lib_byte) && __cpp_lib_byte >= 201603L
+                                                    && !std::is_same<T, std::byte>::value
+                                                    #endif
+    ;
+};
+
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_type_v = valid_comparison_type<T>::value;
+
+// Allow the builtins to be used when available
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128>::value ||
+                                                      std::is_same<T, uint128>::value
+    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+                                                      || std::is_same<T, builtin_i128>::value
+                                                      || std::is_same<T, builtin_u128>::value
+    #endif
+                                                      ;
+
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_operand_v = is_valid_comparison_type_v<T> ||
+                                                                   is_int128_type_v<T>;
+
+// Maps the builtin 128-bit types onto the library equivalents
+template <typename T>
+struct comparison_canonical
+{
+    using type = T;
+};
+
+#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
+
+template <>
+struct comparison_canonical<builtin_i128>
+{
+    using type = int128;
+};
+
+template <>
+struct comparison_canonical<builtin_u128>
+{
+    using type = uint128;
+};
+
+#endif
+
+template <typename T>
+using comparison_canonical_t = typename comparison_canonical<T>::type;
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr comparison_canonical_t<T> canonical_comparison_operand(const T value) noexcept
+{
+    return static_cast<comparison_canonical_t<T>>(value);
+}
+
+// Mathematical equality of two integers regardless of their signedness, via the
+// same (sign, magnitude) decomposition.
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal_impl(const T lhs, const U rhs) noexcept
+{
+    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
+    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
+
+    return (a.negative == b.negative) && (a.magnitude == b.magnitude);
+}
+
+// Mathematical less-than of two integers regardless of their signedness, via the
+// same (sign, magnitude) decomposition.
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_impl(const T lhs, const U rhs) noexcept
+{
+    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
+    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
+
+    if (a.negative != b.negative)
+    {
+        return a.negative;
+    }
+
+    return a.negative ? (a.magnitude > b.magnitude) : (a.magnitude < b.magnitude);
+}
+
+template <typename T, typename U>
+BOOST_INT128_INLINE_CONSTEXPR bool enable_comparison_v = is_valid_comparison_operand_v<T> &&
+                                                        is_valid_comparison_operand_v<U> &&
+                                                        (is_int128_type_v<T> || is_int128_type_v<U>);
+
+} // namespace detail
+
+// C++26 integer comparison functions (https://eel.is/c++draft/utility.intcmp)
+// extended to the library and builtin 128-bit types and available from C++14.
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_equal_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_not_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_equal_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_less_impl(lhs, rhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater(const T lhs, const U rhs) noexcept
+{
+    return detail::cmp_less_impl(rhs, lhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_less_impl(rhs, lhs);
+}
+
+BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater_equal(const T lhs, const U rhs) noexcept
+{
+    return !detail::cmp_less_impl(lhs, rhs);
+}
+
+// Whether t is representable in the target type R.
+BOOST_INT128_EXPORT template <typename R, typename T, std::enable_if_t<detail::enable_comparison_v<R, T>, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr bool in_range(const T t) noexcept
+{
+    using limits = std::numeric_limits<detail::comparison_canonical_t<R>>;
+
+    return !detail::cmp_less_impl(t, (limits::min)()) &&
+           !detail::cmp_less_impl((limits::max)(), t);
+}
+
+} // namespace int128
+} // namespace boost
+
+#endif // BOOST_INT128_UTILITIES_HPP
+// ===== END boost/int128/utilities.hpp =====
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -8849,35 +9506,20 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_sub(con
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_mul(const uint128 x, const uint128 y) noexcept
 {
-    const auto x_bits {bit_width(x)};
-    const auto y_bits {bit_width(y)};
-
-    if ((x_bits + y_bits) > std::numeric_limits<uint128>::digits)
-    {
-        return (std::numeric_limits<uint128>::max)();
-    }
-
-    return x * y;
+    uint128 res {};
+    return ckd_mul(&res, x, y) ? (std::numeric_limits<uint128>::max)() : res;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_mul(const int128 x, const int128 y) noexcept
 {
-    const auto x_bits {bit_width(static_cast<uint128>(abs(x)))};
-    const auto y_bits {bit_width(static_cast<uint128>(abs(y)))};
+    int128 res {};
+    const auto overflowed {ckd_mul(&res, x, y)};
 
-    if ((x_bits + y_bits) > std::numeric_limits<int128>::digits)
+    if (overflowed)
     {
-        if ((x < 0) != (y < 0))
-        {
-            return (std::numeric_limits<int128>::min)();
-        }
-        else
-        {
-            return (std::numeric_limits<int128>::max)();
-        }
+        return (x < 0) != (y < 0) ? (std::numeric_limits<int128>::min)() : (std::numeric_limits<int128>::max)();
     }
 
-    const int128 res {x * y};
     return res;
 }
 
@@ -9544,7 +10186,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 rem_euclid(const i
 #ifndef BOOST_INT128_FORMAT_HPP
 #define BOOST_INT128_FORMAT_HPP
 
-#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L && !defined(BOOST_DECIMAL_DISABLE_CLIB)
+#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L
 
 // [amalgamate] skipped duplicate include of boost/int128/detail/mini_to_chars.hpp
 // [amalgamate] skipped duplicate include of boost/int128/detail/config.hpp
@@ -10057,601 +10699,7 @@ auto to_wstring(const T& value) -> std::enable_if_t<(std::is_same<T, int128>::va
 
 #endif // BOOST_INT128_STRING_HPP
 // ===== END boost/int128/string.hpp =====
-// ===== BEGIN boost/int128/utilities.hpp =====
-// Copyright 2026 Matt Borland
-// Distributed under the Boost Software License, Version 1.0.
-// https://www.boost.org/LICENSE_1_0.txt
-
-#ifndef BOOST_INT128_UTILITIES_HPP
-#define BOOST_INT128_UTILITIES_HPP
-
-// [amalgamate] skipped duplicate include of boost/int128/int128.hpp
-// [amalgamate] skipped duplicate include of boost/int128/bit.hpp
-// [amalgamate] skipped duplicate include of boost/int128/detail/config.hpp
-
-#ifndef BOOST_INT128_BUILD_MODULE
-
-#include <cstddef>
-#include <cstdint>
-#include <limits>
-#include <type_traits>
-
-#endif
-
-namespace boost {
-namespace int128 {
-
-namespace detail {
-
-// Modular addition for 128-bit operands assuming 0 <= a, b < m
-BOOST_INT128_HOST_DEVICE constexpr uint128 addmod(const uint128 a, const uint128 b, const uint128 m) noexcept
-{
-    const uint128 s {a + b};
-
-    if (s < a || s >= m)
-    {
-        return s - m;
-    }
-
-    return s;
-}
-
-// Modular multiplication via shift-and-add for the full 128-bit modulus case
-BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 mulmod_shift(uint128 a, uint128 b, const uint128 m) noexcept
-{
-    uint128 result {0};
-
-    while (b != 0U)
-    {
-        if (static_cast<bool>(b.low & 1U))
-        {
-            result = addmod(result, a, m);
-        }
-
-        a = addmod(a, a, m);
-        b >>= 1;
-    }
-
-    return result;
-}
-
-// Modular multiplication when the modulus fits in 64 bits
-BOOST_INT128_HOST_DEVICE constexpr std::uint64_t mulmod_word(const std::uint64_t a, const std::uint64_t b, const std::uint64_t m) noexcept
-{
-    return ((uint128{a} * uint128{b}) % uint128{m}).low;
-}
-
-} // namespace detail
-
-// Computes (base ^ exp) mod m using fast modular exponentiation with
-// optimizations specific to the boost::int128 library types
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 powm(uint128 base, uint128 exp, const uint128 m) noexcept
-{
-    if (BOOST_INT128_UNLIKELY(m == 0U))
-    {
-        return uint128{0};
-    }
-
-    if (m == 1U)
-    {
-        return uint128{0};
-    }
-
-    if (exp == 0U)
-    {
-        return uint128{1};
-    }
-
-    base %= m;
-
-    if (base == 0U)
-    {
-        return uint128{0};
-    }
-
-    // Power-of-two modulus: reduction is just a bitmask.
-    if (has_single_bit(m))
-    {
-        const uint128 mask {m - 1U};
-        uint128 result {1};
-
-        while (exp != 0U)
-        {
-            if (static_cast<bool>(exp.low & 1U))
-            {
-                result = (result * base) & mask;
-            }
-
-            base = (base * base) & mask;
-            exp >>= 1;
-        }
-
-        return result;
-    }
-
-    // Modulus fits in 64 bits: stay in 64-bit lanes.
-    if (m.high == 0U)
-    {
-        const auto mm {m.low};
-        std::uint64_t result {1};
-        auto b {base.low};
-
-        while (exp != 0U)
-        {
-            if (static_cast<bool>(exp.low & 1U))
-            {
-                result = detail::mulmod_word(result, b, mm);
-            }
-
-            b = detail::mulmod_word(b, b, mm);
-            exp >>= 1;
-        }
-
-        return uint128{result};
-    }
-
-    // General 128-bit modulus: shift-and-add for each squaring keeps every
-    // intermediate strictly below m without needing a 256-bit product.
-    uint128 result {1};
-
-    while (exp != 0U)
-    {
-        if (static_cast<bool>(exp.low & 1U))
-        {
-            result = detail::mulmod_shift(result, base, m);
-        }
-
-        base = detail::mulmod_shift(base, base, m);
-        exp >>= 1;
-    }
-
-    return result;
-}
-
-// Signed overload. Returns the non-negative residue in [0, m)
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 powm(const int128 base, const int128 exp, const int128 m) noexcept
-{
-    if (BOOST_INT128_UNLIKELY(m <= 0 || exp < 0))
-    {
-        return int128{0};
-    }
-
-    const uint128 um {static_cast<uint128>(m)};
-
-    uint128 ub {};
-
-    if (base.signed_high() < 0)
-    {
-        const uint128 magnitude {static_cast<uint128>(abs(base))};
-        const uint128 r {magnitude % um};
-        ub = r == 0U ? uint128{0} : static_cast<uint128>(um - r);
-    }
-    else
-    {
-        ub = static_cast<uint128>(base) % um;
-    }
-
-    return static_cast<int128>(powm(ub, static_cast<uint128>(exp), um));
-}
-
-// Computes base^exp using exponentiation by squaring. The result is reduced
-// modulo 2^128, mirroring the wrap-around behavior of operator*.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 ipow(uint128 base, std::uint64_t exp) noexcept
-{
-    uint128 result {1};
-
-    while (exp != 0U)
-    {
-        if (static_cast<bool>(exp & 1U))
-        {
-            result *= base;
-        }
-
-        exp >>= 1;
-
-        if (exp != 0U)
-        {
-            base *= base;
-        }
-    }
-
-    return result;
-}
-
-// Signed overload. Wraps modulo 2^128 on overflow, matching operator*.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 ipow(int128 base, std::uint64_t exp) noexcept
-{
-    int128 result {1};
-
-    while (exp != 0U)
-    {
-        if (static_cast<bool>(exp & 1U))
-        {
-            result *= base;
-        }
-
-        exp >>= 1;
-
-        if (exp != 0U)
-        {
-            base *= base;
-        }
-    }
-
-    return result;
-}
-
-// Integer square root: returns floor(sqrt(n)).
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 isqrt(const uint128 n) noexcept
-{
-    if (n < 2U)
-    {
-        return n;
-    }
-
-    // 2^ceil(bit_width(n)/2) is the smallest power of two whose square exceeds n.
-    uint128 x {uint128{1} << ((bit_width(n) + 1) / 2)};
-
-    while (true)
-    {
-        const uint128 y {(x + n / x) >> 1};
-
-        if (y >= x)
-        {
-            return x;
-        }
-
-        x = y;
-    }
-}
-
-// Signed overload. Negative inputs are documented to return 0.
-BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 isqrt(const int128 n) noexcept
-{
-    if (BOOST_INT128_UNLIKELY(n < 0))
-    {
-        return int128{0};
-    }
-
-    return static_cast<int128>(isqrt(static_cast<uint128>(n)));
-}
-
-namespace detail {
-
-// The C23 checked integer macros accept any integer type for their operands
-// except bool, plain char, enumerated types, and bit-precise (_BitInt) types.
-template <typename T>
-struct valid_checked_type : std::integral_constant<bool, std::is_integral<T>::value &&
-                                                         !std::is_same<T, bool>::value &&
-                                                         !std::is_same<T, char>::value> {};
-
-template <>
-struct valid_checked_type<int128> : std::true_type {};
-
-template <>
-struct valid_checked_type<uint128> : std::true_type {};
-
-// Widen an integer operand to its 128-bit two's complement bit pattern, returned as a uint128
-template <typename T>
-BOOST_INT128_HOST_DEVICE constexpr uint128 ckd_widen(const T value) noexcept
-{
-    BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<T>::is_signed)
-    {
-        return static_cast<uint128>(static_cast<int128>(value));
-    }
-    else
-    {
-        return static_cast<uint128>(value);
-    }
-}
-
-// Sign and magnitude of an operand together with its 128-bit two's complement
-// image. magnitude is the absolute value; negative records the sign.
-struct ckd_operand
-{
-    uint128 raw;
-    uint128 magnitude;
-    bool negative;
-};
-
-template <typename T>
-BOOST_INT128_HOST_DEVICE constexpr ckd_operand ckd_decompose(const T value) noexcept
-{
-    const uint128 raw {ckd_widen(value)};
-    const bool negative {std::numeric_limits<T>::is_signed && ((raw >> 127) != 0U)};
-    return ckd_operand{raw, negative ? uint128{0} - raw : raw, negative};
-}
-
-// Exact signed sum of two operands given as (magnitude, sign). carry marks a
-// 129th bit, which no 128-bit or narrower target can represent.
-struct ckd_sum_result
-{
-    uint128 magnitude;
-    bool negative;
-    bool carry;
-};
-
-BOOST_INT128_HOST_DEVICE constexpr ckd_sum_result ckd_signed_sum(const uint128 a_magnitude, const bool a_negative,
-                                                                 const uint128 b_magnitude, const bool b_negative) noexcept
-{
-    if (a_negative == b_negative)
-    {
-        // Equal signs: magnitudes add and may overflow into a 129th bit.
-        const uint128 magnitude {a_magnitude + b_magnitude};
-        return ckd_sum_result{magnitude, a_negative, magnitude < a_magnitude};
-    }
-
-    // Opposite signs: the smaller magnitude is subtracted and never carries.
-    if (a_magnitude >= b_magnitude)
-    {
-        return ckd_sum_result{a_magnitude - b_magnitude, a_negative, false};
-    }
-
-    return ckd_sum_result{b_magnitude - a_magnitude, b_negative, false};
-}
-
-// Whether a result of the given sign and magnitude fits in T1. exceeds_width
-// forces overflow when the true magnitude does not even fit in 128 bits.
-template <typename T1>
-BOOST_INT128_HOST_DEVICE constexpr bool ckd_overflows(const uint128 magnitude, const bool negative, const bool exceeds_width) noexcept
-{
-    if (exceeds_width)
-    {
-        return true;
-    }
-
-    const uint128 max_magnitude {static_cast<uint128>((std::numeric_limits<T1>::max)())};
-
-    if (negative)
-    {
-        const uint128 min_magnitude {std::numeric_limits<T1>::is_signed ? max_magnitude + uint128{1} : uint128{0}};
-        return magnitude > min_magnitude;
-    }
-
-    return magnitude > max_magnitude;
-}
-
-} // namespace detail
-
-// Checked addition following the C23 <stdckdint.h> ckd_add contract.
-//
-// Computes a + b as if both operands were represented in a signed integer
-// type of infinite range and then converts that exact result to the type
-// pointed to by result. *result always receives the exact result wrapped
-// around to the width of *result. Returns false when *result represents the
-// exact mathematical sum, and true when the sum did not fit and wrap-around
-// occurred.
-BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
-BOOST_INT128_HOST_DEVICE constexpr bool ckd_add(T1* result, const T2 a, const T3 b) noexcept
-{
-    static_assert(detail::valid_checked_type<T1>::value &&
-                  detail::valid_checked_type<T2>::value &&
-                  detail::valid_checked_type<T3>::value,
-                  "ckd_add operands must be integer types other than bool and plain char.");
-
-    const auto op_a {detail::ckd_decompose(a)};
-    const auto op_b {detail::ckd_decompose(b)};
-
-    // The modular sum of the widened images is the exact sum mod 2^128, which
-    // is all the wrapped result needs for any target no wider than 128 bits.
-    *result = static_cast<T1>(op_a.raw + op_b.raw);
-
-    const auto sum {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, op_b.negative)};
-    return detail::ckd_overflows<T1>(sum.magnitude, sum.negative, sum.carry);
-}
-
-// Checked subtraction following the C23 <stdckdint.h> ckd_sub contract.
-//
-// Behaves as ckd_add for a - b: *result receives the exact difference wrapped
-// to its width, and the return value reports whether that difference did not
-// fit.
-BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
-BOOST_INT128_HOST_DEVICE constexpr bool ckd_sub(T1* result, const T2 a, const T3 b) noexcept
-{
-    static_assert(detail::valid_checked_type<T1>::value &&
-                  detail::valid_checked_type<T2>::value &&
-                  detail::valid_checked_type<T3>::value,
-                  "ckd_sub operands must be integer types other than bool and plain char.");
-
-    const auto op_a {detail::ckd_decompose(a)};
-    const auto op_b {detail::ckd_decompose(b)};
-
-    *result = static_cast<T1>(op_a.raw - op_b.raw);
-
-    // a - b is a + (-b): negating b flips its sign while keeping its magnitude.
-    const auto difference {detail::ckd_signed_sum(op_a.magnitude, op_a.negative, op_b.magnitude, !op_b.negative)};
-    return detail::ckd_overflows<T1>(difference.magnitude, difference.negative, difference.carry);
-}
-
-// Checked multiplication following the C23 <stdckdint.h> ckd_mul contract.
-//
-// Computes a * b as if both operands had infinite range, stores the result
-// wrapped to the width of *result, and returns true when the exact product did
-// not fit.
-BOOST_INT128_EXPORT template <typename T1, typename T2, typename T3>
-BOOST_INT128_HOST_DEVICE constexpr bool ckd_mul(T1* result, const T2 a, const T3 b) noexcept
-{
-    static_assert(detail::valid_checked_type<T1>::value &&
-                  detail::valid_checked_type<T2>::value &&
-                  detail::valid_checked_type<T3>::value,
-                  "ckd_mul operands must be integer types other than bool and plain char.");
-
-    const auto op_a {detail::ckd_decompose(a)};
-    const auto op_b {detail::ckd_decompose(b)};
-
-    *result = static_cast<T1>(op_a.raw * op_b.raw);
-
-    // The product magnitude needs more than 128 bits exactly when it exceeds
-    // UINT128_MAX. Dividing the maximum by one magnitude tests that without
-    // forming a 256-bit product.
-    const bool exceeds_width {op_a.magnitude != 0U &&
-                              op_b.magnitude > ((std::numeric_limits<uint128>::max)() / op_a.magnitude)};
-
-    const uint128 product_magnitude {op_a.magnitude * op_b.magnitude};
-    const bool product_negative {op_a.negative != op_b.negative};
-
-    return detail::ckd_overflows<T1>(product_magnitude, product_negative, exceeds_width);
-}
-
-namespace detail {
-
-// See: https://eel.is/c++draft/utility.intcmp
-// [Note 1: These function templates cannot be used to compare byte, char, char8_t, char16_t, char32_t, wchar_t, and bool. end note]
-template <typename T>
-struct valid_comparison_type
-{
-    static constexpr bool value = std::is_integral<T>::value &&
-                                  !std::is_same<T, char>::value &&
-                                      !std::is_same<T, char16_t>::value &&
-                                          !std::is_same<T, char32_t>::value &&
-                                              !std::is_same<T, wchar_t>::value &&
-                                                  !std::is_same<T, bool>::value
-                                                    #if defined(__cpp_char8_t)
-                                                    && !std::is_same<T, char8_t>::value
-                                                    #endif
-                                                    #if defined(__cpp_lib_byte) && __cpp_lib_byte >= 201603L
-                                                    && !std::is_same<T, std::byte>::value
-                                                    #endif
-    ;
-};
-
-template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_type_v = valid_comparison_type<T>::value;
-
-// Allow the builtins to be used when available
-template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR bool is_int128_type_v = std::is_same<T, int128>::value ||
-                                                      std::is_same<T, uint128>::value
-    #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
-                                                      || std::is_same<T, builtin_i128>::value
-                                                      || std::is_same<T, builtin_u128>::value
-    #endif
-                                                      ;
-
-template <typename T>
-BOOST_INT128_INLINE_CONSTEXPR bool is_valid_comparison_operand_v = is_valid_comparison_type_v<T> ||
-                                                                   is_int128_type_v<T>;
-
-// Maps the builtin 128-bit types onto the library equivalents
-template <typename T>
-struct comparison_canonical
-{
-    using type = T;
-};
-
-#if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
-
-template <>
-struct comparison_canonical<builtin_i128>
-{
-    using type = int128;
-};
-
-template <>
-struct comparison_canonical<builtin_u128>
-{
-    using type = uint128;
-};
-
-#endif
-
-template <typename T>
-using comparison_canonical_t = typename comparison_canonical<T>::type;
-
-template <typename T>
-BOOST_INT128_HOST_DEVICE constexpr comparison_canonical_t<T> canonical_comparison_operand(const T value) noexcept
-{
-    return static_cast<comparison_canonical_t<T>>(value);
-}
-
-// Mathematical equality of two integers regardless of their signedness, via the
-// same (sign, magnitude) decomposition.
-template <typename T, typename U>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal_impl(const T lhs, const U rhs) noexcept
-{
-    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
-    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
-
-    return (a.negative == b.negative) && (a.magnitude == b.magnitude);
-}
-
-// Mathematical less-than of two integers regardless of their signedness, via the
-// same (sign, magnitude) decomposition.
-template <typename T, typename U>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_impl(const T lhs, const U rhs) noexcept
-{
-    const auto a {ckd_decompose(canonical_comparison_operand(lhs))};
-    const auto b {ckd_decompose(canonical_comparison_operand(rhs))};
-
-    if (a.negative != b.negative)
-    {
-        return a.negative;
-    }
-
-    return a.negative ? (a.magnitude > b.magnitude) : (a.magnitude < b.magnitude);
-}
-
-template <typename T, typename U>
-BOOST_INT128_INLINE_CONSTEXPR bool enable_comparison_v = is_valid_comparison_operand_v<T> &&
-                                                        is_valid_comparison_operand_v<U> &&
-                                                        (is_int128_type_v<T> || is_int128_type_v<U>);
-
-} // namespace detail
-
-// C++26 integer comparison functions (https://eel.is/c++draft/utility.intcmp)
-// extended to the library and builtin 128-bit types and available from C++14.
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal(const T lhs, const U rhs) noexcept
-{
-    return detail::cmp_equal_impl(lhs, rhs);
-}
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_not_equal(const T lhs, const U rhs) noexcept
-{
-    return !detail::cmp_equal_impl(lhs, rhs);
-}
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_less(const T lhs, const U rhs) noexcept
-{
-    return detail::cmp_less_impl(lhs, rhs);
-}
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater(const T lhs, const U rhs) noexcept
-{
-    return detail::cmp_less_impl(rhs, lhs);
-}
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_equal(const T lhs, const U rhs) noexcept
-{
-    return !detail::cmp_less_impl(rhs, lhs);
-}
-
-BOOST_INT128_EXPORT template <typename T, typename U, std::enable_if_t<detail::enable_comparison_v<T, U>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater_equal(const T lhs, const U rhs) noexcept
-{
-    return !detail::cmp_less_impl(lhs, rhs);
-}
-
-// Whether t is representable in the target type R.
-BOOST_INT128_EXPORT template <typename R, typename T, std::enable_if_t<detail::enable_comparison_v<R, T>, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr bool in_range(const T t) noexcept
-{
-    using limits = std::numeric_limits<detail::comparison_canonical_t<R>>;
-
-    return !detail::cmp_less_impl(t, (limits::min)()) &&
-           !detail::cmp_less_impl((limits::max)(), t);
-}
-
-} // namespace int128
-} // namespace boost
-
-#endif // BOOST_INT128_UTILITIES_HPP
-// ===== END boost/int128/utilities.hpp =====
+// [amalgamate] skipped duplicate include of boost/int128/utilities.hpp
 // ===== BEGIN boost/int128/hash.hpp =====
 // Copyright 2026 Matt Borland
 // Distributed under the Boost Software License, Version 1.0.
