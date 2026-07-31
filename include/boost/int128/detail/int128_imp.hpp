@@ -1454,6 +1454,15 @@ BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs
     return static_cast<unsigned>(lhs) << rhs.low;
 }
 
+// Types that integral promotion leaves alone keep their own type, again as the builtin does
+
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16) && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr Integer operator<<(const Integer lhs, const int128 rhs) noexcept
+{
+    // Out-of-range counts are undefined, matching the built-in operators.
+    return static_cast<Integer>(lhs << rhs.low);
+}
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4804) // Unsafe use of type bool in operation
@@ -1648,6 +1657,15 @@ BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs
 {
     // Out-of-range counts are undefined, matching the built-in operators.
     return static_cast<unsigned>(lhs) >> rhs.low;
+}
+
+// Types that integral promotion leaves alone keep their own type, again as the builtin does
+
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16) && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr Integer operator>>(const Integer lhs, const int128 rhs) noexcept
+{
+    // Out-of-range counts are undefined, matching the built-in operators.
+    return static_cast<Integer>(lhs >> rhs.low);
 }
 
 #ifdef _MSC_VER
@@ -2607,6 +2625,48 @@ BOOST_INT128_HOST_DEVICE inline int128& int128::operator%=(const Integer rhs) no
 }
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
+
+//=====================================
+// Built-in Integer Compound Assignment
+//=====================================
+
+// Compound assignment with a built-in integer on the left.
+// The builtin applies the operation to the common type of the two operands and converts
+// the result back to the type of the left operand, so each of these is the binary operator
+// above followed by that conversion, which matches what the builtin 128-bit integer does.
+// detail/traits.hpp defines which types Integer may be
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4804) // Unsafe use of type bool in operation
+#endif
+
+#define BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(op, compound_op)                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>                                     \
+    BOOST_INT128_HOST_DEVICE constexpr Integer& operator compound_op(Integer& lhs, const int128 rhs) noexcept \
+    {                                                                                                         \
+        lhs = static_cast<Integer>(lhs op rhs);                                                               \
+        return lhs;                                                                                           \
+    }
+
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(|, |=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(&, &=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(^, ^=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(+, +=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(-, -=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(*, *=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(/, /=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(%, %=)
+
+// The shifts take the value from the left operand alone, so only the count comes from rhs
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(<<, <<=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(>>, >>=)
+
+#undef BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
 
 //=====================================
 // Floating Point Operators
