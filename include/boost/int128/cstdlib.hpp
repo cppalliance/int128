@@ -24,9 +24,9 @@ BOOST_INT128_EXPORT struct i128div_t
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint128 x, const uint128 y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == 0U || y == 0U))
+    if (y == 0U)
     {
-        return u128div_t{0U, 0U};
+        BOOST_INT128_UNREACHABLE;
     }
 
     if (x < y)
@@ -56,9 +56,9 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr u128div_t div(const uint1
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr i128div_t div(const int128 x, const int128 y) noexcept
 {
-    if (BOOST_INT128_UNLIKELY(x == 0 || y == 0))
+    if (y == 0)
     {
-        return i128div_t{0, 0};
+        BOOST_INT128_UNREACHABLE;
     }
 
     const auto abs_lhs {static_cast<uint128>(abs(x))};
