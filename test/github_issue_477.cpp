@@ -11,15 +11,15 @@
 #  pragma warning(disable:4459)
 #endif
 
-constexpr boost::int128::uint128 value{1, 0};
+constexpr boost::int128::uint128 unsigned_value{1, 0};
 
-constexpr bool a = value;
+constexpr bool a = unsigned_value;
 static_assert(a, "Wrong value");
 
-constexpr bool b(value);
+constexpr bool b(unsigned_value);
 static_assert(b, "Wrong value");
 
-constexpr bool c = static_cast<bool>(value);
+constexpr bool c = static_cast<bool>(unsigned_value);
 static_assert(c, "Wrong value");
 
 constexpr boost::int128::int128 signed_value{1, 0};
