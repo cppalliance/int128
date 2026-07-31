@@ -2779,6 +2779,9 @@ BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(>>, >>=)
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wfloat-equal"
+#elif defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wfloat-equal"
 #endif
 
 #define BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(op, return_type)                                       \
@@ -2843,6 +2846,8 @@ BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(/, /=)
 
 #ifdef __GNUC__
 #  pragma GCC diagnostic pop
+#elif defined(__clang__)
+#  pragma clang diagnostic pop
 #endif
 
 // The builtin allows no floating point operand for the modulo, bitwise and shift operators.
