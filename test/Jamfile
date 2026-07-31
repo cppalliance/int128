@@ -80,6 +80,7 @@ run test_mixed_type_sign_conversion.cpp ;
 run test_cross_type_assign.cpp ;
 run test_builtin_parity.cpp ;
 run test_float_mixed_ops.cpp ;
+run test_float_conversion.cpp ;
 
 run test_consteval_funcs.cpp ;
 run test_sign_compare.cpp ;
