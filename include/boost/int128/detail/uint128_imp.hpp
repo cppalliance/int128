@@ -458,7 +458,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uin
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
-    #elif defined (__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) == static_cast<detail::builtin_u128>(rhs);
 
@@ -554,7 +554,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uin
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) != static_cast<detail::builtin_u128>(rhs);
 

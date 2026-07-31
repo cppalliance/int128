@@ -1771,7 +1771,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_sub(
 
     return detail::from_bits(result_high, result_low);
 
-    #elif defined(__aarch64__) && !defined(__APPLE__)
+    #elif defined(__aarch64__) && !defined(__APPLE__) && defined(BOOST_INT128_HAS_INT128)
 
     // Unsigned wrap for consistent two's-complement semantics
     return int128{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
