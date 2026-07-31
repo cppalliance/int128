@@ -83,6 +83,16 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noe
     return static_cast<uint128>(lhs) >= static_cast<uint128>(rhs);
 }
 
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128>(lhs) <=> static_cast<uint128>(rhs);
+}
+
+#endif
+
 //=====================================
 // Arithmetic Operators
 //=====================================
