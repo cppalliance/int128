@@ -5,7 +5,10 @@
 // See: https://github.com/cppalliance/int128/issues/479
 
 #define BOOST_HAS_INT128
+
+#ifndef BOOST_INT128_NO_BUILTIN_INT128
 #define BOOST_INT128_NO_BUILTIN_INT128
+#endif
 
 #include <boost/int128.hpp>
 
