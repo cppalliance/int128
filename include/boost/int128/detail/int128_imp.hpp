@@ -1440,27 +1440,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128 rhs) noexcept
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
+
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator<<(const Integer lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) << rhs.low;
-}
-
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned>(lhs) << rhs.low;
-}
-
-// Types that integral promotion leaves alone keep their own type, again as the builtin does
-
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16) && (sizeof(Integer) * 8 <= 64), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr Integer operator<<(const Integer lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<Integer>(lhs << rhs.low);
+    return static_cast<detail::promoted_t<Integer>>(lhs) << rhs.low;
 }
 
 #ifdef _MSC_VER
@@ -1645,27 +1632,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128 rhs) noexcept
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
+
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator>>(const Integer lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) >> rhs.low;
-}
-
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned>(lhs) >> rhs.low;
-}
-
-// Types that integral promotion leaves alone keep their own type, again as the builtin does
-
-BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 > 16) && (sizeof(Integer) * 8 <= 64), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr Integer operator>>(const Integer lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<Integer>(lhs >> rhs.low);
+    return static_cast<detail::promoted_t<Integer>>(lhs) >> rhs.low;
 }
 
 #ifdef _MSC_VER

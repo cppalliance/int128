@@ -63,6 +63,25 @@ struct floating_point
 template <typename T>
 BOOST_INT128_INLINE_CONSTEXPR bool is_floating_point_v = floating_point<T>::value;
 
+// The type integral promotion gives an operand of type T, which is the result type of a
+// shift with T on the left. The rule depends on the rank of T and not only on its size, so
+// long and char32_t differ where both are the width of an int; asking the compiler is exact
+template <typename T>
+struct promoted
+{
+    using type = decltype(+T{});
+};
+
+// Unary plus on a bool draws a warning from MSVC, and the answer is always int
+template <>
+struct promoted<bool>
+{
+    using type = int;
+};
+
+template <typename T>
+using promoted_t = typename promoted<T>::type;
+
 // Decides if we can use a u32 or u64 implementation for some operations
 
 #ifdef BOOST_INT128_HAS_INT128

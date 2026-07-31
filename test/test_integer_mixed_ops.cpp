@@ -77,12 +77,27 @@ BOOST_INT128_TEST_COMPOUND_TYPES(builtin_u128)
 #undef BOOST_INT128_TEST_COMPOUND_TYPES
 #undef BOOST_INT128_TEST_COMPOUND_TYPE
 
-// A shift takes its result type from the left operand, so a type that integral promotion
-// leaves alone keeps its own type
+// A shift takes its result type from the left operand after integral promotion, so a type
+// that promotion leaves alone keeps its own type
 static_assert(std::is_same<decltype(int{} << uint128{}), int>::value, "int << u");
 static_assert(std::is_same<decltype(unsigned_int{} >> uint128{}), unsigned int>::value, "unsigned >> u");
 static_assert(std::is_same<decltype(long_long{} << int128{}), long long>::value, "long long << i");
 static_assert(std::is_same<decltype(unsigned_long_long{} >> int128{}), unsigned long long>::value, "unsigned long long >> i");
+
+// A type of lesser rank than int promotes, and does so whether or not it is signed, so an
+// unsigned char and an unsigned short both yield a signed int just as they do for the builtin
+static_assert(std::is_same<decltype(unsigned_char{} << uint128{}), int>::value, "unsigned char << u");
+static_assert(std::is_same<decltype(unsigned_short{} >> uint128{}), int>::value, "unsigned short >> u");
+static_assert(std::is_same<decltype(signed_char{} << int128{}), int>::value, "signed char << i");
+static_assert(std::is_same<decltype(short{} >> int128{}), int>::value, "short >> i");
+static_assert(std::is_same<decltype(bool{} << uint128{}), int>::value, "bool << u");
+
+// The same expressions on the builtin, which is what the promotion above is matching
+#ifdef BOOST_INT128_HAS_INT128
+static_assert(std::is_same<decltype(unsigned_char{} << builtin_u128{}), int>::value, "builtin promotes too");
+static_assert(std::is_same<decltype(unsigned_short{} >> builtin_u128{}), int>::value, "builtin promotes too");
+static_assert(std::is_same<decltype(bool{} << builtin_i128{}), int>::value, "builtin promotes too");
+#endif
 
 // Every other operator yields the common type, which is the 128-bit type
 static_assert(std::is_same<decltype(int{} + uint128{}), uint128>::value, "int + u");
@@ -336,11 +351,15 @@ bool same_value(const Integer lib_value, const Integer oracle_value) noexcept
     return uint128{lib_value} == uint128{oracle_value};
 }
 
-// The width the builtin shifts in, which is the width of the promoted left operand
+// A shift happens in the promoted left operand, so its width and its signedness are the
+// ones that decide which counts stay inside the behavior the standard defines
+template <typename Integer>
+using promoted = boost::int128::detail::promoted_t<Integer>;
+
 template <typename Integer>
 constexpr unsigned promoted_width() noexcept
 {
-    return sizeof(Integer) < sizeof(int) ? sizeof(int) * 8U : sizeof(Integer) * 8U;
+    return sizeof(promoted<Integer>) * 8U;
 }
 
 // Runs one compound assignment through the library type and through the builtin and compares.
@@ -358,6 +377,60 @@ constexpr unsigned promoted_width() noexcept
 #define BOOST_INT128_TEST_PARITY_BOTH(Integer, compound_op, a, b)                          \
     BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, compound_op, a, b)            \
     BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, compound_op, a, b)
+
+// Overflowing the signed common type is undefined for the builtin, and the library defines it
+// instead by wrapping, so the oracle can only be asked about operands where it has an answer.
+// Each predicate below decides that in the unsigned domain, where every step is well defined.
+// The unsigned oracle needs none of this: wrapping is its defined behavior for every operand
+
+constexpr builtin_i128 int128_min_value {static_cast<builtin_i128>(static_cast<builtin_u128>(1) << 127)};
+
+builtin_u128 magnitude(const builtin_i128 v) noexcept
+{
+    const auto bits {static_cast<builtin_u128>(v)};
+    return v < 0 ? static_cast<builtin_u128>(0) - bits : bits;
+}
+
+// Two operands of the same sign overflow exactly when the sum takes the other sign
+bool signed_add_is_defined(const builtin_i128 x, const builtin_i128 y) noexcept
+{
+    const auto sum {static_cast<builtin_i128>(static_cast<builtin_u128>(x) + static_cast<builtin_u128>(y))};
+    return (x < 0) != (y < 0) || (sum < 0) == (x < 0);
+}
+
+bool signed_sub_is_defined(const builtin_i128 x, const builtin_i128 y) noexcept
+{
+    const auto difference {static_cast<builtin_i128>(static_cast<builtin_u128>(x) - static_cast<builtin_u128>(y))};
+    return (x < 0) == (y < 0) || (difference < 0) == (x < 0);
+}
+
+// Conservative by one value, the exact product -2^127, which is not worth a special case
+bool signed_mul_is_defined(const builtin_i128 x, const builtin_i128 y) noexcept
+{
+    const auto mx {magnitude(x)};
+    const auto my {magnitude(y)};
+
+    if (mx == 0 || my == 0)
+    {
+        return true;
+    }
+
+    const builtin_u128 limit {(static_cast<builtin_u128>(1) << 127) - 1};
+    return mx <= limit / my;
+}
+
+// The quotient of the most negative value and -1 is the one division the builtin leaves undefined
+bool signed_div_is_defined(const builtin_i128 x, const builtin_i128 y) noexcept
+{
+    return y != 0 && !(x == int128_min_value && y == -1);
+}
+
+// The left operand the oracle actually sees, after the conversion to the left operand type
+template <typename Integer>
+builtin_i128 as_left_operand(const builtin_i128 a) noexcept
+{
+    return static_cast<builtin_i128>(static_cast<Integer>(a));
+}
 
 // Values chosen to cross every word and sign boundary the operators care about
 const builtin_i128 parity_values[] {
@@ -377,6 +450,51 @@ const builtin_i128 parity_values[] {
     -((static_cast<builtin_i128>(1) << 100) + 7)
 };
 
+// Runs every operator on one pair of operands. The bitwise operators cannot overflow, so they
+// and the unsigned oracle take the pair as it comes; the signed oracle is asked only where the
+// builtin has a defined answer
+template <typename Integer>
+void test_parity_pair(const builtin_i128 a, const builtin_i128 b)
+{
+    const auto left {as_left_operand<Integer>(a)};
+
+    BOOST_INT128_TEST_PARITY_BOTH(Integer, |=, a, b)
+    BOOST_INT128_TEST_PARITY_BOTH(Integer, &=, a, b)
+    BOOST_INT128_TEST_PARITY_BOTH(Integer, ^=, a, b)
+
+    BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, +=, a, b)
+    BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, -=, a, b)
+    BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, *=, a, b)
+
+    if (signed_add_is_defined(left, b))
+    {
+        BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, +=, a, b)
+    }
+
+    if (signed_sub_is_defined(left, b))
+    {
+        BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, -=, a, b)
+    }
+
+    if (signed_mul_is_defined(left, b))
+    {
+        BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, *=, a, b)
+    }
+
+    // Division and remainder by zero is undefined for the builtin, so it is here too
+    if (b != 0)
+    {
+        BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, /=, a, b)
+        BOOST_INT128_TEST_PARITY(Integer, uint128, builtin_u128, %=, a, b)
+    }
+
+    if (signed_div_is_defined(left, b))
+    {
+        BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, /=, a, b)
+        BOOST_INT128_TEST_PARITY(Integer, int128, builtin_i128, %=, a, b)
+    }
+}
+
 template <typename Integer>
 void test_parity_arithmetic()
 {
@@ -384,19 +502,7 @@ void test_parity_arithmetic()
     {
         for (const auto b : parity_values)
         {
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, |=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, &=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, ^=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, +=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, -=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, *=, a, b)
-
-            // Division and remainder by zero is undefined for the builtin, so it is here too
-            if (b != 0)
-            {
-                BOOST_INT128_TEST_PARITY_BOTH(Integer, /=, a, b)
-                BOOST_INT128_TEST_PARITY_BOTH(Integer, %=, a, b)
-            }
+            test_parity_pair<Integer>(a, b);
         }
     }
 }
@@ -406,8 +512,9 @@ void test_parity_shifts()
 {
     constexpr unsigned width {promoted_width<Integer>()};
 
-    // A signed left operand may not shift a bit into the sign bit, so stop one short of it
-    const unsigned max_left_count {std::numeric_limits<Integer>::is_signed ? width - 2U : width - 1U};
+    // A signed left operand may not shift a bit into the sign bit, so stop one short of it.
+    // An unsigned char or short promotes to a signed int, so this reads the promoted type
+    const unsigned max_left_count {boost::int128::detail::is_signed_integer_v<promoted<Integer>> ? width - 2U : width - 1U};
 
     for (unsigned count {0}; count <= max_left_count; ++count)
     {
@@ -437,18 +544,14 @@ void test_parity_random()
         const auto a = static_cast<builtin_i128>((static_cast<builtin_u128>(dist(rng)) << 64) | dist(rng));
         const auto b = static_cast<builtin_i128>((static_cast<builtin_u128>(dist(rng)) << 64) | dist(rng));
 
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, |=, a, b)
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, &=, a, b)
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, ^=, a, b)
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, +=, a, b)
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, -=, a, b)
-        BOOST_INT128_TEST_PARITY_BOTH(Integer, *=, a, b)
+        test_parity_pair<Integer>(a, b);
 
-        if (b != 0)
-        {
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, /=, a, b)
-            BOOST_INT128_TEST_PARITY_BOTH(Integer, %=, a, b)
-        }
+        // A full width pair overflows the signed common type for most of the operators above,
+        // so a second pair narrow enough for all of them keeps the signed oracle exercised
+        const auto narrow_a = static_cast<builtin_i128>(static_cast<std::int64_t>(dist(rng)));
+        const auto narrow_b = static_cast<builtin_i128>(static_cast<std::int64_t>(dist(rng)));
+
+        test_parity_pair<Integer>(narrow_a, narrow_b);
     }
 }
 

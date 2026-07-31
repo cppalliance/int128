@@ -81,6 +81,23 @@ std::uint64_t bits {1};
 bits <<= uint128{40};     // 2^40, a 64-bit shift by a count of 40
 ----
 
+=== Breaking: a shift with a narrow unsigned left operand now yields `int`
+
+The result type of `i pass:[<<] v` and `i pass:[>>] v` is the left operand after integral promotion.
+A type of lesser rank than `int` promotes to `int` whenever `int` can represent all of its values, and that is true whether or not the type is unsigned, so `bool`, `unsigned char`, and `unsigned short` all promote to a signed `int`.
+These previously returned `unsigned int`, which disagreed with the built-in:
+
+[source, c++]
+----
+unsigned short s {1};
+
+auto r = s << uint128{1};   // now int, as for (unsigned __int128); previously unsigned int
+----
+
+The value and bit pattern are unchanged, and the compound forms `pass:[<<=]` and `pass:[>>=]` are unaffected because the result is converted back to the type of the left operand either way.
+Only code that deduces the type of the result, or that relies on the wrap-around of the previously unsigned result, sees a difference.
+The signed narrow types (`signed char`, `short`) already returned `int` and are unchanged.
+
 === Breaking: the modulo, bitwise and shift operators reject a floating point operand
 
 The built-in 128-bit integers do not accept a floating point operand for `pass:[%]`, `pass:[&]`, `pass:[|]`, `pass:[^]`, `pass:[<<]`, or `pass:[>>]`, so these are now declared deleted for `int128` and `uint128`.

@@ -65,6 +65,8 @@ The behavior and return type of every mixed-sign overload follow the C++ usual a
 |===
 
 For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type after integral promotion, regardless of the RHS, matching the built-in shift rules.
+`int128` and `uint128` are not promoted, so a 128-bit LHS yields itself.
+A built-in LHS of lesser rank than `int` promotes, and does so whether or not it is signed, so `bool`, `unsigned char`, and `unsigned short` all yield a signed `int`.
 A shift count that is negative or greater than or equal to the width of the shifted operand, which is `128` when the LHS is `int128` or `uint128`, is undefined behavior, exactly as for the built-in shift operators; see the xref:int128.adoc#i128_bitwise_operators[shift operator] reference for the precise rules.
 
 For comparison operators (`pass:[==]`, `pass:[!=]`, `pass:[<]`, `pass:[<=]`, `pass:[>]`, `pass:[>=]`), the return type is always `bool` and the comparison is performed on the operands after they have been converted to the common type above.
