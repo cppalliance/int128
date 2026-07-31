@@ -93,7 +93,7 @@ They are most useful for writing code that has to adapt to what the platform pro
 #endif
 ----
 
-- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `pass:[__int128]` or `pass:[unsigned __int128]` types (e.g. `pass:[__x86_64__]`).
+- `BOOST_INT128_HAS_INT128`: This is defined when compiling on a platform that has builtin `pass:[__int128]` or `pass:[unsigned __int128]` types (e.g. `pass:[__x86_64__]`), and not user disabled by `BOOST_INT128_NO_BUILTIN_INT128`.
 
 - `BOOST_INT128_ENDIAN_LITTLE_BYTE`: This is defined to `1` when compiling on a little endian architecture, otherwise `0`.
 
