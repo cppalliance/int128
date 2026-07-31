@@ -25,7 +25,7 @@
 // Use 128-bit integers.
 // The SYCL device target (spir64) has no native 128-bit integer, so on the device pass
 // we fall back to the portable path (the same one used on platforms without __int128).
-#if (defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER)) && !defined(BOOST_INT128_NO_BUILTIN_INT128)) && !defined(__SYCL_DEVICE_ONLY__)
+#if (defined(BOOST_HAS_INT128) || (defined(__SIZEOF_INT128__) && !defined(_MSC_VER))) && !defined(__SYCL_DEVICE_ONLY__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
 
 #define BOOST_INT128_HAS_INT128
 
