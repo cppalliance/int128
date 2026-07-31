@@ -63,12 +63,14 @@ Otherwise (including 32-bit x86), the alignment is left up to the compiler to de
 == Operator Behavior
 
 All comparison, arithmetic, bitwise, and shift operators are defined between `uint128` and any built-in integer type, signed or unsigned.
+The operators that the built-in 128-bit integers allow with a floating-point operand, that is `+`, `-`, `*`, `/`, the six comparisons, `pass:[<=>]`, and their compound assignment forms, are additionally defined between `uint128` and `float`, `double`, and `long double`.
 Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `unsigned __int128` operation.
 Specifically:
 
 * The signed operand (whether a small `intN_t` or `__int128`) is converted to `uint128` (sign-extended for negatives), and the operation is performed unsigned with two's-complement wrap-around semantics. Arithmetic and bitwise operations return `uint128`.
 * For shift operators, the result type follows the LHS: `uint128 << T` and `uint128 >> T` always return `uint128`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
+* A floating-point operand is the common type: the `uint128` is converted to it first and the operation is performed in floating point, so the result of an arithmetic operator is the floating-point type, not `uint128`. The modulo, bitwise, and shift operators reject a floating-point operand, as the built-in does. See xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 For example, `uint128{5} > -1` returns `false` because the signed `-1` converts to a value greater than `5` under unsigned 128-bit arithmetic, exactly as `(unsigned __int128){5} > -1` would.
 
@@ -193,7 +195,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<(const uint128 lhs, const uint1
 ----
 
 Returns if the `lhs` value is less than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Less Than or Equal To
 
@@ -209,7 +212,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const uint128 lhs, const uint
 ----
 
 Returns if the `lhs` value is less than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Greater Than
 
@@ -225,7 +229,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>(const uint128 lhs, const uint1
 ----
 
 Returns if the `lhs` value is greater than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Greater Than or Equal To
 
@@ -241,7 +246,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const uint128 lhs, const uint
 ----
 
 Returns if the `lhs` value is greater than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Equality
 
@@ -257,7 +263,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uint128 lhs, const uint
 ----
 
 Returns if the `lhs` value is equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Inequality
 
@@ -273,7 +280,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uint128 lhs, const uint
 ----
 
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Spaceship Operator (Requires pass:[C++20])
 
@@ -454,7 +462,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const uint128 lhs, const ui
 
 Returns as a `uint128` the sum of `lhs` and `rhs`.
 If the sum is greater than is representable by a `uint128`, the operation silently performs unsigned rollover in the direction of 0.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Subtraction
 
@@ -471,7 +480,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const uint128 lhs, const ui
 
 Returns as a `uint128` the difference of `lhs` and `rhs`.
 If the difference is less than is representable by a `uint128`, the operation silently performs unsigned rollover in the direction of `BOOST_INT128_UINT128_MAX`.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Multiplication
 
@@ -488,7 +498,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const uint128 lhs, const ui
 
 Returns as a `uint128` the product of `lhs` and `rhs`.
 If the product is greater than is representable by a `uint128`, the operation silently performs unsigned rollover in the direction of 0.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Division
 
@@ -506,7 +517,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const uint128 lhs, const ui
 Returns as a `uint128` the quotient of `lhs` and `rhs` without exception.
 For any non-zero `rhs` the result is identical to the built-in `unsigned __int128` division.
 Division by zero is undefined behavior, exactly as for `unsigned __int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Modulo
 
@@ -524,7 +536,8 @@ BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const uint128 lhs, const ui
 Returns as a `uint128` the remainder of `lhs` and `rhs` without exception.
 For any non-zero `rhs` the result is identical to the built-in `unsigned __int128` remainder.
 Remainder by zero is undefined behavior, exactly as for `unsigned __int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
+This operation is only defined for integers, matching the built-in: a floating-point operand is rejected.
+It is subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
 
 [#u128_limits]
 == `<limits>` Support and Values

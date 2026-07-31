@@ -10,6 +10,42 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Unreleased
 
+=== New: mixed operations with the built-in floating point types
+
+`int128` and `uint128` now provide every operator that the built-in 128-bit integers provide with a floating point operand, in either operand order, for `float`, `double`, and `long double`.
+These previously did not compile: because the conversions to and from floating point are both implicit, an expression such as `u * 2.5` was ambiguous rather than merely unsupported.
+
+[source, c++]
+----
+uint128 u {5};
+
+auto a = u + 1.0;    // double, 6.0
+auto b = 1.0F - u;   // float, -4.0F
+bool c = u < 5.5;    // true
+----
+
+The 128-bit operand is converted to the floating point type first, per the usual arithmetic conversions, so every result is bit-for-bit identical to the corresponding built-in `pass:[__int128]` expression.
+See xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
+
+=== Breaking: compound assignment with a floating point operand no longer truncates it first
+
+`u op= f` for `+=`, `-=`, `*=`, and `/=` now converts `u` to the floating point type, applies the operation, and converts the result back, which is what the built-in does.
+Previously the floating point operand was converted to a 128-bit integer first, which silently gave a different answer:
+
+[source, c++]
+----
+uint128 u {4};
+u *= 2.5;   // now 10, as for a builtin; previously 8, because 2.5 became 2
+
+uint128 v {3};
+v /= 0.5;   // now 6; previously a division by zero, because 0.5 became 0
+----
+
+=== Breaking: the modulo, bitwise and shift operators reject a floating point operand
+
+The built-in 128-bit integers do not accept a floating point operand for `pass:[%]`, `pass:[&]`, `pass:[|]`, `pass:[^]`, `pass:[<<]`, or `pass:[>>]`, so these are now declared deleted for `int128` and `uint128`.
+The binary forms were already ill-formed, as an ambiguity; the compound forms such as `u pass:[%=] 2.0` and `u pass:[<<=] 2.0` previously compiled and silently truncated the operand.
+
 === New: integer division with every rounding mode
 
 `<boost/int128/numeric.hpp>` now provides the `div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)], for both `uint128` and `int128`.

@@ -93,6 +93,7 @@ Otherwise (including 32-bit x86), the alignment is left up to the compiler to de
 == Operator Behavior
 
 All comparison, arithmetic, bitwise, and shift operators are defined between `int128` and any built-in integer type, signed or unsigned.
+The operators that the built-in 128-bit integers allow with a floating-point operand, that is `+`, `-`, `*`, `/`, the six comparisons, `pass:[<=>]`, and their compound assignment forms, are additionally defined between `int128` and `float`, `double`, and `long double`.
 Their behavior follows the C++ usual arithmetic conversions and is value-identical to the corresponding builtin `__int128` operation.
 Specifically:
 
@@ -100,6 +101,7 @@ Specifically:
 * For `unsigned __int128` (same rank), the signed `int128` is converted to the unsigned counterpart, the operation is performed unsigned, and arithmetic / bitwise operations return `uint128` (the library's wrapper for `unsigned __int128`).
 * For shift operators, the result type follows the LHS: `int128 << T` and `int128 >> T` always return `int128`, regardless of `T`.
 * All comparison operators return `bool`, with the comparison performed on the operands after conversion to the common type.
+* A floating-point operand is the common type: the `int128` is converted to it first and the operation is performed in floating point, so the result of an arithmetic operator is the floating-point type, not `int128`. The modulo, bitwise, and shift operators reject a floating-point operand, as the built-in does. See xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 NOTE: Division and remainder match `__int128` for every input except the two the built-in leaves undefined. Division or remainder by zero is likewise undefined behavior: the library adds no zero-divisor check, so it behaves like the built-in (a hardware trap on platforms that fault on integer division by zero) and is a hard compile-time error in a constant expression. The signed overflow `INT128_MIN / -1`, whose true quotient is not representable, is the one case the library defines rather than leaving undefined: it wraps to `INT128_MIN` (and `INT128_MIN % -1` is `0`), matching the two's-complement wrap the library applies to other overflowing signed operations such as `INT128_MIN * -1`. See xref:int128.adoc#i128_math_operators[Division] and Modulo below.
 
@@ -222,7 +224,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<(const int128 lhs, const int128
 ----
 
 Returns if the `lhs` value is less than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Less Than or Equal To
 
@@ -238,7 +241,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const int128 lhs, const int12
 ----
 
 Returns if the `lhs` value is less than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Greater Than
 
@@ -254,7 +258,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>(const int128 lhs, const int128
 ----
 
 Returns if the `lhs` value is greater than the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Greater Than or Equal To
 
@@ -270,7 +275,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const int128 lhs, const int12
 ----
 
 Returns if the `lhs` value is greater than or equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Equality
 
@@ -286,7 +292,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator==(const int128 lhs, const int12
 ----
 
 Returns if the `lhs` value is equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Inequality
 
@@ -302,7 +309,8 @@ BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const int128 lhs, const int12
 ----
 
 Returns if the `lhs` value is not equal to the `rhs` value without exception.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Spaceship Operator (Requires pass:[C++20])
 
@@ -488,7 +496,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128 operator+(const int128 lhs, const int1
 
 Returns as an `int128` the sum of `lhs` and `rhs`.
 If the sum is greater than `BOOST_INT128_INT128_MAX`, the operation silently performs signed rollover to `BOOST_INT128_INT128_MIN`.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Subtraction
 
@@ -505,7 +514,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128 operator-(const int128 lhs, const int1
 
 Returns as an `int128` the difference of `lhs` and `rhs`.
 If the difference is less than `BOOST_INT128_INT128_MIN`, the operation silently performs signed rollover to `BOOST_INT128_INT128_MAX`.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Multiplication
 
@@ -522,7 +532,8 @@ BOOST_INT128_HOST_DEVICE constexpr int128 operator*(const int128 lhs, const int1
 
 Returns as an `int128` the product of `lhs` and `rhs`.
 If the product overflows, the operation silently performs signed rollover (wrapping from `BOOST_INT128_INT128_MAX` to `BOOST_INT128_INT128_MIN` or vice versa).
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Division
 
@@ -541,7 +552,8 @@ Returns as an `int128` the quotient of `lhs` and `rhs` without exception.
 The quotient truncates toward zero, and for any `rhs` other than `0` (and other than the overflow noted below) the result is identical to the built-in `__int128` division.
 Division by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 The signed overflow `INT128_MIN / -1` is defined to wrap to `INT128_MIN` rather than being left undefined as it is for the built-in.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+A floating-point right or left operand is also accepted, in which case the result follows xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
 
 === Modulo
 
@@ -560,7 +572,8 @@ Returns as an `int128` the remainder of `lhs` and `rhs` without exception.
 The remainder takes the sign of the dividend `lhs`, and for any `rhs` other than `0` the result is identical to the built-in `__int128` remainder, so that `(lhs / rhs) * rhs + lhs % rhs == lhs`.
 Remainder by zero is undefined behavior, exactly as for `__int128`: the library adds no zero-divisor check (so the generated code matches the built-in and traps where the hardware faults on integer division by zero), and a zero divisor seen during constant evaluation is a hard compile-time error.
 The signed overflow `INT128_MIN % -1` is defined to be `0` rather than being left undefined as it is for the built-in.
-This operation is only defined for integers and is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
+This operation is only defined for integers, matching the built-in: a floating-point operand is rejected.
+It is subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
 [#i128_abs]
 === Absolute Value
