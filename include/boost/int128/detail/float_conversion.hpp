@@ -109,6 +109,23 @@ BOOST_INT128_HOST_DEVICE constexpr T signed_words_to_float(const std::int64_t hi
     return unsigned_words_to_float<T>(static_cast<std::uint64_t>(high), low);
 }
 
+// The other direction: a value in [0, 2^64) truncated toward zero into a 64-bit word.
+// A cast straight to an unsigned type takes the compiler's unsigned conversion path, which
+// subtracts 2^63 and puts the top bit back afterwards. Clang 7 emits that subtraction inside the
+// window where it has already set the x87 control word to single precision, so an 80-bit long
+// double loses every significand bit past the 24th. Splitting at 2^63 here keeps both conversions
+// inside the signed range, where the conversion is one instruction on every compiler
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr std::uint64_t float_to_uint64(const T value) noexcept
+{
+    constexpr T two_63 {static_cast<T>(UINT64_C(1) << 63)};
+
+    // value - two_63 is exact: it is a multiple of the ulp of value, and it is below 2^63
+    return value < two_63
+           ? static_cast<std::uint64_t>(static_cast<std::int64_t>(value))
+           : static_cast<std::uint64_t>(static_cast<std::int64_t>(value - two_63)) | (UINT64_C(1) << 63);
+}
+
 } // namespace detail
 } // namespace int128
 } // namespace boost

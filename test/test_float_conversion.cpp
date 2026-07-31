@@ -249,6 +249,26 @@ void test_from_float_saturation()
     BOOST_TEST_EQ(int128{static_cast<Float>(-3.75)}, int128{-3});
     BOOST_TEST_EQ(int128{static_cast<Float>(0.9)}, int128{0});
     BOOST_TEST_EQ(int128{static_cast<Float>(-0.9)}, int128{0});
+
+    // A word at or above 2^63 is the case a compiler reaches through its unsigned conversion
+    // path, so it needs a known answer of its own. Every bit of the significand is set here,
+    // capped at the 64 bits a word holds, which every format names exactly
+    constexpr int word_bits {std::numeric_limits<Float>::digits < 64 ? std::numeric_limits<Float>::digits : 64};
+
+    Float dense {static_cast<Float>(9223372036854775808.0L)};     // 2^63
+    Float step {dense};
+    std::uint64_t expected {UINT64_C(1) << 63};
+
+    for (int i {1}; i < word_bits; ++i)
+    {
+        step /= static_cast<Float>(2);
+        dense += step;
+        expected |= UINT64_C(1) << (63 - i);
+    }
+
+    BOOST_TEST_EQ(uint128{dense}, uint128{expected});
+    BOOST_TEST_EQ(int128{dense}, int128{expected});
+    BOOST_TEST_EQ(int128{-dense}, -int128{expected});
 }
 
 // =========================================================================

@@ -420,9 +420,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(Float f) noexcept
         return;
     }
 
-    high = static_cast<std::uint64_t>(scaled);
+    high = detail::float_to_uint64(scaled);
     const Float remainder {f - static_cast<Float>(high) * two_64};
-    low = static_cast<std::uint64_t>(remainder);
+    low = detail::float_to_uint64(remainder);
 }
 
 //=====================================

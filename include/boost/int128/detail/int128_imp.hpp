@@ -447,9 +447,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128::int128(Float f) noexcept
     const bool negative {f < Float{0}};
     const Float abs_f {negative ? -f : f};
 
-    std::uint64_t h {static_cast<std::uint64_t>(abs_f / two_64)};
+    std::uint64_t h {detail::float_to_uint64(abs_f / two_64)};
     const Float remainder {abs_f - static_cast<Float>(h) * two_64};
-    std::uint64_t l {static_cast<std::uint64_t>(remainder)};
+    std::uint64_t l {detail::float_to_uint64(remainder)};
 
     if (negative)
     {
