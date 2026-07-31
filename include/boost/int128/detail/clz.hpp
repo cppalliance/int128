@@ -122,7 +122,7 @@ constexpr int countl_impl(unsigned long long x) noexcept
     return x ? __builtin_clzll(x) : std::numeric_limits<unsigned long long>::digits;
 }
 
-#elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
+#elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION) && !(defined(__CUDACC__) && defined(BOOST_INT128_ENABLE_CUDA))
 
 constexpr int countl_impl(std::uint32_t x) noexcept
 {
@@ -166,7 +166,7 @@ constexpr int countl_impl(std::uint64_t x) noexcept
     }
 }
 
-#elif defined(_M_IX86) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+#elif defined(_M_IX86) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
 constexpr int countl_impl(std::uint32_t x) noexcept
 {

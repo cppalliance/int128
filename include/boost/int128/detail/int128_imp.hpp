@@ -111,8 +111,27 @@ int128
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
+    #ifdef _MSC_VER
+    #  pragma warning(push)
+    #  pragma warning(disable:4127)
+    #endif
+
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, bool>::value)
+        {
+            return low || high;
+        }
+        else
+        {
+            return static_cast<UnsignedInteger>(low);
+        }
+    }
+
+    #ifdef _MSC_VER
+    #  pragma warning(pop)
+    #endif
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -1300,7 +1319,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_ls_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {
@@ -1497,7 +1516,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_rs_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {
@@ -1752,7 +1771,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr int128 default_sub(
 
     return detail::from_bits(result_high, result_low);
 
-    #elif defined(__aarch64__) && !defined(__APPLE__)
+    #elif defined(__aarch64__) && !defined(__APPLE__) && defined(BOOST_INT128_HAS_INT128)
 
     // Unsigned wrap for consistent two's-complement semantics
     return int128{static_cast<detail::builtin_u128>(lhs) - static_cast<detail::builtin_u128>(rhs)};
@@ -2310,6 +2329,10 @@ BOOST_INT128_HOST_DEVICE constexpr int128 operator/(const SignedInteger lhs, con
         return negative_res ? -res : res;
     }
 }
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#endif
 
 #ifdef _MSC_VER
 #  pragma warning(pop)

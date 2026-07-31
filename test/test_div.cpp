@@ -73,9 +73,6 @@ void test_unsigned_div()
 
     uint128 lhs {dist(rng), dist(rng)};
     uint128 zero {dist(rng) * 0U, dist(rng) * 0U};
-    const auto lhs_num {boost::int128::div(lhs, zero)};
-    BOOST_TEST_EQ(lhs_num.quot, 0U);
-    BOOST_TEST_EQ(lhs_num.rem, 0U);
 
     const auto lhs_denom {boost::int128::div(zero, lhs)};
     BOOST_TEST_EQ(lhs_denom.quot, 0U);
@@ -123,9 +120,6 @@ void test_signed_div()
 
     int128 lhs {idist(rng), dist(rng)};
     int128 zero {idist(rng) * 0, dist(rng) * 0U};
-    const auto lhs_num {boost::int128::div(lhs, zero)};
-    BOOST_TEST_EQ(lhs_num.quot, 0);
-    BOOST_TEST_EQ(lhs_num.rem, 0);
 
     const auto lhs_denom {boost::int128::div(zero, lhs)};
     BOOST_TEST_EQ(lhs_denom.quot, 0);

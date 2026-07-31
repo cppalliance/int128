@@ -8,6 +8,7 @@
 #include <boost/int128/bit.hpp>
 #include <boost/int128/cstdlib.hpp>
 #include <boost/int128/detail/traits.hpp>
+#include <boost/int128/utilities.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -140,35 +141,20 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_sub(con
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_mul(const uint128 x, const uint128 y) noexcept
 {
-    const auto x_bits {bit_width(x)};
-    const auto y_bits {bit_width(y)};
-
-    if ((x_bits + y_bits) > std::numeric_limits<uint128>::digits)
-    {
-        return (std::numeric_limits<uint128>::max)();
-    }
-
-    return x * y;
+    uint128 res {};
+    return ckd_mul(&res, x, y) ? (std::numeric_limits<uint128>::max)() : res;
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 saturating_mul(const int128 x, const int128 y) noexcept
 {
-    const auto x_bits {bit_width(static_cast<uint128>(abs(x)))};
-    const auto y_bits {bit_width(static_cast<uint128>(abs(y)))};
+    int128 res {};
+    const auto overflowed {ckd_mul(&res, x, y)};
 
-    if ((x_bits + y_bits) > std::numeric_limits<int128>::digits)
+    if (overflowed)
     {
-        if ((x < 0) != (y < 0))
-        {
-            return (std::numeric_limits<int128>::min)();
-        }
-        else
-        {
-            return (std::numeric_limits<int128>::max)();
-        }
+        return (x < 0) != (y < 0) ? (std::numeric_limits<int128>::min)() : (std::numeric_limits<int128>::max)();
     }
 
-    const int128 res {x * y};
     return res;
 }
 

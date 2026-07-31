@@ -5,7 +5,7 @@
 #ifndef BOOST_INT128_FORMAT_HPP
 #define BOOST_INT128_FORMAT_HPP
 
-#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L && !defined(BOOST_DECIMAL_DISABLE_CLIB)
+#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L
 
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/config.hpp>

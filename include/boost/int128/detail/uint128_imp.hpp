@@ -117,8 +117,27 @@ uint128
     template <BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT>
     BOOST_INT128_HOST_DEVICE constexpr operator SignedInteger() const noexcept { return static_cast<SignedInteger>(low); }
 
+    #ifdef _MSC_VER
+    #  pragma warning(push)
+    #  pragma warning(disable:4127)
+    #endif
+
     template <BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT>
-    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept { return static_cast<UnsignedInteger>(low); }
+    BOOST_INT128_HOST_DEVICE constexpr operator UnsignedInteger() const noexcept
+    {
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<UnsignedInteger, bool>::value)
+        {
+            return low || high;
+        }
+        else
+        {
+            return static_cast<UnsignedInteger>(low);
+        }
+    }
+
+    #ifdef _MSC_VER
+    #  pragma warning(pop)
+    #endif
 
     #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -439,7 +458,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator==(const uin
 
     return lhs.low == rhs.low && lhs.high == rhs.high;
 
-    #elif defined (__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) == static_cast<detail::builtin_u128>(rhs);
 
@@ -535,7 +554,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const uin
 
     return lhs.low != rhs.low || lhs.high != rhs.high;
 
-    #elif defined(__x86_64__) && !defined(BOOST_INT128_NO_BUILTIN_INT128)
+    #elif defined(__x86_64__) && defined(BOOST_INT128_HAS_INT128)
 
     return static_cast<detail::builtin_u128>(lhs) != static_cast<detail::builtin_u128>(rhs);
 
@@ -2135,7 +2154,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint12
     return result;
 }
 
-#elif defined(_M_ARM64)
+#elif defined(_M_ARM64) && !defined(__GNUC__)
 
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE uint128 msvc_mul(const uint128 lhs, const uint128 rhs) noexcept
 {
@@ -2202,7 +2221,7 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr uint128 default_mul
     // s390x intentionally falls through to the synthetic low_word_mul below. Casting to builtin_u128
     // makes GCC reconstruct the value through a vector-unit stack round-trip that is several times
     // slower, and the memcpy path is unsafe for the narrow (scalar rhs) overloads on big-endian.
-    #elif ((defined(_M_AMD64) && !defined(__GNUC__)) || defined(_M_ARM64)) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
+    #elif (defined(_M_AMD64) || defined(_M_ARM64)) && !defined(__GNUC__) && !defined(BOOST_INT128_NO_CONSTEVAL_DETECTION)
 
     if (!BOOST_INT128_IS_CONSTANT_EVALUATED(lhs))
     {
@@ -2505,6 +2524,12 @@ BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator/=(const Integer rhs) 
 }
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
 
 //=====================================
 // Modulo Operator
