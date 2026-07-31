@@ -38,7 +38,7 @@ struct make_unsigned<int128::uint128>
 template <>
 struct make_unsigned<int128::int128>
 {
-    using type = int128::int128;
+    using type = int128::uint128;
 };
 
 template <class T, bool intrinsic>
