@@ -2525,6 +2525,12 @@ BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator/=(const Integer rhs) 
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
 
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
+
 //=====================================
 // Modulo Operator
 //=====================================
