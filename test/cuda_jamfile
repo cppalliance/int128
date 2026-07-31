@@ -93,5 +93,13 @@ run test_signed_from_chars_bases.cu ;
 run test_unsigned_literals.cu ;
 run test_signed_literals.cu ;
 
+# Mixed operations with a builtin floating point type
+run test_unsigned_add_float.cu ;
+run test_unsigned_mul_float.cu ;
+run test_unsigned_lt_float.cu ;
+run test_signed_add_float.cu ;
+run test_signed_mul_float.cu ;
+run test_signed_lt_float.cu ;
+
 run ../examples/cuda.cu ;
 run ../examples/cuda_primality.cu ;

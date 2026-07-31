@@ -9,6 +9,12 @@
 #include <limits>
 #include <cmath>
 
+#ifdef __has_include
+#  if __has_include(<stdfloat>)
+#    include <stdfloat>
+#  endif
+#endif
+
 using namespace boost::int128;
 
 void test_implicit_conversion_traits()
@@ -31,6 +37,18 @@ void test_implicit_conversion_traits()
     static_assert(std::is_convertible<int128, double>::value, "int128 -> double should be implicit");
     static_assert(std::is_convertible<uint128, float>::value, "uint128 -> float should be implicit");
     static_assert(std::is_convertible<uint128, double>::value, "uint128 -> double should be implicit");
+
+    // And from them, so that uint128 x = 1.5 works as it does for a builtin
+    static_assert(std::is_convertible<float, uint128>::value, "float -> uint128 should be implicit");
+    static_assert(std::is_convertible<double, int128>::value, "double -> int128 should be implicit");
+    static_assert(std::is_assignable<uint128&, double>::value, "double should be assignable to uint128");
+    static_assert(std::is_assignable<double&, uint128>::value, "uint128 should be assignable to double");
+
+    // A mixed expression yields the floating point type, per the usual arithmetic conversions.
+    // See test_float_mixed_ops.cpp for the full operator surface and its builtin parity
+    static_assert(std::is_same<decltype(uint128{} + 1.0), double>::value, "uint128 + double -> double");
+    static_assert(std::is_same<decltype(1.0F * int128{}), float>::value, "float * int128 -> float");
+    static_assert(std::is_same<decltype(int128{} < 1.0), bool>::value, "int128 < double -> bool");
 
 #if defined(BOOST_INT128_HAS_INT128)
     // Implicit conversions to builtin __int128
@@ -250,6 +268,26 @@ void test_constexpr_float_construction()
     // constexpr contexts.
 }
 
+// The extended floating point types cannot hold the 2^64 scale factor the constructor needs,
+// so they are excluded from detail::is_floating_point_v and reach the constructor through the
+// promotion to float instead. std::is_floating_point is true for them in C++23, and using it
+// here used to yield 2^63 for every value
+void test_extended_float_construction()
+{
+    #ifdef __cpp_lib_stdfloat
+
+    const uint128 u {std::float16_t{3}};
+    BOOST_TEST_EQ(u, uint128{3});
+
+    const int128 i {std::float16_t{-3}};
+    BOOST_TEST_EQ(i, int128{-3});
+
+    static_assert(std::is_same<decltype(uint128{} + std::float16_t{}), float>::value,
+                  "an extended float operand promotes to float");
+
+    #endif // __cpp_lib_stdfloat
+}
+
 int main()
 {
     test_implicit_conversion_traits();
@@ -267,6 +305,7 @@ int main()
     test_int_from_float<double>();
     test_int_from_float<long double>();
     test_constexpr_float_construction();
+    test_extended_float_construction();
 
     return boost::report_errors();
 }

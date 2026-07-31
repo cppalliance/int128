@@ -79,6 +79,7 @@ run test_mixed_type_sign_compare.cpp ;
 run test_mixed_type_sign_conversion.cpp ;
 run test_cross_type_assign.cpp ;
 run test_builtin_parity.cpp ;
+run test_float_mixed_ops.cpp ;
 
 run test_consteval_funcs.cpp ;
 run test_sign_compare.cpp ;
@@ -119,6 +120,7 @@ run ../examples/saturating_arithmetic.cpp ;
 run ../examples/checked_arithmetic.cpp ;
 run ../examples/integer_comparison.cpp ;
 run ../examples/mixed_type_arithmetic.cpp ;
+run ../examples/mixed_float_arithmetic.cpp ;
 run ../examples/stream.cpp ;
 run ../examples/basic_arithmetic.cpp ;
 run ../examples/math_and_random.cpp ;
