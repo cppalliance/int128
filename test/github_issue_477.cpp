@@ -6,6 +6,11 @@
 
 #include <boost/int128.hpp>
 
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable:4459)
+#endif
+
 constexpr boost::int128::uint128 value{1, 0};
 
 constexpr bool a = value;
