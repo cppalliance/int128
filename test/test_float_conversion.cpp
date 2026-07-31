@@ -22,6 +22,7 @@
 #  pragma warning(push)
 #  pragma warning(disable : 4127)
 #  pragma warning(disable : 4056)
+#  pragma warning(disable : 4307)
 #endif
 
 #include <boost/int128.hpp>
