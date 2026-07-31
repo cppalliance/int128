@@ -130,8 +130,9 @@ struct uint128
 None of the constructors are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
 Integer constructors are subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
 
-The floating-point constructor truncates toward zero, matching `static_cast<unsigned __int128>(f)`.
-Edge cases mirror libgcc's `__fixunsXfti`: NaN and negative values yield zero, and values `>= 2^128` (including positive infinity) saturate to `UINT128_MAX`.
+The floating-point constructor truncates toward zero, and for every value inside the range of `uint128` it produces exactly what `static_cast<unsigned __int128>(f)` produces.
+Outside that range the built-in cast is undefined, and what it actually yields varies by architecture: x86-64 returns the integer indefinite value while aarch64 saturates in hardware.
+This constructor is total instead, and saturates on every platform, mirroring libgcc's `__fixunsXfti`: NaN and negative values yield zero, and values `>= 2^128` (including positive infinity) saturate to `UINT128_MAX`.
 
 [#u128_conversions]
 == Conversions
@@ -177,6 +178,8 @@ All conversion operators except `operator bool()` are implicit to match the beha
 Conversions to signed integers are subject to mixed sign limitations discussed xref:uint128.adoc#u128_operator_behavior[above].
 Conversions to floating-point types may not be lossless depending on the value of the `uint128` at time of conversion,
 as the number of digits it represents can exceed the precision of the significand in floating point types.
+When the value does not fit the significand it is rounded once, to nearest with ties to even, which is the same result `static_cast<unsigned __int128>` produces, and a value above the range of the target type becomes infinity.
+This holds whether or not the compiler provides a built-in 128-bit integer: where it does the conversion is the compiler's own, and where it does not the portable path rounds identically.
 
 [#u128_comparison_operators]
 == Comparison Operators

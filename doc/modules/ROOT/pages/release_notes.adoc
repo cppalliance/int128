@@ -10,6 +10,16 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Unreleased
 
+=== Fix: the conversion to floating point is now correctly rounded on every platform
+
+Where the compiler provides no built-in 128-bit integer type, which is MSVC, the CUDA and SYCL device, and every 32-bit target, the conversion to `float` and `double` composed the value as `high * 2^64 + low`.
+That rounds the high word, the low word, and the sum, so the result landed one ulp away from the correctly rounded value for roughly one value in 150.
+The 128-bit value is now rounded once, to nearest with ties to even, so a value converts to the same bit pattern whether or not the compiler has a built-in 128-bit integer.
+
+`long double` was already correct, because a significand of 64 bits or more holds both words exactly and leaves the addition as the only rounding.
+
+Overflow is unchanged and now covered by tests: a value whose correctly rounded result is above the range of the target type becomes infinity, which for `float` means every 128-bit value above `2^128 - 2^103`.
+
 === New: mixed operations with the built-in floating point types
 
 `int128` and `uint128` now provide every operator that the built-in 128-bit integers provide with a floating point operand, in either operand order, for `float`, `double`, and `long double`.

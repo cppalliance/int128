@@ -157,7 +157,8 @@ auto c = u * 0.5;      // double, 2.5   (the operand is NOT truncated to 0 first
 bool d = u < 5.5;      // true
 ----
 
-Because the conversion happens before the operation, and because the library's conversion operators route through the compiler's own 128-bit conversion where one exists, every result is bit-for-bit identical to the corresponding built-in `pass:[__int128]` / `pass:[unsigned __int128]` expression.
+Because the conversion happens before the operation, and because it is rounded once, to nearest with ties to even, every result is bit-for-bit identical to the corresponding built-in `pass:[__int128]` / `pass:[unsigned __int128]` expression.
+That holds on every platform: where the compiler provides a built-in 128-bit integer the conversion is the compiler's own, and where it does not the portable path rounds identically.
 
 === Available Operators
 
@@ -255,4 +256,4 @@ For a comparison that is exact for every value, use the xref:utilities.adoc[inte
 
 * `pass:[__float128]` is not supported, even on the platforms where the compiler provides it and allows `pass:[__int128] op pass:[__float128]`. Only `float`, `double`, and `long double` participate.
 * `long double` is unavailable on the CUDA and SYCL device, so the `long double` overloads are not declared when `BOOST_INT128_HAS_GPU_SUPPORT` is defined, matching the xref:uint128.adoc#u128_conversions[conversion operators].
-* On a platform with no built-in 128-bit integer type, the conversion to floating point uses the portable path described in xref:uint128.adoc#u128_conversions[Conversions], which is not correctly rounded in every case. A result there can therefore differ from the same expression on a platform that has the built-in type.
+* On a platform whose `long double` is IBM double-double, currently ppc64le, `long double` results are reproducible but not bitwise reproducible: that format is not canonical and its arithmetic is not correctly rounded, so two expressions computing the same product can differ in the last bits. `float` and `double` are unaffected, and so is every other `long double` format.

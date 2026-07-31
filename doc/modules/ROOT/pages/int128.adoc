@@ -159,8 +159,9 @@ struct int128
 None of the constructors are marked `explicit` in order to match the implicit conversion behavior of the built-in integer types.
 Integer constructors are subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 
-The floating-point constructor truncates toward zero, matching `static_cast<__int128>(f)`.
-Edge cases mirror libgcc's `__fixXfti`: NaN yields zero, values `>= 2^127` saturate to `INT128_MAX`, and values `<= -2^127` saturate to `INT128_MIN`.
+The floating-point constructor truncates toward zero, and for every value inside the range of `int128` it produces exactly what `static_cast<__int128>(f)` produces.
+Outside that range the built-in cast is undefined, and what it actually yields varies by architecture: x86-64 returns the integer indefinite value while aarch64 saturates in hardware.
+This constructor is total instead, and saturates on every platform, mirroring libgcc's `__fixXfti`: NaN yields zero, values `>= 2^127` saturate to `INT128_MAX`, and values `<= -2^127` saturate to `INT128_MIN`.
 
 [#i128_conversions]
 == Conversions
@@ -206,6 +207,8 @@ All conversion operators except `operator bool()` are implicit to match the beha
 Conversions to unsigned integers are subject to mixed sign limitations discussed xref:int128.adoc#i128_operator_behavior[above].
 Conversions to floating-point types may not be lossless depending on the value of the `int128` at time of conversion,
 as the number of digits it represents can exceed the precision of the significand in floating point types.
+When the value does not fit the significand it is rounded once, to nearest with ties to even, which is the same result `static_cast<__int128>` produces, and a value above the range of the target type becomes infinity.
+This holds whether or not the compiler provides a built-in 128-bit integer: where it does the conversion is the compiler's own, and where it does not the portable path rounds identically.
 
 [#i128_comparison_operators]
 == Comparison Operators
