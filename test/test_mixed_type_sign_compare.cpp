@@ -6,6 +6,10 @@
 #include <boost/core/lightweight_test.hpp>
 #include <random>
 
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+#include <compare>
+#endif
+
 #ifdef __GNUC__
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wsign-compare"
@@ -43,6 +47,12 @@ void test_left_unsigned()
         BOOST_TEST_EQ(lib_lhs >= lib_rhs, builtin_lhs >= builtin_rhs);
         BOOST_TEST_EQ(lib_lhs < lib_rhs,  builtin_lhs <  builtin_rhs);
         BOOST_TEST_EQ(lib_lhs <= lib_rhs, builtin_lhs <= builtin_rhs);
+
+        #ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+        BOOST_TEST((lib_lhs <=> lib_rhs) == (builtin_lhs <=> builtin_rhs));
+
+        #endif
     }
 
     // Edge cases that the old deviations would have answered differently
@@ -81,6 +91,12 @@ void test_right_unsigned()
         BOOST_TEST_EQ(lib_lhs >= lib_rhs, builtin_lhs >= builtin_rhs);
         BOOST_TEST_EQ(lib_lhs < lib_rhs,  builtin_lhs <  builtin_rhs);
         BOOST_TEST_EQ(lib_lhs <= lib_rhs, builtin_lhs <= builtin_rhs);
+
+        #ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+        BOOST_TEST((lib_lhs <=> lib_rhs) == (builtin_lhs <=> builtin_rhs));
+
+        #endif
     }
 
     {
