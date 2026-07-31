@@ -19,6 +19,8 @@ All comparison, arithmetic, bitwise, and shift operators are provided across:
 * `int128` and `uint128` (cross-type),
 * `int128` / `uint128` and any built-in integer type (signed or unsigned, including the compiler's 128-bit `pass:[__int128]` / `pass:[unsigned __int128]` where supported).
 
+The compound assignment operators are provided in both operand orders, so a built-in integer accepts a 128-bit right operand as well; see xref:mixed_type_ops.adoc#mixed_ops_integer_compound[Compound Assignment onto a Built-in Integer] below.
+
 Additionally, the operators that the built-in 128-bit integers allow with a floating-point operand are provided between `int128` / `uint128` and `float`, `double`, and `long double`; see xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types] below.
 
 The behavior and return type of every mixed-sign overload follow the C++ usual arithmetic conversions, identical to what the equivalent built-in `pass:[__int128]` / `pass:[unsigned __int128]` operation would produce, including two's-complement wrap-around semantics.
@@ -62,8 +64,8 @@ The behavior and return type of every mixed-sign overload follow the C++ usual a
 | `long double`
 |===
 
-For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type regardless of the RHS, matching the built-in shift rules.
-A shift count that is negative or greater than or equal to `128` (the width of the shifted operand) is undefined behavior, exactly as for the built-in shift operators; see the xref:int128.adoc#i128_bitwise_operators[shift operator] reference for the precise rules.
+For shift operators (`pass:[<<]`, `pass:[>>]`), the result type follows the LHS type after integral promotion, regardless of the RHS, matching the built-in shift rules.
+A shift count that is negative or greater than or equal to the width of the shifted operand, which is `128` when the LHS is `int128` or `uint128`, is undefined behavior, exactly as for the built-in shift operators; see the xref:int128.adoc#i128_bitwise_operators[shift operator] reference for the precise rules.
 
 For comparison operators (`pass:[==]`, `pass:[!=]`, `pass:[<]`, `pass:[<=]`, `pass:[>]`, `pass:[>=]`), the return type is always `bool` and the comparison is performed on the operands after they have been converted to the common type above.
 
@@ -138,6 +140,63 @@ The comparison operators return the same value as that expression compared with 
 
 When the compiler provides 128-bit built-in integer types, all of the operators above are also available between a library type and the built-in type of opposite signedness (e.g. `uint128 op pass:[__int128]`, `pass:[unsigned __int128] op int128`).
 The result type follows the same rules as the table above (`uint128` for arithmetic and bitwise; the LHS type for shifts; `bool` for comparisons), and the produced value is identical to what an all-built-in computation would yield.
+
+[#mixed_ops_integer_compound]
+== Compound Assignment onto a Built-in Integer
+
+Every compound assignment operator is available with a built-in integer on the left and `int128` or `uint128` on the right:
+
+[source, c++]
+----
+using boost::int128::uint128;
+
+unsigned flags {0};
+flags |= uint128{1};      // 1, and flags is still unsigned
+
+int counter {12};
+counter += boost::int128::int128{-5};   // 7
+----
+
+`i op= v` is equivalent to `i = static_cast<decltype(i)>(i op v)` using the binary operator from the table above, which is what the built-in 128-bit integers do.
+The whole operation is performed in the common type of the two operands and only the result is converted back, so a right operand wider than the left operand is never truncated first:
+
+[source, c++]
+----
+std::uint32_t word {0};
+word += (uint128{1} << 64U) + uint128{7};   // 7, the low word of 2^64 + 7
+
+std::uint64_t big {8};
+big /= uint128{1} << 64U;                   // 0, because 8 / 2^64 is zero
+----
+
+The left operand keeps its own type, so a result outside its range wraps exactly as the built-in wraps.
+The shift operators are the exception the language makes for all integer types: they take the value and the result type from the left operand alone, and only the count from the right.
+
+[source, c++]
+----
+std::uint64_t bits {1};
+bits <<= uint128{40};     // 2^40, a 64-bit shift by a count of 40
+----
+
+=== Available Types and Operators
+
+`Integer` is any built-in integer type, signed or unsigned, from `bool` through `pass:[long long]`, including the compiler's `pass:[__int128]` and `pass:[unsigned __int128]` where supported.
+Every signature below exists for both `uint128` and `int128` on the right.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+template <BOOST_INT128_INTEGER_CONCEPT Integer>
+BOOST_INT128_HOST_DEVICE constexpr Integer& operator|=(Integer& lhs, uint128 rhs);
+// and likewise for &=, ^=, +=, -=, *=, /=, %=, <<=, >>=
+
+} // namespace int128
+} // namespace boost
+----
+
+A division or remainder by zero, and a shift count that is negative or at least the width of the promoted left operand, are undefined, exactly as for the built-in operators.
 
 [#mixed_ops_floating_point]
 == Operations With Floating-Point Types

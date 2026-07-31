@@ -51,6 +51,36 @@ uint128 v {3};
 v /= 0.5;   // now 6; previously a division by zero, because 0.5 became 0
 ----
 
+=== New: compound assignment with a built-in integer on the left
+
+Every compound assignment operator now accepts a built-in integer on the left and `int128` or `uint128` on the right, for `bool` through `pass:[long long]` as well as the compiler's `pass:[__int128]` and `pass:[unsigned __int128]`.
+These previously did not compile: because the conversions in both directions are implicit, an expression such as `i pass:[|=] u` was ambiguous rather than merely unsupported.
+
+[source, c++]
+----
+unsigned flags {0};
+flags |= uint128{1};      // 1, and flags is still unsigned
+
+int counter {12};
+counter += int128{-5};    // 7
+----
+
+`i op= v` is equivalent to `i = static_cast<decltype(i)>(i op v)`, so the operation is performed in the common type of the two operands and only the result is converted back, matching the built-in `pass:[__int128]`.
+A right operand wider than the left operand is therefore never truncated first.
+See xref:mixed_type_ops.adoc#mixed_ops_integer_compound[Compound Assignment onto a Built-in Integer].
+
+=== Fix: the shift operators accept a built-in left operand of any width
+
+`i pass:[<<] v` and `i pass:[>>] v`, where `i` is a built-in integer and `v` is `int128` or `uint128`, were ambiguous for any `i` that integral promotion leaves alone, which is `int` and every wider type.
+Only the types promoted to `int` had an overload.
+The result type is the promoted left operand, as it is for the built-in shift operators, so the count is taken from `v` and the value and width from `i`:
+
+[source, c++]
+----
+std::uint64_t bits {1};
+bits <<= uint128{40};     // 2^40, a 64-bit shift by a count of 40
+----
+
 === Breaking: the modulo, bitwise and shift operators reject a floating point operand
 
 The built-in 128-bit integers do not accept a floating point operand for `pass:[%]`, `pass:[&]`, `pass:[|]`, `pass:[^]`, `pass:[<<]`, or `pass:[>>]`, so these are now declared deleted for `int128` and `uint128`.

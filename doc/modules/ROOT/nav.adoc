@@ -67,6 +67,7 @@
 ** xref:int128.adoc#i128_math_operators[Mathematical Operators]
 ** xref:int128.adoc#i128_limits[`<limits>` Support and Values]
 * xref:mixed_type_ops.adoc[]
+** xref:mixed_type_ops.adoc#mixed_ops_integer_compound[Compound Assignment onto a Built-in Integer]
 ** xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types]
 * xref:literals.adoc[]
 * xref:bit.adoc[`<bit>` (Bitwise ops)]
