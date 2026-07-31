@@ -1319,7 +1319,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_ls_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {
@@ -1516,7 +1516,7 @@ BOOST_INT128_HOST_DEVICE int128 intrinsic_rs_impl(const int128 lhs, const Intege
 
     #  endif
 
-    #elif defined(_M_AMD64)
+    #elif defined(_M_AMD64) && !defined(__GNUC__)
 
     if (rhs >= 64)
     {

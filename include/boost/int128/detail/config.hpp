@@ -157,6 +157,10 @@ BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 #  define BOOST_INT128_FORCE_INLINE inline
 #endif
 
+// MinGW defines the MSVC platform macros (_M_AMD64, _M_IX86, _M_ARM64) for source
+// compatibility, but it provides the GNU intrinsics rather than the MSVC ones. Every
+// guard selecting an MSVC-only intrinsic (__shiftleft128, _umul128, __umulh, _BitScan*,
+// __popcnt*, ...) therefore has to exclude GNU-mode compilers with !defined(__GNUC__).
 #ifdef __x86_64__
 
 #ifndef BOOST_INT128_BUILD_MODULE
