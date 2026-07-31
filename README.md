@@ -19,6 +19,8 @@ Simply `#include` it and use it.
 The library is also available as a single header [here](https://github.com/cppalliance/int128/blob/develop/extra/single_include/boost/int128.hpp).
 With C++20 and greater you can instead `import boost.int128`.
 
+You can also try the library out on [Compiler Explorer](https://godbolt.org/z/3q4zce41d).
+
 ## CMake
 
 ```sh
