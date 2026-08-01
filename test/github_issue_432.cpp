@@ -123,18 +123,28 @@ using builtin_u128 = boost::int128::detail::builtin_u128;
 
 static constexpr std::size_t N {1024};
 
-// The portable fallback pre-rounds each word, so unlike the builtin conversion it
-// can return either neighbor of the exact value instead of always the nearest
+// The portable fallback rounds the 128-bit value once, to nearest with ties to even, so it
+// agrees with the builtin conversion exactly. IBM double-double is the exception: it is not a
+// canonical format and "correctly rounded" is not uniquely defined for it, so the two round
+// ties differently, by at most half an ulp of its 106 bit significand. std::nextafter is not
+// meaningful for that format either, hence the relative comparison
 template <typename T>
-bool within_one_ulp(const T computed, const T reference)
+bool matches_builtin(const T computed, const T reference)
 {
     if (computed == reference)
     {
         return true;
     }
 
-    return computed == std::nextafter(reference, -std::numeric_limits<T>::infinity()) ||
-           computed == std::nextafter(reference, std::numeric_limits<T>::infinity());
+    if (std::numeric_limits<T>::digits == 106)
+    {
+        const T diff {computed > reference ? computed - reference : reference - computed};
+        const T scale {reference > T{0} ? reference : -reference};
+
+        return diff <= scale * static_cast<T>(1e-30L);
+    }
+
+    return false;
 }
 
 template <typename T>
@@ -157,13 +167,13 @@ void test_vs_builtin()
         BOOST_TEST_EQ(static_cast<T>(u), static_cast<T>(builtin_u));
         BOOST_TEST_EQ(static_cast<T>(s), static_cast<T>(builtin_s));
 
-        // The fallback rounds each word before composing, so allow the neighboring value.
+        // The fallback rounds the 128-bit value once, so it agrees with the builtin exactly.
         // The old implementation was off by the whole high word or returned 0.0 for
         // negative values, which this catches with a huge margin
-        BOOST_TEST(within_one_ulp(boost::int128::detail::unsigned_words_to_float<T>(hi, lo),
-                                  static_cast<T>(builtin_u)));
-        BOOST_TEST(within_one_ulp(boost::int128::detail::signed_words_to_float<T>(s.signed_high(), s.low),
-                                  static_cast<T>(builtin_s)));
+        BOOST_TEST(matches_builtin(boost::int128::detail::unsigned_words_to_float<T>(hi, lo),
+                                   static_cast<T>(builtin_u)));
+        BOOST_TEST(matches_builtin(boost::int128::detail::signed_words_to_float<T>(s.signed_high(), s.low),
+                                   static_cast<T>(builtin_s)));
 
         // The fallback must never lose the sign the way the cancellation defect did
         if (builtin_s != 0)

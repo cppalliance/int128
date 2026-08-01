@@ -10,6 +10,99 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Unreleased
 
+=== Fix: the conversion to floating point is now correctly rounded on every platform
+
+Where the compiler provides no built-in 128-bit integer type, which is MSVC, the CUDA and SYCL device, and every 32-bit target, the conversion to `float` and `double` composed the value as `high * 2^64 + low`.
+That rounds the high word, the low word, and the sum, so the result landed one ulp away from the correctly rounded value for roughly one value in 150.
+The 128-bit value is now rounded once, to nearest with ties to even, so a value converts to the same bit pattern whether or not the compiler has a built-in 128-bit integer.
+
+`long double` was already correct, because a significand of 64 bits or more holds both words exactly and leaves the addition as the only rounding.
+
+Overflow is unchanged and now covered by tests: a value whose correctly rounded result is above the range of the target type becomes infinity, which for `float` means every 128-bit value above `2^128 - 2^103`.
+
+=== New: mixed operations with the built-in floating point types
+
+`int128` and `uint128` now provide every operator that the built-in 128-bit integers provide with a floating point operand, in either operand order, for `float`, `double`, and `long double`.
+These previously did not compile: because the conversions to and from floating point are both implicit, an expression such as `u * 2.5` was ambiguous rather than merely unsupported.
+
+[source, c++]
+----
+uint128 u {5};
+
+auto a = u + 1.0;    // double, 6.0
+auto b = 1.0F - u;   // float, -4.0F
+bool c = u < 5.5;    // true
+----
+
+The 128-bit operand is converted to the floating point type first, per the usual arithmetic conversions, so every result is bit-for-bit identical to the corresponding built-in `pass:[__int128]` expression.
+See xref:mixed_type_ops.adoc#mixed_ops_floating_point[Operations With Floating-Point Types].
+
+=== Breaking: compound assignment with a floating point operand no longer truncates it first
+
+`u op= f` for `+=`, `-=`, `*=`, and `/=` now converts `u` to the floating point type, applies the operation, and converts the result back, which is what the built-in does.
+Previously the floating point operand was converted to a 128-bit integer first, which silently gave a different answer:
+
+[source, c++]
+----
+uint128 u {4};
+u *= 2.5;   // now 10, as for a builtin; previously 8, because 2.5 became 2
+
+uint128 v {3};
+v /= 0.5;   // now 6; previously a division by zero, because 0.5 became 0
+----
+
+=== New: compound assignment with a built-in integer on the left
+
+Every compound assignment operator now accepts a built-in integer on the left and `int128` or `uint128` on the right, for `bool` through `pass:[long long]` as well as the compiler's `pass:[__int128]` and `pass:[unsigned __int128]`.
+These previously did not compile: because the conversions in both directions are implicit, an expression such as `i pass:[|=] u` was ambiguous rather than merely unsupported.
+
+[source, c++]
+----
+unsigned flags {0};
+flags |= uint128{1};      // 1, and flags is still unsigned
+
+int counter {12};
+counter += int128{-5};    // 7
+----
+
+`i op= v` is equivalent to `i = static_cast<decltype(i)>(i op v)`, so the operation is performed in the common type of the two operands and only the result is converted back, matching the built-in `pass:[__int128]`.
+A right operand wider than the left operand is therefore never truncated first.
+See xref:mixed_type_ops.adoc#mixed_ops_integer_compound[Compound Assignment onto a Built-in Integer].
+
+=== Fix: the shift operators accept a built-in left operand of any width
+
+`i pass:[<<] v` and `i pass:[>>] v`, where `i` is a built-in integer and `v` is `int128` or `uint128`, were ambiguous for any `i` that integral promotion leaves alone, which is `int` and every wider type.
+Only the types promoted to `int` had an overload.
+The result type is the promoted left operand, as it is for the built-in shift operators, so the count is taken from `v` and the value and width from `i`:
+
+[source, c++]
+----
+std::uint64_t bits {1};
+bits <<= uint128{40};     // 2^40, a 64-bit shift by a count of 40
+----
+
+=== Breaking: a shift with a narrow unsigned left operand now yields `int`
+
+The result type of `i pass:[<<] v` and `i pass:[>>] v` is the left operand after integral promotion.
+A type of lesser rank than `int` promotes to `int` whenever `int` can represent all of its values, and that is true whether or not the type is unsigned, so `bool`, `unsigned char`, and `unsigned short` all promote to a signed `int`.
+These previously returned `unsigned int`, which disagreed with the built-in:
+
+[source, c++]
+----
+unsigned short s {1};
+
+auto r = s << uint128{1};   // now int, as for (unsigned __int128); previously unsigned int
+----
+
+The value and bit pattern are unchanged, and the compound forms `pass:[<<=]` and `pass:[>>=]` are unaffected because the result is converted back to the type of the left operand either way.
+Only code that deduces the type of the result, or that relies on the wrap-around of the previously unsigned result, sees a difference.
+The signed narrow types (`signed char`, `short`) already returned `int` and are unchanged.
+
+=== Breaking: the modulo, bitwise and shift operators reject a floating point operand
+
+The built-in 128-bit integers do not accept a floating point operand for `pass:[%]`, `pass:[&]`, `pass:[|]`, `pass:[^]`, `pass:[<<]`, or `pass:[>>]`, so these are now declared deleted for `int128` and `uint128`.
+The binary forms were already ill-formed, as an ambiguity; the compound forms such as `u pass:[%=] 2.0` and `u pass:[<<=] 2.0` previously compiled and silently truncated the operand.
+
 === New: integer division with every rounding mode
 
 `<boost/int128/numeric.hpp>` now provides the `div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)], for both `uint128` and `int128`.

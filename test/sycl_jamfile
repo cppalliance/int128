@@ -98,5 +98,13 @@ run test_signed_from_chars_bases_sycl.cpp ;
 run test_unsigned_literals_sycl.cpp ;
 run test_signed_literals_sycl.cpp ;
 
+# Mixed operations with a builtin floating point type
+run test_unsigned_add_float_sycl.cpp ;
+run test_unsigned_mul_float_sycl.cpp ;
+run test_unsigned_lt_float_sycl.cpp ;
+run test_signed_add_float_sycl.cpp ;
+run test_signed_mul_float_sycl.cpp ;
+run test_signed_lt_float_sycl.cpp ;
+
 run ../examples/sycl.cpp ;
 run ../examples/sycl_accumulate.cpp ;

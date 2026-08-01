@@ -34,6 +34,8 @@ The single exception is `operator bool`, which is `explicit` to match the standa
 
 Mixed-sign and mixed-width operations follow the usual arithmetic conversions of the language.
 In particular, an operation mixing a signed and an unsigned 128-bit operand produces a `uint128`, identical to the value the equivalent built-in `pass:[unsigned __int128]` operation would produce, with two's-complement wrap-around.
+
+The same applies to a floating-point operand: the operators are defined for exactly the combinations the built-in 128-bit integers accept, the 128-bit operand is converted to the floating-point type before the operation as the usual arithmetic conversions require, and the combinations the built-in rejects are declared deleted rather than left to the implicit conversions.
 See xref:mixed_type_ops.adoc[Mixed Type Operations] for the complete result-type rules.
 
 == Layout and Alignment
