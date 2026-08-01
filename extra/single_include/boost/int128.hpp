@@ -458,6 +458,39 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_unsigned_integer_v = unsigned_integer<T>::
 template <typename T>
 BOOST_INT128_INLINE_CONSTEXPR bool is_any_integer_v = signed_integer<T>::value || unsigned_integer<T>::value;
 
+template <typename T>
+struct floating_point
+{
+    static constexpr bool value = std::is_same<T, float>::value || std::is_same<T, double>::value
+    #ifndef BOOST_INT128_HAS_GPU_SUPPORT
+    || std::is_same<T, long double>::value;
+    #else
+    ;
+    #endif
+};
+
+template <typename T>
+BOOST_INT128_INLINE_CONSTEXPR bool is_floating_point_v = floating_point<T>::value;
+
+// The type integral promotion gives an operand of type T, which is the result type of a
+// shift with T on the left. The rule depends on the rank of T and not only on its size, so
+// long and char32_t differ where both are the width of an int; asking the compiler is exact
+template <typename T>
+struct promoted
+{
+    using type = decltype(+T{});
+};
+
+// Unary plus on a bool draws a warning from MSVC, and the answer is always int
+template <>
+struct promoted<bool>
+{
+    using type = int;
+};
+
+template <typename T>
+using promoted_t = typename promoted<T>::type;
+
 // Decides if we can use a u32 or u64 implementation for some operations
 
 #ifdef BOOST_INT128_HAS_INT128
@@ -480,12 +513,12 @@ using evaluation_type_t = std::conditional_t<sizeof(T) <= sizeof(std::uint32_t),
 #define BOOST_INT128_DEFAULTED_SIGNED_INTEGER_CONCEPT typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger>, bool> = true
 #define BOOST_INT128_DEFAULTED_UNSIGNED_INTEGER_CONCEPT typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger>, bool> = true
 #define BOOST_INT128_DEFAULTED_INTEGER_CONCEPT typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer>, bool> = true
-#define BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT typename Float, std::enable_if_t<std::is_floating_point<Float>::value, bool> = true
+#define BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT typename Float, std::enable_if_t<detail::is_floating_point_v<Float>, bool> = true
 
 #define BOOST_INT128_SIGNED_INTEGER_CONCEPT typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger>, bool>
 #define BOOST_INT128_UNSIGNED_INTEGER_CONCEPT typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger>, bool>
 #define BOOST_INT128_INTEGER_CONCEPT typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer>, bool>
-#define BOOST_INT128_FLOATING_POINT_CONCEPT typename Float, std::enable_if_t<std::is_floating_point<Float>::value, bool>
+#define BOOST_INT128_FLOATING_POINT_CONCEPT typename Float, std::enable_if_t<detail::is_floating_point_v<Float>, bool>
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
@@ -1503,10 +1536,13 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr T knuth_div(const T
 
 // [amalgamate] skipped duplicate include of boost/int128/detail/config.hpp
 // [amalgamate] skipped duplicate include of boost/int128/detail/constants.hpp
+// [amalgamate] skipped duplicate include of boost/int128/detail/clz.hpp
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
 #include <cstdint>
+#include <limits>
+#include <type_traits>
 
 #endif
 
@@ -1514,14 +1550,75 @@ namespace boost {
 namespace int128 {
 namespace detail {
 
-// The most correct way to do this would be std::ldexp(static_cast<T>(high), 64) + static_cast<T>(low);
-// Since std::ldexp is not constexpr until C++23 we can work around this by multiplying the high word
-// by 0xFFFFFFFF in order to generally replicate what ldexp is doing in the constexpr context.
-// We also avoid pulling in <quadmath.h> for the __float128 case where we would need ldexpq
+// 2^exp as a T, exactly, for 0 <= exp <= 127. Splitting at 2^64 keeps both factors inside the
+// range of an exact conversion from a 64-bit integer, so no rounding happens here
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr T exact_power_of_two(const int exp) noexcept
+{
+    return exp < 64 ? static_cast<T>(UINT64_C(1) << exp)
+                    : static_cast<T>(UINT64_C(1) << (exp - 64)) * offset_value_v<T>;
+}
+
+// A significand of 64 bits or more holds each word exactly, and holds the scaled high word
+// exactly as well, so the addition is the only rounding and the two term form is already
+// correctly rounded. x87 80-bit (64), IEEE binary128 (113) and IBM double-double (106) all
+// take this path
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr T unsigned_words_to_float_impl(const std::uint64_t high, const std::uint64_t low,
+                                                                 std::true_type) noexcept
+{
+    return static_cast<T>(high) * offset_value_v<T> + static_cast<T>(low);
+}
+
+// float and double cannot hold the high word or the sum exactly, so high * 2^64 + low rounds
+// as many as three times and lands up to one ulp away from the correctly rounded result.
+// Round the 128-bit value to exactly digits bits here instead, once, then apply an exact
+// power of two. See the note on ties in the body
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr T unsigned_words_to_float_impl(const std::uint64_t high, const std::uint64_t low,
+                                                                 std::false_type) noexcept
+{
+    // Anything below 2^64 is one conversion the compiler already rounds correctly
+    if (high == UINT64_C(0))
+    {
+        return static_cast<T>(low);
+    }
+
+    constexpr int digits {std::numeric_limits<T>::digits};
+    constexpr int residue_bits {64 - digits};
+    constexpr std::uint64_t residue_mask {(UINT64_C(1) << residue_bits) - UINT64_C(1)};
+    constexpr std::uint64_t halfway {UINT64_C(1) << (residue_bits - 1)};
+
+    // Normalize so bit 127 of the pair is set, which puts the significand at the top of the
+    // high word. high is non-zero here, so the distance is always less than 64
+    const auto shift {static_cast<unsigned>(countl_zero(high))};
+    const auto norm_high {shift == 0U ? high : ((high << shift) | (low >> (64U - shift)))};
+    const auto norm_low {shift == 0U ? low : (low << shift)};
+
+    const auto significand {norm_high >> residue_bits};
+    const auto residue {norm_high & residue_mask};
+
+    // Round to nearest, ties to even. The discarded part is residue * 2^64 + norm_low, so it
+    // is above the halfway point when residue is, and it is exactly the halfway point only
+    // when residue equals halfway and every lower bit is clear
+    const bool round_up {residue > halfway ||
+                         (residue == halfway && (norm_low != UINT64_C(0) || (significand & UINT64_C(1)) != UINT64_C(0)))};
+
+    const auto rounded {significand + (round_up ? UINT64_C(1) : UINT64_C(0))};
+
+    // rounded holds digits bits, or digits + 1 when it carried, in which case it is a power of
+    // two. Either way the conversion and the scaling are exact, so the product is the value
+    // rounded exactly once. It overflows to infinity precisely when the correctly rounded
+    // result does, which is the required behavior for round to nearest
+    return static_cast<T>(rounded) * exact_power_of_two<T>(static_cast<int>(64U - shift) + residue_bits);
+}
+
+// Converts the 128-bit value (high, low) to T, correctly rounded to nearest with ties to even
 template <typename T>
 BOOST_INT128_HOST_DEVICE constexpr T unsigned_words_to_float(const std::uint64_t high, const std::uint64_t low) noexcept
 {
-    return static_cast<T>(high) * offset_value_v<T> + static_cast<T>(low);
+    return unsigned_words_to_float_impl<T>(high, low,
+                                           std::integral_constant<bool, (std::numeric_limits<T>::digits >= 64)>{});
 }
 
 template <typename T>
@@ -1534,10 +1631,28 @@ BOOST_INT128_HOST_DEVICE constexpr T signed_words_to_float(const std::int64_t hi
         const auto abs_low {~low + UINT64_C(1)};
         const auto abs_high {~static_cast<std::uint64_t>(high) + (abs_low == UINT64_C(0) ? UINT64_C(1) : UINT64_C(0))};
 
+        // The magnitude is rounded once and the negation is exact
         return -unsigned_words_to_float<T>(abs_high, abs_low);
     }
 
     return unsigned_words_to_float<T>(static_cast<std::uint64_t>(high), low);
+}
+
+// The other direction: a value in [0, 2^64) truncated toward zero into a 64-bit word.
+// A cast straight to an unsigned type takes the compiler's unsigned conversion path, which
+// subtracts 2^63 and puts the top bit back afterwards. Clang 7 emits that subtraction inside the
+// window where it has already set the x87 control word to single precision, so an 80-bit long
+// double loses every significand bit past the 24th. Splitting at 2^63 here keeps both conversions
+// inside the signed range, where the conversion is one instruction on every compiler
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr std::uint64_t float_to_uint64(const T value) noexcept
+{
+    constexpr T two_63 {static_cast<T>(UINT64_C(1) << 63)};
+
+    // value - two_63 is exact: it is a multiple of the ulp of value, and it is below 2^63
+    return value < two_63
+           ? static_cast<std::uint64_t>(static_cast<std::int64_t>(value))
+           : static_cast<std::uint64_t>(static_cast<std::int64_t>(value - two_63)) | (UINT64_C(1) << 63);
 }
 
 } // namespace detail
@@ -1823,6 +1938,41 @@ int128
     BOOST_INT128_HOST_DEVICE inline int128& operator%=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
+
+    // Compound assignment with floating point types.
+    // Matches the builtin: this value is converted to Float, the operation is applied in
+    // floating point, and the result is converted back, truncating toward zero.
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator+=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator-=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator*=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr int128& operator/=(Float rhs) noexcept;
+
+    // The builtin does not allow a floating point operand for these, so neither do we.
+    // Without these the implicit floating point constructor would silently truncate rhs
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator%=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator&=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator|=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator^=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator<<=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE int128& operator>>=(Float rhs) = delete;
 };
 
 namespace detail {
@@ -1945,9 +2095,9 @@ BOOST_INT128_HOST_DEVICE constexpr int128::int128(Float f) noexcept
     const bool negative {f < Float{0}};
     const Float abs_f {negative ? -f : f};
 
-    std::uint64_t h {static_cast<std::uint64_t>(abs_f / two_64)};
+    std::uint64_t h {detail::float_to_uint64(abs_f / two_64)};
     const Float remainder {abs_f - static_cast<Float>(h) * two_64};
-    std::uint64_t l {static_cast<std::uint64_t>(remainder)};
+    std::uint64_t l {detail::float_to_uint64(remainder)};
 
     if (negative)
     {
@@ -2938,18 +3088,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) << rhs.low;
-}
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
 
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator<<(const UnsignedInteger lhs, const int128 rhs) noexcept
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator<<(const Integer lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned>(lhs) << rhs.low;
+    return static_cast<detail::promoted_t<Integer>>(lhs) << rhs.low;
 }
 
 #ifdef _MSC_VER
@@ -3134,18 +3280,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const int128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) >> rhs.low;
-}
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
 
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(const UnsignedInteger lhs, const int128 rhs) noexcept
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator>>(const Integer lhs, const int128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned>(lhs) >> rhs.low;
+    return static_cast<detail::promoted_t<Integer>>(lhs) >> rhs.low;
 }
 
 #ifdef _MSC_VER
@@ -4106,6 +4248,146 @@ BOOST_INT128_HOST_DEVICE inline int128& int128::operator%=(const Integer rhs) no
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
 
+//=====================================
+// Built-in Integer Compound Assignment
+//=====================================
+
+// Compound assignment with a built-in integer on the left.
+// The builtin applies the operation to the common type of the two operands and converts
+// the result back to the type of the left operand, so each of these is the binary operator
+// above followed by that conversion, which matches what the builtin 128-bit integer does.
+// detail/traits.hpp defines which types Integer may be
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4804) // Unsafe use of type bool in operation
+#endif
+
+#define BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(op, compound_op)                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>                                     \
+    BOOST_INT128_HOST_DEVICE constexpr Integer& operator compound_op(Integer& lhs, const int128 rhs) noexcept \
+    {                                                                                                         \
+        lhs = static_cast<Integer>(lhs op rhs);                                                               \
+        return lhs;                                                                                           \
+    }
+
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(|, |=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(&, &=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(^, ^=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(+, +=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(-, -=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(*, *=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(/, /=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(%, %=)
+
+// The shifts take the value from the left operand alone, so only the count comes from rhs
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(<<, <<=)
+BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP(>>, >>=)
+
+#undef BOOST_INT128_DETAIL_I128_INTEGER_COMPOUND_OP
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
+
+//=====================================
+// Floating Point Operators
+//=====================================
+
+// The usual arithmetic conversions convert the integer operand to the floating point type
+// before the operation is applied, so each of these computes exactly what the builtin
+// 128-bit integer computes for the same expression.
+// detail/traits.hpp defines which types Float may be
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif
+
+#define BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(op, return_type)                                       \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr return_type operator op(const int128 lhs, const Float rhs) noexcept \
+    {                                                                                                    \
+        return static_cast<Float>(lhs) op rhs;                                                           \
+    }                                                                                                    \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr return_type operator op(const Float lhs, const int128 rhs) noexcept \
+    {                                                                                                    \
+        return lhs op static_cast<Float>(rhs);                                                           \
+    }
+
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(+, Float)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(-, Float)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(*, Float)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(/, Float)
+
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(==, bool)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(!=, bool)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(<, bool)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(<=, bool)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(>, bool)
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(>=, bool)
+
+// Mixing an integer and a floating point type yields a partial ordering because of NaN
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP(<=>, std::partial_ordering)
+
+#endif // BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+#undef BOOST_INT128_DETAIL_I128_FLOAT_BINARY_OP
+
+// Compound assignment converts the result back to int128, truncating toward zero.
+// A result that is NaN or outside the range of the type saturates as the floating point
+// constructor does, rather than being undefined as it is for the builtin
+
+#define BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP(op, compound_op)                                     \
+    template <BOOST_INT128_FLOATING_POINT_CONCEPT>                                                       \
+    BOOST_INT128_HOST_DEVICE constexpr int128& int128::operator compound_op(const Float rhs) noexcept     \
+    {                                                                                                    \
+        *this = static_cast<int128>(static_cast<Float>(*this) op rhs);                                    \
+        return *this;                                                                                     \
+    }                                                                                                    \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr Float& operator compound_op(Float& lhs, const int128 rhs) noexcept  \
+    {                                                                                                    \
+        lhs compound_op static_cast<Float>(rhs);                                                          \
+        return lhs;                                                                                       \
+    }
+
+BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP(+, +=)
+BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP(-, -=)
+BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP(*, *=)
+BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP(/, /=)
+
+#undef BOOST_INT128_DETAIL_I128_FLOAT_COMPOUND_OP
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
+
+// The builtin allows no floating point operand for the modulo, bitwise and shift operators.
+// Deleting them keeps that a compile error here, rather than letting the implicit floating
+// point constructor silently truncate the operand
+
+#define BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(op)                                                   \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE int128 operator op(int128 lhs, Float rhs) = delete;                          \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE int128 operator op(Float lhs, int128 rhs) = delete;
+
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(%)
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(&)
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(|)
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(^)
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(<<)
+BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP(>>)
+
+#undef BOOST_INT128_DETAIL_I128_FLOAT_DELETED_OP
+
 namespace detail {
 
 template <bool>
@@ -4533,6 +4815,41 @@ uint128
     BOOST_INT128_HOST_DEVICE inline uint128& operator%=(Integer rhs) noexcept;
 
     #endif // BOOST_INT128_HAS_MSVC_INT128
+
+    // Compound assignment with floating point types.
+    // Matches the builtin: this value is converted to Float, the operation is applied in
+    // floating point, and the result is converted back, truncating toward zero.
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator+=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator-=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator*=(Float rhs) noexcept;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE constexpr uint128& operator/=(Float rhs) noexcept;
+
+    // The builtin does not allow a floating point operand for these, so neither do we.
+    // Without these the implicit floating point constructor would silently truncate rhs
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator%=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator&=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator|=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator^=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator<<=(Float rhs) = delete;
+
+    template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>
+    BOOST_INT128_HOST_DEVICE uint128& operator>>=(Float rhs) = delete;
 };
 
 //=====================================
@@ -4625,9 +4942,9 @@ BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(Float f) noexcept
         return;
     }
 
-    high = static_cast<std::uint64_t>(scaled);
+    high = detail::float_to_uint64(scaled);
     const Float remainder {f - static_cast<Float>(high) * two_64};
-    low = static_cast<std::uint64_t>(remainder);
+    low = detail::float_to_uint64(remainder);
 }
 
 //=====================================
@@ -5806,18 +6123,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator<<(const SignedInteger lhs, const uint128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) << rhs.low;
-}
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
 
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned int operator<<(const UnsignedInteger lhs, const uint128 rhs) noexcept
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator<<(const Integer lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned int>(lhs) << rhs.low;
+    return static_cast<detail::promoted_t<Integer>>(lhs) << rhs.low;
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
@@ -5978,18 +6291,14 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR deta
 
 #endif
 
-BOOST_INT128_EXPORT template <typename SignedInteger, std::enable_if_t<detail::is_signed_integer_v<SignedInteger> && (sizeof(SignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr int operator>>(const SignedInteger lhs, const uint128 rhs) noexcept
-{
-    // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<int>(lhs) >> rhs.low;
-}
+// A shift takes its value and its result type from the left operand after integral promotion,
+// and only the count from the right, exactly as the builtin does
 
-BOOST_INT128_EXPORT template <typename UnsignedInteger, std::enable_if_t<detail::is_unsigned_integer_v<UnsignedInteger> && (sizeof(UnsignedInteger) * 8 <= 16), bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr unsigned operator>>(UnsignedInteger lhs, const uint128 rhs) noexcept
+BOOST_INT128_EXPORT template <typename Integer, std::enable_if_t<detail::is_any_integer_v<Integer> && (sizeof(Integer) * 8 <= 64), bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr detail::promoted_t<Integer> operator>>(const Integer lhs, const uint128 rhs) noexcept
 {
     // Out-of-range counts are undefined, matching the built-in operators.
-    return static_cast<unsigned>(lhs) >> rhs.low;
+    return static_cast<detail::promoted_t<Integer>>(lhs) >> rhs.low;
 }
 
 template <BOOST_INT128_INTEGER_CONCEPT>
@@ -6937,6 +7246,151 @@ BOOST_INT128_HOST_DEVICE inline uint128& uint128::operator%=(const Integer rhs) 
 }
 
 #endif // BOOST_INT128_HAS_MSVC_INT128
+
+//=====================================
+// Built-in Integer Compound Assignment
+//=====================================
+
+// Compound assignment with a built-in integer on the left.
+// The builtin applies the operation to the common type of the two operands and converts
+// the result back to the type of the left operand, so each of these is the binary operator
+// above followed by that conversion, which matches what the builtin 128-bit integer does.
+// detail/traits.hpp defines which types Integer may be
+
+#ifdef _MSC_VER
+#  pragma warning(push)
+#  pragma warning(disable : 4804) // Unsafe use of type bool in operation
+#endif
+
+#define BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(op, compound_op)                                          \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_INTEGER_CONCEPT>                                      \
+    BOOST_INT128_HOST_DEVICE constexpr Integer& operator compound_op(Integer& lhs, const uint128 rhs) noexcept \
+    {                                                                                                          \
+        lhs = static_cast<Integer>(lhs op rhs);                                                                \
+        return lhs;                                                                                            \
+    }
+
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(|, |=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(&, &=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(^, ^=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(+, +=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(-, -=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(*, *=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(/, /=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(%, %=)
+
+// The shifts take the value from the left operand alone, so only the count comes from rhs
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(<<, <<=)
+BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP(>>, >>=)
+
+#undef BOOST_INT128_DETAIL_U128_INTEGER_COMPOUND_OP
+
+#ifdef _MSC_VER
+#  pragma warning(pop)
+#endif
+
+//=====================================
+// Floating Point Operators
+//=====================================
+
+// The usual arithmetic conversions convert the integer operand to the floating point type
+// before the operation is applied, so each of these computes exactly what the builtin
+// 128-bit integer computes for the same expression.
+// detail/traits.hpp defines which types Float may be
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wfloat-equal"
+#elif defined(__clang__)
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wfloat-equal"
+#endif
+
+#define BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(op, return_type)                                       \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr return_type operator op(const uint128 lhs, const Float rhs) noexcept \
+    {                                                                                                    \
+        return static_cast<Float>(lhs) op rhs;                                                           \
+    }                                                                                                    \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr return_type operator op(const Float lhs, const uint128 rhs) noexcept \
+    {                                                                                                    \
+        return lhs op static_cast<Float>(rhs);                                                           \
+    }
+
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(+, Float)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(-, Float)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(*, Float)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(/, Float)
+
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(==, bool)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(!=, bool)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(<, bool)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(<=, bool)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(>, bool)
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(>=, bool)
+
+// Mixing an integer and a floating point type yields a partial ordering because of NaN
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP(<=>, std::partial_ordering)
+
+#endif // BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+#undef BOOST_INT128_DETAIL_U128_FLOAT_BINARY_OP
+
+// Compound assignment converts the result back to uint128, truncating toward zero.
+// A result that is NaN or outside the range of the type saturates as the floating point
+// constructor does, rather than being undefined as it is for the builtin
+
+#define BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(op, compound_op)                                     \
+    template <BOOST_INT128_FLOATING_POINT_CONCEPT>                                                       \
+    BOOST_INT128_HOST_DEVICE constexpr uint128& uint128::operator compound_op(const Float rhs) noexcept   \
+    {                                                                                                    \
+        *this = static_cast<uint128>(static_cast<Float>(*this) op rhs);                                   \
+        return *this;                                                                                     \
+    }                                                                                                    \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE constexpr Float& operator compound_op(Float& lhs, const uint128 rhs) noexcept \
+    {                                                                                                    \
+        lhs compound_op static_cast<Float>(rhs);                                                          \
+        return lhs;                                                                                       \
+    }
+
+BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(+, +=)
+BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(-, -=)
+BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(*, *=)
+BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP(/, /=)
+
+#undef BOOST_INT128_DETAIL_U128_FLOAT_COMPOUND_OP
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#elif defined(__clang__)
+#  pragma clang diagnostic pop
+#endif
+
+// The builtin allows no floating point operand for the modulo, bitwise and shift operators.
+// Deleting them keeps that a compile error here, rather than letting the implicit floating
+// point constructor silently truncate the operand
+
+#define BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(op)                                                   \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE uint128 operator op(uint128 lhs, Float rhs) = delete;                        \
+                                                                                                         \
+    BOOST_INT128_EXPORT template <BOOST_INT128_DEFAULTED_FLOATING_POINT_CONCEPT>                         \
+    BOOST_INT128_HOST_DEVICE uint128 operator op(Float lhs, uint128 rhs) = delete;
+
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(%)
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(&)
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(|)
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(^)
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(<<)
+BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP(>>)
+
+#undef BOOST_INT128_DETAIL_U128_FLOAT_DELETED_OP
 
 namespace detail {
 
