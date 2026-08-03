@@ -46,6 +46,11 @@ run test_rotr_sycl.cpp ;
 run test_popcount_sycl.cpp ;
 run test_byteswap_sycl.cpp ;
 
+run test_unsigned_byte_order_sycl.cpp ;
+run test_signed_byte_order_sycl.cpp ;
+run test_unsigned_byte_arrays_sycl.cpp ;
+run test_signed_byte_arrays_sycl.cpp ;
+
 run test_unsigned_eq_sycl.cpp ;
 run test_signed_eq_sycl.cpp ;
 run test_unsigned_ne_sycl.cpp ;

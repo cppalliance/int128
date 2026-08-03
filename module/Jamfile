@@ -33,6 +33,7 @@ obj int128 : int128.cppm : <define>BOOST_INT128_EXPORT_TESTING <toolset>msvc:<cx
 
 run quick_test.cpp int128 : : : <dependency>int128 ;
 run ../test/test_bit.cpp int128 : : : <dependency>int128 ;
+run ../test/test_byte_conversions.cpp int128 : : : <dependency>int128 ;
 run ../test/test_div.cpp int128 : : : <dependency>int128 ;
 run ../test/test_from_chars_bases.cpp int128 : : : <dependency>int128 ;
 run ../test/test_gcd_lcm.cpp int128 : : : <dependency>int128 ;

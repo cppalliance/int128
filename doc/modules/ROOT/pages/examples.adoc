@@ -218,6 +218,21 @@ include::example$bit.cpp[tags=**;!exclude]
 ----
 ====
 
+[#examples_byte_conversions]
+== Byte Order Conversions
+
+Serializing a 128-bit value into a packet or a file format means pinning down its byte order.
+This example covers both families: the whole value conversions (`to_be`, `from_be`, `to_le`, `from_le`), which are the identity on the matching platform and a byteswap on the other, and the byte array conversions (`to_be_bytes`, `from_be_bytes`, and their little and native endian counterparts), which give the same answer on every platform.
+It also shows a signed value, a compile-time round-trip, and how to select a byte array element type other than `std::uint8_t`.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/byte_conversions.cpp[example] demonstrates the byte order conversion functions
+====
+[source, c++]
+----
+include::example$byte_conversions.cpp[]
+----
+====
+
 [#examples_numeric]
 == Saturating Arithmetic (<numeric>)
 

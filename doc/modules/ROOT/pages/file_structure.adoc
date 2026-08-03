@@ -21,6 +21,9 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
 | Bit manipulation functions
 
+| xref:byte_conversions.adoc[`<boost/int128/byte_conversions.hpp>`]
+| Big-endian and little-endian byte order conversions
+
 | xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
 | Character conversion (`to_chars`/`from_chars`); requires Boost.Charconv headers
 
