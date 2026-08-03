@@ -46,6 +46,11 @@ run test_rotr.cu ;
 run test_popcount.cu ;
 run test_byteswap.cu ;
 
+run test_unsigned_byte_order.cu ;
+run test_signed_byte_order.cu ;
+run test_unsigned_byte_arrays.cu ;
+run test_signed_byte_arrays.cu ;
+
 run test_unsigned_eq.cu ;
 run test_signed_eq.cu ;
 run test_unsigned_ne.cu ;

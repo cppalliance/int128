@@ -12,6 +12,7 @@
 #include <sycl/sycl.hpp>
 #include <boost/int128.hpp>
 #include <boost/int128/charconv.hpp>
+#include <array>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -170,6 +171,158 @@ int run_compare(Pred pred)
     sycl::free(a, q);
     sycl::free(b, q);
     sycl::free(out, q);
+
+    if (failures == 0)
+    {
+        std::cout << "Test PASSED\n";
+        return EXIT_SUCCESS;
+    }
+
+    std::cerr << "Test FAILED with " << failures << " mismatches\n";
+    return EXIT_FAILURE;
+}
+
+// Byte order runner. Converts each value to big-endian and to little-endian order on the
+// device, and also runs a full round trip, which has to recover the input.
+template <typename T>
+int run_byte_order()
+{
+    sycl::queue q;
+    std::cout << "SYCL device: "
+              << q.get_device().get_info<sycl::info::device::name>() << "\n";
+
+    T* in {sycl::malloc_shared<T>(num_elements, q)};
+    T* out_be {sycl::malloc_shared<T>(num_elements, q)};
+    T* out_le {sycl::malloc_shared<T>(num_elements, q)};
+    T* out_round {sycl::malloc_shared<T>(num_elements, q)};
+
+    std::mt19937_64 rng {42};
+    for (int i {0}; i < num_elements; ++i)
+    {
+        in[i] = random_value<T>(rng);
+    }
+
+    q.submit([&](sycl::handler& h)
+    {
+        h.parallel_for(sycl::range<1>(num_elements), [=](sycl::id<1> idx)
+        {
+            const int i {static_cast<int>(idx[0])};
+            out_be[i] = boost::int128::to_be(in[i]);
+            out_le[i] = boost::int128::to_le(in[i]);
+            out_round[i] = boost::int128::from_le(boost::int128::to_le(in[i]));
+        });
+    }).wait();
+
+    int failures {0};
+    for (int i {0}; i < num_elements; ++i)
+    {
+        if (out_be[i] != boost::int128::to_be(in[i]) ||
+            out_le[i] != boost::int128::to_le(in[i]) ||
+            out_round[i] != in[i])
+        {
+            if (failures < 5)
+            {
+                std::cerr << "Mismatch at element " << i << "\n";
+            }
+            ++failures;
+        }
+    }
+
+    sycl::free(in, q);
+    sycl::free(out_be, q);
+    sycl::free(out_le, q);
+    sycl::free(out_round, q);
+
+    if (failures == 0)
+    {
+        std::cout << "Test PASSED\n";
+        return EXIT_SUCCESS;
+    }
+
+    std::cerr << "Test FAILED with " << failures << " mismatches\n";
+    return EXIT_FAILURE;
+}
+
+// Byte array runner. Writes each value out as bytes in all three orders on the device, and
+// reads a separate random byte buffer back as values, comparing everything with the host.
+// The arrays are written by assignment and read through a raw pointer so that no
+// std::array member function is called from device code.
+template <typename T>
+int run_byte_arrays()
+{
+    using bytes_type = std::array<std::uint8_t, sizeof(T)>;
+
+    sycl::queue q;
+    std::cout << "SYCL device: "
+              << q.get_device().get_info<sycl::info::device::name>() << "\n";
+
+    T* in {sycl::malloc_shared<T>(num_elements, q)};
+    std::uint8_t* in_bytes {sycl::malloc_shared<std::uint8_t>(num_elements * sizeof(T), q)};
+    bytes_type* out_be {sycl::malloc_shared<bytes_type>(num_elements, q)};
+    bytes_type* out_le {sycl::malloc_shared<bytes_type>(num_elements, q)};
+    bytes_type* out_ne {sycl::malloc_shared<bytes_type>(num_elements, q)};
+    T* from_be {sycl::malloc_shared<T>(num_elements, q)};
+    T* from_le {sycl::malloc_shared<T>(num_elements, q)};
+    T* from_ne {sycl::malloc_shared<T>(num_elements, q)};
+
+    std::mt19937_64 rng {42};
+    for (int i {0}; i < num_elements; ++i)
+    {
+        in[i] = random_value<T>(rng);
+    }
+    for (std::size_t i {0}; i < num_elements * sizeof(T); ++i)
+    {
+        in_bytes[i] = static_cast<std::uint8_t>(rng() & 0xFFU);
+    }
+
+    q.submit([&](sycl::handler& h)
+    {
+        h.parallel_for(sycl::range<1>(num_elements), [=](sycl::id<1> idx)
+        {
+            const int i {static_cast<int>(idx[0])};
+
+            out_be[i] = boost::int128::to_be_bytes(in[i]);
+            out_le[i] = boost::int128::to_le_bytes(in[i]);
+            out_ne[i] = boost::int128::to_ne_bytes(in[i]);
+
+            const std::uint8_t* bytes {in_bytes + static_cast<std::size_t>(i) * sizeof(T)};
+            from_be[i] = boost::int128::from_be_bytes<T>(bytes);
+            from_le[i] = boost::int128::from_le_bytes<T>(bytes);
+            from_ne[i] = boost::int128::from_ne_bytes<T>(bytes);
+        });
+    }).wait();
+
+    int failures {0};
+    for (int i {0}; i < num_elements; ++i)
+    {
+        const std::uint8_t* bytes {in_bytes + static_cast<std::size_t>(i) * sizeof(T)};
+
+        if (out_be[i] != boost::int128::to_be_bytes(in[i]) ||
+            out_le[i] != boost::int128::to_le_bytes(in[i]) ||
+            out_ne[i] != boost::int128::to_ne_bytes(in[i]) ||
+            from_be[i] != boost::int128::from_be_bytes<T>(bytes) ||
+            from_le[i] != boost::int128::from_le_bytes<T>(bytes) ||
+            from_ne[i] != boost::int128::from_ne_bytes<T>(bytes) ||
+            boost::int128::from_be_bytes<T>(out_be[i]) != in[i] ||
+            boost::int128::from_le_bytes<T>(out_le[i]) != in[i] ||
+            boost::int128::from_ne_bytes<T>(out_ne[i]) != in[i])
+        {
+            if (failures < 5)
+            {
+                std::cerr << "Mismatch at element " << i << "\n";
+            }
+            ++failures;
+        }
+    }
+
+    sycl::free(in, q);
+    sycl::free(in_bytes, q);
+    sycl::free(out_be, q);
+    sycl::free(out_le, q);
+    sycl::free(out_ne, q);
+    sycl::free(from_be, q);
+    sycl::free(from_le, q);
+    sycl::free(from_ne, q);
 
     if (failures == 0)
     {
