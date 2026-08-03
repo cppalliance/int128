@@ -138,6 +138,44 @@ Listed by analogous STL header.
 | Reverses byte order
 |===
 
+[#api_byte_conversions]
+=== xref:byte_conversions.adoc[Byte Order Conversions]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:byte_conversions.adoc#to_be[`to_be`]
+| Converts a value from native to big-endian byte order
+
+| xref:byte_conversions.adoc#from_be[`from_be`]
+| Converts a value from big-endian to native byte order
+
+| xref:byte_conversions.adoc#to_le[`to_le`]
+| Converts a value from native to little-endian byte order
+
+| xref:byte_conversions.adoc#from_le[`from_le`]
+| Converts a value from little-endian to native byte order
+
+| xref:byte_conversions.adoc#to_be_bytes[`to_be_bytes`]
+| Returns the bytes of a value, most significant first
+
+| xref:byte_conversions.adoc#from_be_bytes[`from_be_bytes`]
+| Reconstructs a value from big-endian ordered bytes
+
+| xref:byte_conversions.adoc#to_le_bytes[`to_le_bytes`]
+| Returns the bytes of a value, least significant first
+
+| xref:byte_conversions.adoc#from_le_bytes[`from_le_bytes`]
+| Reconstructs a value from little-endian ordered bytes
+
+| xref:byte_conversions.adoc#to_ne_bytes[`to_ne_bytes`]
+| Returns the bytes of a value in native order
+
+| xref:byte_conversions.adoc#from_ne_bytes[`from_ne_bytes`]
+| Reconstructs a value from native ordered bytes
+|===
+
 [#api_charconv]
 === xref:charconv.adoc[`<charconv>`]
 
@@ -471,6 +509,9 @@ Listed by analogous STL header.
 
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
 | Bit manipulation functions
+
+| xref:byte_conversions.adoc[`<boost/int128/byte_conversions.hpp>`]
+| Big-endian and little-endian byte order conversions
 
 | xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
 | Character conversion functions

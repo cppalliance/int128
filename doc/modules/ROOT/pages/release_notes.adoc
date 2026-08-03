@@ -10,6 +10,25 @@ https://www.boost.org/LICENSE_1_0.txt
 
 == Unreleased
 
+=== New: byte order conversions
+
+The new header `<boost/int128/byte_conversions.hpp>` converts `uint128` and `int128` to and from big-endian or little-endian byte order, which is what writing a 128-bit value into a packet, a file format, or a database column requires.
+
+`to_be` and `to_le` return a value whose object representation is in the requested order, and `from_be` and `from_le` read one back.
+`to_be_bytes`, `to_le_bytes`, and `to_ne_bytes` return the 16 bytes as a `std::array`, and `from_be_bytes`, `from_le_bytes`, and `from_ne_bytes` reconstruct the value from either a `std::array` or a pointer to at least 16 bytes.
+
+[source, c++]
+----
+constexpr uint128 value {UINT64_C(0x0102030405060708), UINT64_C(0x090A0B0C0D0E0F10)};
+
+const auto bytes {to_be_bytes(value)};    // 01 02 03 ... 10 on every platform
+static_assert(from_be_bytes<uint128>(bytes) == value, "Round trip");
+----
+
+Apart from the two native-endian functions, none of these depend on the host byte order, and both signs are supported since reversing a two's complement bit pattern is the same operation either way.
+Every function is `constexpr` and available from pass:[C++14].
+See xref:byte_conversions.adoc[Byte Order Conversions].
+
 === Fix: the conversion to floating point is now correctly rounded on every platform
 
 Where the compiler provides no built-in 128-bit integer type, which is MSVC, the CUDA and SYCL device, and every 32-bit target, the conversion to `float` and `double` composed the value as `high * 2^64 + low`.
