@@ -36,6 +36,7 @@ module;
 // otherwise they are supplied here in the global module fragment.
 #ifndef BOOST_INT128_USE_STD_MODULE
 
+#include <array>
 #include <compare>
 #include <cstddef>
 #include <cstdlib>

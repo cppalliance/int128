@@ -61,6 +61,7 @@ message(STATUS "Boost.Int128 module: using 'import std;'")
 # support, so those two remain covered by the header-based test suite.
 set(BOOST_INT128_MODULE_TESTS
         test_bit
+        test_byte_conversions
         test_div
         test_from_chars_bases
         test_gcd_lcm
