@@ -17,6 +17,7 @@
 ** xref:examples.adoc#examples_boost_container_hash[Boost.ContainerHash and Boost.Unordered Integration]
 ** xref:examples.adoc#examples_to_string[String Conversion (to_string)]
 ** xref:examples.adoc#examples_fmt_format[pass:[{fmt}] Integration]
+** xref:examples.adoc#examples_std_format[`<format>` Integration]
 ** xref:examples.adoc#examples_cstdlib[`<cstdlib>` support (Combined div and mod)]
 ** xref:examples.adoc#examples_cuda[Use of the library in a CUDA kernel]
 ** xref:examples.adoc#examples_sycl[Use of the library in a SYCL kernel]

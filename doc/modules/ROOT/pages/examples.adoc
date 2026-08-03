@@ -630,7 +630,7 @@ NOTE: The line `int128 min with string literal: 0` is expected. The positive mag
 
 The formatter implements the full standard format specification for the 128-bit types: fill and alignment, the three sign options, the `#` alternate form, zero padding, width, and all four bases in either case.
 This example is the exhaustive demonstration of those specifiers.
-Because the specifier handling is shared between the two backends, everything shown here applies unchanged to `std::format` after including `<boost/int128/format.hpp>` and replacing `fmt::` with `std::`.
+The specifier handling is shared between the two backends, so the xref:examples.adoc#examples_std_format[`<format>` example] below is this same program with `std::` in place of `fmt::`, and every line of output shown here is reproduced there exactly.
 
 .This https://github.com/cppalliance/int128/blob/develop/examples/fmt_format.cpp[example] demonstrates formatting with the \{fmt} library including alignment specifiers
 ====
@@ -696,9 +696,91 @@ int128 min: -170141183460469231731687303715884105728
 
 === Combined Format Specifiers ===
 Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
-Signed with plus, padded: -00123456789012345678
+Signed with plus, padded: -0123456789012345678
 ----
 ====
+
+[#examples_std_format]
+== `<format>` Integration
+
+`std::format` needs nothing but `<boost/int128/format.hpp>`, which specializes `std::formatter` for both types when pass:[C++20] `<format>` is available.
+Everything up to the last section is the xref:examples.adoc#examples_fmt_format[pass:[{fmt}] example] above with `fmt::` replaced by `std::`, and because the two backends share the specifier handling those lines of output are byte-for-byte identical.
+The rest is specific to `<format>`: `std::formatted_size` and `std::format_to` show that the formatter writes through any output iterator, so a 128-bit value can go straight into an existing buffer with no intermediate `std::string`, and the `static_assert` pair at the top performs the entire format at compile time where pass:[C++26] `constexpr std::format` is available.
+
+.This https://github.com/cppalliance/int128/blob/develop/examples/format.cpp[example] demonstrates formatting with `std::format`, including alignment specifiers, `format_to`, and compile-time formatting
+====
+[source, c++]
+----
+include::example$format.cpp[tags=**;!exclude]
+----
+
+.Expected Output
+[listing]
+----
+=== Basic Formatting ===
+Default (decimal): 68915718020162848918556923512
+Signed value: -123456789012345678
+
+=== Base Specifiers ===
+Binary:      11111111
+Octal:       377
+Decimal:     255
+Hexadecimal: ff
+Hex (upper): FF
+
+=== Alternate Form (Prefixes) ===
+Binary with prefix:  0b11111111
+Octal with prefix:   0377
+Hex with prefix:     0xff
+Hex upper prefix:    0XFF
+
+=== Sign Options ===
+Plus sign:  +42 and -42
+Minus only: 42 and -42
+Space sign:  42 and -42
+
+=== Zero Padding ===
+8-digit padding:  00000255
+16-digit padding: 0000000000000255
+
+=== Alignment ===
+Left align:   '42        '
+Right align:  '        42'
+Center align: '    42    '
+
+=== Alignment with Fill Characters ===
+Left with *:   '42********'
+Right with 0:  '0000000042'
+Center with -: '----42----'
+
+=== Alignment with Sign ===
+Right align +:  '       +42'
+Left align +:   '+42       '
+Center align +: '    +42    '
+Right align -:  '*******-42'
+
+=== Alignment with Hex and Prefix ===
+Right align hex:  '        ff'
+Left align hex:   'ff        '
+Center with prefix: '****0xff****'
+
+=== Large Values ===
+uint128 max: 340282366920938463463374607431768211455
+uint128 max (hex): 0xffffffffffffffffffffffffffffffff
+int128 min: -170141183460469231731687303715884105728
+
+=== Combined Format Specifiers ===
+Hex with prefix, uppercase, padded: 0XDEADBEEFCAFEBABE12345678
+Signed with plus, padded: -0123456789012345678
+
+=== Formatting Into an Existing Buffer ===
+formatted_size: 34
+format_to:      0xffffffffffffffffffffffffffffffff
+Lengths match:  true
+----
+====
+
+NOTE: The two `static_assert` declarations are only compiled when the standard library reports `constexpr std::format` support (`pass:[__cpp_lib_constexpr_format]`), which is a pass:[C++26] feature. Everything else in the example requires only pass:[C++20].
 
 [#examples_cstdlib]
 == Division with Remainder (<cstdlib>)

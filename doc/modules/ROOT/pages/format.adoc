@@ -94,14 +94,15 @@ The default format string `{}` will output the same as `{:-d}`, that is a decima
 To use the `pass:[{fmt}]` library, include `<boost/int128/fmt_format.hpp>` and `<fmt/format.h>`.
 The format specifiers described above work with `fmt::format`.
 
-See the xref:examples.adoc#examples_fmt_format[formatting example] for a complete demonstration of these features.
+See the xref:examples.adoc#examples_fmt_format[pass:[{fmt}] formatting example] for a complete demonstration of these features.
 
 [#std_format]
 == `<format>`
 
 To use `std::format`, include `<boost/int128/format.hpp>` and `<format>`.
 The format specifiers described above work with `std::format`.
+`std::format_to` and `std::formatted_size` work as well, since the formatter writes through the output iterator it is given.
 If you are using `std::format` with pass:[C++26] or newer, `constexpr std::format` is supported.
 
-The xref:examples.adoc#examples_fmt_format[formatting example] can be trivially modified by including `<format>`,
-and replacing all instances of `fmt::` with `std::`
+See the xref:examples.adoc#examples_std_format[`<format>` formatting example] for a complete demonstration.
+It is the same program as the pass:[{fmt}] example with `fmt::` replaced by `std::`, and the output of the two is identical.

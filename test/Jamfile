@@ -129,6 +129,7 @@ run ../examples/math_and_random.cpp ;
 run ../examples/charconv.cpp ;
 run ../examples/container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
 run ../examples/fmt_format.cpp ;
+run ../examples/format.cpp ;
 run ../examples/cstdlib.cpp ;
 run ../examples/numeric_algorithms.cpp ;
 run ../examples/integer_division.cpp ;
