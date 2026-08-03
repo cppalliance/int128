@@ -7,6 +7,7 @@
 
 #include <boost/int128/int128.hpp>
 #include <boost/int128/bit.hpp>
+#include <boost/int128/byte_conversions.hpp>
 #include <boost/int128/iostream.hpp>
 #include <boost/int128/literals.hpp>
 #include <boost/int128/numeric.hpp>
