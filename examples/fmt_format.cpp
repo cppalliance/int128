@@ -5,8 +5,8 @@
 // This example demonstrates {fmt} library integration with int128 types.
 // Requires {fmt} to be installed: https://github.com/fmtlib/fmt
 //
-// For C++20 std::format support, use <boost/int128/format.hpp> instead,
-// which provides the same formatting capabilities with std::format.
+// For C++20 std::format support, use <boost/int128/format.hpp> instead. See
+// format.cpp, which is this same program with fmt:: replaced by std::.
 
 // tag::exclude[]
 #define FMT_HEADER_ONLY

@@ -5,6 +5,14 @@
 #ifndef BOOST_INT128_FORMAT_HPP
 #define BOOST_INT128_FORMAT_HPP
 
+// The feature-test macros below are only visible once <version> has been seen.
+// The module build gets them from the global module fragment instead.
+#ifndef BOOST_INT128_BUILD_MODULE
+#  if __has_include(<version>)
+#    include <version>
+#  endif
+#endif
+
 #if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L
 
 #include <boost/int128/detail/mini_to_chars.hpp>
