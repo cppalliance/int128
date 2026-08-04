@@ -182,7 +182,7 @@ constexpr auto parse_impl(ParseContext& ctx)
                 break;
                 // LCOV_EXCL_START
             default:
-                BOOST_int128HROW_EXCEPTION(std::logic_error("Unsupported format specifier"));
+                BOOST_INT128_THROW_EXCEPTION(std::logic_error("Unsupported format specifier"));
                 // LCOV_EXCL_STOP
         }
     }
@@ -190,7 +190,7 @@ constexpr auto parse_impl(ParseContext& ctx)
     // Verify we're at the closing brace
     if (it != ctx.end() && *it != '}')
     {
-        BOOST_int128HROW_EXCEPTION(std::logic_error("Expected '}' in format string")); // LCOV_EXCL_LINE
+        BOOST_INT128_THROW_EXCEPTION(std::logic_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
     return std::make_tuple(base, padding_digits, sign, is_upper, prefix, zero_pad, fill_char, align, it);

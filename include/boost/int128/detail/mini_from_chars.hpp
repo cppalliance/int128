@@ -275,7 +275,7 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_int128HROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
     #endif
 }
 
@@ -285,7 +285,7 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_int128HROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
     #endif
 }
 

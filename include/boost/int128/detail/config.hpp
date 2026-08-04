@@ -297,22 +297,22 @@ BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #ifdef BOOST_INT128_DISABLE_EXCEPTIONS
 
-#  define BOOST_int128HROW_EXCEPTION(expr)
+#  define BOOST_INT128_THROW_EXCEPTION(expr)
 
 #else
 
 #  ifdef _MSC_VER
 #    ifdef _CPPUNWIND
-#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_int128HROW_EXCEPTION(expr)
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #  else
 #    ifdef __EXCEPTIONS
-#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_int128HROW_EXCEPTION(expr)
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #endif
