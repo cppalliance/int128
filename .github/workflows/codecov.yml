@@ -27,6 +27,10 @@ env:
   B2_VARIANT: debug,release
   B2_LINK: shared,static
   LCOV_BRANCH_COVERAGE: 1
+  # gcov emits an unwind edge for every call it cannot prove nothrow, so any line
+  # calling e.g. BOOST_TEST_EQ carries a branch that is never taken. Drop those,
+  # and the lone fallthrough left behind, so only real conditionals are reported.
+  LCOV_OPTIONS: --filter exception,orphan
   CODECOV_NAME: Github Actions
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 

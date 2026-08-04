@@ -56,8 +56,8 @@ void test_uint128_vs_signed_small()
 {
     for (std::size_t i {0}; i < N; ++i)
     {
-        const auto raw_lhs {random_value<builtin_u128>()};
-        const auto raw_rhs {random_value<SignedT>()};
+        const auto raw_lhs {i == 0 ? builtin_u128 {0} : random_value<builtin_u128>()};
+        const auto raw_rhs {i == 1 ? SignedT {0} : random_value<SignedT>()};
         const uint128 lib_lhs {raw_lhs};
         const SignedT s_rhs {raw_rhs};
 
@@ -114,8 +114,8 @@ void test_int128_vs_unsigned_small()
 {
     for (std::size_t i {0}; i < N; ++i)
     {
-        const auto raw_lhs {random_value<builtin_i128>()};
-        const auto raw_rhs {random_value<UnsignedT>()};
+        const auto raw_lhs {i == 0 ? builtin_i128 {0} : random_value<builtin_i128>()};
+        const auto raw_rhs {i == 1 ? UnsignedT {0} : random_value<UnsignedT>()};
         const int128 lib_lhs {raw_lhs};
         const UnsignedT u_rhs {raw_rhs};
 
@@ -175,8 +175,10 @@ void test_cross_type()
 {
     for (std::size_t i {0}; i < N; ++i)
     {
-        const auto raw_u {random_value<builtin_u128>()};
-        const auto raw_i {random_value<builtin_i128>()};
+        // Zero on each side over the first two iterations: the random sweep
+        // never produces it, and the guards below need it to go both ways.
+        const auto raw_u {i == 0 ? builtin_u128 {0} : random_value<builtin_u128>()};
+        const auto raw_i {i == 1 ? builtin_i128 {0} : random_value<builtin_i128>()};
         const uint128 lib_u {raw_u};
         const int128 lib_i {raw_i};
 
@@ -242,8 +244,8 @@ void test_uint128_vs_builtin_i128()
 {
     for (std::size_t i {0}; i < N; ++i)
     {
-        const auto raw_u {random_value<builtin_u128>()};
-        const auto raw_i {random_value<builtin_i128>()};
+        const auto raw_u {i == 1 ? builtin_u128 {0} : random_value<builtin_u128>()};
+        const auto raw_i {i == 0 ? builtin_i128 {0} : random_value<builtin_i128>()};
         const uint128 lib_u {raw_u};
 
         const builtin_u128 oracle_u {raw_u};
@@ -283,8 +285,8 @@ void test_int128_vs_builtin_u128()
 {
     for (std::size_t i {0}; i < N; ++i)
     {
-        const auto raw_i {random_value<builtin_i128>()};
-        const auto raw_u {random_value<builtin_u128>()};
+        const auto raw_i {i == 1 ? builtin_i128 {0} : random_value<builtin_i128>()};
+        const auto raw_u {i == 0 ? builtin_u128 {0} : random_value<builtin_u128>()};
         const int128 lib_i {raw_i};
 
         // Both promote to unsigned __int128 (same rank, signed -> unsigned).
