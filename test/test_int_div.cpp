@@ -129,9 +129,9 @@ static const mode_entry modes[]
     {"ties_to_even", ref_ties_to_even, div_ties_to_even, div_rem_ties_to_even, div_ties_to_even, div_rem_ties_to_even, true}
 };
 
-static void context(const mode_entry& mode, long long x, long long y)
+static void context(const mode_entry& mode, long long x, long long y)                       // LCOV_EXCL_LINE
 {
-    std::cerr << "    mode: " << mode.name << " x: " << x << " y: " << y << std::endl;
+    std::cerr << "    mode: " << mode.name << " x: " << x << " y: " << y << std::endl;      // LCOV_EXCL_LINE
 }
 
 // Every small signed pair, against the reference
@@ -154,19 +154,19 @@ static void test_signed_sweep()
 
                 if (!BOOST_TEST_EQ(mode.signed_quotient(wide_x, wide_y), int128{expected}))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
 
                 const auto res {mode.signed_div_rem(wide_x, wide_y)};
 
                 if (!BOOST_TEST_EQ(res.quotient, int128{expected}))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
 
                 if (!BOOST_TEST_EQ(res.remainder, int128{x - expected * y}))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
             }
 
@@ -193,21 +193,21 @@ static void test_unsigned_sweep()
 
                 if (!BOOST_TEST_EQ(mode.unsigned_quotient(wide_x, wide_y), wide_expected))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
 
                 const auto res {mode.unsigned_div_rem(wide_x, wide_y)};
 
                 if (!BOOST_TEST_EQ(res.quotient, wide_expected))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
 
                 // The remainder of a rounded up unsigned quotient is negative, and is
                 // returned reduced modulo 2^128
                 if (!BOOST_TEST_EQ(res.remainder, uint128{wide_x - wide_expected * wide_y}))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL)LINE
                 }
             }
 
@@ -241,12 +241,12 @@ static void test_scaled_sweep()
 
                 if (!BOOST_TEST_EQ(res.quotient, int128{expected}))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
 
                 if (!BOOST_TEST_EQ(res.remainder, wide_x - int128{expected} * wide_y))
                 {
-                    context(mode, x, y);
+                    context(mode, x, y); // LCOV_EXCL_LINE
                 }
             }
         }
