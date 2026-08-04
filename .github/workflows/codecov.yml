@@ -30,7 +30,10 @@ env:
   # gcov emits an unwind edge for every call it cannot prove nothrow, so any line
   # calling e.g. BOOST_TEST_EQ carries a branch that is never taken. Drop those,
   # and the lone fallthrough left behind, so only real conditionals are reported.
-  LCOV_OPTIONS: --filter exception,orphan
+  # region and branch_region are what implement the LCOV_EXCL_LINE, LCOV_EXCL_START
+  # and LCOV_EXCL_BR_* markers. lcov enables them by default only when --filter is
+  # absent, so they have to be listed here or every marker in the tree is ignored.
+  LCOV_OPTIONS: --filter region,branch_region,exception,orphan
   CODECOV_NAME: Github Actions
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 

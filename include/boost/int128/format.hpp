@@ -400,10 +400,8 @@ struct formatter<T>
                     }
                 }
                 break;
-            // LCOV_EXCL_START
-            default:
-                BOOST_INT128_UNREACHABLE;
-            // LCOV_EXCL_STOP
+            default:                        // LCOV_EXCL_LINE
+                BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
         }
 
         s.erase(0, s.find_first_not_of('\0'));
@@ -435,10 +433,8 @@ struct formatter<T>
                     s.append(right_fill, fill_char);
                     break;
                 }
-                    // LCOV_EXCL_START
-                default:
-                    break;
-                    // LCOV_EXCL_STOP
+                default:                        // LCOV_EXCL_LINE
+                    break;                      // LCOV_EXCL_LINE
             }
         }
 
