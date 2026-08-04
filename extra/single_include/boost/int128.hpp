@@ -331,22 +331,22 @@ BOOST_int128EST_EXPORT using builtin_u128 = std::_Unsigned128;
 
 #ifdef BOOST_INT128_DISABLE_EXCEPTIONS
 
-#  define BOOST_int128HROW_EXCEPTION(expr)
+#  define BOOST_INT128_THROW_EXCEPTION(expr)
 
 #else
 
 #  ifdef _MSC_VER
 #    ifdef _CPPUNWIND
-#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_int128HROW_EXCEPTION(expr)
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #  else
 #    ifdef __EXCEPTIONS
-#      define BOOST_int128HROW_EXCEPTION(expr) throw expr;
+#      define BOOST_INT128_THROW_EXCEPTION(expr) throw expr;
 #    else
-#      define BOOST_int128HROW_EXCEPTION(expr)
+#      define BOOST_INT128_THROW_EXCEPTION(expr)
 #      define BOOST_INT128_DISABLE_EXCEPTIONS
 #    endif
 #endif
@@ -8961,7 +8961,7 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_int128HROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
+    BOOST_INT128_THROW_EXCEPTION(std::out_of_range("Literal is out of range of the target type"));
     #endif
 }
 
@@ -8971,7 +8971,7 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
     #if defined(BOOST_INT128_HAS_GPU_SUPPORT) || defined(BOOST_INT128_DISABLE_EXCEPTIONS)
     BOOST_INT128_UNREACHABLE;
     #else
-    BOOST_int128HROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
+    BOOST_INT128_THROW_EXCEPTION(std::invalid_argument("Literal is not a valid integer"));
     #endif
 }
 
@@ -11186,14 +11186,14 @@ constexpr auto parse_impl(ParseContext& ctx)
                 is_upper = true;
                 break;
             default:                                                                                // LCOV_EXCL_LINE
-                BOOST_int128HROW_EXCEPTION(std::format_error("Unsupported format specifier"));    // LCOV_EXCL_LINE
+                BOOST_INT128_THROW_EXCEPTION(std::format_error("Unsupported format specifier"));    // LCOV_EXCL_LINE
         }
     }
 
     // Verify we're at the closing brace
     if (it != ctx.end() && *it != '}')
     {
-        BOOST_int128HROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
+        BOOST_INT128_THROW_EXCEPTION(std::format_error("Expected '}' in format string")); // LCOV_EXCL_LINE
     }
 
     return std::make_tuple(base, padding_digits, sign, is_upper, prefix, zero_pad, fill_char, align, it);
@@ -11403,10 +11403,8 @@ struct formatter<T>
                     }
                 }
                 break;
-            // LCOV_EXCL_START
-            default:
-                BOOST_INT128_UNREACHABLE;
-            // LCOV_EXCL_STOP
+            default:                        // LCOV_EXCL_LINE
+                BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
         }
 
         s.erase(0, s.find_first_not_of('\0'));
@@ -11438,10 +11436,8 @@ struct formatter<T>
                     s.append(right_fill, fill_char);
                     break;
                 }
-                    // LCOV_EXCL_START
-                default:
-                    break;
-                    // LCOV_EXCL_STOP
+                default:                        // LCOV_EXCL_LINE
+                    break;                      // LCOV_EXCL_LINE
             }
         }
 
