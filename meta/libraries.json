@@ -9,7 +9,7 @@
   ],
   "description": "Portable and Performant 128-bit Integers",
   "category": [
-    "Math and numerics"
+    "Math"
   ],
   "cxxstd": "14"
 }
