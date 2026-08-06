@@ -22,8 +22,8 @@
 #define BOOST_INT128_HAS_MSVC_INTERNAL_I128
 #endif
 
-// Abseil requires at least C++17 (at time of writing)
-#if __has_include(<absl/numeric/int128.h>) && defined(__cplusplus) && __cplusplus >= 201703L
+#if __has_include(<absl/numeric/int128.h>) && \
+    (__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L))
 #  include <absl/numeric/int128.h>
 #  ifndef __i386__
 #    define BOOST_INT128_BENCHMARK_ABSL

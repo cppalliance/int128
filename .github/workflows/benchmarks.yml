@@ -20,6 +20,13 @@
 # 128-bit vectors of the default length do not fit in a 32-bit address space. The
 # element count lands in the data set and is printed in the documentation, so the
 # tables stay honest about what was measured.
+#
+# Linux and macOS take Abseil from a package. Windows has none, so those jobs
+# check out the pinned Abseil release and build the single translation unit that
+# absl::uint128 and absl::int128 need, with the same flags as the rest of the
+# benchmark. Building all of Abseil to link one object would cost more CI time
+# than the benchmarks themselves, and compiling it here is what keeps the
+# comparison fair: both sides of every row come out of one -O2 build.
 
 #
 # Every pull request gets a full set of runs: the step summary of each job
@@ -65,6 +72,9 @@ env:
   ELEMENTS: ${{ inputs.elements || '20000000' }}
   EMULATED_ELEMENTS: ${{ inputs.emulated_elements || '2000000' }}
   REPETITIONS: ${{ inputs.repetitions || '5' }}
+  # The Abseil release the Windows jobs build against, latest LTS at the time of
+  # writing. Linux and macOS take whatever their package manager ships.
+  ABSEIL_TAG: '20260526.0'
 
 jobs:
   linux:
@@ -189,6 +199,11 @@ jobs:
             elements: ''
     steps:
       - uses: actions/checkout@v6
+      # Cloned next to the Boost tree that the following step creates, so that the
+      # build reaches both of them by relative path and nothing has to be
+      # translated between git-bash and cl.
+      - name: Fetch Abseil
+        run: git clone --depth 1 --branch "$ABSEIL_TAG" https://github.com/abseil/abseil-cpp.git ../abseil-cpp
       - name: Setup Boost
         run: .github/scripts/setup_benchmarks.sh
       - uses: TheMrMilchmann/setup-msvc-dev@v4
@@ -201,6 +216,8 @@ jobs:
           : "${COUNT:=$ELEMENTS}"
           "$GITHUB_WORKSPACE/.github/scripts/run_benchmarks.sh" \
             --msvc \
+            --cxxflags '-I../abseil-cpp' \
+            --sources '../abseil-cpp/absl/numeric/int128.cc' \
             --elements "$COUNT" \
             --repetitions "$REPETITIONS" \
             --out "$GITHUB_WORKSPACE/bench-results"
