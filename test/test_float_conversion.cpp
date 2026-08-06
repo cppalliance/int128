@@ -76,6 +76,9 @@ struct bitwise_reproducible
 
 // Agreement far inside the last bits of the format. A double rounding, a truncated operand, or
 // a mishandled sticky bit would all be off by very much more than this
+// As above this is only needed for ppc64le ibm128
+
+// LCOV_EXCL_START
 template <typename Float>
 bool nearly_same(const Float lhs, const Float rhs) noexcept
 {
@@ -94,6 +97,7 @@ bool nearly_same(const Float lhs, const Float rhs) noexcept
 
     return diff <= scale * static_cast<Float>(1e-30L);
 }
+// LCOV_EXCL_STOP
 
 template <typename Float>
 bool same_result(const Float lhs, const Float rhs) noexcept
