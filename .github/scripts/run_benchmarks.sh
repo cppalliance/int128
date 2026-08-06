@@ -12,6 +12,11 @@
 # needed. The drivers always exit non-zero (the Jamfile declares them run-fail),
 # so success is judged on the data set actually being written.
 #
+# --sources names extra translation units to build alongside the driver, which is
+# how the platforms with no packaged Abseil get one: point --cxxflags at a source
+# checkout and --sources at absl/numeric/int128.cc, the only file of it that
+# absl::uint128 and absl::int128 need.
+#
 #   .github/scripts/run_benchmarks.sh --compiler g++-14 --out /tmp/results
 #   .github/scripts/run_benchmarks.sh --msvc --elements 5000000 --out C:/results
 
@@ -20,6 +25,7 @@ set -e
 COMPILER=""
 EXTRA_CXXFLAGS=""
 EXTRA_LDFLAGS=""
+EXTRA_SOURCES=""
 ELEMENTS=20000000
 REPETITIONS=5
 OUT=""
@@ -30,6 +36,7 @@ while [ $# -gt 0 ]; do
         --compiler)    COMPILER="$2"; shift 2 ;;
         --cxxflags)    EXTRA_CXXFLAGS="$2"; shift 2 ;;
         --ldflags)     EXTRA_LDFLAGS="$2"; shift 2 ;;
+        --sources)     EXTRA_SOURCES="$2"; shift 2 ;;
         --elements)    ELEMENTS="$2"; shift 2 ;;
         --repetitions) REPETITIONS="$2"; shift 2 ;;
         --out)         OUT="$2"; shift 2 ;;
@@ -67,12 +74,14 @@ for sign in u128 i128; do
         # the widest vectors need.
         executable="./benchmark_$sign.exe"
         # shellcheck disable=SC2086
-        cl -nologo -std:c++20 -O2 -EHsc -DNDEBUG $INCLUDES "$source_file" \
-            -Fe:"benchmark_$sign.exe" -link -LARGEADDRESSAWARE
+        cl -nologo -std:c++20 -O2 -EHsc -DNDEBUG $EXTRA_CXXFLAGS $INCLUDES \
+            "$source_file" $EXTRA_SOURCES \
+            -Fe:"benchmark_$sign.exe" -link -LARGEADDRESSAWARE $EXTRA_LDFLAGS
     else
         executable="./benchmark_$sign"
         # shellcheck disable=SC2086
-        $COMPILER -std=c++20 -O2 -DNDEBUG $EXTRA_CXXFLAGS $INCLUDES "$source_file" \
+        $COMPILER -std=c++20 -O2 -DNDEBUG $EXTRA_CXXFLAGS $INCLUDES \
+            "$source_file" $EXTRA_SOURCES \
             -o "benchmark_$sign" $EXTRA_LDFLAGS
     fi
 
