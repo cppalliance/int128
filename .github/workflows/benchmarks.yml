@@ -186,18 +186,15 @@ jobs:
             os: windows-latest
             arch: x64
             msvc_arch: x64
-            abseil: true
             elements: ''
           - title: Windows x86 (32-bit)
             os: windows-latest
             arch: x86
             msvc_arch: x86
-            abseil: true
             elements: '10000000'
           - title: Windows ARM64
             os: windows-11-arm
             arch: arm64
-            abseil: false
             msvc_arch: arm64
             elements: ''
     steps:
@@ -206,7 +203,6 @@ jobs:
       # build reaches both of them by relative path and nothing has to be
       # translated between git-bash and cl.
       - name: Fetch Abseil
-        if: matrix.abseil
         run: git clone --depth 1 --branch "$ABSEIL_TAG" https://github.com/abseil/abseil-cpp.git ../abseil-cpp
       - name: Setup Boost
         run: .github/scripts/setup_benchmarks.sh
@@ -218,20 +214,10 @@ jobs:
           cd "$BOOST_ROOT"
           COUNT="${{ matrix.elements }}"
           : "${COUNT:=$ELEMENTS}"
-
-          # Empty on the platforms built without Abseil, which leaves the driver
-          # to compile exactly as it did before.
-          ABSEIL_INCLUDE=''
-          ABSEIL_SOURCE=''
-          if [ '${{ matrix.abseil }}' = true ]; then
-              ABSEIL_INCLUDE='-I../abseil-cpp'
-              ABSEIL_SOURCE='../abseil-cpp/absl/numeric/int128.cc'
-          fi
-
           "$GITHUB_WORKSPACE/.github/scripts/run_benchmarks.sh" \
             --msvc \
-            --cxxflags "$ABSEIL_INCLUDE" \
-            --sources "$ABSEIL_SOURCE" \
+            --cxxflags '-I../abseil-cpp' \
+            --sources '../abseil-cpp/absl/numeric/int128.cc' \
             --elements "$COUNT" \
             --repetitions "$REPETITIONS" \
             --out "$GITHUB_WORKSPACE/bench-results"
