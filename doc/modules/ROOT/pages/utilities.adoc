@@ -171,7 +171,7 @@ In addition to the standard and extended integer types, the library's `uint128` 
 
 The following example exercises all three operations, including the wrap-around, the `INT128_MIN * -1` case, and the mixed-type behavior described above.
 
-.This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
+.This https://github.com/cppalliance/int128/blob/develop/example/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
 ====
 [source, c++]
 ----
@@ -266,7 +266,7 @@ BOOST_INT128_HOST_DEVICE constexpr bool in_range(Integer t) noexcept;
 The target type `R` and the type of `t` may each be a builtin integer or a 128-bit type; at least one of them is a 128-bit type (use `std::in_range` when neither is).
 For example, `in_range<std::uint8_t>(int128{-1})` is `false` because a negative value is not representable in an unsigned type, and `in_range<std::int64_t>((std::numeric_limits<int128>::max)())` is `false` because the value is too large.
 
-.This https://github.com/cppalliance/int128/blob/develop/examples/integer_comparison.cpp[example] demonstrates signedness-safe comparison and range checking with the library 128-bit types
+.This https://github.com/cppalliance/int128/blob/develop/example/integer_comparison.cpp[example] demonstrates signedness-safe comparison and range checking with the library 128-bit types
 ====
 [source, c++]
 ----

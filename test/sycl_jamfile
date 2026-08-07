@@ -111,5 +111,5 @@ run test_signed_add_float_sycl.cpp ;
 run test_signed_mul_float_sycl.cpp ;
 run test_signed_lt_float_sycl.cpp ;
 
-run ../examples/sycl.cpp ;
-run ../examples/sycl_accumulate.cpp ;
+run ../example/sycl.cpp ;
+run ../example/sycl_accumulate.cpp ;

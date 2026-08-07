@@ -245,7 +245,7 @@ BOOST_INT128_HOST_DEVICE constexpr T from_ne_bytes(const ByteType* bytes) noexce
 [#byte_conversions_examples]
 == Examples
 
-.This https://github.com/cppalliance/int128/blob/develop/examples/byte_conversions.cpp[example] demonstrates the byte order conversion functions
+.This https://github.com/cppalliance/int128/blob/develop/example/byte_conversions.cpp[example] demonstrates the byte order conversion functions
 ====
 [source, c++]
 ----
