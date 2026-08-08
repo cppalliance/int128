@@ -116,27 +116,27 @@ run test_constexpr_boundaries.cpp ;
 run test_layout.cpp ;
 
 # Make sure we run the examples as well
-run ../examples/hello_world.cpp ;
-run ../examples/construction.cpp ;
-run ../examples/bit.cpp ;
-run ../examples/byte_conversions.cpp ;
-run ../examples/saturating_arithmetic.cpp ;
-run ../examples/checked_arithmetic.cpp ;
-run ../examples/integer_comparison.cpp ;
-run ../examples/mixed_type_arithmetic.cpp ;
-run ../examples/mixed_float_arithmetic.cpp ;
-run ../examples/stream.cpp ;
-run ../examples/basic_arithmetic.cpp ;
-run ../examples/math_and_random.cpp ;
-run ../examples/charconv.cpp ;
-run ../examples/container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
-run ../examples/fmt_format.cpp ;
-run ../examples/format.cpp ;
-run ../examples/cstdlib.cpp ;
-run ../examples/numeric_algorithms.cpp ;
-run ../examples/integer_division.cpp ;
-run ../examples/rollover.cpp ;
-run ../examples/to_string.cpp ;
+run ../example/hello_world.cpp ;
+run ../example/construction.cpp ;
+run ../example/bit.cpp ;
+run ../example/byte_conversions.cpp ;
+run ../example/saturating_arithmetic.cpp ;
+run ../example/checked_arithmetic.cpp ;
+run ../example/integer_comparison.cpp ;
+run ../example/mixed_type_arithmetic.cpp ;
+run ../example/mixed_float_arithmetic.cpp ;
+run ../example/stream.cpp ;
+run ../example/basic_arithmetic.cpp ;
+run ../example/math_and_random.cpp ;
+run ../example/charconv.cpp ;
+run ../example/container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+run ../example/fmt_format.cpp ;
+run ../example/format.cpp ;
+run ../example/cstdlib.cpp ;
+run ../example/numeric_algorithms.cpp ;
+run ../example/integer_division.cpp ;
+run ../example/rollover.cpp ;
+run ../example/to_string.cpp ;
 
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 

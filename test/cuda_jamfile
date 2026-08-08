@@ -106,5 +106,5 @@ run test_signed_add_float.cu ;
 run test_signed_mul_float.cu ;
 run test_signed_lt_float.cu ;
 
-run ../examples/cuda.cu ;
-run ../examples/cuda_primality.cu ;
+run ../example/cuda.cu ;
+run ../example/cuda_primality.cu ;
