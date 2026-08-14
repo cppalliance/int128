@@ -11,8 +11,8 @@
 using boost::int128::ckd_add;
 using boost::int128::ckd_sub;
 using boost::int128::ckd_mul;
-using boost::int128::int128_t;
-using boost::int128::uint128_t;
+using boost::int128::int128;
+using boost::int128::uint128;
 
 constexpr std::size_t N {4096};
 static std::mt19937_64 rng {42};
@@ -192,14 +192,14 @@ void test_standard_oracle() {}
 //
 #if defined(__SIZEOF_INT128__) && (defined(__GNUC__) || defined(__clang__))
 
-static uint128_t lib_u(const unsigned __int128 v)
+static uint128 lib_u(const unsigned __int128 v)
 {
-    return uint128_t{static_cast<std::uint64_t>(v >> 64), static_cast<std::uint64_t>(v)};
+    return uint128{static_cast<std::uint64_t>(v >> 64), static_cast<std::uint64_t>(v)};
 }
 
-static int128_t lib_s(const __int128 v)
+static int128 lib_s(const __int128 v)
 {
-    return static_cast<int128_t>(lib_u(static_cast<unsigned __int128>(v)));
+    return static_cast<int128>(lib_u(static_cast<unsigned __int128>(v)));
 }
 
 static unsigned __int128 rand_native()
@@ -313,41 +313,41 @@ void native_fuzz(Ref ref_overflow, Ckd ckd_overflow)
         const __int128 sa {static_cast<__int128>(ua)};
         const __int128 sb {static_cast<__int128>(ub)};
 
-        // uint128_t target, unsigned operands
+        // uint128 target, unsigned operands
         {
             unsigned __int128 ref {};
             const bool ref_of {ref_overflow(ua, ub, &ref)};
-            uint128_t got {};
+            uint128 got {};
             const bool got_of {ckd_overflow(&got, lib_u(ua), lib_u(ub))};
             BOOST_TEST_EQ(got_of, ref_of);
             BOOST_TEST(got == lib_u(ref));
         }
 
-        // int128_t target, signed operands
+        // int128 target, signed operands
         {
             __int128 ref {};
             const bool ref_of {ref_overflow(sa, sb, &ref)};
-            int128_t got {};
+            int128 got {};
             const bool got_of {ckd_overflow(&got, lib_s(sa), lib_s(sb))};
             BOOST_TEST_EQ(got_of, ref_of);
             BOOST_TEST(got == lib_s(ref));
         }
 
-        // int128_t target, mixed-sign operands (unsigned + signed)
+        // int128 target, mixed-sign operands (unsigned + signed)
         {
             __int128 ref {};
             const bool ref_of {ref_overflow(ua, sb, &ref)};
-            int128_t got {};
+            int128 got {};
             const bool got_of {ckd_overflow(&got, lib_u(ua), lib_s(sb))};
             BOOST_TEST_EQ(got_of, ref_of);
             BOOST_TEST(got == lib_s(ref));
         }
 
-        // uint128_t target, mixed-sign operands (signed + unsigned)
+        // uint128 target, mixed-sign operands (signed + unsigned)
         {
             unsigned __int128 ref {};
             const bool ref_of {ref_overflow(sa, ub, &ref)};
-            uint128_t got {};
+            uint128 got {};
             const bool got_of {ckd_overflow(&got, lib_s(sa), lib_u(ub))};
             BOOST_TEST_EQ(got_of, ref_of);
             BOOST_TEST(got == lib_u(ref));
@@ -380,98 +380,98 @@ void test_native_oracle() {}
 // Hand-verified edge cases that run on every platform, including those without
 // a native 128-bit type.
 //
-constexpr auto u_max {(std::numeric_limits<uint128_t>::max)()};
-constexpr auto i_max {(std::numeric_limits<int128_t>::max)()};
-constexpr auto i_min {(std::numeric_limits<int128_t>::min)()};
+constexpr auto u_max {(std::numeric_limits<uint128>::max)()};
+constexpr auto i_max {(std::numeric_limits<int128>::max)()};
+constexpr auto i_min {(std::numeric_limits<int128>::min)()};
 
 void test_add_edges()
 {
-    uint128_t u {0};
-    BOOST_TEST_EQ(ckd_add(&u, u_max, uint128_t{1}), true);   // 2^128 wraps to 0
-    BOOST_TEST(u == uint128_t{0});
-    BOOST_TEST_EQ(ckd_add(&u, uint128_t{5}, int128_t{-3}), false);
-    BOOST_TEST(u == uint128_t{2});
-    BOOST_TEST_EQ(ckd_add(&u, uint128_t{3}, int128_t{-5}), true);   // -2 wraps
-    BOOST_TEST(u == u_max - uint128_t{1});
+    uint128 u {0};
+    BOOST_TEST_EQ(ckd_add(&u, u_max, uint128{1}), true);   // 2^128 wraps to 0
+    BOOST_TEST(u == uint128{0});
+    BOOST_TEST_EQ(ckd_add(&u, uint128{5}, int128{-3}), false);
+    BOOST_TEST(u == uint128{2});
+    BOOST_TEST_EQ(ckd_add(&u, uint128{3}, int128{-5}), true);   // -2 wraps
+    BOOST_TEST(u == u_max - uint128{1});
     BOOST_TEST_EQ(ckd_add(&u, u_max, u_max), true);          // carry past 2^128
 
-    int128_t i {0};
-    BOOST_TEST_EQ(ckd_add(&i, i_max, int128_t{1}), true);    // INT128_MAX + 1 -> INT128_MIN
+    int128 i {0};
+    BOOST_TEST_EQ(ckd_add(&i, i_max, int128{1}), true);    // INT128_MAX + 1 -> INT128_MIN
     BOOST_TEST(i == i_min);
     BOOST_TEST_EQ(ckd_add(&i, i_max, i_min), false);
-    BOOST_TEST(i == int128_t{-1});
-    BOOST_TEST_EQ(ckd_add(&i, u_max, uint128_t{0}), true);   // 2^128 - 1 unfit in signed
-    BOOST_TEST(i == int128_t{-1});
+    BOOST_TEST(i == int128{-1});
+    BOOST_TEST_EQ(ckd_add(&i, u_max, uint128{0}), true);   // 2^128 - 1 unfit in signed
+    BOOST_TEST(i == int128{-1});
 }
 
 void test_sub_edges()
 {
-    uint128_t u {0};
-    BOOST_TEST_EQ(ckd_sub(&u, uint128_t{0}, uint128_t{1}), true);   // -1 wraps to 2^128 - 1
+    uint128 u {0};
+    BOOST_TEST_EQ(ckd_sub(&u, uint128{0}, uint128{1}), true);   // -1 wraps to 2^128 - 1
     BOOST_TEST(u == u_max);
-    BOOST_TEST_EQ(ckd_sub(&u, uint128_t{5}, uint128_t{3}), false);
-    BOOST_TEST(u == uint128_t{2});
-    BOOST_TEST_EQ(ckd_sub(&u, u_max, int128_t{-1}), true);          // 2^128 wraps to 0
-    BOOST_TEST(u == uint128_t{0});
+    BOOST_TEST_EQ(ckd_sub(&u, uint128{5}, uint128{3}), false);
+    BOOST_TEST(u == uint128{2});
+    BOOST_TEST_EQ(ckd_sub(&u, u_max, int128{-1}), true);          // 2^128 wraps to 0
+    BOOST_TEST(u == uint128{0});
 
-    int128_t i {0};
-    BOOST_TEST_EQ(ckd_sub(&i, i_min, int128_t{1}), true);           // INT128_MIN - 1 -> INT128_MAX
+    int128 i {0};
+    BOOST_TEST_EQ(ckd_sub(&i, i_min, int128{1}), true);           // INT128_MIN - 1 -> INT128_MAX
     BOOST_TEST(i == i_max);
-    BOOST_TEST_EQ(ckd_sub(&i, i_max, int128_t{-1}), true);          // -> INT128_MIN
+    BOOST_TEST_EQ(ckd_sub(&i, i_max, int128{-1}), true);          // -> INT128_MIN
     BOOST_TEST(i == i_min);
     BOOST_TEST_EQ(ckd_sub(&i, i_max, i_max), false);
-    BOOST_TEST(i == int128_t{0});
+    BOOST_TEST(i == int128{0});
     BOOST_TEST_EQ(ckd_sub(&i, i_min, i_min), false);
-    BOOST_TEST(i == int128_t{0});
+    BOOST_TEST(i == int128{0});
 
     // Narrow targets.
     std::int32_t r32 {0};
-    BOOST_TEST_EQ(ckd_sub(&r32, int128_t{1000}, int128_t{2000}), false);
+    BOOST_TEST_EQ(ckd_sub(&r32, int128{1000}, int128{2000}), false);
     BOOST_TEST_EQ(r32, -1000);
 
     std::uint8_t r8 {0};
-    BOOST_TEST_EQ(ckd_sub(&r8, uint128_t{0}, uint128_t{1}), true);
+    BOOST_TEST_EQ(ckd_sub(&r8, uint128{0}, uint128{1}), true);
     BOOST_TEST_EQ(static_cast<int>(r8), 255);
 }
 
 void test_mul_edges()
 {
-    int128_t i {0};
-    BOOST_TEST_EQ(ckd_mul(&i, i_min, int128_t{-1}), true);          // 2^127 wraps to INT128_MIN
+    int128 i {0};
+    BOOST_TEST_EQ(ckd_mul(&i, i_min, int128{-1}), true);          // 2^127 wraps to INT128_MIN
     BOOST_TEST(i == i_min);
-    BOOST_TEST_EQ(ckd_mul(&i, i_max, int128_t{2}), true);           // 2^128 - 2 -> -2
-    BOOST_TEST(i == int128_t{-2});
-    BOOST_TEST_EQ(ckd_mul(&i, i_min, int128_t{1}), false);
+    BOOST_TEST_EQ(ckd_mul(&i, i_max, int128{2}), true);           // 2^128 - 2 -> -2
+    BOOST_TEST(i == int128{-2});
+    BOOST_TEST_EQ(ckd_mul(&i, i_min, int128{1}), false);
     BOOST_TEST(i == i_min);
-    BOOST_TEST_EQ(ckd_mul(&i, int128_t{-3}, int128_t{4}), false);
-    BOOST_TEST(i == int128_t{-12});
-    BOOST_TEST_EQ(ckd_mul(&i, int128_t{0}, int128_t{-7}), false);
-    BOOST_TEST(i == int128_t{0});
+    BOOST_TEST_EQ(ckd_mul(&i, int128{-3}, int128{4}), false);
+    BOOST_TEST(i == int128{-12});
+    BOOST_TEST_EQ(ckd_mul(&i, int128{0}, int128{-7}), false);
+    BOOST_TEST(i == int128{0});
 
-    uint128_t u {0};
-    BOOST_TEST_EQ(ckd_mul(&u, u_max, uint128_t{2}), true);          // 2^129 - 2 wraps
-    BOOST_TEST(u == u_max - uint128_t{1});
-    const uint128_t two_64 {1U, 0U};                                // 2^64
+    uint128 u {0};
+    BOOST_TEST_EQ(ckd_mul(&u, u_max, uint128{2}), true);          // 2^129 - 2 wraps
+    BOOST_TEST(u == u_max - uint128{1});
+    const uint128 two_64 {1U, 0U};                                // 2^64
     BOOST_TEST_EQ(ckd_mul(&u, two_64, two_64), true);               // 2^128 wraps to 0
-    BOOST_TEST(u == uint128_t{0});
-    BOOST_TEST_EQ(ckd_mul(&u, uint128_t{0}, u_max), false);
-    BOOST_TEST(u == uint128_t{0});
-    BOOST_TEST_EQ(ckd_mul(&u, uint128_t{6}, uint128_t{7}), false);
-    BOOST_TEST(u == uint128_t{42});
-    BOOST_TEST_EQ(ckd_mul(&u, u_max, int128_t{-1}), true);          // negative result in unsigned
-    BOOST_TEST(u == uint128_t{1});
+    BOOST_TEST(u == uint128{0});
+    BOOST_TEST_EQ(ckd_mul(&u, uint128{0}, u_max), false);
+    BOOST_TEST(u == uint128{0});
+    BOOST_TEST_EQ(ckd_mul(&u, uint128{6}, uint128{7}), false);
+    BOOST_TEST(u == uint128{42});
+    BOOST_TEST_EQ(ckd_mul(&u, u_max, int128{-1}), true);          // negative result in unsigned
+    BOOST_TEST(u == uint128{1});
 
     // Narrow targets.
     std::int32_t r32 {0};
-    BOOST_TEST_EQ(ckd_mul(&r32, int128_t{1000}, int128_t{1000}), false);
+    BOOST_TEST_EQ(ckd_mul(&r32, int128{1000}, int128{1000}), false);
     BOOST_TEST_EQ(r32, 1000000);
 
     std::uint8_t r8 {0};
-    BOOST_TEST_EQ(ckd_mul(&r8, uint128_t{20}, uint128_t{20}), true);    // 400 wraps mod 256
+    BOOST_TEST_EQ(ckd_mul(&r8, uint128{20}, uint128{20}), true);    // 400 wraps mod 256
     BOOST_TEST_EQ(static_cast<int>(r8), 144);
 
     std::int8_t r8s {0};
-    BOOST_TEST_EQ(ckd_mul(&r8s, int128_t{-5}, int128_t{20}), false);
+    BOOST_TEST_EQ(ckd_mul(&r8s, int128{-5}, int128{20}), false);
     BOOST_TEST_EQ(static_cast<int>(r8s), -100);
 }
 
@@ -480,7 +480,7 @@ void test_mul_edges()
 //
 
 #if defined(__GNUC__) && __GNUC__ <= 7 && !defined(__clang__) && !defined(__SIZEOF_INT128__)
-#  define BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
+#  define BOOST_int128EST_CKD_NO_CONSTEXPR_128
 #endif
 
 constexpr bool add_overflows_int_max()
@@ -517,11 +517,11 @@ constexpr int mul_value()
 
 constexpr bool mul_overflows_i128_min()
 {
-    int128_t r {0};
-    return ckd_mul(&r, (std::numeric_limits<int128_t>::min)(), int128_t{-1});
+    int128 r {0};
+    return ckd_mul(&r, (std::numeric_limits<int128>::min)(), int128{-1});
 }
 
-#ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
+#ifndef BOOST_int128EST_CKD_NO_CONSTEXPR_128
 
 // MSVC 14.1 warns of integral overflow
 #ifdef _MSC_VER
@@ -536,7 +536,7 @@ void test_constexpr()
     static_assert(mul_overflows_int_max(),  "INT_MAX * 2 overflows int");
     static_assert(sub_value() == 2,         "5 - 3 == 2");
     static_assert(mul_value() == 42,        "6 * 7 == 42");
-    static_assert(mul_overflows_i128_min(), "INT128_MIN * -1 overflows int128_t");
+    static_assert(mul_overflows_i128_min(), "INT128_MIN * -1 overflows int128");
 }
 
 #ifdef _MSC_VER
@@ -553,7 +553,7 @@ int main()
     test_sub_edges();
     test_mul_edges();
 
-    #ifndef BOOST_INT128_TEST_CKD_NO_CONSTEXPR_128
+    #ifndef BOOST_int128EST_CKD_NO_CONSTEXPR_128
     test_constexpr();
     #endif
 

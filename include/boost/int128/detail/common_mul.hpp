@@ -6,6 +6,7 @@
 #define BOOST_INT128_DETAIL_COMMON_MUL_HPP
 
 #include <boost/int128/detail/config.hpp>
+#include <boost/int128/detail/fwd.hpp>
 
 #ifndef BOOST_INT128_BUILD_MODULE
 
@@ -16,6 +17,21 @@
 namespace boost {
 namespace int128 {
 namespace detail {
+
+template <typename>
+struct ctor_high_word
+{
+    using type = std::uint64_t;
+};
+
+template <>
+struct ctor_high_word<int128>
+{
+    using type = std::int64_t;
+};
+
+template <typename T>
+using ctor_high_word_t = typename ctor_high_word<T>::type;
 
 // High 64 bits of the 64x64 -> 128 product, computed with four 32-bit partial products
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umulh_generic(const std::uint64_t a, const std::uint64_t b) noexcept
@@ -48,11 +64,11 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umul(
         hi = static_cast<std::uint64_t>(product >> 64U);
         return static_cast<std::uint64_t>(product);
 
-        #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__)
+        #elif defined(_M_AMD64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
 
         return _umul128(a, b, &hi);
 
-        #elif defined(_M_ARM64) && !defined(__CUDA_ARCH__)
+        #elif defined(_M_ARM64) && !defined(__GNUC__) && !defined(__CUDA_ARCH__) && !defined(__SYCL_DEVICE_ONLY__)
 
         hi = __umulh(a, b);
         return a * b;
@@ -70,29 +86,25 @@ BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr std::uint64_t umul(
 template <typename ReturnType, typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType low_word_mul(const T& lhs, const T& rhs) noexcept
 {
-    using high_word_type = decltype(ReturnType{}.high);
-
     std::uint64_t result_high {};
     const std::uint64_t result_low {umul(lhs.low, rhs.low, result_high)};
 
     result_high += lhs.low * static_cast<std::uint64_t>(rhs.high);
     result_high += static_cast<std::uint64_t>(lhs.high) * rhs.low;
 
-    return ReturnType{static_cast<high_word_type>(result_high), result_low};
+    return ReturnType{static_cast<ctor_high_word_t<ReturnType>>(result_high), result_low};
 }
 
 // Low 128 bits of a 128x64 product
 template <typename ReturnType, typename T>
 BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr ReturnType low_word_mul(const T& lhs, const std::uint64_t rhs) noexcept
 {
-    using high_word_type = decltype(ReturnType{}.high);
-
     std::uint64_t result_high {};
     const std::uint64_t result_low {umul(lhs.low, rhs, result_high)};
 
     result_high += static_cast<std::uint64_t>(lhs.high) * rhs;
 
-    return ReturnType{static_cast<high_word_type>(result_high), result_low};
+    return ReturnType{static_cast<ctor_high_word_t<ReturnType>>(result_high), result_low};
 }
 
 // Low 128 bits of a 128x32 product

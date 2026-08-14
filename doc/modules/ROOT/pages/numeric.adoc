@@ -23,32 +23,35 @@ The following functions are provided for saturating arithmetic, and they *do not
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t add_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_add(uint128 lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t add_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 saturating_add(int128 lhs, int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t sub_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_sub(uint128 lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t sub_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 saturating_sub(int128 lhs, int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t mul_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_mul(uint128 lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t mul_sat(const int128_t& lhs, const int128_t& rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 saturating_mul(int128 lhs, int128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t div_sat(uint128_t lhs, uint128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 saturating_div(uint128 lhs, uint128 rhs) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t div_sat(int128_t lhs, int128_t rhs) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 saturating_div(int128 lhs, int128 rhs) noexcept;
 
 } // namespace int128
 } // namespace boost
 
 ----
 
+For `saturating_div` the only value that can overflow is the signed `INT128_MIN / -1`, which saturates to `INT128_MAX`; every other non-zero divisor gives the same result as the plain `operator/`.
+Division by zero is a precondition violation and therefore undefined behavior (the divisor must be non-zero), exactly as for the built-in `__int128` types and the plain division operator; `saturating_div` adds no zero-divisor check.
+
 [#saturating_cast]
 == Saturating Cast
 
-This function converts a `uint128_t` or `int128_t` to a `TargetType`, saturating rather than wrapping when the value is out of the target's range.
-`TargetType` is constrained (via SFINAE) to the library's set of reduced integer types: the standard signed and unsigned integer types (excluding `bool` and plain `char`), `int128_t`, `uint128_t`, and the compiler's native 128-bit integer types where available.
+This function converts a `uint128` or `int128` to a `TargetType`, saturating rather than wrapping when the value is out of the target's range.
+`TargetType` is constrained (via SFINAE) to the library's set of reduced integer types: the standard signed and unsigned integer types (excluding `bool` and plain `char`), `int128`, `uint128`, and the compiler's native 128-bit integer types where available.
 Should the `TargetType` not be able to represent the value it is set to either `std::numeric_limits<TargetType>::max()` or `std::numeric_limits<TargetType>::min()` depending on whether the situation is overflow or underflow.
 
 [source, c++]
@@ -59,10 +62,10 @@ namespace boost {
 namespace int128 {
 
 template <typename TargetType>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(uint128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(uint128 value) noexcept;
 
 template <typename TargetType>
-BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(int128_t value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr TargetType saturating_cast(int128 value) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -71,7 +74,7 @@ BOOST_INT128_HOST_DEVICE constexpr TargetType saturate_cast(int128_t value) noex
 [#gcd]
 == Greatest Common Divisor (GCD)
 
-Computes the greatest common divisor of `a` and `b`.
+Computes the greatest common divisor of the magnitudes of `a` and `b`.
 
 [source, c++]
 ----
@@ -80,19 +83,29 @@ Computes the greatest common divisor of `a` and `b`.
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t gcd(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 gcd(uint128 a, uint128 b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t gcd(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 gcd(int128 a, int128 b) noexcept;
 
 } // namespace int128
 } // namespace boost
 
 ----
+
+Returns `0` when both `a` and `b` are `0`; otherwise returns the greatest common divisor of `abs(a)` and `abs(b)`, which is non-negative.
+In particular, `gcd(a, 0)` returns `abs(a)` and `gcd(0, b)` returns `abs(b)`.
+This matches the results of https://eel.is/c++draft/numeric.ops#gcd[`std::gcd`] for every operand whose magnitude is representable in the result type.
+Both overloads are `noexcept` and usable in a constant expression.
+
+NOTE: `std::gcd` leaves the behavior undefined when `abs(a)` or `abs(b)` is not representable in the result type; this library defines that case instead.
+The only such operand is `BOOST_INT128_INT128_MIN`, whose magnitude `2^127` is one greater than `BOOST_INT128_INT128_MAX`.
+The magnitude is still computed correctly, because the two's-complement bit pattern of `BOOST_INT128_INT128_MIN` reinterpreted as unsigned is exactly `2^127`, so the divisor returned is always arithmetically correct (for example, `gcd(BOOST_INT128_INT128_MIN, 6) == 2`).
+The single exception is when the divisor is itself `2^127`, which occurs only for `gcd(BOOST_INT128_INT128_MIN, 0)` and `gcd(BOOST_INT128_INT128_MIN, BOOST_INT128_INT128_MIN)`: because `2^127` is not representable as a positive `int128`, it is returned as the negative value `BOOST_INT128_INT128_MIN`.
 
 [#lcm]
 == Least Common Multiple (LCM)
 
-Computes the least common multiple of `a` and `b`.
+Computes the least common multiple of the magnitudes of `a` and `b`.
 
 [source, c++]
 ----
@@ -101,14 +114,22 @@ Computes the least common multiple of `a` and `b`.
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t lcm(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 lcm(uint128 a, uint128 b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t lcm(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 lcm(int128 a, int128 b) noexcept;
 
 } // namespace int128
 } // namespace boost
 
 ----
+
+Returns `0` when either `a` or `b` is `0`; otherwise returns the least common multiple of `abs(a)` and `abs(b)`.
+This matches the results of https://eel.is/c++draft/numeric.ops#lcm[`std::lcm`] for every operand whose magnitude, and whose least common multiple, is representable in the result type.
+Both overloads are `noexcept` and usable in a constant expression.
+
+NOTE: `std::lcm` leaves the behavior undefined when `abs(a)` or `abs(b)` is not representable in the result type, or when the least common multiple itself is not representable; this library defines those cases instead of trapping or throwing.
+The result is the true least common multiple of the two magnitudes reduced modulo `2^128`, consistent with the two's-complement wrap-around of the xref:int128.adoc#i128_math_operators[arithmetic operators].
+For the signed overload that reduced value is then interpreted as a two's-complement `int128` and may therefore be negative; a `BOOST_INT128_INT128_MIN` operand contributes the magnitude `2^127`, computed correctly as described for `gcd` above.
 
 [#midpoint]
 == Midpoint
@@ -122,11 +143,169 @@ Computes the midpoint of `a` and `b`, rounding towards `a`.
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t midpoint(uint128_t a, uint128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 midpoint(uint128 a, uint128 b) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t midpoint(const int128_t a, const int128_t b) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 midpoint(int128 a, int128 b) noexcept;
 
 } // namespace int128
 } // namespace boost
 
 ----
+
+[#int_div]
+== Integer Division
+
+`operator/` only ever rounds towards zero.
+These functions divide with each of the other rounding modes, and are the 128-bit counterparts of the `std::div_*` family proposed for the standard library by wg21.link/p3724[P3724 (Integer division)].
+They *do not* require C++26, and every one of them is `constexpr` and available on device.
+
+[#div_result]
+=== `div_result`
+
+Both halves of a division, mirroring `std::div_result<T>` from the paper.
+It is an aggregate, so `div_result<int128>{q, r}` and structured bindings both work.
+Equality is always available; the ordering operators are available whenever the compiler supports `operator<=>`, and compare the quotient before the remainder.
+
+[source, c++]
+----
+#include <boost/int128/numeric.hpp>
+
+namespace boost {
+namespace int128 {
+
+template <typename T>
+struct div_result
+{
+    T quotient;
+    T remainder;
+};
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator==(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+// Only when BOOST_INT128_HAS_SPACESHIP_OPERATOR is defined
+template <typename T>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const div_result<T>& lhs, const div_result<T>& rhs) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#div_rounding_modes]
+=== Rounding Modes
+
+Each mode comes in three forms: `div_<mode>` returns the quotient, `div_rem_<mode>` returns the quotient and the matching remainder, and for Euclidean division `rem_euclid` returns the remainder alone.
+
+[source, c++]
+----
+#include <boost/int128/numeric.hpp>
+
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 div_<mode>(uint128 x, uint128 y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128 div_<mode>(int128 x, int128 y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr div_result<uint128> div_rem_<mode>(uint128 x, uint128 y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr div_result<int128> div_rem_<mode>(int128 x, int128 y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 rem_euclid(uint128 x, uint128 y) noexcept;
+
+BOOST_INT128_HOST_DEVICE constexpr int128 rem_euclid(int128 x, int128 y) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+`<mode>` is one of the eleven names below.
+The last two columns give the quotient for a dividend that does not divide evenly, and for one that lands exactly halfway between two integers.
+
+[cols="1,2,1,1", options="header"]
+|===
+| `<mode>` | Rounds | `-12 / 5` (exactly `-2.4`) | `-7 / 2` (exactly `-3.5`)
+
+| `to_zero`
+| Towards zero, which is what `operator/` does
+| `-2`
+| `-3`
+
+| `away_zero`
+| Away from zero
+| `-3`
+| `-4`
+
+| `to_pos_inf`
+| Towards positive infinity (ceiling)
+| `-2`
+| `-3`
+
+| `to_neg_inf`
+| Towards negative infinity (floor)
+| `-3`
+| `-4`
+
+| `euclid`
+| So that the remainder is non-negative
+| `-3`
+| `-4`
+
+| `ties_to_zero`
+| To nearest, an exact tie towards zero
+| `-2`
+| `-3`
+
+| `ties_away_zero`
+| To nearest, an exact tie away from zero
+| `-2`
+| `-4`
+
+| `ties_to_pos_inf`
+| To nearest, an exact tie towards positive infinity
+| `-2`
+| `-3`
+
+| `ties_to_neg_inf`
+| To nearest, an exact tie towards negative infinity
+| `-2`
+| `-4`
+
+| `ties_to_odd`
+| To nearest, an exact tie to the odd quotient
+| `-2`
+| `-3`
+
+| `ties_to_even`
+| To nearest, an exact tie to the even quotient
+| `-2`
+| `-4`
+|===
+
+An exact tie is only possible when the divisor is even, so the six `ties_` modes differ from each other only there; everywhere else they all return the nearest integer.
+
+[#div_semantics]
+=== Semantics
+
+The remainder returned by `div_rem_<mode>` is the one that matches the quotient: `x == quotient * y + remainder` for the signed overloads.
+For the unsigned overloads the same identity holds modulo 2^128^, because a quotient rounded up leaves a negative remainder that has to wrap; `div_rem_away_zero(uint128{7}, uint128{2})` therefore returns a quotient of `4` and a remainder of `BOOST_INT128_UINT128_MAX`, since `7 - 4 * 2` is `-1`.
+The quotient itself never overflows: rounding only moves the quotient when the division is inexact, and an inexact division has a divisor whose magnitude is at least two.
+
+The unsigned overloads exist for every mode, but a non-negative quotient collapses several of them together.
+`div_to_zero`, `div_to_neg_inf`, and `div_euclid` are all plain truncation, `div_away_zero` and `div_to_pos_inf` are the same rounding up, `div_ties_to_neg_inf` matches `div_ties_to_zero`, and `div_ties_to_pos_inf` matches `div_ties_away_zero`.
+The full set is still provided so that generic code can name a rounding mode without also having to know the signedness of the operands.
+
+`rem_euclid` returns a value in `[0, abs(y))`, which makes it the function to reach for when wrapping a possibly negative offset into a range; `operator%` instead takes its sign from the dividend.
+The signed overload is correct for `y == BOOST_INT128_INT128_MIN` even though `abs(y)` is not representable as a positive `int128`, because the correction is applied in unsigned arithmetic.
+`div_euclid` agrees with `div_to_neg_inf` when the divisor is positive, and with `div_to_pos_inf` when it is negative.
+
+Each `div_rem_<mode>` performs exactly one division, so it is the cheaper way to obtain both halves; computing `x / y` and `x % y` separately costs two divisions, since neither the compiler nor the library can share the work across the two operators.
+
+A zero divisor is a precondition violation and therefore undefined behavior, exactly as for `operator/` and xref:numeric.adoc#sat_arith[`saturating_div`]; no zero-divisor check is performed.
+The signed overloads are likewise undefined for `BOOST_INT128_INT128_MIN / -1`, whose quotient is not representable.
+
+NOTE: The paper leaves these functions non-`noexcept` because a precondition violation is undefined behavior.
+This library marks them `noexcept` for consistency with the rest of its interface, which does the same.

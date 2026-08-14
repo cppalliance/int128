@@ -14,9 +14,12 @@ int128 is under active development and is not an official boost library.
 
 # How To Use The Library
 
-This library is header only. It contains no other dependencies.
+This library is header only and requires C++14 or newer. It contains no other dependencies.
 Simply `#include` it and use it.
+The library is also available as a single header [here](https://github.com/cppalliance/int128/blob/develop/extra/single_include/boost/int128.hpp).
 With C++20 and greater you can instead `import boost.int128`.
+
+You can also try the library out on [Compiler Explorer](https://godbolt.org/z/3q4zce41d).
 
 ## CMake
 
@@ -56,8 +59,8 @@ Int128 provides 2 types:
 namespace boost {
 namespace int128 {
 
-struct uint128_t;
-struct int128_t;
+struct uint128;
+struct int128;
 
 } //namespace int128
 } //namespace boost
@@ -73,6 +76,9 @@ The entire library can be conveniently included with `#include <boost/int128.hpp
 
 The complete documentation can be found at: https://develop.int128.cpp.al
 
-## References
+# Help and feedback
 
-[1] Donald E. Knuth, _The_ _Art_ _of_ _Computer_ _Programming_ _Volume_ _2_ _Seminumerical_ _Algorithms_, 3rd edition, 1998
+* **[GitHub Issues](https://github.com/cppalliance/int128/issues)** for bug reports. Search before opening a new one.
+* **[GitHub Discussions](https://github.com/cppalliance/int128/discussions)** for questions, design ideas, and general conversation about the library.
+* **[Boost mailing list](http://lists.boost.org/mailman/listinfo.cgi/boost-users)** for general Boost development. Use the `[int128]` tag in the subject line.
+* **CppLang Slack** for real-time chat. [Request an invite](https://cppalliance.org/slack/), then join the `#boost` channel.

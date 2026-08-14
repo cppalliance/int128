@@ -49,12 +49,12 @@ inline std::size_t hash_finalize_64(std::uint64_t v) noexcept
 namespace std {
 
 template <>
-struct hash<boost::int128::int128_t>
+struct hash<boost::int128::int128>
 {
-    auto operator()(const boost::int128::int128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::int128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
-        const std::size_t high_hash {boost::int128::detail::hash_finalize_64(static_cast<std::uint64_t>(v.high))};
+        const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
 
         // boost::hash_combine style mixing of the two finalized halves
         return low_hash ^ (high_hash + static_cast<std::size_t>(0x9e3779b9) + (low_hash << 6) + (low_hash >> 2));
@@ -62,9 +62,9 @@ struct hash<boost::int128::int128_t>
 };
 
 template <>
-struct hash<boost::int128::uint128_t>
+struct hash<boost::int128::uint128>
 {
-    auto operator()(const boost::int128::uint128_t v) const noexcept -> std::size_t
+    auto operator()(const boost::int128::uint128 v) const noexcept -> std::size_t
     {
         const std::size_t low_hash {boost::int128::detail::hash_finalize_64(v.low)};
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
@@ -75,5 +75,21 @@ struct hash<boost::int128::uint128_t>
 };
 
 } // namespace std
+
+namespace boost {
+namespace int128 {
+
+inline std::size_t hash_value(const uint128 v) noexcept
+{
+    return std::hash<uint128>{}(v);
+}
+
+inline std::size_t hash_value(const int128 v) noexcept
+{
+    return std::hash<int128>{}(v);
+}
+
+} // namespace int128
+} // namespace boost
 
 #endif // BOOST_INT128_HASH_HPP

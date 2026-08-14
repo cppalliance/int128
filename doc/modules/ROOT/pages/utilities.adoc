@@ -9,7 +9,7 @@ https://www.boost.org/LICENSE_1_0.txt
 :idprefix: utilities_
 
 The `<boost/int128/utilities.hpp>` header collects helpers that operate on the library types directly and would not fit naturally into the analogous STL-style headers.
-The functions are tuned specifically for `uint128_t` and `int128_t` rather than being template generalizations, which allows the library to dispatch to a fast path based on the shape of the modulus.
+The functions are tuned specifically for `uint128` and `int128` rather than being template generalizations, which allows the library to dispatch to a fast path based on the shape of the modulus.
 
 [source, c++]
 ----
@@ -31,16 +31,16 @@ The naive expression `pow(base, exp) % m` is unusable for 128-bit inputs because
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t powm(uint128_t base, uint128_t exp, uint128_t m) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 powm(uint128 base, uint128 exp, uint128 m) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t powm(int128_t base, int128_t exp, int128_t m) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 powm(int128 base, int128 exp, int128 m) noexcept;
 
 } // namespace int128
 } // namespace boost
 ----
 
 The signed overload returns the non-negative residue in the range `[0, m)`, matching the convention used by `pow(a, b, m)` in Python and most arbitrary-precision libraries.
-Negative bases are reduced before exponentiation; `(std::numeric_limits<int128_t>::min)()` is handled correctly even though its magnitude is not representable in `int128_t`.
+Negative bases are reduced before exponentiation; `(std::numeric_limits<int128>::min)()` is handled correctly even though its magnitude is not representable in `int128`.
 
 === Special Cases
 
@@ -76,9 +76,9 @@ Unlike `powm` there is no modulus: the result is the true power reduced modulo `
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t ipow(uint128_t base, std::uint64_t exp) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 ipow(uint128 base, std::uint64_t exp) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t ipow(int128_t base, std::uint64_t exp) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 ipow(int128 base, std::uint64_t exp) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -114,9 +114,9 @@ The computation runs entirely in integer arithmetic using Newton's method, so it
 namespace boost {
 namespace int128 {
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t isqrt(uint128_t n) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr uint128 isqrt(uint128 n) noexcept;
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t isqrt(int128_t n) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 isqrt(int128 n) noexcept;
 
 } // namespace int128
 } // namespace boost
@@ -167,11 +167,11 @@ The three type parameters are independent: the result type and the two operand t
 The operation always uses the exact mathematical value of each operand, so a negative signed value added to an unsigned value, or a product that needs up to 256 bits internally, is evaluated correctly.
 
 Following the C23 rules, `T1`, `T2`, and `T3` may be any integer type other than `bool`, plain `char`, an enumerated type, or a bit-precise (`_BitInt`) type.
-In addition to the standard and extended integer types, the library's `uint128_t` and `int128_t` are accepted.
+In addition to the standard and extended integer types, the library's `uint128` and `int128` are accepted.
 
 The following example exercises all three operations, including the wrap-around, the `INT128_MIN * -1` case, and the mixed-type behavior described above.
 
-.This https://github.com/cppalliance/int128/blob/develop/examples/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
+.This https://github.com/cppalliance/int128/blob/develop/example/checked_arithmetic.cpp[example] demonstrates checked addition, subtraction, and multiplication following the C23 checked-integer contract
 ====
 [source, c++]
 ----
@@ -195,7 +195,101 @@ ckd_mul(INT128_MAX, 2): overflow=true, wrapped=-2
 ckd_mul(INT128_MIN, -1): overflow=true, wrapped=-170141183460469231731687303715884105728
 
 === Mixed Types ===
-ckd_add<int64_t>(uint128_t{5}, int128_t{-3}): overflow=false, result=2
+ckd_add<int64_t>(uint128{5}, int128{-3}): overflow=false, result=2
 ckd_mul<uint8_t>(20, 20): overflow=true, wrapped=144
+----
+====
+
+[#comparison]
+== Integer Comparison
+
+`cmp_equal`, `cmp_not_equal`, `cmp_less`, `cmp_greater`, `cmp_less_equal`, and `cmp_greater_equal` are the C++26 https://eel.is/c++draft/utility.intcmp[integer comparison functions] extended to the library and builtin 128-bit types.
+They are available in C++14 and later.
+
+Unlike the built-in relational operators, which follow the usual arithmetic conversions, these functions compare the true mathematical values of their operands regardless of signedness.
+When a `uint128` is compared with an `int128`, the operators convert the signed operand to unsigned, so `int128{-1} < uint128{0}` is reported as `false` and `(std::numeric_limits<uint128>::max)() == int128{-1}` as `true`.
+The `cmp_*` functions report the mathematically correct answer in both cases.
+
+Throughout this section a *128-bit type* is `int128`, `uint128`, or a builtin 128-bit type where the platform provides one (`+__int128+` and its unsigned counterpart, or `std::_Signed128` and `std::_Unsigned128` on MSVC).
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+// Each function participates in overload resolution only when both operands are
+// permitted and at least one is a 128-bit type. The other operand may be a
+// 128-bit type or any standard or extended integer type other than bool, a
+// character type, or std::byte.
+
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_equal(T a, U b) noexcept;
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_not_equal(T a, U b) noexcept;
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less(T a, U b) noexcept;
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater(T a, U b) noexcept;
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_less_equal(T a, U b) noexcept;
+template <typename T, typename U>
+BOOST_INT128_HOST_DEVICE constexpr bool cmp_greater_equal(T a, U b) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+`cmp_equal(a, b)` returns `true` when `a` and `b` are mathematically equal, and `cmp_less(a, b)` returns `true` when `a` is mathematically less than `b`.
+The remaining four functions are defined in terms of these two exactly as in the standard: `cmp_not_equal` is `!cmp_equal(a, b)`, `cmp_greater(a, b)` is `cmp_less(b, a)`, `cmp_less_equal(a, b)` is `!cmp_less(b, a)`, and `cmp_greater_equal(a, b)` is `!cmp_less(a, b)`.
+
+Every operand pair in which at least one operand is a 128-bit type is supported, including a `uint128` (or an unsigned builtin 128-bit value) against a signed `int128` (or a signed builtin one).
+Following the standard, a `bool`, a character type (`char`, `wchar_t`, `char8_t`, `char16_t`, `char32_t`), or `std::byte` is not a permitted operand, and such a call is ill-formed.
+
+[#in_range]
+== Range Checking
+
+`in_range<R>(t)` returns `true` when the value `t` is representable in the type `R`, that is, when `R` can hold `t` without the value changing.
+It is equivalent to `cmp_greater_equal(t, (std::numeric_limits<R>::min)()) && cmp_less_equal(t, (std::numeric_limits<R>::max)())`, so the range check is itself signedness-safe.
+
+[source, c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename R, typename Integer>
+BOOST_INT128_HOST_DEVICE constexpr bool in_range(Integer t) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The target type `R` and the type of `t` may each be a builtin integer or a 128-bit type; at least one of them is a 128-bit type (use `std::in_range` when neither is).
+For example, `in_range<std::uint8_t>(int128{-1})` is `false` because a negative value is not representable in an unsigned type, and `in_range<std::int64_t>((std::numeric_limits<int128>::max)())` is `false` because the value is too large.
+
+.This https://github.com/cppalliance/int128/blob/develop/example/integer_comparison.cpp[example] demonstrates signedness-safe comparison and range checking with the library 128-bit types
+====
+[source, c++]
+----
+include::example$integer_comparison.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+=== Signedness-safe comparison ===
+UINT128_MAX == int128{-1} (operator):   true
+cmp_equal(UINT128_MAX, int128{-1}):     false
+int128{-1} < uint128{0} (operator):   false
+cmp_less(int128{-1}, uint128{0}):     true
+
+=== Mixed with builtin integers ===
+cmp_less(int128{-5}, 0u):               true
+cmp_equal(uint128{42}, 42):             true
+
+=== in_range ===
+in_range<std::int8_t>(int128{200}):     false
+in_range<std::uint8_t>(int128{-1}):     false
+in_range<std::uint64_t>(UINT128_MAX):     false
+in_range<int128>(UINT128_MAX):          false
 ----
 ====

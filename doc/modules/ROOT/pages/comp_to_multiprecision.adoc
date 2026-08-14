@@ -7,13 +7,13 @@ https://www.boost.org/LICENSE_1_0.txt
 [#mp]
 = Comparison to Boost.Multiprecision
 
-An easy question to ask is why this is a separate library from Boost.Multiprecision.
+An easy question to ask is why this is a separate library from https://www.boost.org/doc/libs/release/libs/multiprecision/doc/html/index.html[Boost.Multiprecision].
 There are several reasons why:
 
 - The goal is for this library to be extremely lightweight.
 The module weight of this library will be 5, whereas https://pdimov.github.io/boostdep-report/develop/module-weights.html[Boost.Multiprecision is 25]
 - Fundamentally, the designs of the types are different.
 In Boost.Multiprecision, `int128` and `uint128` are incident to the arbitrary precision integer `cpp_int`, not a specifically designed type.
-In this library both `int128_t` and `uint128_t` are their own classes with individually implemented operators to maximize performance.
+In this library both `int128` and `uint128` are their own classes with individually implemented operators to maximize performance.
 - In Boost.Multiprecision all types are based on a high-level template `number` to allow interoperability with each other.
-Again, both `int128_t` and `uint128_t` are their own classes, and are designed to work with and act like the built-in integer types.
+Again, both `int128` and `uint128` are their own classes, and are designed to work with and act like the built-in integer types.

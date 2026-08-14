@@ -24,8 +24,6 @@ https://www.boost.org/LICENSE_1_0.txt
 | xref:charconv.adoc[`boost::charconv`]
 | `to_chars` and `from_chars` overloads for 128-bit integers (requires Boost.Charconv)
 
-| `boost::random::traits`
-| Trait specializations enabling use with Boost.Random (requires Boost.Random)
 |===
 
 [#api_types]
@@ -35,10 +33,10 @@ https://www.boost.org/LICENSE_1_0.txt
 |===
 | Type | Description
 
-| xref:uint128_t.adoc[`uint128_t`]
+| xref:uint128.adoc[`uint128`]
 | Unsigned 128-bit integer
 
-| xref:int128_t.adoc[`int128_t`]
+| xref:int128.adoc[`int128`]
 | Signed 128-bit integer
 |===
 
@@ -69,23 +67,26 @@ https://www.boost.org/LICENSE_1_0.txt
 |===
 | Structure | Description
 
-| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128_t>`]
-| Numeric limits specialization for `uint128_t`
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<uint128>`]
+| Numeric limits specialization for `uint128`
 
-| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128_t>`]
-| Numeric limits specialization for `int128_t`
+| https://en.cppreference.com/w/cpp/types/numeric_limits[`std::numeric_limits<int128>`]
+| Numeric limits specialization for `int128`
 
-| xref:hash.adoc[`std::hash<uint128_t>`]
-| Hash specialization for `uint128_t`
+| xref:hash.adoc[`std::hash<uint128>`]
+| Hash specialization for `uint128`
 
-| xref:hash.adoc[`std::hash<int128_t>`]
-| Hash specialization for `int128_t`
+| xref:hash.adoc[`std::hash<int128>`]
+| Hash specialization for `int128`
 
 | xref:cstdlib.adoc#div_structs[`u128div_t`]
-| Result type for `div(uint128_t, uint128_t)`
+| Result type for `div(uint128, uint128)`
 
 | xref:cstdlib.adoc#div_structs[`i128div_t`]
-| Result type for `div(int128_t, int128_t)`
+| Result type for `div(int128, int128)`
+
+| xref:numeric.adoc#div_result[`div_result<T>`]
+| Result type for the `div_rem_*` functions
 |===
 
 [#api_functions]
@@ -137,6 +138,44 @@ Listed by analogous STL header.
 | Reverses byte order
 |===
 
+[#api_byte_conversions]
+=== xref:byte_conversions.adoc[Byte Order Conversions]
+
+[cols="1,2", options="header"]
+|===
+| Function | Description
+
+| xref:byte_conversions.adoc#to_be[`to_be`]
+| Converts a value from native to big-endian byte order
+
+| xref:byte_conversions.adoc#from_be[`from_be`]
+| Converts a value from big-endian to native byte order
+
+| xref:byte_conversions.adoc#to_le[`to_le`]
+| Converts a value from native to little-endian byte order
+
+| xref:byte_conversions.adoc#from_le[`from_le`]
+| Converts a value from little-endian to native byte order
+
+| xref:byte_conversions.adoc#to_be_bytes[`to_be_bytes`]
+| Returns the bytes of a value, most significant first
+
+| xref:byte_conversions.adoc#from_be_bytes[`from_be_bytes`]
+| Reconstructs a value from big-endian ordered bytes
+
+| xref:byte_conversions.adoc#to_le_bytes[`to_le_bytes`]
+| Returns the bytes of a value, least significant first
+
+| xref:byte_conversions.adoc#from_le_bytes[`from_le_bytes`]
+| Reconstructs a value from little-endian ordered bytes
+
+| xref:byte_conversions.adoc#to_ne_bytes[`to_ne_bytes`]
+| Returns the bytes of a value in native order
+
+| xref:byte_conversions.adoc#from_ne_bytes[`from_ne_bytes`]
+| Reconstructs a value from native ordered bytes
+|===
+
 [#api_charconv]
 === xref:charconv.adoc[`<charconv>`]
 
@@ -158,7 +197,7 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| xref:int128_t.adoc#i128_math_operators[`abs`]
+| xref:int128.adoc#i128_abs[`abs`]
 | Absolute value
 |===
 
@@ -180,11 +219,11 @@ Listed by analogous STL header.
 |===
 | Specialization | Description
 
-| xref:hash.adoc[`std::hash<uint128_t>`]
-| Enables `uint128_t` as a key in unordered associative containers
+| xref:hash.adoc[`std::hash<uint128>`]
+| Enables `uint128` as a key in unordered associative containers
 
-| xref:hash.adoc[`std::hash<int128_t>`]
-| Enables `int128_t` as a key in unordered associative containers
+| xref:hash.adoc[`std::hash<int128>`]
+| Enables `int128` as a key in unordered associative containers
 |===
 
 [#api_formatting]
@@ -251,19 +290,19 @@ Listed by analogous STL header.
 |===
 | Function | Description
 
-| xref:numeric.adoc#sat_arith[`add_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_add`]
 | Saturating addition
 
-| xref:numeric.adoc#sat_arith[`sub_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_sub`]
 | Saturating subtraction
 
-| xref:numeric.adoc#sat_arith[`mul_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_mul`]
 | Saturating multiplication
 
-| xref:numeric.adoc#sat_arith[`div_sat`]
+| xref:numeric.adoc#sat_arith[`saturating_div`]
 | Saturating division
 
-| xref:numeric.adoc#saturating_cast[`saturate_cast`]
+| xref:numeric.adoc#saturating_cast[`saturating_cast`]
 | Saturating type cast
 
 | xref:numeric.adoc#gcd[`gcd`]
@@ -274,6 +313,42 @@ Listed by analogous STL header.
 
 | xref:numeric.adoc#midpoint[`midpoint`]
 | Midpoint between two values
+
+| xref:numeric.adoc#int_div[`div_to_zero`, `div_rem_to_zero`]
+| Division rounding towards zero
+
+| xref:numeric.adoc#int_div[`div_away_zero`, `div_rem_away_zero`]
+| Division rounding away from zero
+
+| xref:numeric.adoc#int_div[`div_to_pos_inf`, `div_rem_to_pos_inf`]
+| Division rounding towards positive infinity
+
+| xref:numeric.adoc#int_div[`div_to_neg_inf`, `div_rem_to_neg_inf`]
+| Division rounding towards negative infinity
+
+| xref:numeric.adoc#int_div[`div_euclid`, `div_rem_euclid`]
+| Euclidean division
+
+| xref:numeric.adoc#int_div[`div_ties_to_zero`, `div_rem_ties_to_zero`]
+| Division rounding to nearest, ties towards zero
+
+| xref:numeric.adoc#int_div[`div_ties_away_zero`, `div_rem_ties_away_zero`]
+| Division rounding to nearest, ties away from zero
+
+| xref:numeric.adoc#int_div[`div_ties_to_pos_inf`, `div_rem_ties_to_pos_inf`]
+| Division rounding to nearest, ties towards positive infinity
+
+| xref:numeric.adoc#int_div[`div_ties_to_neg_inf`, `div_rem_ties_to_neg_inf`]
+| Division rounding to nearest, ties towards negative infinity
+
+| xref:numeric.adoc#int_div[`div_ties_to_odd`, `div_rem_ties_to_odd`]
+| Division rounding to nearest, ties to the odd quotient
+
+| xref:numeric.adoc#int_div[`div_ties_to_even`, `div_rem_ties_to_even`]
+| Division rounding to nearest, ties to the even quotient
+
+| xref:numeric.adoc#int_div[`rem_euclid`]
+| Euclidean remainder, always in `[0, abs(y))`
 |===
 
 [#api_string]
@@ -284,6 +359,9 @@ Listed by analogous STL header.
 
 | xref:string.adoc[`to_string`]
 | `std::string` conversion of base-10 values
+
+| xref:string.adoc[`to_wstring`]
+| `std::wstring` conversion of base-10 values
 |===
 
 [#api_utilities]
@@ -310,6 +388,27 @@ Listed by analogous STL header.
 
 | xref:utilities.adoc#checked[`ckd_mul`]
 | Checked multiplication (C23 `<stdckdint.h>` contract)
+
+| xref:utilities.adoc#comparison[`cmp_equal`]
+| Signedness-safe equality (C++26 `<utility>` contract)
+
+| xref:utilities.adoc#comparison[`cmp_not_equal`]
+| Signedness-safe inequality
+
+| xref:utilities.adoc#comparison[`cmp_less`]
+| Signedness-safe less-than
+
+| xref:utilities.adoc#comparison[`cmp_greater`]
+| Signedness-safe greater-than
+
+| xref:utilities.adoc#comparison[`cmp_less_equal`]
+| Signedness-safe less-than-or-equal
+
+| xref:utilities.adoc#comparison[`cmp_greater_equal`]
+| Signedness-safe greater-than-or-equal
+
+| xref:utilities.adoc#in_range[`in_range`]
+| Whether a value is representable in a target integer type
 |===
 
 [#api_macros]
@@ -323,13 +422,13 @@ Listed by analogous STL header.
 | Macro | Description
 
 | `BOOST_INT128_UINT128_MAX`
-| Maximum value for `uint128_t`
+| Maximum value for `uint128`
 
 | `BOOST_INT128_INT128_MAX`
-| Maximum value for `int128_t`
+| Maximum value for `int128`
 
 | `BOOST_INT128_INT128_MIN`
-| Minimum value for `int128_t`
+| Minimum value for `int128`
 |===
 
 === Literals
@@ -411,6 +510,9 @@ Listed by analogous STL header.
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
 | Bit manipulation functions
 
+| xref:byte_conversions.adoc[`<boost/int128/byte_conversions.hpp>`]
+| Big-endian and little-endian byte order conversions
+
 | xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
 | Character conversion functions
 
@@ -427,22 +529,22 @@ Listed by analogous STL header.
 | Formatting integration for pass:[C++20] `<format>`
 
 | xref:hash.adoc[`<boost/int128/hash.hpp>`]
-| `std::hash` specializations for `int128_t` and `uint128_t`
+| `std::hash` specializations for `int128` and `uint128`
 
 | `<boost/int128/int128.hpp>`
-| The xref:uint128_t.adoc[`uint128_t`] and xref:int128_t.adoc[`int128_t`] types
+| The xref:uint128.adoc[`uint128`] and xref:int128.adoc[`int128`] types
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
-| Iostream overloads for `int128_t` and `uint128_t`
+| Iostream overloads for `int128` and `uint128`
 
 | `<boost/int128/limits.hpp>`
-| Overloads for `std::numeric_limits` for `int128_t` and `uint128_t`
+| Overloads for `std::numeric_limits` for `int128` and `uint128`
 
 | xref:literals.adoc[`<boost/int128/literals.hpp>`]
-| User-defined literals for `int128_t` and `uint128_t`
+| User-defined literals for `int128` and `uint128`
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
-| Numeric algorithms (gcd, lcm, midpoint)
+| Numeric algorithms (gcd, lcm, midpoint, integer division)
 
 | xref:string.adoc[`<boost/int128/string.hpp>`]
 | `to_string` overloads

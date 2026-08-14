@@ -199,7 +199,7 @@ constexpr auto parse_impl(ParseContext& ctx)
 template <typename T>
 struct is_library_type_impl
 {
-    static constexpr bool value {std::is_same<T, boost::int128::uint128_t>::value || std::is_same<T, boost::int128::int128_t>::value};
+    static constexpr bool value {std::is_same<T, boost::int128::uint128>::value || std::is_same<T, boost::int128::int128>::value};
 };
 
 template <typename T>
@@ -246,33 +246,33 @@ struct formatter
     template <typename FormatContext>
     auto format(T v, FormatContext& ctx) const
     {
-        char buffer[64];
+        char buffer[detail::mini_to_chars_buffer_size];
         bool isneg {false};
-        boost::int128::uint128_t abs_v {};
+        boost::int128::uint128 abs_v {};
 
-        BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
+        BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128>::value)
         {
             if (v < T{0})
             {
                 isneg = true;
-                // Can't negate int128_t::min(), handle specially
+                // Can't negate int128::min(), handle specially
                 if (v == (std::numeric_limits<T>::min)())
                 {
-                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                    abs_v = boost::int128::uint128{UINT64_C(0x8000000000000000), 0};
                 }
                 else
                 {
-                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                    abs_v = static_cast<boost::int128::uint128>(-v);
                 }
             }
             else
             {
-                abs_v = static_cast<boost::int128::uint128_t>(v);
+                abs_v = static_cast<boost::int128::uint128>(v);
             }
         }
         else
         {
-            abs_v = static_cast<uint128_t>(v);
+            abs_v = static_cast<uint128>(v);
         }
 
         const auto end = detail::mini_to_chars(buffer, abs_v, base, is_upper);
@@ -376,7 +376,7 @@ struct formatter
                 {
                     s.insert(s.begin(), ' ');
                 }
-                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
+                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128>::value)
                 {
                     if (isneg)
                     {
@@ -385,7 +385,7 @@ struct formatter
                 }
                 break;
             case sign_option::negative:
-                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128_t>::value)
+                BOOST_INT128_IF_CONSTEXPR (std::is_same<T, boost::int128::int128>::value)
                 {
                     if (isneg)
                     {
@@ -444,10 +444,10 @@ struct formatter
 namespace fmt {
 
 template <>
-struct formatter<boost::int128::uint128_t> : public boost::int128::fmt_detail::formatter<boost::int128::uint128_t> {};
+struct formatter<boost::int128::uint128> : public boost::int128::fmt_detail::formatter<boost::int128::uint128> {};
 
 template <>
-struct formatter<boost::int128::int128_t> : public boost::int128::fmt_detail::formatter<boost::int128::int128_t> {};
+struct formatter<boost::int128::int128> : public boost::int128::fmt_detail::formatter<boost::int128::int128> {};
 
 } // namespace fmt
 

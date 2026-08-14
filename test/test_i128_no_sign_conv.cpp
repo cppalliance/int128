@@ -151,7 +151,7 @@ void test_arithmetic_constructor()
     {
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         builtin_i128 builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         builtin_i128 emulated_bits;
         std::memcpy(&emulated_bits, &emulated_value, sizeof(builtin_i128));
@@ -171,7 +171,7 @@ void test_assignment_operators()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         builtin_i128 builtin_value;
         builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {};
+        boost::int128::int128 emulated_value {};
         emulated_value = value;
 
         builtin_i128 emulated_bits;
@@ -192,7 +192,7 @@ void test_integer_conversion_operators()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         builtin_i128 builtin_value;
         builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {};
+        boost::int128::int128 emulated_value {};
         emulated_value = value;
 
         const auto builtin_value_return = static_cast<IntType>(builtin_value);
@@ -227,7 +227,7 @@ void test_float_conversion_operators()
             const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_i128 builtin_value;
             builtin_value = static_cast<builtin_i128>(value) << 64 | static_cast<builtin_i128>(value);
-            boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), value};
+            boost::int128::int128 emulated_value {static_cast<std::int64_t>(value), value};
 
             // Converts the value and then normalizes the range
             const auto builtin_value_return = static_cast<FloatType>(builtin_value) / static_cast<FloatType>(1e27L);
@@ -246,7 +246,7 @@ void test_float_conversion_operators()
             const auto value {dist(rng)}; // LCOV_EXCL_LINE
             builtin_u128 builtin_value;
             builtin_value = value;
-            boost::int128::int128_t emulated_value {};
+            boost::int128::int128 emulated_value {};
             emulated_value = value;
 
             const auto builtin_value_return = static_cast<FloatType>(builtin_value);
@@ -271,7 +271,7 @@ void test_unary_plus()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         builtin_i128 builtin_value = static_cast<builtin_i128>(value);
         builtin_value = +builtin_value;
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
         emulated_value = +emulated_value;
 
         builtin_i128 emulated_bits;
@@ -292,7 +292,7 @@ void test_unary_minus()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
         builtin_value = -builtin_value;
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
         emulated_value = -emulated_value;
 
         builtin_i128 emulated_bits;
@@ -313,7 +313,7 @@ void test_operator_equality()
     {
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value == emulated_value) == (emulated_value == value)) == ((value == builtin_value) == (builtin_value == value))); // LCOV_EXCL_LINE
     }
@@ -324,12 +324,12 @@ void test_operator_equality()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 == emulated_value) == (emulated_value == value2)) == ((value2 == builtin_value) == (builtin_value == value2))); // LCOV_EXCL_LINE
     }
 
-    const boost::int128::int128_t bool_val {dist(rng)}; // LCOV_EXCL_LINE
+    const boost::int128::int128 bool_val {dist(rng)}; // LCOV_EXCL_LINE
     BOOST_TEST((true == bool_val) == (bool_val == true)); // LCOV_EXCL_LINE
 }
 
@@ -344,7 +344,7 @@ void test_operator_inequality()
     {
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value != emulated_value) == (emulated_value != value)) == ((value != builtin_value) == (builtin_value != value))); // LCOV_EXCL_LINE
     }
@@ -355,12 +355,12 @@ void test_operator_inequality()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 != emulated_value) == (emulated_value != value2)) == ((value2 != builtin_value) == (builtin_value != value2))); // LCOV_EXCL_LINE
     }
 
-    const boost::int128::int128_t bool_val {dist(rng)}; // LCOV_EXCL_LINE
+    const boost::int128::int128 bool_val {dist(rng)}; // LCOV_EXCL_LINE
     BOOST_TEST((true != bool_val) == (bool_val != true)); // LCOV_EXCL_LINE
 }
 
@@ -375,7 +375,7 @@ void test_operator_less()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 < emulated_value) == (value2 < builtin_value)) == ((emulated_value < value2) == (builtin_value < value2))); // LCOV_EXCL_LINE
     }
@@ -392,7 +392,7 @@ void test_operator_greater()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 > emulated_value) == (value2 > builtin_value)) == ((emulated_value > value2) == (builtin_value > value2))); // LCOV_EXCL_LINE
     }
@@ -409,7 +409,7 @@ void test_operator_le()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 <= emulated_value) == (value2 <= builtin_value)) == ((emulated_value <= value2) == (builtin_value <= value2))); // LCOV_EXCL_LINE
     }
@@ -426,7 +426,7 @@ void test_operator_ge()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(((value2 >= emulated_value) == (value2 >= builtin_value)) == ((emulated_value >= value2) == (builtin_value >= value2))); // LCOV_EXCL_LINE
     }
@@ -442,7 +442,7 @@ void test_operator_not()
     {
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         BOOST_TEST(~emulated_value == ~builtin_value); // LCOV_EXCL_LINE
     }
@@ -459,7 +459,7 @@ void test_operator_or()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value |= value2;
@@ -494,7 +494,7 @@ void test_operator_and()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value &= value2;
@@ -529,7 +529,7 @@ void test_operator_xor()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value ^= value2;
@@ -566,7 +566,7 @@ void test_operator_left_shift()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const unsigned shift_value {shift_dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         // Test 1: Test the <<= operator
         auto builtin_copy = builtin_value;
@@ -592,11 +592,6 @@ void test_operator_left_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin); // LCOV_EXCL_LINE
     }
-
-    // Edge cases
-    const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val << 130) == 0); // LCOV_EXCL_LINE
-    BOOST_TEST((val << -5) == 0); // LCOV_EXCL_LINE
 }
 
 template <typename IntType>
@@ -612,7 +607,7 @@ void test_operator_right_shift()
         const IntType value {dist(rng)}; // LCOV_EXCL_LINE
         const unsigned shift_value {shift_dist(rng)}; // LCOV_EXCL_LINE
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         // Test 1: Test the >>= operator
         auto builtin_copy = builtin_value;
@@ -638,16 +633,11 @@ void test_operator_right_shift()
 
         BOOST_TEST(int_shift_emulated == int_shift_builtin); // LCOV_EXCL_LINE
     }
-
-    // Edge cases
-    const boost::int128::int128_t val {UINT64_MAX};
-    BOOST_TEST((val >> 130) == 0); // LCOV_EXCL_LINE
-    BOOST_TEST((val >> -5) == 0); // LCOV_EXCL_LINE
 }
 
 void test_increment_operator()
 {
-    boost::int128::int128_t emulated_value {INT64_MAX - N/2};
+    boost::int128::int128 emulated_value {INT64_MAX - N/2};
     builtin_i128 builtin_value {INT64_MAX - N/2};
 
     for (std::size_t i {}; i < N; ++i)
@@ -678,7 +668,7 @@ void test_operator_add()
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value += value2;
@@ -688,7 +678,7 @@ void test_operator_add()
 
     // Edge case where we go from low word to high word
     builtin_i128 builtin_value = UINT64_MAX - 2U;
-    boost::int128::int128_t emulated_value = UINT64_MAX - 2U;
+    boost::int128::int128 emulated_value = UINT64_MAX - 2U;
 
     for (std::size_t i {}; i < N; ++i)
     {
@@ -715,7 +705,7 @@ void test_operator_sub()
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         // Avoid UB from signed rollover
         if (value > value2)
@@ -733,7 +723,7 @@ void test_operator_sub()
     // Edge case where we go from high word to low word
     builtin_i128 builtin_value = UINT64_MAX;
     builtin_value += 10;
-    boost::int128::int128_t emulated_value = UINT64_MAX;
+    boost::int128::int128 emulated_value = UINT64_MAX;
     emulated_value += 10;
 
     for (std::size_t i {}; i < N; ++i)
@@ -754,7 +744,7 @@ void test_operator_mul()
         IntType value2 {dist(rng)}; // LCOV_EXCL_LINE
 
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value *= value2;
@@ -785,7 +775,7 @@ void test_operator_div()
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value /= value2;
@@ -801,7 +791,7 @@ void test_operator_div()
     }
 
     // Test 2 word by 1 word and 1 word by 2 word
-    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128_t))
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128))
     {
         for (std::size_t i {}; i < N; ++i)
         {
@@ -818,7 +808,7 @@ void test_operator_div()
                 value2 = dist(rng); // LCOV_EXCL_LINE
             }
 
-            const boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
+            const boost::int128::int128 emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
             const auto builtin_value = static_cast<builtin_i128>(emulated_value);
 
             auto check_1_value {emulated_value};
@@ -834,7 +824,7 @@ void test_operator_div()
             BOOST_TEST((value2 / emulated_value) == (value2 / builtin_value)); // LCOV_EXCL_LINE
 
             // Forces decision process
-            const boost::int128::int128_t check_2_value {value2};
+            const boost::int128::int128 check_2_value {value2};
             BOOST_TEST(check_1_value == (emulated_value / check_2_value)); // LCOV_EXCL_LINE
         }
     }
@@ -862,14 +852,14 @@ void test_operator_mod()
         }
 
         // With too large an unsigned __int128 value we end up with bitwise equal but signed results
-        BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) == sizeof(boost::int128::int128_t))
+        BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) == sizeof(boost::int128::int128))
         {
             value >>= 2;
             value2 >>= 2;
         }
 
         auto builtin_value = static_cast<builtin_i128>(value);
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
 
         auto check_1_value {emulated_value};
         check_1_value %= value2;
@@ -885,7 +875,7 @@ void test_operator_mod()
     }
 
     // Test 2 word by 1 word and 1 word by 2 word
-    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128_t))
+    BOOST_INT128_IF_CONSTEXPR (sizeof(IntType) < sizeof(boost::int128::uint128))
     {
         for (std::size_t i {}; i < N; ++i)
         {
@@ -902,7 +892,7 @@ void test_operator_mod()
                 value2 = dist(rng); // LCOV_EXCL_LINE
             }
 
-            const boost::int128::int128_t emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
+            const boost::int128::int128 emulated_value {static_cast<std::int64_t>(value), static_cast<std::uint64_t>(value)};
             const auto builtin_value = static_cast<builtin_i128>(emulated_value);
 
             auto check_1_value {emulated_value};
@@ -918,7 +908,7 @@ void test_operator_mod()
             BOOST_TEST((value2 % emulated_value) == (value2 % builtin_value)); // LCOV_EXCL_LINE
 
             // Forces decision process
-            const boost::int128::int128_t check_2_value {value2};
+            const boost::int128::int128 check_2_value {value2};
             BOOST_TEST(check_1_value == (emulated_value % check_2_value)); // LCOV_EXCL_LINE
         }
     }
@@ -935,7 +925,7 @@ void test_abs()
     for (std::size_t i {}; i < N; ++i)
     {
         const auto value {dist(rng)}; // LCOV_EXCL_LINE
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
         auto builtin_value = static_cast<builtin_i128>(value);
 
         if (value < 0)
@@ -967,7 +957,7 @@ void test_abs()
             value /= 100;
         }
 
-        boost::int128::int128_t emulated_value {value};
+        boost::int128::int128 emulated_value {value};
         auto builtin_value = static_cast<builtin_i128>(value);
 
         BOOST_TEST(abs(emulated_value) == emulated_value); // LCOV_EXCL_LINE

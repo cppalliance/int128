@@ -10,18 +10,18 @@
 
 void test_u128_literals()
 {
-    const boost::int128::uint128_t max_val {std::numeric_limits<boost::int128::uint128_t>::max()};
+    const boost::int128::uint128 max_val {std::numeric_limits<boost::int128::uint128>::max()};
     const auto macro_val {BOOST_INT128_UINT128_C(340282366920938463463374607431768211455)};
     BOOST_TEST(max_val == macro_val);
 }
 
 void test_i128_literals()
 {
-    const boost::int128::int128_t max_val {std::numeric_limits<boost::int128::int128_t>::max()};
+    const boost::int128::int128 max_val {std::numeric_limits<boost::int128::int128>::max()};
     const auto macro_val {BOOST_INT128_INT128_C(170141183460469231731687303715884105727)};
     BOOST_TEST(max_val == macro_val);
 
-    const boost::int128::int128_t min_val {std::numeric_limits<boost::int128::int128_t>::min()};
+    const boost::int128::int128 min_val {std::numeric_limits<boost::int128::int128>::min()};
     const auto min_macro_val {BOOST_INT128_INT128_C(-170141183460469231731687303715884105728)};
     BOOST_TEST(min_val == min_macro_val);
 }

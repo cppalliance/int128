@@ -1,0 +1,277 @@
+////
+Copyright 2026 Matt Borland
+Distributed under the Boost Software License, Version 1.0.
+https://www.boost.org/LICENSE_1_0.txt
+////
+
+[#byte_conversions]
+= Byte Order Conversions
+:idprefix: byte_conversions_
+
+[source,c++]
+----
+#include <boost/int128/byte_conversions.hpp>
+----
+
+The library provides functions for converting `uint128` and `int128` to and from big-endian or little-endian byte order, which is what serializing a 128-bit value into a file format, a network packet, or a database column requires.
+Unlike the functions in xref:bit.adoc[`<bit>`], every one of these has both an unsigned and a signed overload: reversing a two's complement bit pattern is the same operation for either sign.
+
+All of these functions are `constexpr`, and are available using pass:[C++14] like the rest of the library.
+
+There are two families:
+
+* `to_be` / `from_be` / `to_le` / `from_le` operate on whole values. On the platform whose byte order is being asked for they are the identity, and on the other they are a xref:bit.adoc#byteswap[`byteswap`]. The result of `to_be` and `to_le` is a value whose *object representation* is in the requested order, so it is meant to be written out (or `memcpy`'d) rather than read as a number.
+* `to_*_bytes` / `from_*_bytes` operate on 16-byte arrays. These never depend on the host byte order (with the sole exception of the `ne` pair), so `to_be_bytes` returns the most significant byte first on every platform.
+
+The byte arrays are built with shifts rather than from the object representation, so the byte-array functions give identical results on little-endian and big-endian hosts.
+
+[#byte_conversions_element_type]
+== Byte Array Element Type
+
+The array functions are templated on the element type, which defaults to `std::uint8_t`.
+The accepted types are `char`, `signed char`, `unsigned char`, and, when the standard library provides it (pass:[C++17]), `std::byte`:
+
+[source,c++]
+----
+const auto bytes {boost::int128::to_be_bytes(value)};              // std::array<std::uint8_t, 16>
+const auto as_byte {boost::int128::to_be_bytes<std::byte>(value)}; // std::array<std::byte, 16>
+const auto as_char {boost::int128::to_be_bytes<char>(value)};      // std::array<char, 16>
+----
+
+NOTE: The number of bytes is fixed at `sizeof(T)`, which is 16, so the `from_*_bytes` functions do not need a length argument. The `std::array` overloads reject a mismatched size at compile time, and the pointer overloads read exactly 16 bytes from the address given. A `std::span`, `std::vector`, or any other contiguous range is passed by handing `.data()` to the pointer overload.
+
+NOTE: In a CUDA translation unit the pointer overloads of `from_be_bytes`, `from_le_bytes`, and `from_ne_bytes` are the portable choice. The `std::array` overloads read the array through `std::array::operator[]`, which is a `constexpr` host function, so `nvcc` warns (`#20013-D`) unless it is given `--expt-relaxed-constexpr`. The warning appears even when the call itself is host code, because `nvcc` compiles the device side of a `__host__ __device__` template as well. Writing bytes with `to_be_bytes`, `to_le_bytes`, or `to_ne_bytes` is unaffected: the returned array is constructed and assigned without calling any of its member functions.
+
+[#to_be]
+== to_be
+
+Converts a value from the native byte order to big-endian byte order.
+On a big-endian platform the value is returned unchanged, and on a little-endian platform `byteswap` is applied.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 to_be(uint128 value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 to_be(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#from_be]
+== from_be
+
+Converts a value from big-endian byte order to the native byte order.
+This is the inverse of `to_be`, and since a byte reversal is its own inverse it delegates directly to `to_be`.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 from_be(uint128 value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 from_be(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#to_le]
+== to_le
+
+Converts a value from the native byte order to little-endian byte order.
+On a little-endian platform the value is returned unchanged, and on a big-endian platform `byteswap` is applied.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 to_le(uint128 value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 to_le(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#from_le]
+== from_le
+
+Converts a value from little-endian byte order to the native byte order.
+This is the inverse of `to_le`, and delegates directly to it.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+BOOST_INT128_HOST_DEVICE constexpr uint128 from_le(uint128 value) noexcept;
+BOOST_INT128_HOST_DEVICE constexpr int128 from_le(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#to_be_bytes]
+== to_be_bytes
+
+Returns the 16 bytes of the value with the most significant byte first, on every platform.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(uint128)> to_be_bytes(uint128 value) noexcept;
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(int128)> to_be_bytes(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#from_be_bytes]
+== from_be_bytes
+
+Reconstructs a value from 16 bytes in big-endian order.
+The target type is given explicitly and must be `uint128` or `int128`.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename T, typename ByteType, std::size_t N>
+BOOST_INT128_HOST_DEVICE constexpr T from_be_bytes(const std::array<ByteType, N>& bytes) noexcept;
+
+template <typename T, typename ByteType>
+BOOST_INT128_HOST_DEVICE constexpr T from_be_bytes(const ByteType* bytes) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+The `std::array` overload requires `N == sizeof(T)`, and any other size is a `static_assert` failure.
+The pointer overload reads `sizeof(T)` bytes starting at `bytes`, and the caller is responsible for that many bytes being readable.
+
+[#to_le_bytes]
+== to_le_bytes
+
+Returns the 16 bytes of the value with the least significant byte first, on every platform.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(uint128)> to_le_bytes(uint128 value) noexcept;
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(int128)> to_le_bytes(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#from_le_bytes]
+== from_le_bytes
+
+Reconstructs a value from 16 bytes in little-endian order.
+The size requirements match xref:byte_conversions.adoc#from_be_bytes[`from_be_bytes`].
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename T, typename ByteType, std::size_t N>
+BOOST_INT128_HOST_DEVICE constexpr T from_le_bytes(const std::array<ByteType, N>& bytes) noexcept;
+
+template <typename T, typename ByteType>
+BOOST_INT128_HOST_DEVICE constexpr T from_le_bytes(const ByteType* bytes) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#to_ne_bytes]
+== to_ne_bytes
+
+Returns the 16 bytes of the value in the native byte order, which is the object representation of the value.
+Delegates to `to_le_bytes` on a little-endian platform and to `to_be_bytes` on a big-endian one, so this is the only byte-array function whose result varies across platforms.
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(uint128)> to_ne_bytes(uint128 value) noexcept;
+
+template <typename ByteType = std::uint8_t>
+BOOST_INT128_HOST_DEVICE constexpr std::array<ByteType, sizeof(int128)> to_ne_bytes(int128 value) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#from_ne_bytes]
+== from_ne_bytes
+
+Reconstructs a value from 16 bytes in the native byte order.
+Delegates to `from_le_bytes` on a little-endian platform and to `from_be_bytes` on a big-endian one.
+The size requirements match xref:byte_conversions.adoc#from_be_bytes[`from_be_bytes`].
+
+[source,c++]
+----
+namespace boost {
+namespace int128 {
+
+template <typename T, typename ByteType, std::size_t N>
+BOOST_INT128_HOST_DEVICE constexpr T from_ne_bytes(const std::array<ByteType, N>& bytes) noexcept;
+
+template <typename T, typename ByteType>
+BOOST_INT128_HOST_DEVICE constexpr T from_ne_bytes(const ByteType* bytes) noexcept;
+
+} // namespace int128
+} // namespace boost
+----
+
+[#byte_conversions_examples]
+== Examples
+
+.This https://github.com/cppalliance/int128/blob/develop/example/byte_conversions.cpp[example] demonstrates the byte order conversion functions
+====
+[source, c++]
+----
+include::example$byte_conversions.cpp[]
+----
+
+Output (on a little-endian host, where the `to_ne_bytes` lines match `to_le_bytes`):
+----
+=== Byte arrays ===
+to_be_bytes: 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10
+to_le_bytes: 10 0f 0e 0d 0c 0b 0a 09 08 07 06 05 04 03 02 01
+to_ne_bytes: 10 0f 0e 0d 0c 0b 0a 09 08 07 06 05 04 03 02 01
+
+=== Reading a value back out of bytes ===
+from_be_bytes: 300
+from_le_bytes: 58491224111394833235396041148664381440
+
+=== Signed values ===
+to_be_bytes(-300): ff ff ff ff ff ff ff ff ff ff ff ff ff ff fe d4
+from_be_bytes:     -300
+
+=== Whole value conversions ===
+object representation of to_be(value): 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 10
+from_be recovers: 1339673755198158349044581307228491536
+value:            1339673755198158349044581307228491536
+
+from_le_bytes over a char buffer: 1339673755198158349044581307228491536
+----
+====

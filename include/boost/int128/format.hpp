@@ -5,16 +5,34 @@
 #ifndef BOOST_INT128_FORMAT_HPP
 #define BOOST_INT128_FORMAT_HPP
 
-#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L && !defined(BOOST_DECIMAL_DISABLE_CLIB)
+// The feature-test macros below are only visible once <version> has been seen.
+// The module build gets them from the global module fragment instead.
+#ifndef BOOST_INT128_BUILD_MODULE
+#  if __has_include(<version>)
+#    include <version>
+#  endif
+#endif
+
+#if __has_include(<format>) && defined(__cpp_lib_format) && __cpp_lib_format >= 201907L
 
 #include <boost/int128/detail/mini_to_chars.hpp>
 #include <boost/int128/detail/config.hpp>
 #include <boost/int128/int128.hpp>
+
+#ifndef BOOST_INT128_BUILD_MODULE
 #include <string>
 #include <format>
 #include <tuple>
+#endif
 
 #define BOOST_INT128_HAS_FORMAT
+
+#if defined(__cpp_lib_constexpr_format) && __cpp_lib_constexpr_format >= 202511L
+#  define BOOST_INT128_HAS_CONSTEXPR_FORMAT
+#  define BOOST_INT128_CONSTEXPR_FORMAT constexpr
+#else
+#  define BOOST_INT128_CONSTEXPR_FORMAT
+#endif
 
 namespace boost::int128::detail {
 
@@ -181,7 +199,7 @@ constexpr auto parse_impl(ParseContext& ctx)
 template <typename T>
 struct is_library_type_impl
 {
-    static constexpr bool value {std::is_same_v<T, boost::int128::uint128_t> || std::is_same_v<T, boost::int128::int128_t>};
+    static constexpr bool value {std::is_same_v<T, boost::int128::uint128> || std::is_same_v<T, boost::int128::int128>};
 };
 
 template <typename T>
@@ -233,35 +251,35 @@ struct formatter<T>
     }
 
     template <typename FormatContext>
-    auto format(T v, FormatContext& ctx) const
+    BOOST_INT128_CONSTEXPR_FORMAT auto format(T v, FormatContext& ctx) const
     {
-        char buffer[64];
+        char buffer[boost::int128::detail::mini_to_chars_buffer_size];
         bool isneg {false};
-        boost::int128::uint128_t abs_v {};
+        boost::int128::uint128 abs_v {};
 
-        if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+        if constexpr (std::is_same_v<T, boost::int128::int128>)
         {
             if (v < 0)
             {
                 isneg = true;
-                // Can't negate int128_t::min(), handle specially
+                // Can't negate int128::min(), handle specially
                 if (v == (std::numeric_limits<T>::min)())
                 {
-                    abs_v = boost::int128::uint128_t{UINT64_C(0x8000000000000000), 0};
+                    abs_v = boost::int128::uint128{UINT64_C(0x8000000000000000), 0};
                 }
                 else
                 {
-                    abs_v = static_cast<boost::int128::uint128_t>(-v);
+                    abs_v = static_cast<boost::int128::uint128>(-v);
                 }
             }
             else
             {
-                abs_v = static_cast<boost::int128::uint128_t>(v);
+                abs_v = static_cast<boost::int128::uint128>(v);
             }
         }
         else
         {
-            abs_v = static_cast<boost::int128::uint128_t>(v);
+            abs_v = static_cast<boost::int128::uint128>(v);
         }
 
         const auto end = boost::int128::detail::mini_to_chars(buffer, abs_v, base, is_upper);
@@ -365,7 +383,7 @@ struct formatter<T>
                 {
                     s.insert(s.begin(), ' ');
                 }
-                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+                if constexpr (std::is_same_v<T, boost::int128::int128>)
                 {
                     if (isneg)
                     {
@@ -374,7 +392,7 @@ struct formatter<T>
                 }
                 break;
             case boost::int128::detail::sign_option::negative:
-                if constexpr (std::is_same_v<T, boost::int128::int128_t>)
+                if constexpr (std::is_same_v<T, boost::int128::int128>)
                 {
                     if (isneg)
                     {
@@ -382,10 +400,8 @@ struct formatter<T>
                     }
                 }
                 break;
-            // LCOV_EXCL_START
-            default:
-                BOOST_INT128_UNREACHABLE;
-            // LCOV_EXCL_STOP
+            default:                        // LCOV_EXCL_LINE
+                BOOST_INT128_UNREACHABLE;   // LCOV_EXCL_LINE
         }
 
         s.erase(0, s.find_first_not_of('\0'));
@@ -417,10 +433,8 @@ struct formatter<T>
                     s.append(right_fill, fill_char);
                     break;
                 }
-                    // LCOV_EXCL_START
-                default:
-                    break;
-                    // LCOV_EXCL_STOP
+                default:                        // LCOV_EXCL_LINE
+                    break;                      // LCOV_EXCL_LINE
             }
         }
 

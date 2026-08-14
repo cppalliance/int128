@@ -3,10 +3,11 @@
 # https://www.boost.org/LICENSE_1_0.txt
 #
 # Struct definitions:
-#   struct uint128_t { std::uint64_t low; std::uint64_t high; };
-#   struct int128_t  { std::uint64_t low; std::int64_t high;  };
+#   struct uint128 { std::uint64_t low; std::uint64_t high; };
+#   struct int128  { std::uint64_t low; std::uint64_t high; };
 #
-# On big endian machines the word order is reversed
+# Both words of both types are unsigned; int128 reads the pair as two's
+# complement. On big endian machines the word order is reversed.
 #
 # Usage: source int128_printer.py
 
@@ -15,7 +16,7 @@ import gdb.printing
 import re
 
 class Uint128Printer:
-    """Pretty printer for uint128_t type"""
+    """Pretty printer for uint128 type"""
 
     def __init__(self, val):
         self.val = val
@@ -28,7 +29,7 @@ class Uint128Printer:
             value = (high << 64) | low
             return f"{value:,}"
         except Exception as e:
-            return f"<invalid uint128_t: {e}>"
+            return f"<invalid uint128: {e}>"
 
     def children(self):
         yield "low", self.val["low"]
@@ -39,16 +40,15 @@ class Uint128Printer:
 
 
 class Int128Printer:
-    """Pretty printer for int128_t type"""
+    """Pretty printer for int128 type"""
 
     def __init__(self, val):
         self.val = val
 
     def to_string(self):
         try:
-            # high is std::int64_t (signed)
-            high = int(self.val["high"])
-            # Ensure high is treated as signed 64-bit
+            # high is std::uint64_t; fold the two's complement sign in by hand
+            high = int(self.val["high"]) & 0xFFFFFFFFFFFFFFFF
             if high >= 0x8000000000000000:
                 high -= 0x10000000000000000
 
@@ -58,7 +58,7 @@ class Int128Printer:
             value = (high << 64) + low
             return f"{value:,}"
         except Exception as e:
-            return f"<invalid int128_t: {e}>"
+            return f"<invalid int128: {e}>"
 
     def children(self):
         yield "low", self.val["low"]
@@ -68,7 +68,7 @@ class Int128Printer:
         return None
 
 
-def lookup_int128_type(val):
+def lookup_int128ype(val):
     """
     Lookup function to detect if a type should use our pretty printers.
     Returns the appropriate printer or None.
@@ -87,12 +87,12 @@ def lookup_int128_type(val):
 
     type_name = str(type_obj)
 
-    # Patterns to match uint128_t and int128_t types
+    # Patterns to match uint128 and int128 types
     uint128_pattern = re.compile(
-        r"^(boost::int128::uint128_t|(\w+::)*uint128_t|uint128_t)$"
+        r"^(boost::int128::uint128|(\w+::)*uint128|uint128)$"
     )
     int128_pattern = re.compile(
-        r"^(boost::int128::int128_t|(\w+::)*int128_t|int128_t)$"
+        r"^(boost::int128::int128|(\w+::)*int128|int128)$"
     )
 
     if uint128_pattern.match(type_name):
@@ -108,9 +108,9 @@ def register_int128_printers(objfile=None):
     if objfile is None:
         objfile = gdb
 
-    objfile.pretty_printers.append(lookup_int128_type)
+    objfile.pretty_printers.append(lookup_int128ype)
 
 
 # Auto-register when the script is sourced
 register_int128_printers()
-print("int128_t and uint128_t pretty printers loaded successfully")
+print("int128 and uint128 pretty printers loaded successfully")

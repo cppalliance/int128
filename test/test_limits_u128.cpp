@@ -9,6 +9,9 @@
 #else
 
 import boost.int128;
+// Internal macros (BOOST_INT128_IF_CONSTEXPR, feature detection) are not part of
+// the module interface, so pull them in directly.
+#include <boost/int128/detail/config.hpp>
 
 #endif
 
@@ -17,13 +20,13 @@ import boost.int128;
 
 void test_basics()
 {
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::is_specialized, "Should be true");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::is_signed, "Should be false");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::is_integer, "Should be true");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::is_exact, "Should be true");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::has_infinity, "Should be false");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::has_quiet_NaN, "Should be false");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::has_signaling_NaN, "Should be false");
+    static_assert(std::numeric_limits<boost::int128::uint128>::is_specialized, "Should be true");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::is_signed, "Should be false");
+    static_assert(std::numeric_limits<boost::int128::uint128>::is_integer, "Should be true");
+    static_assert(std::numeric_limits<boost::int128::uint128>::is_exact, "Should be true");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::has_infinity, "Should be false");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::has_quiet_NaN, "Should be false");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::has_signaling_NaN, "Should be false");
 
     // C++23 deprecated the following two members
     #if defined(__GNUC__) && __cplusplus > 202002L
@@ -34,8 +37,8 @@ void test_basics()
     #  pragma warning(disable:4996)
     #endif
 
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::has_denorm == std::denorm_absent, "No denorm");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::has_denorm_loss, "No denorm");
+    static_assert(std::numeric_limits<boost::int128::uint128>::has_denorm == std::denorm_absent, "No denorm");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::has_denorm_loss, "No denorm");
 
     #if defined(__GNUC__) && __cplusplus > 202002L
     #  pragma GCC diagnostic pop
@@ -43,22 +46,22 @@ void test_basics()
     #  pragma warning(pop)
     #endif
 
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::round_style == std::round_toward_zero, "Integer rounding");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::is_iec559, "Should be false");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::is_bounded, "Should be true");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::is_modulo, "Should be true");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::digits == CHAR_BIT * sizeof(boost::int128::uint128_t), "128 bits");
+    static_assert(std::numeric_limits<boost::int128::uint128>::round_style == std::round_toward_zero, "Integer rounding");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::is_iec559, "Should be false");
+    static_assert(std::numeric_limits<boost::int128::uint128>::is_bounded, "Should be true");
+    static_assert(std::numeric_limits<boost::int128::uint128>::is_modulo, "Should be true");
+    static_assert(std::numeric_limits<boost::int128::uint128>::digits == CHAR_BIT * sizeof(boost::int128::uint128), "128 bits");
 
-    // std::numeric_limits<boost::int128::uint128_t>::digits * std::log10(2) = 38.532
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::digits10 == 38, "38 base 10 digits");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::max_digits10 == 0, "0 since not fp");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::radix == 2, "Should be 2");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::min_exponent == 0, "Should be 0");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::min_exponent10 == 0, "Should be 0");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::max_exponent == 0, "Should be 0");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::max_exponent10 == 0, "Should be 0");
-    static_assert(std::numeric_limits<boost::int128::uint128_t>::traps == std::numeric_limits<std::uint64_t>::traps, "Uses what std::uint64_t does");
-    static_assert(!std::numeric_limits<boost::int128::uint128_t>::tinyness_before, "should be false");
+    // std::numeric_limits<boost::int128::uint128>::digits * std::log10(2) = 38.532
+    static_assert(std::numeric_limits<boost::int128::uint128>::digits10 == 38, "38 base 10 digits");
+    static_assert(std::numeric_limits<boost::int128::uint128>::max_digits10 == 0, "0 since not fp");
+    static_assert(std::numeric_limits<boost::int128::uint128>::radix == 2, "Should be 2");
+    static_assert(std::numeric_limits<boost::int128::uint128>::min_exponent == 0, "Should be 0");
+    static_assert(std::numeric_limits<boost::int128::uint128>::min_exponent10 == 0, "Should be 0");
+    static_assert(std::numeric_limits<boost::int128::uint128>::max_exponent == 0, "Should be 0");
+    static_assert(std::numeric_limits<boost::int128::uint128>::max_exponent10 == 0, "Should be 0");
+    static_assert(std::numeric_limits<boost::int128::uint128>::traps == std::numeric_limits<std::uint64_t>::traps, "Uses what std::uint64_t does");
+    static_assert(!std::numeric_limits<boost::int128::uint128>::tinyness_before, "should be false");
 }
 
 #ifdef BOOST_INT128_HAS_INT128
@@ -71,7 +74,7 @@ void test_member_functions()
     // Numeric limits are only defined in GNU mode for old compilers or GCC 13+ automatically
     BOOST_INT128_IF_CONSTEXPR (builtin_max != 0)
     {
-        using lib_u128 = boost::int128::uint128_t;
+        using lib_u128 = boost::int128::uint128;
 
         BOOST_TEST(std::numeric_limits<builtin_u128>::min() == std::numeric_limits<lib_u128>::min());
         BOOST_TEST(std::numeric_limits<builtin_u128>::lowest() == std::numeric_limits<lib_u128>::lowest());

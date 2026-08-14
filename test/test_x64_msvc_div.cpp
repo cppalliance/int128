@@ -16,7 +16,7 @@
 
 #if defined(_M_AMD64) && !defined(__GNUC__) && !defined(__clang__) && _MSC_VER >= 1920
 
-using boost::int128::uint128_t;
+using boost::int128::uint128;
 
 static std::mt19937_64 rng{42};
 static constexpr std::size_t N{4096U};
@@ -26,14 +26,14 @@ static std::uniform_int_distribution<std::uint64_t> dist{UINT64_C(0), UINT64_MAX
 // uses no 64-bit-divide or multiply intrinsics.
 static void knuth_oracle(const std::uint64_t uh, const std::uint64_t ul,
                          const std::uint64_t vh, const std::uint64_t vl,
-                         uint128_t& quot, uint128_t& rem)
+                         uint128& quot, uint128& rem)
 {
-    const uint128_t u_val{uh, ul};
-    const uint128_t v_val{vh, vl};
+    const uint128 u_val{uh, ul};
+    const uint128 v_val{vh, vl};
 
     if (u_val < v_val)
     {
-        quot = uint128_t{UINT64_C(0)};
+        quot = uint128{UINT64_C(0)};
         rem = u_val;
         return;
     }
@@ -47,8 +47,8 @@ static void knuth_oracle(const std::uint64_t uh, const std::uint64_t ul,
 
     boost::int128::detail::impl::knuth_divide<true>(u, m, v, n, q);
 
-    quot = boost::int128::detail::impl::from_words<uint128_t>(q);
-    rem = boost::int128::detail::impl::from_words<uint128_t>(u);
+    quot = boost::int128::detail::impl::from_words<uint128>(q);
+    rem = boost::int128::detail::impl::from_words<uint128>(u);
 }
 
 // _udiv128 (udiv_2by1) versus the portable divlu, for 128/64 -> 64.
@@ -82,13 +82,13 @@ static void check_div3by2(const std::uint64_t uh, const std::uint64_t ul,
     std::uint64_t rl{};
     const auto q{boost::int128::detail::div3by2<true>(uh, ul, vh, vl, rh, rl)};
 
-    uint128_t expected_q{};
-    uint128_t expected_r{};
+    uint128 expected_q{};
+    uint128 expected_r{};
     knuth_oracle(uh, ul, vh, vl, expected_q, expected_r);
 
     BOOST_TEST_EQ(expected_q.high, UINT64_C(0));
     BOOST_TEST_EQ(q, expected_q.low);
-    BOOST_TEST_EQ(uint128_t(rh, rl), expected_r);
+    BOOST_TEST_EQ(uint128(rh, rl), expected_r);
 }
 
 // _udiv128 + _umul128 (div3by2) versus the 32-bit-limb Knuth reference, for 128/128 -> 64.

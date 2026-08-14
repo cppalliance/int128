@@ -194,30 +194,30 @@ void test_alignment_negative()
 
 int main()
 {
-    test_empty<boost::int128::uint128_t>();
-    test_empty<boost::int128::int128_t>();
-    test_empty_negative<boost::int128::int128_t>();
+    test_empty<boost::int128::uint128>();
+    test_empty<boost::int128::int128>();
+    test_empty_negative<boost::int128::int128>();
 
-    test_binary<boost::int128::uint128_t>();
-    test_binary<boost::int128::int128_t>();
+    test_binary<boost::int128::uint128>();
+    test_binary<boost::int128::int128>();
 
-    test_octal<boost::int128::uint128_t>();
-    test_octal<boost::int128::int128_t>();
+    test_octal<boost::int128::uint128>();
+    test_octal<boost::int128::int128>();
 
-    test_decimal<boost::int128::uint128_t>();
-    test_decimal<boost::int128::int128_t>();
-    test_decimal_negative<boost::int128::int128_t>();
+    test_decimal<boost::int128::uint128>();
+    test_decimal<boost::int128::int128>();
+    test_decimal_negative<boost::int128::int128>();
 
-    test_hex<boost::int128::uint128_t>();
-    test_hex<boost::int128::int128_t>();
-    test_hex_negative<boost::int128::int128_t>();
+    test_hex<boost::int128::uint128>();
+    test_hex<boost::int128::int128>();
+    test_hex_negative<boost::int128::int128>();
 
-    test_string_insertion<boost::int128::uint128_t>();
-    test_string_insertion<boost::int128::int128_t>();
+    test_string_insertion<boost::int128::uint128>();
+    test_string_insertion<boost::int128::int128>();
 
-    test_alignment<boost::int128::uint128_t>();
-    test_alignment<boost::int128::int128_t>();
-    test_alignment_negative<boost::int128::int128_t>();
+    test_alignment<boost::int128::uint128>();
+    test_alignment<boost::int128::int128>();
+    test_alignment_negative<boost::int128::int128>();
 
     return boost::report_errors();
 }

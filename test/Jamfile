@@ -71,6 +71,7 @@ run test_limits_i128.cpp ;
 run test_climits.cpp ;
 
 run test_bit.cpp ;
+run test_byte_conversions.cpp ;
 run test_literals.cpp ;
 run test_from_chars_bases.cpp ;
 run test_stream.cpp ;
@@ -79,6 +80,9 @@ run test_mixed_type_sign_compare.cpp ;
 run test_mixed_type_sign_conversion.cpp ;
 run test_cross_type_assign.cpp ;
 run test_builtin_parity.cpp ;
+run test_float_mixed_ops.cpp ;
+run test_integer_mixed_ops.cpp ;
+run test_float_conversion.cpp ;
 
 run test_consteval_funcs.cpp ;
 run test_sign_compare.cpp ;
@@ -90,12 +94,14 @@ run test_powm.cpp ;
 run test_ipow.cpp ;
 run test_isqrt.cpp ;
 run test_ckd.cpp ;
+run test_integer_comparison.cpp ;
 
 run test_format.cpp ;
 run test_fmt_format.cpp ;
 
 run test_div.cpp ;
 run test_div_primitives.cpp ;
+run test_int_div.cpp ;
 
 run test_num_digits.cpp ;
 run test_spaceship_operator.cpp ;
@@ -103,22 +109,34 @@ run test_to_string.cpp ;
 
 # Warnings about padding propagate out of <utility>
 run test_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+run test_container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+
+run test_boundaries.cpp ;
+run test_constexpr_boundaries.cpp ;
+run test_layout.cpp ;
 
 # Make sure we run the examples as well
-run ../examples/construction.cpp ;
-run ../examples/bit.cpp ;
-run ../examples/saturating_arithmetic.cpp ;
-run ../examples/checked_arithmetic.cpp ;
-run ../examples/mixed_type_arithmetic.cpp ;
-run ../examples/stream.cpp ;
-run ../examples/basic_arithmetic.cpp ;
-run ../examples/math_and_random.cpp ;
-run ../examples/charconv.cpp ;
-run ../examples/fmt_format.cpp ;
-run ../examples/cstdlib.cpp ;
-run ../examples/numeric_algorithms.cpp ;
-run ../examples/rollover.cpp ;
-run ../examples/to_string.cpp ;
+run ../example/hello_world.cpp ;
+run ../example/construction.cpp ;
+run ../example/bit.cpp ;
+run ../example/byte_conversions.cpp ;
+run ../example/saturating_arithmetic.cpp ;
+run ../example/checked_arithmetic.cpp ;
+run ../example/integer_comparison.cpp ;
+run ../example/mixed_type_arithmetic.cpp ;
+run ../example/mixed_float_arithmetic.cpp ;
+run ../example/stream.cpp ;
+run ../example/basic_arithmetic.cpp ;
+run ../example/math_and_random.cpp ;
+run ../example/charconv.cpp ;
+run ../example/container_hash.cpp : : : <toolset>msvc:<cxxflags>/wd4324 ;
+run ../example/fmt_format.cpp ;
+run ../example/format.cpp ;
+run ../example/cstdlib.cpp ;
+run ../example/numeric_algorithms.cpp ;
+run ../example/integer_division.cpp ;
+run ../example/rollover.cpp ;
+run ../example/to_string.cpp ;
 
 run limits_link_1.cpp limits_link_2.cpp limits_link_3.cpp ;
 
@@ -129,10 +147,15 @@ run github_issue_210.cpp ;
 run github_issue_221.cpp ;
 run github_issue_272.cpp ;
 run github_issue_377.cpp ;
+run github_issue_432.cpp ;
+compile github_issue_477.cpp ;
+run github_issue_479.cpp ;
+compile github_issue_480.cpp ;
 
 # Compilation of individual headers
 compile compile_tests/int128_master_header_compile.cpp ;
 compile compile_tests/bit_compile.cpp ;
+compile compile_tests/byte_conversions_compile.cpp ;
 compile compile_tests/fmt_format_compile.cpp ;
 compile compile_tests/charconv_compile.cpp ;
 compile compile_tests/climits_compile.cpp ;
@@ -147,3 +170,10 @@ compile compile_tests/numeric_compile.cpp ;
 compile compile_tests/string_compile.cpp ;
 compile compile_tests/random_compile.cpp ;
 compile compile_tests/utilities_compile.cpp ;
+
+compile-fail compile_tests/literals_overflow_fail.cpp ;
+compile-fail compile_tests/literals_base_prefix_fail.cpp ;
+compile-fail compile_tests/literals_invalid_fail.cpp ;
+compile-fail compile_tests/utilities_comparison_fail.cpp ;
+compile-fail compile_tests/byte_conversions_extent_fail.cpp ;
+compile-fail compile_tests/byte_conversions_target_fail.cpp ;

@@ -16,7 +16,7 @@ namespace detail {
 template <typename T>
 struct valid_overload
 {
-    static constexpr bool value = std::is_same<T, uint128_t>::value || std::is_same<T, int128_t>::value;
+    static constexpr bool value = std::is_same<T, uint128>::value || std::is_same<T, int128>::value;
 };
 
 template <typename T>
@@ -26,15 +26,15 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_valid_overload_v = valid_overload<T>::valu
 
 #if BOOST_INT128_ENDIAN_LITTLE_BYTE
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : low {v.low}, high {static_cast<std::int64_t>(v.high)} {}
+BOOST_INT128_HOST_DEVICE constexpr int128::int128(const uint128& v) noexcept : low {v.low}, high {v.high} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : low {v.low}, high {static_cast<std::uint64_t>(v.high)} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(const int128& v) noexcept : low {v.low}, high {v.high} {}
 
 #else
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t::int128_t(const uint128_t& v) noexcept : high {static_cast<std::int64_t>(v.high)}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr int128::int128(const uint128& v) noexcept : high {v.high}, low {v.low} {}
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexcept : high {static_cast<std::uint64_t>(v.high)}, low {v.low} {}
+BOOST_INT128_HOST_DEVICE constexpr uint128::uint128(const int128& v) noexcept : high {v.high}, low {v.low} {}
 
 #endif // BOOST_INT128_ENDIAN_LITTLE_BYTE
 
@@ -50,71 +50,81 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t::uint128_t(const int128_t& v) noexc
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator==(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) == static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator!=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) != static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) < static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator<=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) <= static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) > static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
 BOOST_INT128_HOST_DEVICE constexpr bool operator>=(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) >= static_cast<uint128>(rhs);
 }
+
+#ifdef BOOST_INT128_HAS_SPACESHIP_OPERATOR
+
+template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
+BOOST_INT128_HOST_DEVICE constexpr std::strong_ordering operator<=>(const T lhs, const U rhs) noexcept
+{
+    return static_cast<uint128>(lhs) <=> static_cast<uint128>(rhs);
+}
+
+#endif
 
 //=====================================
 // Arithmetic Operators
 //=====================================
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator+(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator+(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) + static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) + static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator-(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator-(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) - static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator*(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator*(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) * static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator/(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator/(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) / static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator%(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) % static_cast<uint128>(rhs);
 }
 
 //=====================================
@@ -122,49 +132,49 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator%(const T lhs, const U rhs)
 //=====================================
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator|(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator|(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) | static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator&(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator&(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) & static_cast<uint128>(rhs);
 }
 
 template <typename T, typename U, std::enable_if_t<detail::is_valid_overload_v<T> && detail::is_valid_overload_v<U> && !std::is_same<T, U>::value, bool> = true>
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator^(const T lhs, const U rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator^(const T lhs, const U rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ static_cast<uint128_t>(rhs);
+    return static_cast<uint128>(lhs) ^ static_cast<uint128>(rhs);
 }
 
 //=====================================
 // Cross-type Shift Operators
 //=====================================
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator<<(const int128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator<<(const int128 lhs, const uint128 rhs) noexcept
 {
-    return lhs << static_cast<int128_t>(rhs);
+    return lhs << static_cast<int128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator<<(const uint128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator<<(const uint128 lhs, const int128 rhs) noexcept
 {
-    return lhs << static_cast<uint128_t>(rhs);
+    return lhs << static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr int128_t operator>>(const int128_t lhs, const uint128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr int128 operator>>(const int128 lhs, const uint128 rhs) noexcept
 {
-    return lhs >> static_cast<int128_t>(rhs);
+    return lhs >> static_cast<int128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE constexpr uint128 operator>>(const uint128 lhs, const int128 rhs) noexcept
 {
-    return lhs >> static_cast<uint128_t>(rhs);
+    return lhs >> static_cast<uint128>(rhs);
 }
 
 //=====================================
-// int128_t with builtin unsigned __int128 comparison operators
+// int128 with builtin unsigned __int128 comparison operators
 //
 // These live here (not in int128_imp.hpp) 
 // to avoid C++20 rewritten-candidate ambiguity on MSVC
@@ -172,152 +182,152 @@ BOOST_INT128_HOST_DEVICE constexpr uint128_t operator>>(const uint128_t lhs, con
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) == rhs;
+    return static_cast<uint128>(lhs) == rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator==(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs == static_cast<uint128_t>(rhs);
+    return lhs == static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) != rhs;
+    return static_cast<uint128>(lhs) != rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator!=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs != static_cast<uint128_t>(rhs);
+    return lhs != static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) < rhs;
+    return static_cast<uint128>(lhs) < rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs < static_cast<uint128_t>(rhs);
+    return lhs < static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) <= rhs;
+    return static_cast<uint128>(lhs) <= rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator<=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs <= static_cast<uint128_t>(rhs);
+    return lhs <= static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) > rhs;
+    return static_cast<uint128>(lhs) > rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs > static_cast<uint128_t>(rhs);
+    return lhs > static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) >= rhs;
+    return static_cast<uint128>(lhs) >= rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR bool operator>=(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs >= static_cast<uint128_t>(rhs);
+    return lhs >= static_cast<uint128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128
 
 //=====================================
-// int128_t with builtin unsigned __int128 binary operators
+// int128 with builtin unsigned __int128 binary operators
 //=====================================
 
 #if defined(BOOST_INT128_HAS_INT128) || defined(BOOST_INT128_HAS_MSVC_INT128)
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) | rhs;
+    return static_cast<uint128>(lhs) | rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator|(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator|(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs | static_cast<uint128_t>(rhs);
+    return lhs | static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) & rhs;
+    return static_cast<uint128>(lhs) & rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator&(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator&(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs & static_cast<uint128_t>(rhs);
+    return lhs & static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) ^ rhs;
+    return static_cast<uint128>(lhs) ^ rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator^(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator^(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs ^ static_cast<uint128_t>(rhs);
+    return lhs ^ static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) + rhs;
+    return static_cast<uint128>(lhs) + rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator+(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator+(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs + static_cast<uint128_t>(rhs);
+    return lhs + static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) - rhs;
+    return static_cast<uint128>(lhs) - rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator-(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator-(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs - static_cast<uint128_t>(rhs);
+    return lhs - static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) * rhs;
+    return static_cast<uint128>(lhs) * rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator*(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator*(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs * static_cast<uint128_t>(rhs);
+    return lhs * static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) / rhs;
+    return static_cast<uint128>(lhs) / rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator/(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator/(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs / static_cast<uint128_t>(rhs);
+    return lhs / static_cast<uint128>(rhs);
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const int128_t lhs, const detail::builtin_u128 rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const int128 lhs, const detail::builtin_u128 rhs) noexcept
 {
-    return static_cast<uint128_t>(lhs) % rhs;
+    return static_cast<uint128>(lhs) % rhs;
 }
 
-BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128_t operator%(const detail::builtin_u128 lhs, const int128_t rhs) noexcept
+BOOST_INT128_HOST_DEVICE BOOST_INT128_BUILTIN_CONSTEXPR uint128 operator%(const detail::builtin_u128 lhs, const int128 rhs) noexcept
 {
-    return lhs % static_cast<uint128_t>(rhs);
+    return lhs % static_cast<uint128>(rhs);
 }
 
 #endif // BOOST_INT128_HAS_INT128

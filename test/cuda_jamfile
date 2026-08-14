@@ -46,6 +46,11 @@ run test_rotr.cu ;
 run test_popcount.cu ;
 run test_byteswap.cu ;
 
+run test_unsigned_byte_order.cu ;
+run test_signed_byte_order.cu ;
+run test_unsigned_byte_arrays.cu ;
+run test_signed_byte_arrays.cu ;
+
 run test_unsigned_eq.cu ;
 run test_signed_eq.cu ;
 run test_unsigned_ne.cu ;
@@ -65,14 +70,14 @@ run test_signed_cstdlib_div.cu ;
 run test_signed_to_unsigned_conversion.cu ;
 run test_unsigned_to_signed_conversion.cu ;
 
-run test_unsigned_add_sat.cu ;
-run test_signed_add_sat.cu ;
-run test_unsigned_sub_sat.cu ;
-run test_signed_sub_sat.cu ;
-run test_unsigned_mul_sat.cu ;
-run test_signed_mul_sat.cu ;
-run test_unsigned_div_sat.cu ;
-run test_signed_div_sat.cu ;
+run test_unsigned_saturating_add.cu ;
+run test_signed_saturating_add.cu ;
+run test_unsigned_saturating_sub.cu ;
+run test_signed_saturating_sub.cu ;
+run test_unsigned_saturating_mul.cu ;
+run test_signed_saturating_mul.cu ;
+run test_unsigned_saturating_div.cu ;
+run test_signed_saturating_div.cu ;
 run test_unsigned_gcd.cu ;
 run test_signed_gcd.cu ;
 run test_unsigned_lcm.cu ;
@@ -93,4 +98,13 @@ run test_signed_from_chars_bases.cu ;
 run test_unsigned_literals.cu ;
 run test_signed_literals.cu ;
 
-run ../examples/cuda.cu ;
+# Mixed operations with a builtin floating point type
+run test_unsigned_add_float.cu ;
+run test_unsigned_mul_float.cu ;
+run test_unsigned_lt_float.cu ;
+run test_signed_add_float.cu ;
+run test_signed_mul_float.cu ;
+run test_signed_lt_float.cu ;
+
+run ../example/cuda.cu ;
+run ../example/cuda_primality.cu ;

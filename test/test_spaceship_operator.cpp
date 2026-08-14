@@ -10,7 +10,7 @@
 
 void test_u128()
 {
-    constexpr boost::int128::uint128_t x {5U};
+    constexpr boost::int128::uint128 x {5U};
     BOOST_TEST((x <=> 4U) == std::strong_ordering::greater);
     BOOST_TEST((x <=> 5U) == std::strong_ordering::equivalent);
     BOOST_TEST((x <=> 5U) == std::strong_ordering::equal);
@@ -19,7 +19,7 @@ void test_u128()
 
 void test_int128()
 {
-    constexpr boost::int128::int128_t x {5};
+    constexpr boost::int128::int128 x {5};
     BOOST_TEST((x <=> 4) == std::strong_ordering::greater);
     BOOST_TEST((x <=> 5) == std::strong_ordering::equivalent);
     BOOST_TEST((x <=> 5) == std::strong_ordering::equal);

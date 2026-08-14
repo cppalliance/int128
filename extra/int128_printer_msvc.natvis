@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="boost::int128::uint128">
+		<DisplayString ExcludeView="dec;hex" LegacyAddin="int128_printer_msvc.dll" Export="formatter_u128_dec"/>
+		<DisplayString IncludeView="dec" LegacyAddin="int128_printer_msvc.dll" Export="formatter_u128_dec"/>
+		<DisplayString IncludeView="hex" LegacyAddin="int128_printer_msvc.dll" Export="formatter_u128_hex"/>
+	</Type>
+	<Type Name="boost::int128::int128">
+		<DisplayString ExcludeView="dec;hex" LegacyAddin="int128_printer_msvc.dll" Export="formatter_s128_dec"/>
+		<DisplayString IncludeView="dec" LegacyAddin="int128_printer_msvc.dll" Export="formatter_s128_dec"/>
+		<DisplayString IncludeView="hex" LegacyAddin="int128_printer_msvc.dll" Export="formatter_s128_hex"/>
+	</Type>
+</AutoVisualizer>

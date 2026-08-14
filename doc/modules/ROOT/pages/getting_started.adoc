@@ -8,7 +8,8 @@ https://www.boost.org/LICENSE_1_0.txt
 = Getting Started
 :idprefix: gs_
 
-Boost.Int128 is header-only. The core types and functions have no required dependencies, so in most cases it is enough to add the library's `include` directory to your compiler's search path and include the umbrella header:
+Boost.Int128 is header-only.
+The core types and functions have no required dependencies, so in most cases it is enough to add the library's `include` directory to your compiler's search path and include the umbrella header:
 
 [source, c++]
 ----
@@ -16,6 +17,11 @@ Boost.Int128 is header-only. The core types and functions have no required depen
 ----
 
 The umbrella header pulls in the two types and every feature that has no external dependency. The optional integration headers (xref:charconv.adoc[`charconv.hpp`], `random.hpp`, and the pass:[{fmt}] support in xref:format.adoc[`fmt_format.hpp`]) are not included by the umbrella and must be included explicitly. See xref:file_structure.adoc[File Structure] for the full header list.
+
+== Compiler Explorer
+
+Want to try the library out before going further?
+It is available on https://godbolt.org/z/3q4zce41d[Compiler Explorer].
 
 == B2
 
@@ -77,16 +83,55 @@ When compiling with pass:[C++20] or newer, the library can be consumed as a name
 import boost.int128;
 ----
 
-Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling `module/int128.cxx` with your toolchain's module support. See xref:config.adoc[Configuration Macros] for details.
+Building the module requires defining `BOOST_INT128_BUILD_MODULE` and compiling `module/int128.cppm` with your toolchain's module support. See xref:config.adoc[Configuration Macros] for details.
 
 == CUDA Support
 
 The library types and many of the functions can run on both host and device under CUDA. Compile with a CUDA-aware toolchain and define `BOOST_INT128_ENABLE_CUDA`. Functions carrying `BOOST_INT128_HOST_DEVICE` in their signature run on both host and device; all others run on host only. See xref:config.adoc[Configuration Macros].
 
+== SYCL Support
+
+The library types and many of the functions can also run on the device under SYCL (for example Intel oneAPI `icpx -fsycl`). SYCL device support is opt-in: include `<sycl/sycl.hpp>` before any Boost.int128 header and define `BOOST_INT128_ENABLE_SYCL`. Functions carrying `BOOST_INT128_HOST_DEVICE` in their signature run on both host and device; all others run on host only. The `boost::charconv::to_chars` / `from_chars` overloads from `<boost/int128/charconv.hpp>` also run on the SYCL device (Boost.Charconv provides SYCL support, and defining `BOOST_INT128_ENABLE_SYCL` enables it automatically). See xref:config.adoc[Configuration Macros].
+
 == Dependencies
 
 The core library (everything included by `<boost/int128.hpp>`) has no required dependencies and needs only a conforming pass:[C++14] compiler. The optional integration headers depend on the following, and are only usable when those components are available:
 
-* xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires Boost.Charconv.
-* `<boost/int128/random.hpp>` requires Boost.Random.
+* xref:charconv.adoc[`<boost/int128/charconv.hpp>`] requires https://www.boost.org/doc/libs/release/libs/charconv/doc/html/charconv.html[Boost.Charconv].
+* xref:random.adoc[`<boost/int128/random.hpp>`] requires https://www.boost.org/doc/libs/release/libs/random/[Boost.Random].
 * xref:format.adoc[`<boost/int128/fmt_format.hpp>`] requires the https://github.com/fmtlib/fmt[pass:[{fmt}]] library.
+
+== Hello World
+
+Nothing beyond the include path is required to start using the types. This program adds two values whose sum does not fit in 64 bits, and prints the result:
+
+[source, c++]
+----
+include::example$hello_world.cpp[]
+----
+
+.Expected Output
+[listing]
+----
+18446744073709551616 + 42 = 18446744073709551658
+----
+
+Because the library is header-only, a single command compiles and runs it. Substitute the path to your Boost installation for `/path/to/boost`:
+
+.Linux
+[source, bash]
+----
+g++ -std=c++14 -I /path/to/boost hello_world.cpp -o hello_world && ./hello_world
+----
+
+.macOS
+[source, bash]
+----
+clang++ -std=c++14 -I /path/to/boost hello_world.cpp -o hello_world && ./hello_world
+----
+
+.Windows
+[source, batch]
+----
+cl /EHsc /std:c++14 /I C:\path\to\boost hello_world.cpp && hello_world.exe
+----

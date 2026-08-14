@@ -9,6 +9,8 @@
 #else
 
 import boost.int128;
+// The convenience macros are not part of the module interface (macros never are).
+#include <boost/int128/detail/literal_macros.hpp>
 
 #endif
 
@@ -38,25 +40,25 @@ template <typename T>
 void test_big();
 
 template <>
-void test_big<boost::int128::uint128_t>()
+void test_big<boost::int128::uint128>()
 {
-    using boost::int128::uint128_t;
+    using boost::int128::uint128;
     using boost::int128::midpoint;
 
-    constexpr auto max = std::numeric_limits<uint128_t>::max();
+    constexpr auto max = std::numeric_limits<uint128>::max();
 
-    BOOST_TEST_EQ(BOOST_INT128_UINT128_C(170141183460469231731687303715884105728), midpoint(max, std::numeric_limits<uint128_t>::min()));
+    BOOST_TEST_EQ(BOOST_INT128_UINT128_C(170141183460469231731687303715884105728), midpoint(max, std::numeric_limits<uint128>::min()));
     BOOST_TEST_EQ(max - 1u, midpoint(max, max - 2u));
 }
 
 template <>
-void test_big<boost::int128::int128_t>()
+void test_big<boost::int128::int128>()
 {
-    using boost::int128::int128_t;
+    using boost::int128::int128;
     using boost::int128::midpoint;
 
-    constexpr auto max = std::numeric_limits<int128_t>::max();
-    constexpr auto min = std::numeric_limits<int128_t>::min();
+    constexpr auto max = std::numeric_limits<int128>::max();
+    constexpr auto min = std::numeric_limits<int128>::min();
 
     BOOST_TEST_EQ(0, midpoint(max, min));
 
@@ -67,14 +69,14 @@ void test_big<boost::int128::int128_t>()
 
 int main()
 {
-    test_trivial<boost::int128::uint128_t>();
-    test_trivial<boost::int128::int128_t>();
+    test_trivial<boost::int128::uint128>();
+    test_trivial<boost::int128::int128>();
 
-    test_rounding<boost::int128::uint128_t>();
-    test_rounding<boost::int128::int128_t>();
+    test_rounding<boost::int128::uint128>();
+    test_rounding<boost::int128::int128>();
 
-    test_big<boost::int128::uint128_t>();
-    test_big<boost::int128::int128_t>();
+    test_big<boost::int128::uint128>();
+    test_big<boost::int128::int128>();
 
     return boost::report_errors();
 }

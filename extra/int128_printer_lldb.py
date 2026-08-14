@@ -3,16 +3,17 @@
 # https://www.boost.org/LICENSE_1_0.txt
 #
 # Struct definitions:
-#   struct uint128_t { std::uint64_t low; std::uint64_t high; };
-#   struct int128_t  { std::uint64_t low; std::int64_t high;  };
+#   struct uint128 { std::uint64_t low; std::uint64_t high; };
+#   struct int128  { std::uint64_t low; std::uint64_t high; };
 #
-# On big endian machines the word order is reversed
+# Both words of both types are unsigned; int128 reads the pair as two's
+# complement. On big endian machines the word order is reversed.
 
 import lldb
 
 def uint128_summary(valobj, internal_dict):
     """
-    Custom summary for uint128_t type (unsigned).
+    Custom summary for uint128 type (unsigned).
     Displays as decimal (base 10).
     """
     try:
@@ -23,28 +24,31 @@ def uint128_summary(valobj, internal_dict):
         value = (high << 64) | low
         return f"{value:,}"
     except Exception as e:
-        return f"<invalid uint128_t: {e}>"
+        return f"<invalid uint128: {e}>"
 
 def int128_summary(valobj, internal_dict):
     """
-    Custom summary for int128_t type (signed).
+    Custom summary for int128 type (signed).
     Displays as decimal (base 10).
     """
     try:
         val = valobj.GetNonSyntheticValue()
-        # high is std::int64_t, so use GetValueAsSigned()
-        high = val.GetChildMemberWithName("high").GetValueAsSigned()
-        # low is std::uint64_t, so use GetValueAsUnsigned()
+        # Both words are std::uint64_t, so read them unsigned and fold the
+        # two's complement sign in by hand.
+        high = val.GetChildMemberWithName("high").GetValueAsUnsigned()
         low  = val.GetChildMemberWithName("low").GetValueAsUnsigned()
 
-        value = (high << 64) + low
+        value = (high << 64) | low
+        if value >= (1 << 127):
+            value -= (1 << 128)
+
         return f"{value:,}"
     except Exception as e:
-        return f"<invalid int128_t: {e}>"
+        return f"<invalid int128: {e}>"
 
 def __lldb_init_module(debugger, internal_dict):
-    uint128_pattern = r"^(const )?(boost::int128::uint128_t|(\w+::)*uint128_t)( &| \*)?$"
-    int128_pattern = r"^(const )?(boost::int128::int128_t|(\w+::)*int128_t)( &| \*)?$"
+    uint128_pattern = r"^(const )?(boost::int128::uint128|(\w+::)*uint128)( &| \*)?$"
+    int128_pattern = r"^(const )?(boost::int128::int128|(\w+::)*int128)( &| \*)?$"
 
     debugger.HandleCommand(
         f'type summary add -x "{uint128_pattern}" -e -F int128_printer_lldb.uint128_summary'
@@ -60,7 +64,7 @@ def __lldb_init_module(debugger, internal_dict):
         f'type synthetic add -x "{int128_pattern}" -l int128_printer_lldb.Int128SyntheticProvider'
     )
 
-    print("int128_t and uint128_t pretty printers loaded successfully")
+    print("int128 and uint128 pretty printers loaded successfully")
 
 class Uint128SyntheticProvider:
     def __init__(self, valobj, internal_dict):

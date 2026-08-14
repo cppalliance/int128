@@ -15,11 +15,14 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 |===
 | Header | Description
 
-| `<boost/int128.hpp>`
+| xref:getting_started.adoc[`<boost/int128.hpp>`]
 | Convenience header (includes most headers below; does not include `charconv.hpp`, `fmt_format.hpp`, or `random.hpp`)
 
 | xref:bit.adoc[`<boost/int128/bit.hpp>`]
 | Bit manipulation functions
+
+| xref:byte_conversions.adoc[`<boost/int128/byte_conversions.hpp>`]
+| Big-endian and little-endian byte order conversions
 
 | xref:charconv.adoc[`<boost/int128/charconv.hpp>`]
 | Character conversion (`to_chars`/`from_chars`); requires Boost.Charconv headers
@@ -37,10 +40,10 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | C++20 `std::format` support
 
 | xref:hash.adoc[`<boost/int128/hash.hpp>`]
-| `std::hash` specializations for `int128_t` and `uint128_t`
+| `std::hash` specializations for `int128` and `uint128`
 
-| `<boost/int128/int128.hpp>`
-| Core type definitions (`uint128_t`, `int128_t`)
+| xref:api_reference.adoc#api_types[`<boost/int128/int128.hpp>`]
+| Core type definitions (xref:uint128.adoc[`uint128`], xref:int128.adoc[`int128`])
 
 | xref:stream.adoc[`<boost/int128/iostream.hpp>`]
 | Stream insertion/extraction operators
@@ -52,9 +55,9 @@ The entire library can be consumed via `<boost/int128.hpp>`, or by independently
 | User-defined literals (`_u128`, `_i128`)
 
 | xref:numeric.adoc[`<boost/int128/numeric.hpp>`]
-| Numeric functions (`gcd`, `lcm`, saturating arithmetic)
+| Numeric functions (`gcd`, `lcm`, saturating arithmetic, integer division)
 
-| `<boost/int128/random.hpp>`
+| xref:random.adoc[`<boost/int128/random.hpp>`]
 | Traits for usage with Boost.Random
 
 | xref:string.adoc[`<boost/int128/string.hpp>`]

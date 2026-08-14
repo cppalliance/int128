@@ -19,3 +19,5 @@ The following books, papers, and specifications inform the algorithms and interf
 - ISO/IEC, _Programming Languages - C++_ (the `<bit>`, `<numeric>`, `<charconv>`, and `<format>` interfaces mirrored by this library).
 
 - ISO/IEC 9899:2024 (C23), _Programming Languages - C_ (the `<stdckdint.h>` checked-integer interface mirrored by `ckd_add`, `ckd_sub`, and `ckd_mul`).
+
+- Jan Schultke, https://wg21.link/p3724[P3724, _Integer division_] (the rounding modes and the `div_result` interface mirrored by the xref:numeric.adoc#int_div[`div_*` family]).
