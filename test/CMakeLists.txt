@@ -46,7 +46,7 @@ if(HAVE_BOOST_TEST)
 
         boost_test_jamfile(FILE Jamfile LINK_LIBRARIES Boost::int128 Boost::core Boost::random Boost::multiprecision Boost::mp11 Boost::charconv Boost::container_hash Boost::unordered)
 
-        boost_test(SOURCES check_cmake_version.cpp ARGUMENTS ${PROJECT_VERSION} LINK_LIBRARIES Boost::decimal Boost::core)
+        boost_test(SOURCES check_cmake_version.cpp ARGUMENTS ${PROJECT_VERSION} LINK_LIBRARIES Boost::int128 Boost::core)
 
     endif()
 
