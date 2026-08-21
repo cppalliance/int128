@@ -1,4 +1,4 @@
-# Boost.int128 (candidate library)
+# Boost.int128
 Portable implementations of signed and unsigned 128-bit integers
 
 |                  | Master                                                                                                                                                            |   Develop   |
@@ -7,10 +7,6 @@ Portable implementations of signed and unsigned 128-bit integers
 | Github Actions   | [![CI](https://github.com/boostorg/int128/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/boostorg/int128/actions/workflows/ci.yml) | [![CI](https://github.com/boostorg/int128/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/boostorg/int128/actions/workflows/ci.yml)
 | Codecov          | [![codecov](https://codecov.io/gh/boostorg/int128/branch/master/graph/badge.svg?token=KWY7M64xhh)](https://codecov.io/gh/boostorg/int128) | [![codecov](https://codecov.io/gh/boostorg/int128/graph/badge.svg?token=drvY8nnV5S)](https://codecov.io/gh/boostorg/int128) |
 ---
-
-# Notice
-
-int128 is under active development and is not an official boost library.
 
 # How To Use The Library
 
