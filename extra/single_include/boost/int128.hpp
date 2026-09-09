@@ -1231,48 +1231,43 @@ namespace impl {
 #  pragma warning(disable : 4127) // Pre c++17 the if constexpr remainder part will hit this
 #endif
 
-template <std::size_t v_size>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
-    const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 2>&) noexcept
-{
-    vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
-    vn[0] = needs_shift ? (v[0] << s) : v[0];
-}
-
-template <std::size_t v_size>
-BOOST_INT128_HOST_DEVICE BOOST_INT128_FORCE_INLINE constexpr void unpack_v(std::uint32_t (&vn)[4], const std::uint32_t (&v)[v_size],
-    const bool needs_shift, const int s, const int complement_s, const std::integral_constant<std::size_t, 4>&) noexcept
-{
-    vn[3] = needs_shift ? ((v[3] << s) | (v[2] >> complement_s)) : v[3];
-    vn[2] = needs_shift ? ((v[2] << s) | (v[1] >> complement_s)) : v[2];
-    vn[1] = needs_shift ? ((v[1] << s) | (v[0] >> complement_s)) : v[1];
-    vn[0] = needs_shift ? (v[0] << s) : v[0];
-}
-
 // See: The Art of Computer Programming Volume 2 (Semi-numerical algorithms) section 4.3.1
 // Algorithm D: Division of Non-negative integers
+//
+// Divides the m word dividend u by the n word divisor v (m >= n >= 2, v[n - 1] != 0) on 32-bit words
+// and writes the quotient to q. With need_remainder the remainder is left in u, otherwise u is scratch.
+// The word counts are template parameters so the same routine serves 128-bit operands here and the
+// 256-bit operands of Boost.Decimal.
 template <bool need_remainder, std::size_t u_size, std::size_t v_size, std::size_t q_size>
 BOOST_INT128_HOST_DEVICE constexpr void knuth_divide(std::uint32_t (&u)[u_size], const std::size_t m,
                             const std::uint32_t (&v)[v_size], const std::size_t n,
                             std::uint32_t (&q)[q_size]) noexcept
 {
-    // D.1
+    static_assert(v_size >= 2, "Algorithm D needs at least two divisor words");
+    static_assert(u_size >= v_size, "The dividend can not be narrower than the divisor");
+    static_assert(q_size >= u_size, "The quotient buffer must be as wide as the dividend");
+
+    // D.1: normalize so the top word of the divisor has its most significant bit set
     const auto s {countl_zero(v[n - 1])};
     const auto complement_s {32 - s};
     const bool needs_shift {s > 0};
 
     // Create normalized versions of u and v
-    std::uint32_t un[5] {};
-    std::uint32_t vn[4] {};
+    std::uint32_t un[u_size + 1] {};
+    std::uint32_t vn[v_size] {};
 
-    un[4] = needs_shift ? (u[3] >> complement_s) : 0;
-    un[3] = needs_shift ? ((u[3] << s) | (u[2] >> complement_s)) : u[3];
-    un[2] = needs_shift ? ((u[2] << s) | (u[1] >> complement_s)) : u[2];
-    un[1] = needs_shift ? ((u[1] << s) | (u[0] >> complement_s)) : u[1];
+    for (std::size_t i {n - 1}; i > 0; --i)
+    {
+        vn[i] = needs_shift ? ((v[i] << s) | (v[i - 1] >> complement_s)) : v[i];
+    }
+    vn[0] = needs_shift ? (v[0] << s) : v[0];
+
+    un[m] = needs_shift ? (u[m - 1] >> complement_s) : 0;
+    for (std::size_t i {m - 1}; i > 0; --i)
+    {
+        un[i] = needs_shift ? ((u[i] << s) | (u[i - 1] >> complement_s)) : u[i];
+    }
     un[0] = needs_shift ? (u[0] << s) : u[0];
-
-    static_assert(v_size == 4 || v_size == 2, "Unknown size for denominator");
-    unpack_v(vn, v, needs_shift, s, complement_s, std::integral_constant<std::size_t, v_size>{});
 
     // D.2
     for (std::size_t j {m - n}; j != static_cast<std::size_t>(-1); --j)
@@ -9768,7 +9763,7 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 powm(const int128 
     {
         const uint128 magnitude {static_cast<uint128>(abs(base))};
         const uint128 r {magnitude % um};
-        ub = r == 0U ? uint128{0} : static_cast<uint128>(um - r);
+        ub = r == 0U ? uint128{0} : um - r;
     }
     else
     {
@@ -11586,7 +11581,8 @@ struct hash<boost::int128::int128>
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
 
         // boost::hash_combine style mixing of the two finalized halves
-        return low_hash ^ (high_hash + static_cast<std::size_t>(0x9e3779b9) + (low_hash << 6) + (low_hash >> 2));
+        constexpr std::size_t golden_ratio {0x9e3779b9U};
+        return low_hash ^ (high_hash + golden_ratio + (low_hash << 6) + (low_hash >> 2));
     }
 };
 
@@ -11599,7 +11595,8 @@ struct hash<boost::int128::uint128>
         const std::size_t high_hash {boost::int128::detail::hash_finalize_64(v.high)};
 
         // boost::hash_combine style mixing of the two finalized halves
-        return low_hash ^ (high_hash + static_cast<std::size_t>(0x9e3779b9) + (low_hash << 6) + (low_hash >> 2));
+        constexpr std::size_t golden_ratio {0x9e3779b9U};
+        return low_hash ^ (high_hash + golden_ratio + (low_hash << 6) + (low_hash >> 2));
     }
 };
 
