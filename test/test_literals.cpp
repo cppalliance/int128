@@ -167,10 +167,6 @@ void test_i128_base_prefixes()
     #endif
 }
 
-#ifdef _MSC_VER
-#  pragma warning(pop)
-#endif
-
 // The literal operators are noexcept: a malformed or out-of-range literal is a compile-time
 // error in a constant expression (compile_tests pin that) and terminates at run time. A
 // value that fits still parses at run time through the string form.
