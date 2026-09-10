@@ -68,32 +68,54 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     int base {10};
     if (flags & std::ios_base::oct)
     {
+        // No prefix is stripped: in base 8 a leading zero is already an ordinary digit,
+        // so "017" reads as 15 and "08" reads as 0 leaving the '8' in the stream, which
+        // is what num_get does for the builtin types.
         base = 8;
-        if (*buffer_start == '0')
-        {
-            ++buffer_start;
-        }
     }
     else if (flags & std::ios_base::hex)
     {
         base = 16;
-        if (*buffer_start == '0')
+
+        // Skip an explicit 0x or 0X prefix, and never a bare leading zero, which
+        // would swallow the first digit of a value such as 0f
+        if (buffer_start[0] == '0' && (buffer_start[1] == 'x' || buffer_start[1] == 'X'))
         {
             buffer_start += 2;
         }
     }
 
+    const auto prefix_length {static_cast<std::size_t>(buffer_start - buffer)};
+
     const auto r {detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base)};
 
-    // Put back unconsumed characters
-    // If r is greater than 0 then an errno values has been hit
-    const auto consumed {static_cast<std::size_t>(r > 0 ? 0 : -r)};
+    // Put back unconsumed characters. Only a strictly negative r means digits were
+    // extracted, and then -r digits were consumed on top of any base prefix. Anything
+    // else consumed nothing at all, so even the prefix goes back.
+    std::size_t consumed {};
+    if (r < 0)
+    {
+        consumed = prefix_length + static_cast<std::size_t>(-r);
+    }
+
     BOOST_INT128_ASSERT(t_buffer_len >= consumed);
     const auto return_chars {static_cast<std::size_t>(t_buffer_len - consumed)};
 
     for (std::size_t i {}; i < return_chars; ++i)
     {
         is.putback(t_buffer[t_buffer_len - i - 1]);
+    }
+
+    // from_chars returns the negated number of characters consumed on success, so
+    // anything not negative means no digits were extracted: r == 0 is a first
+    // character that is not a digit in the base, and r > 0 is an errno value
+    // (EINVAL for an empty input or a sign, EDOM for a value that does not fit).
+    // The stream has to report all of those as a failure. This must come after the
+    // putback loop: putback fails its own sentry once failbit is set.
+    if (r >= 0)
+    {
+        v = LibIntegerType{};
+        is.setstate(std::ios_base::failbit);
     }
 
     return is;
@@ -124,7 +146,8 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
 
     auto first {detail::mini_to_chars(buffer, v, base, uppercase)};
 
-    if (flags & std::ios_base::showbase)
+    // A zero prints as a bare "0" with showbase, the same as the builtin types
+    if ((flags & std::ios_base::showbase) && v != 0U)
     {
         if (base == 8)
         {
