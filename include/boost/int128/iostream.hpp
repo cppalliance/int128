@@ -36,6 +36,11 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_streamable_overload_v = streamable_overloa
 
 } // namespace detail
 
+#if defined(__GNUC__) && __GNUC__ >= 5 && __GNUC__ < 11
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_istream<charT, traits>&>
@@ -120,6 +125,10 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
 
     return is;
 }
+
+#if defined(__GNUC__) && __GNUC__ >= 5 && __GNUC__ < 11
+#  pragma GCC diagnostic pop
+#endif
 
 BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
