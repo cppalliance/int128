@@ -8770,6 +8770,12 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
         return EINVAL;
     }
 
+    // A base outside 2..36 has no digit set; base 0 would divide by zero below
+    if (base < 2 || base > 36)
+    {
+        return EINVAL;
+    }
+
     Unsigned_Integer result {};
     Unsigned_Integer overflow_value {};
     Unsigned_Integer max_digit {};
@@ -8901,6 +8907,13 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
         return EDOM;
     }
 
+    // Nothing consumed means the first character was not a digit in this base. The
+    // output is left untouched, as std::from_chars specifies, and 0 is returned.
+    if (next == first || (is_negative && next == first + 1))
+    {
+        return 0;
+    }
+
     value = static_cast<Integer>(result);
 
     BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
@@ -8981,6 +8994,8 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
 // Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
 // A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
 // the digits parsed in that base, otherwise handled as base 10
+// A malformed or out-of-range literal is a compile-time error in a constant expression and
+// terminates the program at run time (the reporters throw out of this noexcept function).
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, const char* last) noexcept
 {
@@ -9274,6 +9289,11 @@ BOOST_INT128_INLINE_CONSTEXPR bool is_streamable_overload_v = streamable_overloa
 
 } // namespace detail
 
+#if defined(__GNUC__) && __GNUC__ >= 5 && __GNUC__ < 11
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
 BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     -> std::enable_if_t<detail::is_streamable_overload_v<LibIntegerType>, std::basic_istream<charT, traits>&>
@@ -9306,26 +9326,36 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
     int base {10};
     if (flags & std::ios_base::oct)
     {
+        // No prefix is stripped: in base 8 a leading zero is already an ordinary digit,
+        // so "017" reads as 15 and "08" reads as 0 leaving the '8' in the stream, which
+        // is what num_get does for the builtin types.
         base = 8;
-        if (*buffer_start == '0')
-        {
-            ++buffer_start;
-        }
     }
     else if (flags & std::ios_base::hex)
     {
         base = 16;
-        if (*buffer_start == '0')
+
+        // Skip an explicit 0x or 0X prefix, and never a bare leading zero, which
+        // would swallow the first digit of a value such as 0f
+        if (buffer_start[0] == '0' && (buffer_start[1] == 'x' || buffer_start[1] == 'X'))
         {
             buffer_start += 2;
         }
     }
 
+    const auto prefix_length {static_cast<std::size_t>(buffer_start - buffer)};
+
     const auto r {detail::from_chars(buffer_start, buffer + detail::strlen(buffer), v, base)};
 
-    // Put back unconsumed characters
-    // If r is greater than 0 then an errno values has been hit
-    const auto consumed {static_cast<std::size_t>(r > 0 ? 0 : -r)};
+    // Put back unconsumed characters. Only a strictly negative r means digits were
+    // extracted, and then -r digits were consumed on top of any base prefix. Anything
+    // else consumed nothing at all, so even the prefix goes back.
+    std::size_t consumed {};
+    if (r < 0)
+    {
+        consumed = prefix_length + static_cast<std::size_t>(-r);
+    }
+
     BOOST_INT128_ASSERT(t_buffer_len >= consumed);
     const auto return_chars {static_cast<std::size_t>(t_buffer_len - consumed)};
 
@@ -9334,8 +9364,24 @@ auto operator>>(std::basic_istream<charT, traits>& is, LibIntegerType& v)
         is.putback(t_buffer[t_buffer_len - i - 1]);
     }
 
+    // from_chars returns the negated number of characters consumed on success, so
+    // anything not negative means no digits were extracted: r == 0 is a first
+    // character that is not a digit in the base, and r > 0 is an errno value
+    // (EINVAL for an empty input or a sign, EDOM for a value that does not fit).
+    // The stream has to report all of those as a failure. This must come after the
+    // putback loop: putback fails its own sentry once failbit is set.
+    if (r >= 0)
+    {
+        v = LibIntegerType{};
+        is.setstate(std::ios_base::failbit);
+    }
+
     return is;
 }
+
+#if defined(__GNUC__) && __GNUC__ >= 5 && __GNUC__ < 11
+#  pragma GCC diagnostic pop
+#endif
 
 BOOST_INT128_EXPORT template <typename charT, typename traits, typename LibIntegerType>
 auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
@@ -9362,7 +9408,8 @@ auto operator<<(std::basic_ostream<charT, traits>& os, const LibIntegerType& v)
 
     auto first {detail::mini_to_chars(buffer, v, base, uppercase)};
 
-    if (flags & std::ios_base::showbase)
+    // A zero prints as a bare "0" with showbase, the same as the builtin types
+    if ((flags & std::ios_base::showbase) && v != 0U)
     {
         if (base == 8)
         {
@@ -10466,7 +10513,10 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 gcd(uint128 a, ui
     a >>= shift;
     b >>= shift;
 
-    do
+    // The invariant of the loop below is that a is odd
+    a >>= countr_zero(a);
+
+    while (true)
     {
         b >>= countr_zero(b);
 
@@ -10478,11 +10528,20 @@ BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr uint128 gcd(uint128 a, ui
         }
 
         b -= a;
-    } while (b != 0U && (a.high | b.high) > 0U);
 
-    // Stop doing 128-bit math as soon as we can
-    const auto g {detail::gcd64(a.low, b.low)};
-    return uint128{0, g} << shift;
+        // The result is a itself, whatever its width: dropping to gcd64 here would
+        // discard a.high (gcd(2^64 + 1, 2^64 + 1) used to return 1)
+        if (b == 0U)
+        {
+            return a << shift;
+        }
+
+        // Stop doing 128-bit math as soon as we can
+        if ((a.high | b.high) == UINT64_C(0))
+        {
+            return uint128{0, detail::gcd64(a.low, b.low)} << shift;
+        }
+    }
 }
 
 BOOST_INT128_EXPORT BOOST_INT128_HOST_DEVICE constexpr int128 gcd(const int128 a, const int128 b) noexcept
@@ -11283,9 +11342,12 @@ struct formatter<T>
         const auto end = boost::int128::detail::mini_to_chars(buffer, abs_v, base, is_upper);
         std::string s(end, buffer + sizeof(buffer));
 
+        // The alternate form never adds an octal prefix to a zero: std::format("{:#o}", 0) is "0"
+        const bool add_prefix {prefix && !(base == 8 && abs_v == 0U)};
+
         // Calculate prefix length that will be added later
         std::size_t prefix_len {0};
-        if (prefix)
+        if (add_prefix)
         {
             switch (base)
             {
@@ -11328,7 +11390,7 @@ struct formatter<T>
             }
         }
 
-        if (prefix)
+        if (add_prefix)
         {
             switch (base)
             {
