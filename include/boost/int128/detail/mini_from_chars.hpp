@@ -89,6 +89,12 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
         return EINVAL;
     }
 
+    // A base outside 2..36 has no digit set; base 0 would divide by zero below
+    if (base < 2 || base > 36)
+    {
+        return EINVAL;
+    }
+
     Unsigned_Integer result {};
     Unsigned_Integer overflow_value {};
     Unsigned_Integer max_digit {};
@@ -220,6 +226,13 @@ BOOST_INT128_HOST_DEVICE constexpr int from_chars_integer_impl(const char* first
         return EDOM;
     }
 
+    // Nothing consumed means the first character was not a digit in this base. The
+    // output is left untouched, as std::from_chars specifies, and 0 is returned.
+    if (next == first || (is_negative && next == first + 1))
+    {
+        return 0;
+    }
+
     value = static_cast<Integer>(result);
 
     BOOST_INT128_IF_CONSTEXPR (std::numeric_limits<Integer>::is_signed)
@@ -300,6 +313,8 @@ BOOST_int128EST_EXPORT BOOST_INT128_HOST_DEVICE constexpr int from_chars_literal
 // Parse a user-defined literal, hard-failing on any malformed or out-of-range input.
 // A C++ base prefix (0x/0X hex, 0b/0B binary, or a leading 0 for octal) is stripped and
 // the digits parsed in that base, otherwise handled as base 10
+// A malformed or out-of-range literal is a compile-time error in a constant expression and
+// terminates the program at run time (the reporters throw out of this noexcept function).
 template <typename Integer>
 BOOST_INT128_HOST_DEVICE constexpr Integer parse_literal(const char* first, const char* last) noexcept
 {
